@@ -451,7 +451,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="config.js"></script>
 <script>
 const ICONS = {
@@ -692,15 +691,6 @@ let searchQuery = '';
 let modalResourceId = null;
 let lastDoneShown = 0;
 let statAnimFrame = null;
-
-(function initSmoothScroll(){
-  try{
-    const scroller = document.getElementById('main-panel');
-    const lenis = new Lenis({ wrapper: scroller, content: scroller, lerp: 0.1 });
-    function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
-    requestAnimationFrame(raf);
-  }catch(e){ /* smooth scroll is a nice-to-have, ignore failures */ }
-})();
 
 function updateScrollProgress(){
   const main = document.getElementById('main-panel');
