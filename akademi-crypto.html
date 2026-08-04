@@ -38,33 +38,57 @@
   .display{ font-family:'Space Grotesk',sans-serif; }
   .hidden{ display:none !important; }
 
-  /* ---- Auth screen ---- */
+  /* ---- Auth screen (neo-brutalism) ---- */
   .auth-wrap{
     min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+    position:relative; overflow:hidden;
+    background:
+      repeating-linear-gradient(0deg, rgba(231,236,241,0.05) 0px, rgba(231,236,241,0.05) 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(90deg, rgba(231,236,241,0.05) 0px, rgba(231,236,241,0.05) 1px, transparent 1px, transparent 40px),
+      var(--bg);
   }
+  .auth-wrap::before, .auth-wrap::after{
+    content:''; position:absolute; z-index:0; border:3px solid var(--text-faint);
+  }
+  .auth-wrap::before{ width:130px; height:130px; top:9%; left:8%; background:var(--amber); opacity:0.14; transform:rotate(14deg); }
+  .auth-wrap::after{ width:95px; height:95px; bottom:11%; right:10%; background:var(--cyan); opacity:0.16; transform:rotate(-10deg); }
+  @media (max-width:600px){ .auth-wrap::before, .auth-wrap::after{ display:none; } }
   .auth-card{
-    width:100%; max-width:360px; background:var(--bg-raised); border:1px solid var(--border);
-    border-radius:10px; padding:28px 26px;
+    width:100%; max-width:360px; background:var(--bg-raised);
+    border:3px solid var(--text); border-radius:0; padding:28px 26px;
+    position:relative; z-index:1; box-shadow: 9px 9px 0 var(--green);
   }
-  .auth-card h1{ font-family:'Space Grotesk',sans-serif; font-size:20px; margin-bottom:4px; }
+  .brutal-tag{
+    position:absolute; top:-15px; right:-12px; z-index:2;
+    background:var(--amber); color:#06110D; font-family:'IBM Plex Mono',monospace;
+    font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
+    padding:6px 10px; border:3px solid var(--text); transform:rotate(6deg);
+  }
+  .auth-card h1{
+    font-family:'Space Grotesk',sans-serif; font-size:25px; font-weight:700;
+    text-transform:uppercase; letter-spacing:-0.5px; margin-bottom:4px;
+  }
   .auth-card p.sub{ font-size:12.5px; color:var(--text-dim); margin-bottom:20px; line-height:1.5; }
   .field{ margin-bottom:14px; }
-  .field label{ display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:6px; letter-spacing:0.3px; }
+  .field label{ display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:6px; letter-spacing:0.3px; text-transform:uppercase; }
   .field input{
-    width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px;
-    padding:10px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:13.5px;
+    width:100%; background:var(--bg); border:2px solid var(--border); border-radius:0;
+    padding:10px 12px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:13.5px;
+    transition: box-shadow .1s, border-color .1s;
   }
-  .field input:focus{ outline:none; border-color: var(--green); }
+  .field input:focus{ outline:none; border-color: var(--green); box-shadow: 3px 3px 0 var(--green); }
   .btn-primary{
-    width:100%; background: var(--green); color:#06110D; border:none; border-radius:6px;
-    padding:11px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;
-    margin-top:4px;
+    width:100%; background: var(--green); color:#06110D; border:3px solid var(--text); border-radius:0;
+    padding:11px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px; cursor:pointer;
+    margin-top:4px; text-transform:uppercase; letter-spacing:0.5px;
+    box-shadow: 5px 5px 0 var(--amber); transition: transform .1s, box-shadow .1s;
   }
-  .btn-primary:hover{ filter:brightness(1.08); }
-  .btn-primary:disabled{ opacity:0.6; cursor:not-allowed; }
+  .btn-primary:hover{ transform:translate(-2px,-2px); box-shadow: 7px 7px 0 var(--amber); }
+  .btn-primary:active{ transform:translate(2px,2px); box-shadow: 2px 2px 0 var(--amber); }
+  .btn-primary:disabled{ opacity:0.6; cursor:not-allowed; transform:none; box-shadow: 5px 5px 0 var(--amber); }
   .auth-error{
-    background:rgba(246,70,93,0.1); border:1px solid rgba(246,70,93,0.35); color:var(--red);
-    font-size:12px; padding:9px 12px; border-radius:6px; margin-bottom:14px; line-height:1.5;
+    background:rgba(246,70,93,0.1); border:2px solid var(--red); border-radius:0; color:var(--red);
+    font-size:12px; padding:9px 12px; margin-bottom:14px; line-height:1.5;
   }
 
   /* ---- Loading splash ---- */
@@ -288,6 +312,7 @@
 
 <div id="auth-screen" class="auth-wrap hidden">
   <div class="auth-card">
+    <div class="brutal-tag">Members Only</div>
     <h1>Akademi Crypto</h1>
     <p class="sub">Masuk dengan email &amp; kata sandi yang sudah diberikan oleh admin. Belum punya akses? Hubungi admin komunitas.</p>
     <div id="auth-error" class="auth-error hidden"></div>
