@@ -67,6 +67,19 @@
     font-size:12px; padding:9px 12px; border-radius:6px; margin-bottom:14px; line-height:1.5;
   }
 
+  /* ---- Loading splash ---- */
+  .loading-screen{
+    position:fixed; inset:0; background:var(--bg); z-index:2000;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .loading-spinner{
+    width:30px; height:30px; border-radius:50%;
+    border:3px solid var(--border); border-top-color:var(--green);
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes fadeIn{ from{ opacity:0; transform:translateY(4px); } to{ opacity:1; transform:translateY(0); } }
+
   /* ---- Header ---- */
   header{
     border-bottom:1px solid var(--border);
@@ -86,9 +99,13 @@
   .brand-text h1{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; letter-spacing:0.2px; }
   .brand-text p{ font-size:11.5px; color:var(--text-dim); margin-top:2px; letter-spacing:0.3px; }
   .header-right{ display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
-  .header-stat{ text-align:right; }
+  .header-stat{ display:flex; align-items:center; gap:10px; }
+  .header-stat-text{ text-align:right; }
   .header-stat .num{ font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:600; color:var(--green); }
   .header-stat .lbl{ font-size:10.5px; color:var(--text-dim); letter-spacing:0.6px; text-transform:uppercase; margin-top:2px; }
+  .progress-ring{ transform:rotate(-90deg); flex-shrink:0; }
+  .progress-ring .ring-bg{ fill:none; stroke:var(--border); stroke-width:4; }
+  .progress-ring .ring-fill{ fill:none; stroke:var(--green); stroke-width:4; stroke-linecap:round; transition: stroke-dashoffset .6s ease; }
   .user-chip{ display:flex; align-items:center; gap:10px; }
   .user-chip .name{ font-size:12.5px; color:var(--text-dim); }
   .btn-ghost{
@@ -124,6 +141,12 @@
     width:308px; flex-shrink:0; border-right:1px solid var(--border);
     overflow-y:auto; max-height:calc(100vh - 96px);
   }
+  .sidebar-search{ padding:14px 18px 4px; }
+  .sidebar-search input{
+    width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px;
+    padding:8px 10px; color:var(--text); font-family:'Inter',sans-serif; font-size:12.5px;
+  }
+  .sidebar-search input:focus{ outline:none; border-color:var(--green); }
   .sidebar-label{
     font-size:10.5px; letter-spacing:1px; color:var(--text-faint); text-transform:uppercase;
     padding:16px 18px 8px;
@@ -147,7 +170,8 @@
 
   /* ---- Main ---- */
   main{ flex:1; overflow-y:auto; max-height:calc(100vh - 96px); padding:28px 34px 60px; }
-  .mod-header{ margin-bottom:22px; }
+  .mod-header{ margin-bottom:22px; animation: fadeIn .25s ease; }
+  .search-empty{ color:var(--text-faint); font-size:13px; padding:30px 0; text-align:center; }
   .mod-header .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent, var(--green)); letter-spacing:1px; }
   .mod-header h2{ font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:600; margin-top:6px; }
   .mod-header .sub{ color:var(--text-dim); font-size:13.5px; margin-top:6px; max-width:640px; line-height:1.5; }
@@ -194,13 +218,16 @@
   .badge{
     font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.5px;
     padding:2px 6px; border-radius:4px; text-transform:uppercase; flex-shrink:0;
+    display:inline-flex; align-items:center; gap:4px;
   }
+  .badge svg{ flex-shrink:0; }
   .badge-video{ background:rgba(88,166,255,0.12); color:var(--blue); }
   .badge-playlist{ background:rgba(38,230,166,0.12); color:var(--green); }
   .badge-drive{ background:rgba(240,185,11,0.12); color:var(--amber); }
   .badge-pdf{ background:rgba(176,132,245,0.12); color:var(--purple); }
   .badge-telegram{ background:rgba(57,197,207,0.12); color:var(--cyan); }
   .badge-file{ background:rgba(124,136,150,0.12); color:var(--text-dim); }
+  .badge-modtag{ background:transparent; border:1px solid var(--accent, var(--border)); color:var(--accent, var(--text-dim)); }
   .r-meta{ font-size:11.5px; color:var(--text-faint); margin-top:3px; }
   .r-meta code{ background:var(--bg); border:1px solid var(--border); padding:1px 5px; border-radius:3px; color:var(--text-dim); }
   .r-link-icon{ color:var(--text-faint); flex-shrink:0; margin-top:2px; }
@@ -237,6 +264,14 @@
     padding:4px 10px; cursor:pointer; flex-shrink:0;
   }
   .video-modal-close:hover{ color:var(--text); border-color:#2A3541; }
+  .video-modal-done{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-dim);
+    background:transparent; border:1px solid var(--border); border-radius:6px;
+    padding:4px 10px; cursor:pointer; flex-shrink:0;
+  }
+  .video-modal-done:hover{ color:var(--text); border-color:#2A3541; }
+  .video-modal-done.done{ background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  .video-modal-actions{ display:flex; gap:8px; flex-shrink:0; }
   .video-modal-frame{ position:relative; width:100%; padding-top:56.25%; background:#000; }
   .video-modal-frame iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
 
@@ -249,7 +284,9 @@
 </head>
 <body>
 
-<div id="auth-screen" class="auth-wrap">
+<div id="loading-screen" class="loading-screen"><div class="loading-spinner"></div></div>
+
+<div id="auth-screen" class="auth-wrap hidden">
   <div class="auth-card">
     <h1>Akademi Crypto</h1>
     <p class="sub">Masuk dengan email &amp; kata sandi yang sudah diberikan oleh admin. Belum punya akses? Hubungi admin komunitas.</p>
@@ -279,8 +316,14 @@
     </div>
     <div class="header-right">
       <div class="header-stat">
-        <div class="num mono" id="global-count">0 / 0</div>
-        <div class="lbl">materi selesai</div>
+        <svg class="progress-ring" width="42" height="42" viewBox="0 0 46 46">
+          <circle class="ring-bg" cx="23" cy="23" r="19"></circle>
+          <circle class="ring-fill" id="ring-fill" cx="23" cy="23" r="19"></circle>
+        </svg>
+        <div class="header-stat-text">
+          <div class="num mono" id="global-count">0 / 0</div>
+          <div class="lbl">materi selesai</div>
+        </div>
       </div>
       <div class="user-chip">
         <span class="name mono" id="user-name"></span>
@@ -294,6 +337,9 @@
 
   <div class="layout">
     <nav class="sidebar">
+      <div class="sidebar-search">
+        <input type="text" id="search-input" placeholder="Cari video, playlist...">
+      </div>
       <div class="sidebar-label">Kurikulum</div>
       <div id="mod-list"></div>
     </nav>
@@ -307,7 +353,10 @@
   <div class="video-modal">
     <div class="video-modal-head">
       <div class="title" id="video-modal-title"></div>
-      <button class="video-modal-close" onclick="closeVideoModal()">Tutup ✕</button>
+      <div class="video-modal-actions">
+        <button class="video-modal-done" id="video-modal-done-btn" onclick="toggleModalDone()">Tandai Selesai</button>
+        <button class="video-modal-close" onclick="closeVideoModal()">Tutup ✕</button>
+      </div>
     </div>
     <div class="video-modal-frame" id="video-modal-frame"></div>
   </div>
@@ -319,6 +368,19 @@
 const ICONS = {
   video: 'VIDEO', playlist: 'DAFTAR PUTAR', drive: 'DRIVE', pdf: 'PDF', telegram: 'TELEGRAM', file: 'BERKAS'
 };
+
+const TYPE_ICONS = {
+  video: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>',
+  playlist: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+  drive: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+  pdf: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  telegram: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  file: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><line x1="10" y1="12" x2="14" y2="12"/></svg>'
+};
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
 const MODULES = [
 {
@@ -479,10 +541,17 @@ let progress = {};
 let activeModule = MODULES[0].id;
 let currentUser = null;
 let currentProfile = null;
+let searchQuery = '';
+let modalResourceId = null;
 
 async function init(){
   const { data: { session } } = await sb.auth.getSession();
-  if(session){ await handleSignedIn(session); }
+  document.getElementById('loading-screen').classList.add('hidden');
+  if(session){
+    await handleSignedIn(session);
+  } else {
+    document.getElementById('auth-screen').classList.remove('hidden');
+  }
 
   sb.auth.onAuthStateChange((event, session)=>{
     if(event === 'SIGNED_IN' && session){ handleSignedIn(session); }
@@ -529,6 +598,11 @@ document.getElementById('logout-btn').addEventListener('click', async ()=>{
   await sb.auth.signOut();
 });
 
+document.getElementById('search-input').addEventListener('input', (e)=>{
+  searchQuery = e.target.value.trim().toLowerCase();
+  render();
+});
+
 async function loadProgress(){
   progress = {};
   const { data, error } = await sb.from('progress').select('resource_id, done').eq('user_id', currentUser.id);
@@ -569,7 +643,7 @@ function renderTicker(){
     seg.style.setProperty('--accent', m.accent);
     seg.title = m.name + ' — ' + s.pct + '%';
     seg.innerHTML = '<div class="fill" style="width:'+s.pct+'%"></div>';
-    seg.onclick = ()=>{ activeModule = m.id; render(); };
+    seg.onclick = ()=>{ activeModule = m.id; clearSearch(); render(); };
     strip.appendChild(seg);
   });
 }
@@ -582,7 +656,7 @@ function renderSidebar(){
     const row = document.createElement('div');
     row.className = 'mod-row' + (m.id===activeModule ? ' active':'');
     row.style.setProperty('--accent', m.accent);
-    row.onclick = ()=>{ activeModule = m.id; render(); document.getElementById('main-panel').scrollTop=0; };
+    row.onclick = ()=>{ activeModule = m.id; clearSearch(); render(); document.getElementById('main-panel').scrollTop=0; };
     row.innerHTML = `
       <div class="mod-num mono">${m.num}</div>
       <div class="mod-info">
@@ -602,19 +676,21 @@ function linkIconSvg(){
   return '<svg class="r-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
 }
 
-function resourceRow(r){
+function resourceRow(r, mCtx){
     const isDone = !!progress[r.id];
     const pwLine = r.pw ? `<div class="r-meta">kata sandi: <code>${r.pw}</code></div>` : '';
     const embeddable = (r.ty === 'video' || r.ty === 'playlist');
     const titleHtml = embeddable
       ? `<span class="r-title r-title-play" onclick="openVideoModal('${r.id}')">${r.t}</span>`
       : `<span class="r-title"><a href="${r.u}" target="_blank" rel="noopener">${r.t}</a></span>`;
+    const modTag = mCtx ? `<span class="badge badge-modtag" style="--accent:${mCtx.accent}">${mCtx.ticker}</span>` : '';
     return `
-      <div class="resource ${isDone?'done':''}">
+      <div class="resource ${isDone?'done':''}" style="${mCtx ? '--accent:'+mCtx.accent : ''}">
         <div class="chk ${isDone?'checked':''}" onclick="toggleResource('${r.id}')"></div>
         <div class="r-body">
           <div class="r-top">
-            <span class="badge badge-${r.ty}">${ICONS[r.ty]}</span>
+            <span class="badge badge-${r.ty}">${TYPE_ICONS[r.ty]}<span>${ICONS[r.ty]}</span></span>
+            ${modTag}
             ${titleHtml}
           </div>
           ${pwLine}
@@ -624,7 +700,41 @@ function resourceRow(r){
     `;
   }
 
+function clearSearch(){
+  searchQuery = '';
+  const input = document.getElementById('search-input');
+  if(input) input.value = '';
+}
+
+function renderSearchResults(){
+  const panel = document.getElementById('main-panel');
+  panel.style.removeProperty('--accent');
+
+  const results = [];
+  MODULES.forEach(m=>{
+    m.resources.forEach(r=>{
+      if(r.t.toLowerCase().includes(searchQuery)){ results.push({r, m}); }
+    });
+  });
+
+  const safeQuery = escapeHtml(searchQuery);
+  const bodyHtml = results.length
+    ? results.map(({r,m})=>resourceRow(r, m)).join('')
+    : `<div class="search-empty">Tidak ada hasil untuk "${safeQuery}".</div>`;
+
+  panel.innerHTML = `
+    <div class="mod-header">
+      <div class="eyebrow mono">HASIL PENCARIAN</div>
+      <h2>"${safeQuery}"</h2>
+      <div class="sub">${results.length} hasil ditemukan di seluruh modul.</div>
+    </div>
+    ${bodyHtml}
+  `;
+}
+
 function renderMain(){
+  if(searchQuery){ renderSearchResults(); return; }
+
   const m = MODULES.find(x=>x.id===activeModule);
   const s = modStats(m);
   const panel = document.getElementById('main-panel');
@@ -664,6 +774,11 @@ function renderMain(){
 function renderHeaderStat(){
   const g = globalStats();
   document.getElementById('global-count').textContent = g.done + ' / ' + g.total;
+  const pct = g.total ? g.done / g.total : 0;
+  const circ = 2 * Math.PI * 19;
+  const ring = document.getElementById('ring-fill');
+  ring.style.strokeDasharray = circ;
+  ring.style.strokeDashoffset = circ * (1 - pct);
 }
 
 function render(){
@@ -714,15 +829,31 @@ function openVideoModal(id){
     window.open(r.u, '_blank', 'noopener');
     return;
   }
+  modalResourceId = id;
   document.getElementById('video-modal-title').textContent = r.t;
   document.getElementById('video-modal-frame').innerHTML =
     `<iframe src="${embed}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
   document.getElementById('video-modal-overlay').classList.add('open');
+  updateModalDoneBtn();
 }
 
 function closeVideoModal(){
   document.getElementById('video-modal-overlay').classList.remove('open');
   document.getElementById('video-modal-frame').innerHTML = '';
+  modalResourceId = null;
+}
+
+function updateModalDoneBtn(){
+  const btn = document.getElementById('video-modal-done-btn');
+  const isDone = !!progress[modalResourceId];
+  btn.textContent = isDone ? 'Selesai ✓' : 'Tandai Selesai';
+  btn.classList.toggle('done', isDone);
+}
+
+function toggleModalDone(){
+  if(!modalResourceId) return;
+  toggleResource(modalResourceId);
+  updateModalDoneBtn();
 }
 
 document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeVideoModal(); });
