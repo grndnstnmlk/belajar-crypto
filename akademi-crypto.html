@@ -826,7 +826,7 @@ function renderTicker(){
     seg.style.setProperty('--accent', m.accent);
     seg.title = m.name + ' — ' + s.pct + '%';
     seg.innerHTML = '<div class="fill" style="width:'+s.pct+'%"></div>';
-    seg.onclick = ()=>{ activeModule = m.id; clearSearch(); render(); };
+    seg.onclick = ()=>{ activeModule = m.id; clearSearch(); render(); document.getElementById('main-panel').scrollTop = 0; };
     strip.appendChild(seg);
   });
 }
