@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akademi Crypto — Dasbor Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0E13;
+    --bg-raised: #10161D;
+    --bg-hover: #161D26;
+    --border: #1E2731;
+    --text: #E7ECF1;
+    --text-dim: #7C8896;
+    --text-faint: #4C5A68;
+    --green: #26E6A6;
+    --amber: #F0B90B;
+    --red: #F6465D;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    background: var(--bg); color: var(--text); font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  .mono{ font-family:'IBM Plex Mono',monospace; }
+  .hidden{ display:none !important; }
+
+  .auth-wrap{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .auth-card{
+    width:100%; max-width:360px; background:var(--bg-raised); border:1px solid var(--border);
+    border-radius:10px; padding:28px 26px;
+  }
+  .auth-card h1{ font-family:'Space Grotesk',sans-serif; font-size:20px; margin-bottom:4px; }
+  .auth-card p.sub{ font-size:12.5px; color:var(--text-dim); margin-bottom:20px; line-height:1.5; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:6px; letter-spacing:0.3px; }
+  .field input{
+    width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px;
+    padding:10px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:13.5px;
+  }
+  .field input:focus{ outline:none; border-color: var(--green); }
+  .btn-primary{
+    background: var(--green); color:#06110D; border:none; border-radius:6px;
+    padding:11px 16px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;
+  }
+  .btn-primary:hover{ filter:brightness(1.08); }
+  .btn-primary:disabled{ opacity:0.6; cursor:not-allowed; }
+  .btn-primary.full{ width:100%; margin-top:4px; }
+  .btn-ghost{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-dim);
+    background:transparent; border:1px solid var(--border); border-radius:6px;
+    padding:6px 10px; cursor:pointer;
+  }
+  .btn-ghost:hover{ color:var(--text); border-color:#2A3541; }
+  .btn-danger{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--red);
+    background:rgba(246,70,93,0.1); border:1px solid rgba(246,70,93,0.35); border-radius:6px;
+    padding:5px 9px; cursor:pointer;
+  }
+  .btn-danger:hover{ background:rgba(246,70,93,0.2); }
+  .msg{
+    font-size:12px; padding:9px 12px; border-radius:6px; margin-bottom:14px; line-height:1.5;
+  }
+  .msg-error{ background:rgba(246,70,93,0.1); border:1px solid rgba(246,70,93,0.35); color:var(--red); }
+  .msg-ok{ background:rgba(38,230,166,0.1); border:1px solid rgba(38,230,166,0.35); color:var(--green); }
+
+  header{
+    border-bottom:1px solid var(--border); padding:18px 28px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  }
+  header h1{ font-family:'Space Grotesk',sans-serif; font-size:18px; }
+  header .back{ color:var(--text-dim); font-size:12.5px; text-decoration:none; }
+  header .back:hover{ color:var(--text); }
+  header .right{ display:flex; align-items:center; gap:12px; }
+
+  main{ max-width:920px; margin:0 auto; padding:28px 24px 60px; }
+  .panel{
+    background:var(--bg-raised); border:1px solid var(--border); border-radius:10px;
+    padding:20px; margin-bottom:24px;
+  }
+  .panel h2{ font-family:'Space Grotesk',sans-serif; font-size:15px; margin-bottom:14px; }
+  .create-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; align-items:end; }
+  @media (max-width:700px){ .create-grid{ grid-template-columns:1fr; } }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{
+    text-align:left; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase;
+    color:var(--text-faint); padding:8px 10px; border-bottom:1px solid var(--border);
+  }
+  td{ padding:10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  tr:last-child td{ border-bottom:none; }
+  .pill{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; padding:2px 7px; border-radius:4px;
+    background:rgba(240,185,11,0.12); color:var(--amber);
+  }
+  .row-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .empty{ color:var(--text-faint); font-size:12.5px; padding:14px 0; text-align:center; }
+</style>
+</head>
+<body>
+
+<div id="auth-screen" class="auth-wrap">
+  <div class="auth-card">
+    <h1>Dasbor Admin</h1>
+    <p class="sub">Masuk dengan akun admin Akademi Crypto.</p>
+    <div id="auth-error" class="msg msg-error hidden"></div>
+    <form id="login-form">
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="login-password">Kata Sandi</label>
+        <input type="password" id="login-password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-primary full" id="login-btn">Masuk</button>
+    </form>
+  </div>
+</div>
+
+<div id="denied-screen" class="auth-wrap hidden">
+  <div class="auth-card">
+    <h1>Akses Ditolak</h1>
+    <p class="sub">Akun Anda tidak memiliki hak admin untuk membuka halaman ini.</p>
+    <a href="akademi-crypto.html" class="btn-primary full" style="display:block; text-align:center; text-decoration:none;">Kembali ke Akademi Crypto</a>
+  </div>
+</div>
+
+<div id="admin-screen" class="hidden">
+  <header>
+    <h1>Dasbor Admin — Akademi Crypto</h1>
+    <div class="right">
+      <a href="akademi-crypto.html" class="back">← Kembali ke situs</a>
+      <button class="btn-ghost" id="logout-btn">Keluar</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="panel">
+      <h2>Buat Akses Baru</h2>
+      <div id="create-msg" class="hidden"></div>
+      <form id="create-form">
+        <div class="create-grid">
+          <div class="field">
+            <label for="c-name">Nama Lengkap</label>
+            <input type="text" id="c-name" required>
+          </div>
+          <div class="field">
+            <label for="c-email">Email</label>
+            <input type="email" id="c-email" required>
+          </div>
+          <div class="field">
+            <label for="c-password">Kata Sandi Awal</label>
+            <input type="text" id="c-password" required minlength="8" placeholder="min. 8 karakter">
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="create-btn" style="margin-top:10px;">Buat Akses</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Daftar User</h2>
+      <div id="list-msg" class="hidden"></div>
+      <table>
+        <thead>
+          <tr><th>Nama</th><th>Email</th><th>Peran</th><th>Dibuat</th><th>Aksi</th></tr>
+        </thead>
+        <tbody id="user-rows"></tbody>
+      </table>
+      <div id="user-empty" class="empty hidden">Belum ada user.</div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+
+function show(id){
+  ['auth-screen','denied-screen','admin-screen'].forEach(x=>{
+    document.getElementById(x).classList.toggle('hidden', x!==id);
+  });
+}
+
+function setMsg(el, text, ok){
+  el.textContent = text;
+  el.className = 'msg ' + (ok ? 'msg-ok' : 'msg-error');
+  el.classList.remove('hidden');
+}
+
+async function init(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(session){ await afterLogin(session); } else { show('auth-screen'); }
+
+  sb.auth.onAuthStateChange((event, session)=>{
+    if(event === 'SIGNED_IN' && session){ afterLogin(session); }
+    if(event === 'SIGNED_OUT'){ show('auth-screen'); }
+  });
+}
+
+async function afterLogin(session){
+  currentUser = session.user;
+  const { data: profile } = await sb.from('profiles').select('is_admin').eq('id', currentUser.id).single();
+  if(!profile?.is_admin){ show('denied-screen'); return; }
+  show('admin-screen');
+  loadUsers();
+}
+
+document.getElementById('login-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errBox = document.getElementById('auth-error');
+  const btn = document.getElementById('login-btn');
+  errBox.classList.add('hidden');
+  btn.disabled = true; btn.textContent = 'Memproses...';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false; btn.textContent = 'Masuk';
+  if(error){
+    errBox.textContent = 'Email atau kata sandi salah.';
+    errBox.classList.remove('hidden');
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', async ()=>{
+  await sb.auth.signOut();
+});
+
+async function callAdminFunction(payload){
+  const { data: { session } } = await sb.auth.getSession();
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-actions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+      'apikey': SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify(payload),
+  });
+  const body = await res.json();
+  if(!res.ok) throw new Error(body.error || 'Terjadi kesalahan');
+  return body;
+}
+
+async function loadUsers(){
+  const msgEl = document.getElementById('list-msg');
+  msgEl.classList.add('hidden');
+  try{
+    const { users } = await callAdminFunction({ action:'list' });
+    renderUsers(users);
+  }catch(err){
+    setMsg(msgEl, err.message, false);
+  }
+}
+
+function renderUsers(users){
+  const tbody = document.getElementById('user-rows');
+  const empty = document.getElementById('user-empty');
+  tbody.innerHTML = '';
+  if(!users.length){ empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  users.forEach(u=>{
+    const tr = document.createElement('tr');
+    const created = new Date(u.created_at).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+    tr.innerHTML = `
+      <td>${u.full_name}</td>
+      <td class="mono">${u.email ?? '—'}</td>
+      <td>${u.is_admin ? '<span class="pill">ADMIN</span>' : '—'}</td>
+      <td class="mono">${created}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-ghost" data-action="reset" data-id="${u.id}" data-name="${u.full_name}">Reset Sandi</button>
+          <button class="btn-danger" data-action="delete" data-id="${u.id}" data-name="${u.full_name}">Hapus</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('button[data-action="reset"]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const newPw = prompt(`Kata sandi baru untuk ${btn.dataset.name} (min. 8 karakter):`);
+      if(!newPw) return;
+      const msgEl = document.getElementById('list-msg');
+      try{
+        await callAdminFunction({ action:'reset_password', user_id:btn.dataset.id, password:newPw });
+        setMsg(msgEl, `Kata sandi ${btn.dataset.name} berhasil diubah.`, true);
+      }catch(err){ setMsg(msgEl, err.message, false); }
+    });
+  });
+
+  tbody.querySelectorAll('button[data-action="delete"]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      if(!confirm(`Hapus akses untuk ${btn.dataset.name}? Tindakan ini tidak bisa dibatalkan.`)) return;
+      const msgEl = document.getElementById('list-msg');
+      try{
+        await callAdminFunction({ action:'delete', user_id:btn.dataset.id });
+        setMsg(msgEl, `Akses ${btn.dataset.name} sudah dihapus.`, true);
+        loadUsers();
+      }catch(err){ setMsg(msgEl, err.message, false); }
+    });
+  });
+}
+
+document.getElementById('create-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const msgEl = document.getElementById('create-msg');
+  const btn = document.getElementById('create-btn');
+  const full_name = document.getElementById('c-name').value.trim();
+  const email = document.getElementById('c-email').value.trim();
+  const password = document.getElementById('c-password').value;
+  btn.disabled = true; btn.textContent = 'Memproses...';
+  try{
+    await callAdminFunction({ action:'create', email, password, full_name });
+    setMsg(msgEl, `Akses untuk ${full_name} berhasil dibuat.`, true);
+    document.getElementById('create-form').reset();
+    loadUsers();
+  }catch(err){
+    setMsg(msgEl, err.message, false);
+  }finally{
+    btn.disabled = false; btn.textContent = 'Buat Akses';
+  }
+});
+
+init();
+</script>
+</body>
+</html>

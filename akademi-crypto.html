@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akademi Crypto — Learning Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0E13;
+    --bg-raised: #10161D;
+    --bg-hover: #161D26;
+    --border: #1E2731;
+    --text: #E7ECF1;
+    --text-dim: #7C8896;
+    --text-faint: #4C5A68;
+    --green: #26E6A6;
+    --green-dim: #0E3A2C;
+    --amber: #F0B90B;
+    --amber-dim: #3A2E08;
+    --red: #F6465D;
+    --blue: #58A6FF;
+    --purple: #B084F5;
+    --cyan: #39C5CF;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  ::selection{ background: var(--green-dim); color: var(--green); }
+  .mono{ font-family:'IBM Plex Mono',monospace; }
+  .display{ font-family:'Space Grotesk',sans-serif; }
+  .hidden{ display:none !important; }
+
+  /* ---- Auth screen ---- */
+  .auth-wrap{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .auth-card{
+    width:100%; max-width:360px; background:var(--bg-raised); border:1px solid var(--border);
+    border-radius:10px; padding:28px 26px;
+  }
+  .auth-card h1{ font-family:'Space Grotesk',sans-serif; font-size:20px; margin-bottom:4px; }
+  .auth-card p.sub{ font-size:12.5px; color:var(--text-dim); margin-bottom:20px; line-height:1.5; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:6px; letter-spacing:0.3px; }
+  .field input{
+    width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px;
+    padding:10px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:13.5px;
+  }
+  .field input:focus{ outline:none; border-color: var(--green); }
+  .btn-primary{
+    width:100%; background: var(--green); color:#06110D; border:none; border-radius:6px;
+    padding:11px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;
+    margin-top:4px;
+  }
+  .btn-primary:hover{ filter:brightness(1.08); }
+  .btn-primary:disabled{ opacity:0.6; cursor:not-allowed; }
+  .auth-error{
+    background:rgba(246,70,93,0.1); border:1px solid rgba(246,70,93,0.35); color:var(--red);
+    font-size:12px; padding:9px 12px; border-radius:6px; margin-bottom:14px; line-height:1.5;
+  }
+
+  /* ---- Header ---- */
+  header{
+    border-bottom:1px solid var(--border);
+    padding:20px 28px 16px;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    flex-wrap:wrap; gap:14px;
+    background: linear-gradient(180deg, rgba(38,230,166,0.03), transparent);
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{
+    width:34px; height:34px; border-radius:8px;
+    background: linear-gradient(135deg, var(--green), var(--cyan));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; color:#06110D; font-size:16px;
+    flex-shrink:0;
+  }
+  .brand-text h1{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; letter-spacing:0.2px; }
+  .brand-text p{ font-size:11.5px; color:var(--text-dim); margin-top:2px; letter-spacing:0.3px; }
+  .header-right{ display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+  .header-stat{ text-align:right; }
+  .header-stat .num{ font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:600; color:var(--green); }
+  .header-stat .lbl{ font-size:10.5px; color:var(--text-dim); letter-spacing:0.6px; text-transform:uppercase; margin-top:2px; }
+  .user-chip{ display:flex; align-items:center; gap:10px; }
+  .user-chip .name{ font-size:12.5px; color:var(--text-dim); }
+  .btn-ghost{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-dim);
+    background:transparent; border:1px solid var(--border); border-radius:6px;
+    padding:6px 10px; cursor:pointer;
+  }
+  .btn-ghost:hover{ color:var(--text); border-color:#2A3541; }
+  .admin-link{ color: var(--amber); text-decoration:none; font-size:11.5px; }
+  .admin-link:hover{ text-decoration:underline; }
+
+  /* ---- Ticker strip ---- */
+  .ticker-strip{
+    display:flex; border-bottom:1px solid var(--border);
+    overflow-x:auto; scrollbar-width:none;
+  }
+  .ticker-strip::-webkit-scrollbar{ display:none; }
+  .ticker-seg{
+    flex:1; min-width:64px; height:5px; background:var(--bg-raised);
+    position:relative; border-right:1px solid var(--bg);
+    cursor:pointer;
+  }
+  .ticker-seg .fill{
+    position:absolute; left:0; top:0; bottom:0;
+    background: var(--accent, var(--green)); width:0%;
+    transition: width .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .ticker-seg.active{ box-shadow: inset 0 0 0 1px var(--amber); }
+
+  /* ---- Layout ---- */
+  .layout{ display:flex; min-height:calc(100vh - 96px); }
+  nav.sidebar{
+    width:308px; flex-shrink:0; border-right:1px solid var(--border);
+    overflow-y:auto; max-height:calc(100vh - 96px);
+  }
+  .sidebar-label{
+    font-size:10.5px; letter-spacing:1px; color:var(--text-faint); text-transform:uppercase;
+    padding:16px 18px 8px;
+  }
+  .mod-row{
+    display:flex; align-items:center; gap:10px;
+    padding:11px 18px; cursor:pointer; border-left:2px solid transparent;
+    border-bottom:1px solid var(--border);
+    transition: background .15s;
+  }
+  .mod-row:hover{ background: var(--bg-hover); }
+  .mod-row.active{ background: var(--bg-raised); border-left:2px solid var(--accent, var(--green)); }
+  .mod-num{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); width:20px; flex-shrink:0; }
+  .mod-info{ flex:1; min-width:0; }
+  .mod-ticker{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent, var(--text-dim)); letter-spacing:0.5px; font-weight:600; }
+  .mod-name{ font-size:13px; font-weight:500; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mod-bar-wrap{ width:54px; flex-shrink:0; text-align:right; }
+  .mod-pct{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent, var(--green)); }
+  .mod-bar{ height:3px; background:var(--border); border-radius:2px; margin-top:4px; overflow:hidden; }
+  .mod-bar .fill{ height:100%; background:var(--accent, var(--green)); width:0%; transition:width .4s; }
+
+  /* ---- Main ---- */
+  main{ flex:1; overflow-y:auto; max-height:calc(100vh - 96px); padding:28px 34px 60px; }
+  .mod-header{ margin-bottom:22px; }
+  .mod-header .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent, var(--green)); letter-spacing:1px; }
+  .mod-header h2{ font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:600; margin-top:6px; }
+  .mod-header .sub{ color:var(--text-dim); font-size:13.5px; margin-top:6px; max-width:640px; line-height:1.5; }
+  .mod-progress-line{ display:flex; align-items:center; gap:10px; margin-top:14px; }
+  .mod-progress-line .track{ flex:1; max-width:280px; height:6px; background:var(--bg-raised); border-radius:3px; overflow:hidden; border:1px solid var(--border); }
+  .mod-progress-line .track .fill{ height:100%; background: linear-gradient(90deg, var(--accent, var(--green)), var(--cyan)); width:0%; transition:width .5s; }
+  .mod-progress-line .txt{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-dim); }
+
+  .note-box{
+    background: var(--bg-raised); border:1px solid var(--border); border-left:2px solid var(--amber);
+    border-radius:6px; padding:14px 16px; margin-bottom:20px; font-size:13px; line-height:1.6; color:var(--text-dim);
+    white-space:pre-line;
+  }
+  .note-box b{ color:var(--text); }
+
+  .group-label{ font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--text-faint); margin:22px 0 8px; }
+  .group-label:first-child{ margin-top:0; }
+
+  .resource{
+    display:flex; align-items:flex-start; gap:12px;
+    padding:12px 14px; border:1px solid var(--border); border-radius:8px;
+    margin-bottom:8px; background:var(--bg-raised);
+    transition: border-color .15s, background .15s;
+  }
+  .resource:hover{ border-color: var(--accent, #2A3541); }
+  .resource.done{ opacity:0.55; }
+  .resource.done .r-title{ text-decoration: line-through; text-decoration-color:var(--text-faint); }
+
+  .chk{
+    width:19px; height:19px; border-radius:5px; border:1.5px solid var(--text-faint);
+    flex-shrink:0; margin-top:1px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition: all .15s; background:transparent;
+  }
+  .chk.checked{ background: var(--green); border-color: var(--green); }
+  .chk.checked::after{ content:"✓"; font-size:12px; color:#06110D; font-weight:700; }
+
+  .r-body{ flex:1; min-width:0; }
+  .r-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .r-title{ font-size:13.5px; font-weight:500; }
+  .r-title a{ color:var(--text); text-decoration:none; }
+  .r-title a:hover{ color: var(--accent, var(--green)); }
+  .r-title-play{ cursor:pointer; }
+  .r-title-play:hover{ color: var(--accent, var(--green)); }
+  .badge{
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.5px;
+    padding:2px 6px; border-radius:4px; text-transform:uppercase; flex-shrink:0;
+  }
+  .badge-video{ background:rgba(88,166,255,0.12); color:var(--blue); }
+  .badge-playlist{ background:rgba(38,230,166,0.12); color:var(--green); }
+  .badge-drive{ background:rgba(240,185,11,0.12); color:var(--amber); }
+  .badge-pdf{ background:rgba(176,132,245,0.12); color:var(--purple); }
+  .badge-telegram{ background:rgba(57,197,207,0.12); color:var(--cyan); }
+  .badge-file{ background:rgba(124,136,150,0.12); color:var(--text-dim); }
+  .r-meta{ font-size:11.5px; color:var(--text-faint); margin-top:3px; }
+  .r-meta code{ background:var(--bg); border:1px solid var(--border); padding:1px 5px; border-radius:3px; color:var(--text-dim); }
+  .r-link-icon{ color:var(--text-faint); flex-shrink:0; margin-top:2px; }
+  .r-link-icon:hover{ color:var(--green); }
+
+  .toggle-btn{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--amber);
+    background:var(--amber-dim); border:1px solid rgba(240,185,11,0.3); border-radius:6px;
+    padding:8px 12px; cursor:pointer; margin:18px 0 4px; display:inline-block;
+  }
+  .toggle-btn:hover{ background: rgba(240,185,11,0.18); }
+
+  footer.hint{ text-align:center; padding:20px; font-size:11px; color:var(--text-faint); }
+
+  /* ---- Video Modal ---- */
+  .video-modal-overlay{
+    position:fixed; inset:0; background:rgba(4,6,9,0.86);
+    display:none; align-items:center; justify-content:center;
+    z-index:1000; padding:24px;
+  }
+  .video-modal-overlay.open{ display:flex; }
+  .video-modal{
+    width:100%; max-width:920px; background:var(--bg-raised);
+    border:1px solid var(--border); border-radius:10px; overflow:hidden;
+  }
+  .video-modal-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 16px; border-bottom:1px solid var(--border);
+  }
+  .video-modal-head .title{ font-size:13.5px; font-weight:500; }
+  .video-modal-close{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-dim);
+    background:transparent; border:1px solid var(--border); border-radius:6px;
+    padding:4px 10px; cursor:pointer; flex-shrink:0;
+  }
+  .video-modal-close:hover{ color:var(--text); border-color:#2A3541; }
+  .video-modal-frame{ position:relative; width:100%; padding-top:56.25%; background:#000; }
+  .video-modal-frame iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+  @media (max-width: 780px){
+    .layout{ flex-direction:column; }
+    nav.sidebar{ width:100%; max-height:260px; border-right:none; border-bottom:1px solid var(--border); }
+    main{ max-height:none; padding:22px 18px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="auth-screen" class="auth-wrap">
+  <div class="auth-card">
+    <h1>Akademi Crypto</h1>
+    <p class="sub">Masuk dengan email &amp; kata sandi yang sudah diberikan oleh admin. Belum punya akses? Hubungi admin komunitas.</p>
+    <div id="auth-error" class="auth-error hidden"></div>
+    <form id="login-form">
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="login-password">Kata Sandi</label>
+        <input type="password" id="login-password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-primary" id="login-btn">Masuk</button>
+    </form>
+  </div>
+</div>
+
+<div id="app-screen" class="hidden">
+  <header>
+    <div class="brand">
+      <div class="brand-mark">AC</div>
+      <div class="brand-text">
+        <h1>Akademi Crypto</h1>
+        <p>10 modul · jalur belajar dari atas ke bawah</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-stat">
+        <div class="num mono" id="global-count">0 / 0</div>
+        <div class="lbl">materi selesai</div>
+      </div>
+      <div class="user-chip">
+        <span class="name mono" id="user-name"></span>
+        <a href="admin.html" class="admin-link mono hidden" id="admin-link">Dasbor Admin</a>
+        <button class="btn-ghost" id="logout-btn">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="ticker-strip" id="ticker-strip"></div>
+
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sidebar-label">Kurikulum</div>
+      <div id="mod-list"></div>
+    </nav>
+    <main id="main-panel"></main>
+  </div>
+
+  <footer class="hint">Progres tersimpan otomatis dan tetap ada setiap kali Anda kembali.</footer>
+</div>
+
+<div class="video-modal-overlay" id="video-modal-overlay" onclick="if(event.target===this) closeVideoModal()">
+  <div class="video-modal">
+    <div class="video-modal-head">
+      <div class="title" id="video-modal-title"></div>
+      <button class="video-modal-close" onclick="closeVideoModal()">Tutup ✕</button>
+    </div>
+    <div class="video-modal-frame" id="video-modal-frame"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const ICONS = {
+  video: 'VIDEO', playlist: 'DAFTAR PUTAR', drive: 'DRIVE', pdf: 'PDF', telegram: 'TELEGRAM', file: 'BERKAS'
+};
+
+const MODULES = [
+{
+  id:'m1', num:'01', ticker:'CRES', name:'Crypto Research', accent:'#39C5CF',
+  sub:'Seri fondasi sembilan bagian tentang cara benar-benar meriset aset crypto sebelum membelinya.',
+  resources:[
+    {t:'Crypto Research part 1', u:'https://www.youtube.com/watch?v=f2Q5kje9u2o&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=1', ty:'video'},
+    {t:'Crypto Research part 2', u:'https://www.youtube.com/watch?v=JlBQJInInz0&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=2', ty:'video'},
+    {t:'Crypto Research part 3', u:'https://www.youtube.com/watch?v=UHKFaXkgLxM&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=3', ty:'video'},
+    {t:'Crypto Research part 4', u:'https://www.youtube.com/watch?v=AtvqT5KrcPY&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=4', ty:'video'},
+    {t:'Crypto Research part 5', u:'https://www.youtube.com/watch?v=HoJkwVizkTA&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=5', ty:'video'},
+    {t:'Crypto Research part 6', u:'https://www.youtube.com/watch?v=VPF_6ETGL6c&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=6', ty:'video'},
+    {t:'Crypto Research part 7', u:'https://www.youtube.com/watch?v=4CW7S6l34aE&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=7', ty:'video'},
+    {t:'Crypto Research part 8', u:'https://www.youtube.com/watch?v=v2cTo8JrSkw&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=8', ty:'video'},
+    {t:'Crypto Research part 9', u:'https://www.youtube.com/watch?v=A5JszTVNLOI&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=9', ty:'video'}
+  ]
+},
+{
+  id:'m2', num:'02', ticker:'CINV', name:'Crypto Investing Module', accent:'#26E6A6',
+  sub:'Enam playlist yang membahas dasar-dasar investasi, strategi, prinsip, tools, panduan, dan alpha — plus dua sumber daya portofolio.',
+  resources:[
+    {t:'Crypto Investing "17 Episode" — Timothy Ronald', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkR5FlKi_LUpeByO_XYUg2HG', ty:'playlist'},
+    {t:'Crypto Investing Strategy "7 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkS4_pIcxNHO-xTHYJroSVmq', ty:'playlist'},
+    {t:'Crypto Investing Principles "7 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkRYwMEgIbFQgRvUAxT29H2C', ty:'playlist'},
+    {t:'Crypto Investing Tools "5 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQqOhQqJzgNOfABfqDDkSnu', ty:'playlist'},
+    {t:'Crypto Investing Guide "8 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQSQv_b0lmx-MpAehS_i943', ty:'playlist'},
+    {t:'Crypto Investing Alpha "7 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ0AmpJ6ZQAONsFC9P4ICPo', ty:'playlist'},
+    {t:'Crypto Portofolio Management (Drive)', u:'https://drive.google.com/drive/folders/1bm0CAA17swuamSzM_gn-clEGnpDyKmk-', ty:'drive'},
+    {t:'Crypto Entry Mastery (Drive)', u:'https://drive.google.com/drive/folders/1MnhnpJ5W4TYV98zSranF8Hb5JDv-HTad', ty:'drive'}
+  ]
+},
+{
+  id:'m3', num:'03', ticker:'EBK100', name:'100 Ebook Keuangan dan Investasi', accent:'#B084F5',
+  sub:'Satu folder drive berisi 100 ebook keuangan dan investasi.',
+  resources:[
+    {t:'Klik disini untuk Akses (Drive)', u:'https://drive.google.com/drive/folders/1hcVU_iOEG_-v5SwHAJulLTPYXdpRE3pt', ty:'drive'}
+  ]
+},
+{
+  id:'m4', num:'04', ticker:'WEBM', name:'Webinar + Masterclass', accent:'#58A6FF',
+  sub:'Webinar, kelas live, dan masterclass khusus member premium. Materi hanya untuk penggunaan pribadi — mohon tidak disebarluaskan di luar komunitas.',
+  resources:[
+    {t:'Crypto Market Outlook 2025 (17 Dec 2024)', u:'https://youtu.be/CSEGkBTAFvI', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
+    {t:'US Election Market Outlook (3 Nov 2024)', u:'https://www.youtube.com/watch?v=lR9sISGi-Mk', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
+    {t:'Preparing For Octobull (1 Oct 2024)', u:'https://youtu.be/oaK71Ar3fjE', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
+    {t:'The Art of Crypto Trading', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSc7jlBxPbLCQz15nC7TF3A', ty:'playlist', grp:'Webinar, Liveclass, Kuliah'},
+    {t:'Crypto Trading Psychology', u:'https://youtu.be/Sz9BJzwP_98', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
+    {t:'Mastering Altcoins', u:'https://youtu.be/9Yfdc8ALR5A', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
+    {t:'Masterclass Session', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTVvMpPp9tPRfjvXIofUL_X', ty:'playlist', grp:'Webinar, Liveclass, Kuliah'},
+    {t:'All Webinar/Liveclass Recording', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQOw8z8vneRSlc-mBRW73aq', ty:'playlist', grp:'Recordings'},
+    {t:'Kuliah Crypto', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkS4tAzW6rIx5yW8Pi4NZua-', ty:'playlist', grp:'Recordings'},
+    {t:'Bonus: Sales Mastery', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkR_axjnn8ocScFYtTLDQp08', ty:'playlist', grp:'Recordings'},
+    {t:'Margin Call — 6 July 2024', u:'https://youtu.be/ZDnIJunBB-A', ty:'video', grp:'Margin Call (Private)'},
+    {t:'2030 The Great Reset', u:'https://www.youtube.com/watch?v=Zpp4ja9DOFo&list=PL1hlgGm52pkQOw8z8vneRSlc-mBRW73aq&index=17', ty:'video', grp:'Bonus Materials'},
+    {t:'ID Sign in 2025 Crypto Regulation', u:'https://www.youtube.com/watch?v=WzXHL9cfSko&list=PL1hlgGm52pkQOw8z8vneRSlc-mBRW73aq&index=18', ty:'video', grp:'Bonus Materials'},
+    {t:'Webinar AI Supercycle 2025 (Drive)', u:'https://drive.google.com/file/d/1tj-R2vyNAWKtt0QeaDLoOgPOVL8XS_5W/view?usp=sharing', ty:'drive', grp:'Bonus Materials'},
+    {t:'The Great Reset.zip', u:'https://cdn.discordapp.com/attachments/1346715745127632916/1346715899633340417/The_Great_Reset.zip', ty:'file', grp:'Bonus Materials'}
+  ]
+},
+{
+  id:'m5', num:'05', ticker:'TCM', name:'The Crypto Millionare', accent:'#F0B90B',
+  sub:'',
+  note:'1. Gabung ke grup Telegram\n2. Cukup simak saja — itu saja',
+  resources:[
+    {t:'Klik disini untuk akses (Telegram)', u:'https://t.me/+5iTzMIS7hlFjZmQ1', ty:'telegram'}
+  ]
+},
+{
+  id:'m6', num:'06', ticker:'EBKAC', name:'E-Book AC (5 Seri)', accent:'#F472B6',
+  sub:'Fokus investasi: panduan trading, prinsip investasi, smart money, altcoin, psikologi. Fokus trading: panduan trading, smart money, psikologi.',
+  resources:[
+    {t:'Crypto Investing Principles', u:'https://cloudpdf.io/view/hoOCSaGZ6', ty:'pdf', pw:'EA43DsMnlifymnp'},
+    {t:'Crypto Smart Money', u:'https://cloudpdf.io/view/AQz5710eV', ty:'pdf', pw:'LpyDO2D2DG1k0BH'},
+    {t:'Crypto Trading Guide', u:'https://cloudpdf.io/view/CdYdK_wkq', ty:'pdf', pw:'JQrI0Ib0EDsnxZS'},
+    {t:'Crypto Trading Psychology', u:'https://cloudpdf.io/view/QDnn4Qwpn', ty:'pdf', pw:'1ENXLTACAIeEF8Y'},
+    {t:'Mastering Altcoins', u:'https://cloudpdf.io/view/2xpujxiTo', ty:'pdf', pw:'V3l0c!tyTw3lv3Pr!nc3'}
+  ]
+},
+{
+  id:'m7', num:'07', ticker:'BLKT', name:'Blockchain Technologi (20 Module)', accent:'#818CF8',
+  sub:'Jalur teknis mendalam — smart contract, konsensus, keamanan, model UTXO vs akun, rollup, dan lainnya.',
+  resources:[
+    {t:'01. Smart Contract Development', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQoSi4_cEe8sWlBdGM5BOJx', ty:'playlist'},
+    {t:'02. Blockchain Interoperability', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSvkLu0dbp4IeId43vvNahl', ty:'playlist'},
+    {t:'03. Smart Contract Security', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ9BATsPJRWyNRu5acx_8hl', ty:'playlist'},
+    {t:'04. Cryptocurrency Security', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkT5CyMokqqvnfbz7cCANEIf', ty:'playlist'},
+    {t:'05. Crypto Self Custody', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTgLp87pWVbSdF-qh1pNrZc', ty:'playlist'},
+    {t:'06. Cryptocurrency Fundamentals', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSX4m6Ai7I6-G-ZVwJ34Jbk', ty:'playlist'},
+    {t:'07. Monero Anonymity', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQIJ4LzQgSxQEpR6xNMPUt5', ty:'playlist'},
+    {t:'08. Ethereum Programmable Money', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkT56nVEJiQz7tRyoC6kE5Oq', ty:'playlist'},
+    {t:'09. Bitcoin Transaction in Depth', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTfrsBywgQoFOgTsxXVX5uX', ty:'playlist'},
+    {t:'10. Crypto Research', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0', ty:'playlist'},
+    {t:'11. Key, Wallets, & How They Work', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkRI2Np0SHo8E4Pr2EuOBCHR', ty:'playlist'},
+    {t:'12. Digital Money And Double Spending', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTyoODXGPPClW-b_jQkKE9X', ty:'playlist'},
+    {t:'13. Consensus Proof Of And Security Premises', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQbhfROXcOUNWKSg0Xtviik', ty:'playlist'},
+    {t:'14. Blockchain Trilemma', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQn_UfP0iKtPn7noK1wX3RT', ty:'playlist'},
+    {t:'15. Bitcoin Anonymity', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkRMN8cT3ayvHW5QSktpcZY4', ty:'playlist'},
+    {t:'16. What is a Smart Contract', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQX_hJaqiidqKyQ89GbbuCb', ty:'playlist'},
+    {t:'17. Type of Accounts', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ2Wn9wTM-2KDfnIisgNfIo', ty:'playlist'},
+    {t:'18. UTXO Model vs Account Model', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkS-sRyPe6KWPYsuzzdRI-wf', ty:'playlist'},
+    {t:'19. Security Issues', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQe6TAVs9JSZA8MUablgI53', ty:'playlist'},
+    {t:'20. Layer 2 Rollups', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkT5XG1DvuE7gF4wO3rDEqWl', ty:'playlist'},
+    {t:'Blockchain and AI (Drive)', u:'https://drive.google.com/drive/folders/1aEK8eJDlMh3IuH4ryhQ8MYqXpMvyB67A', ty:'drive'}
+  ]
+},
+{
+  id:'m8', num:'08', ticker:'DEXT', name:'Dex Trading Tutorial', accent:'#A3E635',
+  sub:'Tutorial lima bagian tentang trading langsung di decentralized exchange. Oleh Kalimasada.',
+  resources:[
+    {t:'Dex Trading Tutorial part 1', u:'https://www.youtube.com/watch?v=EMXg_rAb3pI&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=1', ty:'video'},
+    {t:'Dex Trading Tutorial part 2', u:'https://www.youtube.com/watch?v=ZwTLjPwRXN4&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=2', ty:'video'},
+    {t:'Dex Trading Tutorial part 3', u:'https://www.youtube.com/watch?v=2VqHdPbfUOM&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=3', ty:'video'},
+    {t:'Dex Trading Tutorial part 4', u:'https://www.youtube.com/watch?v=UmRIX3yl4Oo&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=4', ty:'video'},
+    {t:'Dex Trading Tutorial part 5', u:'https://www.youtube.com/watch?v=TuNm1CsFAY4&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=5', ty:'video'}
+  ]
+},
+{
+  id:'m9', num:'09', ticker:'CTRD', name:'Crypto Trading 13 Module', accent:'#FB923C',
+  sub:'Kurikulum trading lengkap oleh Kalimasada — pola, indikator, Fibonacci, smart money, order flow, harmonik, psikologi, Wyckoff, dan lainnya.',
+  note:'RISIKO PER TRADE — maksimal 1% dari portofolio per trade. Trading adalah permainan probabilitas; konsistensi dalam manajemen risiko yang paling penting.\n\nRISK/REWARD — minimum 1:2 di setiap trade.\n\nMAKS POSISI — 3 posisi terbuka sekaligus, untuk menghindari overtrading dan panik.\n\nDURASI HOLD — scalp: hitungan jam sampai 1 hari, keluar di TP1. Swing: beberapa hari sampai lebih dari seminggu, sabar menunggu TP atau SL.\n\nALOKASI PORTOFOLIO — 70% spot / 30% futures. Risiko futures per trade: 1–2% dari portofolio futures. Spot: 5–10% dari portofolio spot per aset.\n\nSTRATEGI EXIT — ambil untung 25% di TP1, pindahkan stop loss ke break-even. Untuk scalper: ambil 100% di TP1.',
+  resources:[
+    {t:'01. Crypto Trading — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSW_Ln6qn8YlhFO1YpNxlgA', ty:'playlist'},
+    {t:'02. Kamus Pattern Crypto — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ3zJrpA2l_POSXmq4dZrTv', ty:'playlist'},
+    {t:'03. Crypto Technical Indicators — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTkQfZFKlN7LTuErnCDxGSk', ty:'playlist'},
+    {t:'04. Crypto Fibonacci Secret — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkR0YG-DjruO4JCXRqX49smy', ty:'playlist'},
+    {t:'05. Crypto Smart Money — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSjFvK-EsAxVEqIM0E7cEwx', ty:'playlist'},
+    {t:'06. Crypto Order Flow — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSLvSG3eOhFZSbg5NCJjHy4', ty:'playlist'},
+    {t:'07. Crypto Harmonic Trading — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTA7R16GuLHJCclg8YDE-F5', ty:'playlist'},
+    {t:'08. Narrative Research — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkRyIifhLD_aSoI8i667P-lt', ty:'playlist'},
+    {t:'09. Crypto Money Psychology — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTq1Y05AAKuJHjay2Ox5-G5', ty:'playlist'},
+    {t:'10. Strategi Trading untuk 100 Juta Pertama', u:'https://www.youtube.com/watch?v=oYYfuxkXc8E&list=PL1hlgGm52pkSs8IIOw_RbcvStT95THLmv&index=4', ty:'video'},
+    {t:'11. Crypto Wyckoff Trading — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQJOkiNWJu8NtD40fUegcZe', ty:'playlist'},
+    {t:'12. Token Unlock Trading Strategy — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSLNB0rb543lwOgfpr33o-l', ty:'playlist'},
+    {t:'13. Cara Screening Altcoin dari 0 — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQXePTmW6W_diad21w51z3Y', ty:'playlist'}
+  ]
+},
+{
+  id:'m10', num:'10', ticker:'SCUS', name:'Crypto Self Custody', accent:'#2DD4BF',
+  sub:'Seri tujuh bagian tentang cara menyimpan kunci Anda sendiri dengan aman.',
+  resources:[
+    {t:'Crypto Self Custody part 1', u:'https://www.youtube.com/watch?v=vOf98L-E8BQ&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=1', ty:'video'},
+    {t:'Crypto Self Custody part 2', u:'https://www.youtube.com/watch?v=nwU9a11qXbc&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=2', ty:'video'},
+    {t:'Crypto Self Custody part 3', u:'https://www.youtube.com/watch?v=TiBjmsipEzM&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=3', ty:'video'},
+    {t:'Crypto Self Custody part 4', u:'https://www.youtube.com/watch?v=2HYwFjJ9lJo&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=4', ty:'video'},
+    {t:'Crypto Self Custody part 5', u:'https://www.youtube.com/watch?v=XJHkyMbftNI&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=5', ty:'video'},
+    {t:'Crypto Self Custody part 6', u:'https://www.youtube.com/watch?v=EWDOq7vKFt0&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=6', ty:'video'},
+    {t:'Crypto Self Custody part 7', u:'https://www.youtube.com/watch?v=sF52P4DvK9k&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=7', ty:'video'}
+  ]
+}
+];
+
+// assign stable ids
+MODULES.forEach(m=>{ m.resources.forEach((r,i)=>{ r.id = m.id+'-r'+i; }); });
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let progress = {};
+let activeModule = MODULES[0].id;
+let currentUser = null;
+let currentProfile = null;
+
+async function init(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(session){ await handleSignedIn(session); }
+
+  sb.auth.onAuthStateChange((event, session)=>{
+    if(event === 'SIGNED_IN' && session){ handleSignedIn(session); }
+    if(event === 'SIGNED_OUT'){ showAuthScreen(); }
+  });
+}
+
+async function handleSignedIn(session){
+  currentUser = session.user;
+  const { data: profile } = await sb.from('profiles').select('full_name, is_admin').eq('id', currentUser.id).single();
+  currentProfile = profile || { full_name: currentUser.email, is_admin:false };
+  document.getElementById('user-name').textContent = currentProfile.full_name;
+  document.getElementById('admin-link').classList.toggle('hidden', !currentProfile.is_admin);
+  await loadProgress();
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app-screen').classList.remove('hidden');
+}
+
+function showAuthScreen(){
+  document.getElementById('app-screen').classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+  currentUser = null;
+  currentProfile = null;
+  progress = {};
+}
+
+document.getElementById('login-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errBox = document.getElementById('auth-error');
+  const btn = document.getElementById('login-btn');
+  errBox.classList.add('hidden');
+  btn.disabled = true; btn.textContent = 'Memproses...';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false; btn.textContent = 'Masuk';
+  if(error){
+    errBox.textContent = 'Email atau kata sandi salah.';
+    errBox.classList.remove('hidden');
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', async ()=>{
+  await sb.auth.signOut();
+});
+
+async function loadProgress(){
+  progress = {};
+  const { data, error } = await sb.from('progress').select('resource_id, done').eq('user_id', currentUser.id);
+  if(!error && data){ data.forEach(row=>{ progress[row.resource_id] = row.done; }); }
+  render();
+}
+
+async function toggleResource(id){
+  const next = !progress[id];
+  progress[id] = next;
+  render();
+  if(next){
+    await sb.from('progress').upsert({ user_id: currentUser.id, resource_id:id, done:true, updated_at: new Date().toISOString() });
+  } else {
+    await sb.from('progress').delete().eq('user_id', currentUser.id).eq('resource_id', id);
+  }
+}
+
+function modStats(m){
+  const total = m.resources.length;
+  const done = m.resources.filter(r=>progress[r.id]).length;
+  return {total, done, pct: total? Math.round(done/total*100):0};
+}
+
+function globalStats(){
+  let total=0, done=0;
+  MODULES.forEach(m=>{ total+=m.resources.length; done+=m.resources.filter(r=>progress[r.id]).length; });
+  return {total, done};
+}
+
+function renderTicker(){
+  const strip = document.getElementById('ticker-strip');
+  strip.innerHTML = '';
+  MODULES.forEach(m=>{
+    const s = modStats(m);
+    const seg = document.createElement('div');
+    seg.className = 'ticker-seg' + (m.id===activeModule ? ' active':'');
+    seg.style.setProperty('--accent', m.accent);
+    seg.title = m.name + ' — ' + s.pct + '%';
+    seg.innerHTML = '<div class="fill" style="width:'+s.pct+'%"></div>';
+    seg.onclick = ()=>{ activeModule = m.id; render(); };
+    strip.appendChild(seg);
+  });
+}
+
+function renderSidebar(){
+  const list = document.getElementById('mod-list');
+  list.innerHTML = '';
+  MODULES.forEach(m=>{
+    const s = modStats(m);
+    const row = document.createElement('div');
+    row.className = 'mod-row' + (m.id===activeModule ? ' active':'');
+    row.style.setProperty('--accent', m.accent);
+    row.onclick = ()=>{ activeModule = m.id; render(); document.getElementById('main-panel').scrollTop=0; };
+    row.innerHTML = `
+      <div class="mod-num mono">${m.num}</div>
+      <div class="mod-info">
+        <div class="mod-ticker">${m.ticker}</div>
+        <div class="mod-name">${m.name}</div>
+      </div>
+      <div class="mod-bar-wrap">
+        <div class="mod-pct mono">${s.pct}%</div>
+        <div class="mod-bar"><div class="fill" style="width:${s.pct}%"></div></div>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function linkIconSvg(){
+  return '<svg class="r-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+}
+
+function resourceRow(r){
+    const isDone = !!progress[r.id];
+    const pwLine = r.pw ? `<div class="r-meta">kata sandi: <code>${r.pw}</code></div>` : '';
+    const embeddable = (r.ty === 'video' || r.ty === 'playlist');
+    const titleHtml = embeddable
+      ? `<span class="r-title r-title-play" onclick="openVideoModal('${r.id}')">${r.t}</span>`
+      : `<span class="r-title"><a href="${r.u}" target="_blank" rel="noopener">${r.t}</a></span>`;
+    return `
+      <div class="resource ${isDone?'done':''}">
+        <div class="chk ${isDone?'checked':''}" onclick="toggleResource('${r.id}')"></div>
+        <div class="r-body">
+          <div class="r-top">
+            <span class="badge badge-${r.ty}">${ICONS[r.ty]}</span>
+            ${titleHtml}
+          </div>
+          ${pwLine}
+        </div>
+        <a href="${r.u}" target="_blank" rel="noopener" class="r-link-icon">${linkIconSvg()}</a>
+      </div>
+    `;
+  }
+
+function renderMain(){
+  const m = MODULES.find(x=>x.id===activeModule);
+  const s = modStats(m);
+  const panel = document.getElementById('main-panel');
+  panel.style.setProperty('--accent', m.accent);
+
+  let groups = {};
+  let ungrouped = [];
+  m.resources.forEach(r=>{
+    if(r.grp){ (groups[r.grp] = groups[r.grp]||[]).push(r); }
+    else{ ungrouped.push(r); }
+  });
+
+  let bodyHtml = '';
+  if(m.note){
+    bodyHtml += `<div class="note-box">${m.note.replace(/\n/g,'<br>')}</div>`;
+  }
+  ungrouped.forEach(r=>{ bodyHtml += resourceRow(r); });
+  Object.keys(groups).forEach(g=>{
+    bodyHtml += `<div class="group-label">${g}</div>`;
+    groups[g].forEach(r=>{ bodyHtml += resourceRow(r); });
+  });
+
+  panel.innerHTML = `
+    <div class="mod-header">
+      <div class="eyebrow mono">MODUL ${m.num} · ${m.ticker}</div>
+      <h2>${m.name}</h2>
+      ${m.sub ? `<div class="sub">${m.sub}</div>` : ''}
+      <div class="mod-progress-line">
+        <div class="track"><div class="fill" style="width:${s.pct}%"></div></div>
+        <div class="txt">${s.done} / ${s.total} · ${s.pct}%</div>
+      </div>
+    </div>
+    ${bodyHtml}
+  `;
+}
+
+function renderHeaderStat(){
+  const g = globalStats();
+  document.getElementById('global-count').textContent = g.done + ' / ' + g.total;
+}
+
+function render(){
+  renderHeaderStat();
+  renderTicker();
+  renderSidebar();
+  renderMain();
+}
+
+function findResource(id){
+  for(const m of MODULES){
+    const r = m.resources.find(x=>x.id===id);
+    if(r) return r;
+  }
+  return null;
+}
+
+function youtubeEmbedUrl(r){
+  try{
+    const url = new URL(r.u);
+    if(r.ty === 'playlist'){
+      const list = url.searchParams.get('list');
+      return list ? `https://www.youtube.com/embed/videoseries?list=${list}` : null;
+    }
+    let videoId = null;
+    if(url.hostname.includes('youtu.be')){
+      videoId = url.pathname.slice(1);
+    } else {
+      videoId = url.searchParams.get('v');
+    }
+    if(!videoId) return null;
+    const list = url.searchParams.get('list');
+    const index = url.searchParams.get('index');
+    let embed = `https://www.youtube.com/embed/${videoId}`;
+    const params = [];
+    if(list) params.push('list='+list);
+    if(index) params.push('index='+index);
+    if(params.length) embed += '?' + params.join('&');
+    return embed;
+  }catch(e){ return null; }
+}
+
+function openVideoModal(id){
+  const r = findResource(id);
+  if(!r) return;
+  const embed = youtubeEmbedUrl(r);
+  if(!embed){
+    window.open(r.u, '_blank', 'noopener');
+    return;
+  }
+  document.getElementById('video-modal-title').textContent = r.t;
+  document.getElementById('video-modal-frame').innerHTML =
+    `<iframe src="${embed}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+  document.getElementById('video-modal-overlay').classList.add('open');
+}
+
+function closeVideoModal(){
+  document.getElementById('video-modal-overlay').classList.remove('open');
+  document.getElementById('video-modal-frame').innerHTML = '';
+}
+
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeVideoModal(); });
+
+init();
+</script>
+</body>
+</html>
