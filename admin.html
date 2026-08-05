@@ -123,7 +123,8 @@
   .create-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; align-items:end; }
   @media (max-width:700px){ .create-grid{ grid-template-columns:1fr; } }
 
-  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .table-scroll{ overflow-x:auto; }
+  table{ width:100%; min-width:560px; border-collapse:collapse; font-size:13px; }
   th{
     text-align:left; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase;
     color:var(--text-faint); padding:8px 10px; border-bottom:2px solid var(--border);
@@ -203,12 +204,14 @@
     <div class="panel">
       <h2>Daftar User</h2>
       <div id="list-msg" class="hidden"></div>
-      <table>
-        <thead>
-          <tr><th>Nama</th><th>Email</th><th>Peran</th><th>Dibuat</th><th>Aksi</th></tr>
-        </thead>
-        <tbody id="user-rows"></tbody>
-      </table>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Nama</th><th>Email</th><th>Peran</th><th>Dibuat</th><th>Aksi</th></tr>
+          </thead>
+          <tbody id="user-rows"></tbody>
+        </table>
+      </div>
       <div id="user-empty" class="empty hidden">Belum ada user.</div>
     </div>
   </main>
