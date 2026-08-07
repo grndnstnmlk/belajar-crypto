@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     if (body.action === "list") {
       const { data: profiles, error } = await admin
         .from("profiles")
-        .select("id, full_name, is_admin, created_at")
+        .select("id, full_name, is_admin, created_at, expires_at")
         .order("created_at", { ascending: false });
       if (error) return json({ error: error.message }, 400);
 
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     }
 
     if (body.action === "create") {
-      const { email, password, full_name } = body;
+      const { email, password, full_name, expires_at } = body;
       if (!email || !password || !full_name) {
         return json({ error: "email, password, dan full_name wajib diisi" }, 400);
       }
@@ -78,10 +78,21 @@ Deno.serve(async (req) => {
         email,
         password,
         email_confirm: true,
-        user_metadata: { full_name },
+        user_metadata: { full_name, expires_at: expires_at || null },
       });
       if (error) return json({ error: error.message }, 400);
       return json({ ok: true, user_id: data.user?.id });
+    }
+
+    if (body.action === "set_expiry") {
+      const { user_id, expires_at } = body;
+      if (!user_id) return json({ error: "user_id wajib diisi" }, 400);
+      const { error } = await admin
+        .from("profiles")
+        .update({ expires_at: expires_at || null })
+        .eq("id", user_id);
+      if (error) return json({ error: error.message }, 400);
+      return json({ ok: true });
     }
 
     if (body.action === "reset_password") {

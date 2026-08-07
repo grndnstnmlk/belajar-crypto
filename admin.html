@@ -61,12 +61,12 @@
   .auth-card p.sub{ font-size:12.5px; color:var(--text-dim); margin-bottom:20px; line-height:1.5; }
   .field{ margin-bottom:14px; }
   .field label{ display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:6px; letter-spacing:0.3px; text-transform:uppercase; }
-  .field input{
+  .field input, .field select{
     width:100%; background:var(--bg); border:2px solid var(--border); border-radius:0;
     padding:10px 12px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:13.5px;
     transition: box-shadow .1s, border-color .1s;
   }
-  .field input:focus{ outline:none; border-color: var(--green); box-shadow: 3px 3px 0 var(--green); }
+  .field input:focus, .field select:focus{ outline:none; border-color: var(--green); box-shadow: 3px 3px 0 var(--green); }
   .btn-primary{
     background: var(--green); color:#06110D; border:3px solid var(--text); border-radius:0;
     padding:11px 16px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px; cursor:pointer;
@@ -120,7 +120,7 @@
     display:flex; align-items:center; gap:10px;
   }
   .panel h2::before{ content:''; width:20px; height:2px; background:var(--green); flex-shrink:0; }
-  .create-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; align-items:end; }
+  .create-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:end; }
   @media (max-width:700px){ .create-grid{ grid-template-columns:1fr; } }
 
   .table-scroll{ overflow-x:auto; }
@@ -133,8 +133,13 @@
   tr:last-child td{ border-bottom:none; }
   .pill{
     font-family:'IBM Plex Mono',monospace; font-size:10px; padding:2px 7px; border-radius:0;
-    background:rgba(240,185,11,0.12); color:var(--amber); border:1.5px solid var(--amber);
+    border:1.5px solid currentColor; display:inline-block;
   }
+  .pill-admin{ background:rgba(240,185,11,0.12); color:var(--amber); }
+  .pill-active{ background:rgba(38,230,166,0.12); color:var(--green); }
+  .pill-expired{ background:rgba(246,70,93,0.12); color:var(--red); }
+  .pill-life{ background:rgba(124,136,150,0.12); color:var(--text-dim); }
+  .exp-date{ font-size:11px; color:var(--text-faint); margin-top:3px; }
   .row-actions{ display:flex; gap:8px; flex-wrap:wrap; }
   .empty{ color:var(--text-faint); font-size:12.5px; padding:14px 0; text-align:center; }
 </style>
@@ -196,6 +201,16 @@
             <label for="c-password">Kata Sandi Awal</label>
             <input type="text" id="c-password" required minlength="8" placeholder="min. 8 karakter">
           </div>
+          <div class="field">
+            <label for="c-duration">Masa Aktif</label>
+            <select id="c-duration">
+              <option value="30">1 Bulan</option>
+              <option value="90">3 Bulan</option>
+              <option value="180">6 Bulan</option>
+              <option value="365">1 Tahun</option>
+              <option value="">Selamanya</option>
+            </select>
+          </div>
         </div>
         <button type="submit" class="btn-primary" id="create-btn" style="margin-top:10px;">Buat Akses</button>
       </form>
@@ -207,7 +222,7 @@
       <div class="table-scroll">
         <table>
           <thead>
-            <tr><th>Nama</th><th>Email</th><th>Peran</th><th>Dibuat</th><th>Aksi</th></tr>
+            <tr><th>Nama</th><th>Email</th><th>Peran</th><th>Masa Aktif</th><th>Dibuat</th><th>Aksi</th></tr>
           </thead>
           <tbody id="user-rows"></tbody>
         </table>
@@ -222,6 +237,7 @@
 <script>
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
+let usersCache = [];
 
 function show(id){
   ['auth-screen','denied-screen','admin-screen'].forEach(x=>{
@@ -294,6 +310,7 @@ async function loadUsers(){
   msgEl.classList.add('hidden');
   try{
     const { users } = await callAdminFunction({ action:'list' });
+    usersCache = users;
     renderUsers(users);
   }catch(err){
     setMsg(msgEl, err.message, false);
@@ -313,16 +330,40 @@ function renderUsers(users){
     tr.innerHTML = `
       <td>${u.full_name}</td>
       <td class="mono">${u.email ?? '—'}</td>
-      <td>${u.is_admin ? '<span class="pill">ADMIN</span>' : '—'}</td>
+      <td>${u.is_admin ? '<span class="pill pill-admin">ADMIN</span>' : '—'}</td>
+      <td>${expiryCell(u.expires_at)}</td>
       <td class="mono">${created}</td>
       <td>
         <div class="row-actions">
+          <button class="btn-ghost" data-action="extend" data-id="${u.id}" data-name="${u.full_name}">Perpanjang</button>
           <button class="btn-ghost" data-action="reset" data-id="${u.id}" data-name="${u.full_name}">Reset Sandi</button>
           <button class="btn-danger" data-action="delete" data-id="${u.id}" data-name="${u.full_name}">Hapus</button>
         </div>
       </td>
     `;
     tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('button[data-action="extend"]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const days = prompt(`Tambah berapa hari masa aktif untuk ${btn.dataset.name}?\n(contoh: 30 = 1 bulan, 90 = 3 bulan, 365 = 1 tahun)\nIsi "0" untuk jadikan akses selamanya.`);
+      if(days === null || days.trim() === '') return;
+      const n = Number(days);
+      if(!Number.isFinite(n) || n < 0){ alert('Isi angka hari yang valid.'); return; }
+      const msgEl = document.getElementById('list-msg');
+      try{
+        let expires_at = null;
+        if(n > 0){
+          const row = usersCache.find(x=>x.id===btn.dataset.id);
+          const base = (row?.expires_at && new Date(row.expires_at) > new Date()) ? new Date(row.expires_at) : new Date();
+          base.setDate(base.getDate() + n);
+          expires_at = base.toISOString();
+        }
+        await callAdminFunction({ action:'set_expiry', user_id:btn.dataset.id, expires_at });
+        setMsg(msgEl, `Masa aktif ${btn.dataset.name} berhasil diperbarui.`, true);
+        loadUsers();
+      }catch(err){ setMsg(msgEl, err.message, false); }
+    });
   });
 
   tbody.querySelectorAll('button[data-action="reset"]').forEach(btn=>{
@@ -350,6 +391,16 @@ function renderUsers(users){
   });
 }
 
+function expiryCell(expires_at){
+  if(!expires_at) return '<span class="pill pill-life">SELAMANYA</span>';
+  const d = new Date(expires_at);
+  const label = d.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+  const expired = d < new Date();
+  return expired
+    ? `<span class="pill pill-expired">KADALUARSA</span><div class="exp-date">${label}</div>`
+    : `<span class="pill pill-active">AKTIF</span><div class="exp-date">s/d ${label}</div>`;
+}
+
 document.getElementById('create-form').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const msgEl = document.getElementById('create-msg');
@@ -357,9 +408,11 @@ document.getElementById('create-form').addEventListener('submit', async (e)=>{
   const full_name = document.getElementById('c-name').value.trim();
   const email = document.getElementById('c-email').value.trim();
   const password = document.getElementById('c-password').value;
+  const durationDays = document.getElementById('c-duration').value;
+  const expires_at = durationDays ? new Date(Date.now() + Number(durationDays) * 86400000).toISOString() : null;
   btn.disabled = true; btn.textContent = 'Memproses...';
   try{
-    await callAdminFunction({ action:'create', email, password, full_name });
+    await callAdminFunction({ action:'create', email, password, full_name, expires_at });
     setMsg(msgEl, `Akses untuk ${full_name} berhasil dibuat.`, true);
     document.getElementById('create-form').reset();
     loadUsers();

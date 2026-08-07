@@ -142,6 +142,7 @@
   .progress-ring .ring-fill{ fill:none; stroke:var(--green); stroke-width:4; stroke-linecap:round; transition: stroke-dashoffset .6s ease; }
   .user-chip{ display:flex; align-items:center; gap:10px; }
   .user-chip .name{ font-size:12.5px; color:var(--text-dim); }
+  .user-chip .expiry{ font-size:10.5px; color:var(--text-faint); }
   .btn-ghost{
     font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-dim);
     background:transparent; border:2px solid var(--border); border-radius:0;
@@ -412,6 +413,7 @@
       </div>
       <div class="user-chip">
         <span class="name mono" id="user-name"></span>
+        <span class="expiry mono hidden" id="user-expiry"></span>
         <a href="admin.html" class="admin-link mono hidden" id="admin-link">Dasbor Admin</a>
         <button class="btn-ghost" id="logout-btn">Keluar</button>
       </div>
@@ -732,9 +734,28 @@ async function init(){
 
 async function handleSignedIn(session){
   currentUser = session.user;
-  const { data: profile } = await sb.from('profiles').select('full_name, is_admin').eq('id', currentUser.id).single();
-  currentProfile = profile || { full_name: currentUser.email, is_admin:false };
+  const { data: profile } = await sb.from('profiles').select('full_name, is_admin, expires_at').eq('id', currentUser.id).single();
+  currentProfile = profile || { full_name: currentUser.email, is_admin:false, expires_at:null };
+
+  if(currentProfile.expires_at && new Date(currentProfile.expires_at) < new Date()){
+    await sb.auth.signOut();
+    const errBox = document.getElementById('auth-error');
+    errBox.textContent = 'Akses Anda sudah berakhir. Hubungi admin untuk perpanjangan.';
+    errBox.classList.remove('hidden');
+    document.getElementById('app-screen').classList.add('hidden');
+    document.getElementById('auth-screen').classList.remove('hidden');
+    return;
+  }
+
   document.getElementById('user-name').textContent = currentProfile.full_name;
+  const expiryEl = document.getElementById('user-expiry');
+  if(currentProfile.expires_at){
+    const label = new Date(currentProfile.expires_at).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+    expiryEl.textContent = 'aktif s/d ' + label;
+    expiryEl.classList.remove('hidden');
+  } else {
+    expiryEl.classList.add('hidden');
+  }
   document.getElementById('admin-link').classList.toggle('hidden', !currentProfile.is_admin);
   await loadProgress();
   document.getElementById('auth-screen').classList.add('hidden');
