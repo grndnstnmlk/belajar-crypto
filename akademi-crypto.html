@@ -170,6 +170,67 @@
   }
   .ticker-seg.active{ box-shadow: inset 0 0 0 1px var(--amber); }
 
+  
+  .btn-summary{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:600;
+    background:rgba(240,185,11,0.12); color:var(--amber);
+    border:1.5px solid var(--amber); border-radius:0;
+    padding:2px 7px; cursor:pointer; display:inline-flex; align-items:center; gap:4px;
+    transition:all .1s; margin-left:auto;
+  }
+  .btn-summary:hover{ background:var(--amber); color:#06110D; box-shadow:2px 2px 0 var(--text); }
+  .btn-summary.active{ background:var(--amber); color:#06110D; }
+
+  .r-summary-drawer{
+    margin-top:10px; padding:12px 14px;
+    background:var(--bg); border:1.5px solid var(--border);
+    border-left:3px solid var(--amber); animation:fadeIn .2s ease;
+  }
+  .r-summary-text{ font-size:12.5px; color:var(--text); line-height:1.5; margin-bottom:8px; font-weight:500; }
+  .r-summary-points{ list-style:none; padding:0; margin:0 0 10px; display:flex; flex-direction:column; gap:6px; }
+  .r-summary-points li{ font-size:12px; color:var(--text-dim); line-height:1.45; position:relative; padding-left:14px; }
+  .r-summary-points li::before{ content:'▸'; position:absolute; left:0; color:var(--accent, var(--green)); font-weight:bold; }
+  .r-summary-takeaway{
+    display:flex; align-items:flex-start; gap:8px; padding:8px 10px;
+    background:rgba(38,230,166,0.08); border:1px solid rgba(38,230,166,0.3);
+    font-size:11.5px; color:var(--text); border-radius:0; line-height:1.45;
+  }
+  .r-summary-takeaway strong{ color:var(--green); font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; flex-shrink:0; letter-spacing:0.5px; }
+
+  .mod-actions-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .btn-toggle-all-summaries{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent, var(--green));
+    background:transparent; border:1.5px solid var(--accent, var(--green));
+    padding:4px 10px; cursor:pointer; transition:all .1s; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn-toggle-all-summaries:hover{ background:var(--accent, var(--green)); color:#06110D; box-shadow:2px 2px 0 var(--text); }
+
+  .video-modal-tabs{ display:flex; gap:6px; }
+  .video-modal-tab{
+    font-family:'IBM Plex Mono',monospace; font-size:11px;
+    background:transparent; border:1.5px solid var(--border);
+    color:var(--text-dim); padding:4px 10px; cursor:pointer; transition:all .1s;
+  }
+  .video-modal-tab:hover{ color:var(--text); border-color:var(--text); }
+  .video-modal-tab.active{ background:var(--accent, var(--green)); color:#06110D; border-color:var(--text); font-weight:700; }
+
+  .video-modal-summary-panel{
+    padding:18px 20px; background:var(--bg-raised); overflow-y:auto; max-height:min(70vh, 620px);
+  }
+  .v-sum-head{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+  .v-sum-badge{ font-family:'IBM Plex Mono',monospace; font-size:10px; background:var(--amber); color:#06110D; font-weight:700; padding:2px 6px; }
+  .v-sum-title{ font-size:15px; font-weight:600; color:var(--text); }
+  .v-sum-desc{ font-size:13px; color:var(--text); line-height:1.6; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+  .v-sum-section-title{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+  .v-sum-points{ list-style:none; padding:0; margin:0 0 16px; display:flex; flex-direction:column; gap:8px; }
+  .v-sum-points li{ font-size:12.5px; color:var(--text-dim); line-height:1.5; position:relative; padding-left:18px; }
+  .v-sum-points li::before{ content:'▸'; position:absolute; left:0; color:var(--accent, var(--green)); font-weight:bold; font-size:14px; }
+  .v-sum-takeaway{
+    padding:12px 14px; background:rgba(38,230,166,0.1); border:2px solid var(--green);
+    font-size:12.5px; line-height:1.5; color:var(--text); box-shadow:4px 4px 0 rgba(38,230,166,0.15);
+  }
+  .v-sum-takeaway strong{ color:var(--green); font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; display:block; margin-bottom:4px; }
+
   /* ---- Layout ---- */
   .layout{ display:flex; min-height:calc(100vh - 96px); }
   nav.sidebar{
@@ -397,7 +458,7 @@
       <div class="brand-mark">AC</div>
       <div class="brand-text">
         <h1><span class="brand-dot"></span>Akademi Crypto</h1>
-        <p>10 modul · jalur belajar dari atas ke bawah</p>
+        <p>8 modul · jalur belajar cepat & terarah</p>
       </div>
     </div>
     <div class="header-right">
@@ -441,12 +502,17 @@
     <div class="video-modal-head">
       <div class="title" id="video-modal-title"></div>
       <div class="video-modal-actions">
+        <div class="video-modal-tabs">
+          <button class="video-modal-tab active" id="modal-tab-video" onclick="setModalTab('video')">🎬 Video</button>
+          <button class="video-modal-tab" id="modal-tab-summary" onclick="setModalTab('summary')">⚡ Ringkasan</button>
+        </div>
         <button class="video-modal-done" id="video-modal-done-btn" onclick="toggleModalDone()">Tandai Selesai</button>
         <button class="video-modal-close" onclick="closeVideoModal()">Tutup ✕</button>
       </div>
     </div>
     <div class="video-modal-body">
       <div class="video-modal-frame" id="video-modal-frame"></div>
+      <div class="video-modal-summary-panel hidden" id="video-modal-summary-panel"></div>
       <div class="video-modal-playlist hidden" id="video-modal-playlist"></div>
     </div>
   </div>
@@ -473,209 +539,1968 @@ function escapeHtml(s){
 }
 
 const MODULES = [
-{
-  id:'m1', num:'01', ticker:'CRES', name:'Crypto Research & Fundamentals', accent:'#39C5CF',
-  sub:'Riset fondasi dan pembaruan terkini — cara meriset aset crypto, coin yang sedang naik daun, sampai riset fundamental & teknikal terbaru.',
-  resources:[
-    {t:'Crypto Research part 1', u:'https://www.youtube.com/watch?v=f2Q5kje9u2o&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=1', ty:'video'},
-    {t:'Crypto Research part 2', u:'https://www.youtube.com/watch?v=JlBQJInInz0&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=2', ty:'video'},
-    {t:'Crypto Research part 3', u:'https://www.youtube.com/watch?v=UHKFaXkgLxM&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=3', ty:'video'},
-    {t:'Crypto Research part 4', u:'https://www.youtube.com/watch?v=AtvqT5KrcPY&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=4', ty:'video'},
-    {t:'Crypto Research part 5', u:'https://www.youtube.com/watch?v=HoJkwVizkTA&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=5', ty:'video'},
-    {t:'Crypto Research part 6', u:'https://www.youtube.com/watch?v=VPF_6ETGL6c&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=6', ty:'video'},
-    {t:'Crypto Research part 7', u:'https://www.youtube.com/watch?v=4CW7S6l34aE&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=7', ty:'video'},
-    {t:'Crypto Research part 8', u:'https://www.youtube.com/watch?v=v2cTo8JrSkw&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=8', ty:'video'},
-    {t:'Crypto Research part 9', u:'https://www.youtube.com/watch?v=A5JszTVNLOI&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=9', ty:'video'},
-    {t:'Emerging Cryptocurrencies', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnuyr5ARKhXacxZVJWxoLLlT', ty:'playlist'},
-    {t:'Fundamental Research Terbaru - Kalimasada', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntJSWyfndYVjOJf0Eul4rQA', ty:'playlist'},
-    {t:'Technical Research Terbaru', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnuZQhHVFE71nNWNcBEXAxC-', ty:'playlist'}
-  ]
-},
-{
-  id:'m2', num:'02', ticker:'CINV', name:'Crypto Investing', accent:'#26E6A6',
-  sub:'Semua hal investasi crypto — playlist inti, real world asset, token, manajemen portofolio & risiko, sampai jenis-jenis aset (stablecoin, NFT, DAO, liquid staking, dan lainnya).',
-  resources:[
-    {t:'Crypto Investing "17 Episode" — Timothy Ronald', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkR5FlKi_LUpeByO_XYUg2HG', ty:'playlist'},
-    {t:'Crypto Investing Strategy "7 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkS4_pIcxNHO-xTHYJroSVmq', ty:'playlist'},
-    {t:'Crypto Investing Principles "7 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkRYwMEgIbFQgRvUAxT29H2C', ty:'playlist'},
-    {t:'Crypto Investing Tools "5 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQqOhQqJzgNOfABfqDDkSnu', ty:'playlist'},
-    {t:'Crypto Investing Guide "8 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQSQv_b0lmx-MpAehS_i943', ty:'playlist'},
-    {t:'Crypto Investing Alpha "7 Episode" — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ0AmpJ6ZQAONsFC9P4ICPo', ty:'playlist'},
-    {t:'Crypto Portofolio Management', u:'https://www.youtube.com/playlist?list=PLC6s39uM1p4A', ty:'playlist'},
-    {t:'Crypto Entry Mastery', u:'https://www.youtube.com/playlist?list=PLIsMrJBdYn4c', ty:'playlist'},
-    {t:'Real World Asset', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsIP1Ei-FjPmrqBgRdS_Uzo', ty:'playlist'},
-    {t:'Enterprise & Real-World Adoption', u:'https://www.youtube.com/watch?v=vRfMtz4JjTQ&list=PLYabrfyDAEnsK96ABz9WwoRH-r91EcAyV', ty:'playlist'},
-    {t:'Tokens', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntChVp_npaBNSBGXV5tQaAQ', ty:'playlist'},
-    {t:'Automated Portfolio Management', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEns1M7jG7to_z04MN6qZydf3', ty:'playlist'},
-    {t:'Portfolio & Risk Management', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnuZLPX0Q-B_OEPxJAs2BYln', ty:'playlist'},
-    {t:'Crypto Risk Management', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsTSiyvfigE34tLG3IWeRho', ty:'playlist'},
-    {t:'Zcash', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsm1nwj8Z6LaJkU-MxA_aG1', ty:'playlist'},
-    {t:'NFTs & Tokenization Beyond ERC721', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsU9d-qtadDnGmM8_-8NREl', ty:'playlist'},
-    {t:'Stablecoins', u:'https://www.youtube.com/watch?v=IwrmWRQojI0&list=PLYabrfyDAEnspe2jLtfuucZiqBb9HxpjR', ty:'playlist'},
-    {t:'Decentralised Autonomous Organisation - DAO', u:'https://www.youtube.com/watch?v=MVlswEjdr-s&list=PLYabrfyDAEnsm5y5pqIto-t80nW4nTAh0', ty:'playlist'},
-    {t:'Liquid Staking & Liquid Restaking Token', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsA8jTKbY-_iaZGel2rx7Qg', ty:'playlist'},
-    {t:'Fan Token', u:'https://www.youtube.com/watch?v=2o0IQ4-LQfM&list=PLYabrfyDAEnu3Gzj_C0GpPtAlK3BpbbR_', ty:'playlist'},
-    {t:'Ethereum Name Service - ENS', u:'https://www.youtube.com/watch?v=Du6A2kN6jfM&list=PLYabrfyDAEnvSkIONiJIIcgg-Qyz55mJy', ty:'playlist'},
-    {t:'Central Bank Digital Currency', u:'https://www.youtube.com/watch?v=kzNJN0_G-ec&list=PLYabrfyDAEnuhy4AxootwYGGbvz1mEhc-', ty:'playlist'},
-    {t:'Decentralized Physical Infrastructure Network - DePIN', u:'https://www.youtube.com/watch?v=mB0L9Af6Q0g&list=PLYabrfyDAEnsJ6Wx-UBfybqgrJrCEeAKP', ty:'playlist'}
-  ]
-},
-{
-  id:'m3', num:'03', ticker:'CTRD', name:'Crypto Trading & Strategy', accent:'#FB923C',
-  sub:'Kurikulum trading lengkap — dari dex trading, pola & indikator, sampai strategi lanjutan (momentum, mean reversal, grid/DCA, technical & top-down analysis).',
-  resources:[
-    {t:'Dex Trading Tutorial part 1', u:'https://www.youtube.com/watch?v=EMXg_rAb3pI&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=1', ty:'video'},
-    {t:'Dex Trading Tutorial part 2', u:'https://www.youtube.com/watch?v=ZwTLjPwRXN4&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=2', ty:'video'},
-    {t:'Dex Trading Tutorial part 3', u:'https://www.youtube.com/watch?v=2VqHdPbfUOM&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=3', ty:'video'},
-    {t:'Dex Trading Tutorial part 4', u:'https://www.youtube.com/watch?v=UmRIX3yl4Oo&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=4', ty:'video'},
-    {t:'Dex Trading Tutorial part 5', u:'https://www.youtube.com/watch?v=TuNm1CsFAY4&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=5', ty:'video'},
-    {t:'01. Crypto Trading — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSW_Ln6qn8YlhFO1YpNxlgA', ty:'playlist'},
-    {t:'02. Kamus Pattern Crypto — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ3zJrpA2l_POSXmq4dZrTv', ty:'playlist'},
-    {t:'03. Crypto Technical Indicators — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTkQfZFKlN7LTuErnCDxGSk', ty:'playlist'},
-    {t:'04. Crypto Fibonacci Secret — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkR0YG-DjruO4JCXRqX49smy', ty:'playlist'},
-    {t:'05. Crypto Smart Money — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSjFvK-EsAxVEqIM0E7cEwx', ty:'playlist'},
-    {t:'06. Crypto Order Flow — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSLvSG3eOhFZSbg5NCJjHy4', ty:'playlist'},
-    {t:'07. Crypto Harmonic Trading — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTA7R16GuLHJCclg8YDE-F5', ty:'playlist'},
-    {t:'08. Narrative Research — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkRyIifhLD_aSoI8i667P-lt', ty:'playlist'},
-    {t:'09. Crypto Money Psychology — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTq1Y05AAKuJHjay2Ox5-G5', ty:'playlist'},
-    {t:'10. Strategi Trading untuk 100 Juta Pertama', u:'https://www.youtube.com/watch?v=oYYfuxkXc8E&list=PL1hlgGm52pkSs8IIOw_RbcvStT95THLmv&index=4', ty:'video'},
-    {t:'11. Crypto Wyckoff Trading — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQJOkiNWJu8NtD40fUegcZe', ty:'playlist'},
-    {t:'12. Token Unlock Trading Strategy — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSLNB0rb543lwOgfpr33o-l', ty:'playlist'},
-    {t:'13. Cara Screening Altcoin dari 0 — Kalimasada', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQXePTmW6W_diad21w51z3Y', ty:'playlist'},
-    {t:'Live Trading', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnuyPJ5bSeGwQ-nU-WqsiyKC', ty:'playlist'},
-    {t:'Crypto Spot Trading', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvWJ21PNVU-K1MpcQfH49lv', ty:'playlist'},
-    {t:'Momentum & Trend Following Trading', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsGxeQI9mMLsAUgEQXlfxSz', ty:'playlist'},
-    {t:'Mean Reversal Trading', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEns8Z99wyLQ4NXRKjp_-C9fu', ty:'playlist'},
-    {t:'Crypto Quantitative Trading Strategy', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntDAL3oGz5ZUPmJmD0NCFrG', ty:'playlist'},
-    {t:'Grid Trading And DCA', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEns7ml2aRBiuwmPdjmXbGHqg', ty:'playlist'},
-    {t:'Technical Analysis 101', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvTZrDNAZW37zI9RR-K6pSL', ty:'playlist'},
-    {t:'Top Down Analysis', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnu5MweIN0tBQRocg6pctE7k', ty:'playlist'},
-    {t:'Crypto Exit Strategy', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntJAA13gDwIkc2PhnJBrwI5', ty:'playlist'},
-    {t:'Screening Cryptocurrency', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnveEPIJnI0859c-LDhMmwGs', ty:'playlist'},
-    {t:'Staking', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnslGi3MPJ86Yb4YpHxTc4E9', ty:'playlist'}
-  ]
-},
-{
-  id:'m4', num:'04', ticker:'BLKT', name:'Blockchain Technology & Security', accent:'#818CF8',
-  sub:'Jalur teknis blockchain — smart contract, konsensus, keamanan, self custody, DeFi, cross-chain, oracle, sampai cara kenali penipuan.',
-  resources:[
-    {t:'01. Smart Contract Development', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQoSi4_cEe8sWlBdGM5BOJx', ty:'playlist'},
-    {t:'02. Blockchain Interoperability', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSvkLu0dbp4IeId43vvNahl', ty:'playlist'},
-    {t:'03. Smart Contract Security', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ9BATsPJRWyNRu5acx_8hl', ty:'playlist'},
-    {t:'04. Cryptocurrency Security', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkT5CyMokqqvnfbz7cCANEIf', ty:'playlist'},
-    {t:'05. Crypto Self Custody', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTgLp87pWVbSdF-qh1pNrZc', ty:'playlist'},
-    {t:'06. Cryptocurrency Fundamentals', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSX4m6Ai7I6-G-ZVwJ34Jbk', ty:'playlist'},
-    {t:'07. Monero Anonymity', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQIJ4LzQgSxQEpR6xNMPUt5', ty:'playlist'},
-    {t:'08. Ethereum Programmable Money', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkT56nVEJiQz7tRyoC6kE5Oq', ty:'playlist'},
-    {t:'09. Bitcoin Transaction in Depth', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTfrsBywgQoFOgTsxXVX5uX', ty:'playlist'},
-    {t:'10. Crypto Research', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0', ty:'playlist'},
-    {t:'11. Key, Wallets, & How They Work', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkRI2Np0SHo8E4Pr2EuOBCHR', ty:'playlist'},
-    {t:'12. Digital Money And Double Spending', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTyoODXGPPClW-b_jQkKE9X', ty:'playlist'},
-    {t:'13. Consensus Proof Of And Security Premises', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQbhfROXcOUNWKSg0Xtviik', ty:'playlist'},
-    {t:'14. Blockchain Trilemma', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQn_UfP0iKtPn7noK1wX3RT', ty:'playlist'},
-    {t:'15. Bitcoin Anonymity', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkRMN8cT3ayvHW5QSktpcZY4', ty:'playlist'},
-    {t:'16. What is a Smart Contract', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQX_hJaqiidqKyQ89GbbuCb', ty:'playlist'},
-    {t:'17. Type of Accounts', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQ2Wn9wTM-2KDfnIisgNfIo', ty:'playlist'},
-    {t:'18. UTXO Model vs Account Model', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkS-sRyPe6KWPYsuzzdRI-wf', ty:'playlist'},
-    {t:'19. Security Issues', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQe6TAVs9JSZA8MUablgI53', ty:'playlist'},
-    {t:'20. Layer 2 Rollups', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkT5XG1DvuE7gF4wO3rDEqWl', ty:'playlist'},
-    {t:'Blockchain and AI (Drive)', u:'https://drive.google.com/drive/folders/1aEK8eJDlMh3IuH4ryhQ8MYqXpMvyB67A', ty:'drive'},
-    {t:'Crypto Self Custody part 1', u:'https://www.youtube.com/watch?v=vOf98L-E8BQ&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=1', ty:'video'},
-    {t:'Crypto Self Custody part 2', u:'https://www.youtube.com/watch?v=nwU9a11qXbc&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=2', ty:'video'},
-    {t:'Crypto Self Custody part 3', u:'https://www.youtube.com/watch?v=TiBjmsipEzM&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=3', ty:'video'},
-    {t:'Crypto Self Custody part 4', u:'https://www.youtube.com/watch?v=2HYwFjJ9lJo&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=4', ty:'video'},
-    {t:'Crypto Self Custody part 5', u:'https://www.youtube.com/watch?v=XJHkyMbftNI&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=5', ty:'video'},
-    {t:'Crypto Self Custody part 6', u:'https://www.youtube.com/watch?v=EWDOq7vKFt0&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=6', ty:'video'},
-    {t:'Crypto Self Custody part 7', u:'https://www.youtube.com/watch?v=sF52P4DvK9k&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=7', ty:'video'},
-    {t:'DeFi: Lending and Borrowing', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvsINd8RIRrEwCHLc7XgMIC', ty:'playlist'},
-    {t:'Cross-Chain Technology', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvQGTDGkGdqCCh9kjCOHILJ', ty:'playlist'},
-    {t:'Blockchain Oracles', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnuowuZI12GCoxVXwJvA80g4', ty:'playlist'},
-    {t:'Core Blockchain & Consensus Topics', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnupQjH2nkdqsk6BFkxNoFuL', ty:'playlist'},
-    {t:'Smart Legal Contracts', u:'https://www.youtube.com/watch?v=XtTnDOmxacc&list=PLYabrfyDAEnvOL2voLA8-lkUJvQBBS9XV', ty:'playlist'},
-    {t:'Blockchain dan AI', u:'https://www.youtube.com/watch?v=6iTCS2sWg1c&list=PLYabrfyDAEnua64_u2sfPjlZh0t9wQ4Sm', ty:'playlist'},
-    {t:'Smart Contract Series', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntsge4tLRiurRZhbFtGVgaS', ty:'playlist'},
-    {t:'Privacy, Security And Risk Management', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnulpToG0N1EaUd_Ruua2Rml', ty:'playlist'},
-    {t:'Infrastructure & Data Handling', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnusncMDpBmwUbrvhzr418J0', ty:'playlist'},
-    {t:'Emerging Concepts & New Tech Trends', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEns0M9D0S1z2DA6QVxDTic15', ty:'playlist'},
-    {t:'Identifying Scam Tricks & Security Tips', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsFloe2UylM-zbwM5eNwoP6', ty:'playlist'}
-  ]
-},
-{
-  id:'m5', num:'05', ticker:'WEBM', name:'Webinar, Live Class & Komunitas', accent:'#58A6FF',
-  sub:'Webinar, masterclass, live class, kelas komunitas, dan update berita. Materi hanya untuk penggunaan pribadi — mohon tidak disebarluaskan di luar komunitas.',
-  resources:[
-    {t:'Crypto Market Outlook 2025 (17 Dec 2024)', u:'https://youtu.be/CSEGkBTAFvI', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
-    {t:'US Election Market Outlook (3 Nov 2024)', u:'https://www.youtube.com/watch?v=lR9sISGi-Mk', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
-    {t:'Preparing For Octobull (1 Oct 2024)', u:'https://youtu.be/oaK71Ar3fjE', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
-    {t:'The Art of Crypto Trading', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkSc7jlBxPbLCQz15nC7TF3A', ty:'playlist', grp:'Webinar, Liveclass, Kuliah'},
-    {t:'Crypto Trading Psychology', u:'https://youtu.be/Sz9BJzwP_98', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
-    {t:'Mastering Altcoins', u:'https://youtu.be/9Yfdc8ALR5A', ty:'video', grp:'Webinar, Liveclass, Kuliah'},
-    {t:'Masterclass Session', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkTVvMpPp9tPRfjvXIofUL_X', ty:'playlist', grp:'Webinar, Liveclass, Kuliah'},
-    {t:'All Webinar/Liveclass Recording', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkQOw8z8vneRSlc-mBRW73aq', ty:'playlist', grp:'Recordings'},
-    {t:'Kuliah Crypto', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkS4tAzW6rIx5yW8Pi4NZua-', ty:'playlist', grp:'Recordings'},
-    {t:'Bonus: Sales Mastery', u:'https://www.youtube.com/playlist?list=PL1hlgGm52pkR_axjnn8ocScFYtTLDQp08', ty:'playlist', grp:'Recordings'},
-    {t:'Live Class', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnt1vzqX6jQe6eprxanFuY9P', ty:'playlist', grp:'Recordings'},
-    {t:'Margin Call — 6 July 2024', u:'https://youtu.be/ZDnIJunBB-A', ty:'video', grp:'Margin Call (Private)'},
-    {t:'2030 The Great Reset', u:'https://www.youtube.com/watch?v=Zpp4ja9DOFo&list=PL1hlgGm52pkQOw8z8vneRSlc-mBRW73aq&index=17', ty:'video', grp:'Bonus Materials'},
-    {t:'ID Sign in 2025 Crypto Regulation', u:'https://www.youtube.com/watch?v=WzXHL9cfSko&list=PL1hlgGm52pkQOw8z8vneRSlc-mBRW73aq&index=18', ty:'video', grp:'Bonus Materials'},
-    {t:'Webinar AI Supercycle 2025 (Drive)', u:'https://drive.google.com/file/d/1tj-R2vyNAWKtt0QeaDLoOgPOVL8XS_5W/view?usp=sharing', ty:'drive', grp:'Bonus Materials'},
-    {t:'The Great Reset.zip', u:'https://cdn.discordapp.com/attachments/1346715745127632916/1346715899633340417/The_Great_Reset.zip', ty:'file', grp:'Bonus Materials'},
-    {t:'Klik disini untuk akses (Telegram)', u:'https://t.me/+5iTzMIS7hlFjZmQ1', ty:'telegram', grp:'Komunitas'},
-    {t:'Berita', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnu3f5UBASGZxhI8MiJ5C675', ty:'playlist', grp:'Komunitas'}
-  ]
-},
-{
-  id:'m6', num:'06', ticker:'EBOOK', name:'Ebook & Bacaan', accent:'#B084F5',
-  sub:'Kumpulan ebook dan bacaan pendukung — 100 ebook keuangan & investasi, plus 5 seri ebook Akademi Crypto.',
-  resources:[
-    {t:'100 Ebook Keuangan dan Investasi (Drive)', u:'https://drive.google.com/drive/folders/1hcVU_iOEG_-v5SwHAJulLTPYXdpRE3pt', ty:'drive'},
-    {t:'Crypto Investing Principles', u:'https://cloudpdf.io/view/hoOCSaGZ6', ty:'pdf', pw:'EA43DsMnlifymnp'},
-    {t:'Crypto Smart Money', u:'https://cloudpdf.io/view/AQz5710eV', ty:'pdf', pw:'LpyDO2D2DG1k0BH'},
-    {t:'Crypto Trading Guide', u:'https://cloudpdf.io/view/CdYdK_wkq', ty:'pdf', pw:'JQrI0Ib0EDsnxZS'},
-    {t:'Crypto Trading Psychology', u:'https://cloudpdf.io/view/QDnn4Qwpn', ty:'pdf', pw:'1ENXLTACAIeEF8Y'},
-    {t:'Mastering Altcoins', u:'https://cloudpdf.io/view/2xpujxiTo', ty:'pdf', pw:'V3l0c!tyTw3lv3Pr!nc3'}
-  ]
-},
-{
-  id:'m7', num:'07', ticker:'PROG', name:'Programming & Data Skills', accent:'#6EE7B7',
-  sub:'Playlist tentang dasar-dasar programming, analisis data, dan tools pendukung riset crypto.',
-  resources:[
-    {t:'Python & Programing Basics', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsKCuPBaRMPVw_TXQNunjC3', ty:'playlist'},
-    {t:'Control Flow & Function', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnu9ih4wRjAjbz_4OINFcBbi', ty:'playlist'},
-    {t:'Data Analysis & Visualisasi', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntLMrmHtdK9_qn5UY35dKey', ty:'playlist'},
-    {t:'Bekerja Dengan API Crypto', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntU5Y8o3WLdm27_pCM19nNo', ty:'playlist'},
-    {t:'Excel Modelling 101', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvRqv_kjAVZ5pPEbTqq8bCj', ty:'playlist'},
-    {t:'Onboarding & Education', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnuwAufqHejHLvCtfZ1yCLxf', ty:'playlist'},
-    {t:'User-Focused Topics', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnv9aLzIavr9GAs38CUluIp7', ty:'playlist'}
-  ]
-},
-{
-  id:'m8', num:'08', ticker:'FINTRD', name:'Finance Tradisional / Keuangan Pribadi', accent:'#CBD5E1',
-  sub:'Playlist seputar keuangan pribadi dan finance tradisional — mulai dari perbankan, ekonomi, pajak, sampai perencanaan keuangan.',
-  resources:[
-    {t:'Banking 101', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvngvfytIMo7tEQ3UsyNt0j', ty:'playlist'},
-    {t:'Corporate Action', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvguO7O4EEoyg5FFutySJYW', ty:'playlist'},
-    {t:'Economy 101', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvGYO7FCYMQfSeexZlGTeIR', ty:'playlist'},
-    {t:'Mengenal Konsep Mikro Ekonomi', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnt1D99e6nSgz9zxsP2qHmTK', ty:'playlist'},
-    {t:'Saham 101', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsE0Xn5c9BL9nVWzIOslvqp', ty:'playlist'},
-    {t:'Laporan Keuangan 101', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnv25P3G3kYaOi8KrEAPotKA', ty:'playlist'},
-    {t:'E-IPO', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsJBRhO5lGou9RNVqxQM9q4', ty:'playlist'},
-    {t:'Richest Man in Babylon', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsUBXockvG-EFo5bkf_MbXb', ty:'playlist'},
-    {t:'Mengenal Kewajiban Pajak Bagi Investor', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnt477EWFt8I1aMh10cjmVPM', ty:'playlist'},
-    {t:'Intermediate Financial Analysis', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnuo-eH6Mxuofs7Pvfdi4IlL', ty:'playlist'},
-    {t:'Consumer Goods', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvdnP6sSxHraF4k8zbkczVV', ty:'playlist'},
-    {t:'Blockchain', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntQ0arY0Rv8RBhqvegdCX2X', ty:'playlist'},
-    {t:'Financial Planning for Intermediate part 1', u:'https://www.youtube.com/watch?v=4NlAvYu-nO4&list=PLYabrfyDAEns6H8PvwVuBjSuWpnY89o1_&index=1', ty:'playlist'},
-    {t:'Financial Planning for Intermediate part 2', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnsFAIUDXhbkls8UxJwrU4RA', ty:'playlist'},
-    {t:'From History to Market Mastery', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntFwymj8SVWwOnv7oPMEogK', ty:'playlist'},
-    {t:'Behavioral Finance', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvdsi3OxFHsnI-fhCIpgKpo', ty:'playlist'},
-    {t:'Income 101', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvd_MwRon-bl4GcMN1zxbzO', ty:'playlist'},
-    {t:'Hutang 101', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntmun2m_y6W6pjbMR6I8XCJ', ty:'playlist'},
-    {t:'Asuransi 101', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnuALOkT4QXOhZ2evccQ_njf', ty:'playlist'},
-    {t:'Mengenal Konsep Permintaan', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEntOY9R5oi9eko9oAPEKamK2', ty:'playlist'},
-    {t:'Money Management THR Edition', u:'https://www.youtube.com/playlist?list=PLYabrfyDAEnvGigJu7Z7-q-QYG5rnWp_e', ty:'playlist'}
-  ]
-}
+  {
+    "id": "m1",
+    "num": "01",
+    "ticker": "CRES",
+    "name": "Crypto Research & Fundamentals",
+    "accent": "#39C5CF",
+    "sub": "Riset fondasi dan pembaruan terkini — cara meriset aset crypto, coin yang sedang naik daun, sampai riset fundamental & teknikal terbaru.",
+    "resources": [
+      {
+        "t": "Crypto Research part 1",
+        "u": "https://www.youtube.com/watch?v=f2Q5kje9u2o&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=1",
+        "ty": "video",
+        "summary": "Fondasi riset crypto: memahami perbedaan Market Cap vs FDV, bedah dokumen Whitepaper, dan validasi use-case proyek.",
+        "keyPoints": [
+          "Market Cap mengukur nilai pasokan yang beredar, sedangkan FDV mengukur total valuasi jika seluruh token sudah dirilis.",
+          "Whitepaper wajib menjawab problem, solusi teknis, tokenomics, dan roadmap yang realistis.",
+          "Hindari proyek dengan utilitas semu yang hanya mengandalkan marketing tanpa inovasi riil."
+        ],
+        "takeaway": "Selalu cek rasio Circulating Supply / Total Supply sebelum membeli token baru."
+      },
+      {
+        "t": "Crypto Research part 2",
+        "u": "https://www.youtube.com/watch?v=JlBQJInInz0&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=2",
+        "ty": "video",
+        "summary": "Riset ekosistem blockchain: memahami arsitektur Layer 1 vs Layer 2 dan metrik Total Value Locked (TVL).",
+        "keyPoints": [
+          "Layer 1 (Ethereum, Solana) sebagai settlement layer; Layer 2 (Arbitrum, Optimism) untuk scaling dan biaya transaksi murah.",
+          "TVL di DefiLlama menjadi indikator utama seberapa besar likuiditas yang dipercayakan pengguna pada suatu protokol.",
+          "Bandingkan rasio Market Cap terhadap TVL (Mcap/TVL) untuk menemukan protokol yang undervalued."
+        ],
+        "takeaway": "Protokol dengan TVL tinggi dan Mcap/TVL rendah cenderung memiliki margin keamanan lebih baik."
+      },
+      {
+        "t": "Crypto Research part 3",
+        "u": "https://www.youtube.com/watch?v=UHKFaXkgLxM&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=3",
+        "ty": "video",
+        "summary": "Analisis fundamental data on-chain: melacak Daily Active Users (DAU), volume transaksi nyata, dan gas usage.",
+        "keyPoints": [
+          "Gunakan blockchain explorer (Etherscan, Solscan) dan analitik on-chain (Artemis, Token Terminal).",
+          "Bedakan transaksi organik dari user nyata dengan wash trading yang digerakkan bot.",
+          "Pertumbuhan konsisten pada transaksi harian dan pengguna aktif mencerminkan adopsi fundamental."
+        ],
+        "takeaway": "On-chain data tidak bisa dibohongi oleh gimmick marketing influencer."
+      },
+      {
+        "t": "Crypto Research part 4",
+        "u": "https://www.youtube.com/watch?v=AtvqT5KrcPY&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=4",
+        "ty": "video",
+        "summary": "Riset perputaran siklus narasi pasar (Narrative Trading) dan mendeteksi sektor panas sebelum hype puncak.",
+        "keyPoints": [
+          "Siklus likuiditas: Fiat -> Bitcoin -> Ethereum & Major L1 -> Mid-Cap -> Small-Cap & Meme.",
+          "Identifikasi narasi masa depan (contoh: AI, DePIN, RWA) saat whale mulai mengakumulasi.",
+          "Ukur sentimen di X (Twitter) dan komunitas developer Discord/Telegram."
+        ],
+        "takeaway": "Beli saat narasi baru mulai diakumulasi diam-diam, jual bertahap saat narasi trending di media massa."
+      },
+      {
+        "t": "Crypto Research part 5",
+        "u": "https://www.youtube.com/watch?v=HoJkwVizkTA&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=5",
+        "ty": "video",
+        "summary": "Analisis Venture Capital (VC), institusi pendukung, harga beli investor awal, dan jadwal unlock.",
+        "keyPoints": [
+          "Cek reputasi tier VC (a16z, Paradigm, Binance Labs, Coinbase Ventures).",
+          "Ketahui harga beli VC pada tahap Seed / Private Sale dan jaraknya dengan harga pasar saat ini.",
+          "Antisipasi tekanan jual (selling pressure) saat periode cliff dan vesting token unlock tiba."
+        ],
+        "takeaway": "Gunakan platform CryptoRank & TokenUnlocks untuk melacak harga modal institusi dan jadwal rilis token."
+      },
+      {
+        "t": "Crypto Research part 6",
+        "u": "https://www.youtube.com/watch?v=VPF_6ETGL6c&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=6",
+        "ty": "video",
+        "summary": "Evaluasi revenue riil protokol, fee generation, dan token value accrual bagi holders.",
+        "keyPoints": [
+          "Banyak protokol punya transaksi tapi tidak menghasilkan pendapatan bagi pemegang token.",
+          "Protokol berkualitas mengalirkan pendapatan protokol ke pemegang token via buyback-and-burn atau staking yield.",
+          "Gunakan Token Terminal untuk melihat rasio Price-to-Earnings (P/E) dan Price-to-Fees (P/F)."
+        ],
+        "takeaway": "Pilihlah token yang menghasilkan real yield dari aktivitas pengguna, bukan dari emisi inflasi token baru."
+      },
+      {
+        "t": "Crypto Research part 7",
+        "u": "https://www.youtube.com/watch?v=4CW7S6l34aE&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=7",
+        "ty": "video",
+        "summary": "Audit keamanan smart contract, tim developer, dan manajemen risiko eksploitasi kode.",
+        "keyPoints": [
+          "Periksa apakah proyek telah diaudit oleh firma terpercaya (CertiK, OpenZeppelin, Trail of Bits).",
+          "Audit tidak menjamin 100% aman, namun membuktikan ada itikad dan filter keamanan standar.",
+          "Cek hak istimewa tim (Admin Keys, Timelock, Multisig) untuk mencegah penarikan likuiditas sepihak."
+        ],
+        "takeaway": "Jangan simpan dana besar pada protokol yang belum teruji waktu (Lindy Effect) dan memiliki smart contract yang tidak terverifikasi."
+      },
+      {
+        "t": "Crypto Research part 8",
+        "u": "https://www.youtube.com/watch?v=v2cTo8JrSkw&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=8",
+        "ty": "video",
+        "summary": "Riset koin meme & aset spekulatif tinggi: membedakan potensi viral 100x vs jebakan rugpull.",
+        "keyPoints": [
+          "Periksa apakah likuiditas (Liquidity Pool) sudah dibakar (burned) atau dikunci (locked).",
+          "Cek distribusi dompet pemegang token (BubbleMaps): hindari jika 10 dompet teratas memegang >50% supply.",
+          "Nilai kekuatan budaya komunitas internet, memeability, dan volume transaksi di DEX."
+        ],
+        "takeaway": "Batasi alokasi spekulasi meme maksimal 3-5% dari portofolio dan selalu siapkan rencana exit cepat."
+      },
+      {
+        "t": "Crypto Research part 9",
+        "u": "https://www.youtube.com/watch?v=A5JszTVNLOI&list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0&index=9",
+        "ty": "video",
+        "summary": "Membangun checklist riset mandiri & merumuskan Tesis Investasi (Investment Thesis) tertulis.",
+        "keyPoints": [
+          "Buat lembar kerja riset komparasi metrik proyek terhadap kompetitor di sektor yang sama.",
+          "Tuliskan dengan jelas: Alasan beli, katalis pertumbuhan 6-12 bulan ke depan, target take profit, dan titik invalidasi.",
+          "Jika tesis investasi terbukti salah di tengah jalan, segera cut loss tanpa ragu."
+        ],
+        "takeaway": "Disiplin pada tesis tertulis menghindarkan Anda dari keputusan emosional akibat fluktuasi harga sesaat."
+      },
+      {
+        "t": "Emerging Cryptocurrencies",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnuyr5ARKhXacxZVJWxoLLlT",
+        "ty": "playlist",
+        "summary": "Playlist kurasi aset crypto baru (Emerging Cryptocurrencies) dengan use-case mutakhir.",
+        "keyPoints": [
+          "Eksplorasi koin-koin berkapitalisasi pasar menengah-kecil dengan inovasi teknologi baru.",
+          "Melihat perkembangan commit GitHub developer untuk memantau keaktifan pengembangan.",
+          "Peluang early adopter pada proyek yang belum listing di bursa Tier-1."
+        ],
+        "takeaway": "Pantau proyek di fase awal pengujian (testnet/early mainnet) sebelum mendapat sorotan bursa besar."
+      },
+      {
+        "t": "Fundamental Research Terbaru - Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntJSWyfndYVjOJf0Eul4rQA",
+        "ty": "playlist",
+        "summary": "Analisis fundamental mendalam dan tinjauan pasar crypto terbaru oleh Kalimasada.",
+        "keyPoints": [
+          "Pembedahan kondisi likuiditas makro dan dampaknya terhadap harga Bitcoin & Altcoins.",
+          "Metodologi praktis dalam menyaring altcoin berfundamental kuat di siklus saat ini.",
+          "Update regulasi global dan pergeseran narasi institusional."
+        ],
+        "takeaway": "Kombinasikan pemahaman makro global dengan analisis mikro token untuk akurasi investasi maksimal."
+      },
+      {
+        "t": "Technical Research Terbaru",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnuZQhHVFE71nNWNcBEXAxC-",
+        "ty": "playlist",
+        "summary": "Riset teknikal multi-timeframe, struktur tren market, dan pemetaan level likuiditas.",
+        "keyPoints": [
+          "Analisis dari timeframe besar (Monthly/Weekly) untuk arah tren utama, lalu timeframe kecil (Daily/4H) untuk eksekusi.",
+          "Menandai level Supply & Demand kritis dan Fair Value Gap (FVG).",
+          "Mengkonfirmasi sinyal dengan volume transaksi dan momentum oscillator."
+        ],
+        "takeaway": "Gunakan analisis teknikal untuk mencari titik beli terbaik pada aset yang sudah lolos uji riset fundamental."
+      }
+    ]
+  },
+  {
+    "id": "m2",
+    "num": "02",
+    "ticker": "CINV",
+    "name": "Crypto Investing",
+    "accent": "#26E6A6",
+    "sub": "Semua hal investasi crypto — playlist inti, real world asset, token, manajemen portofolio & risiko, sampai jenis-jenis aset (stablecoin, NFT, DAO, liquid staking, dan lainnya).",
+    "resources": [
+      {
+        "t": "Crypto Investing \"17 Episode\" — Timothy Ronald",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkR5FlKi_LUpeByO_XYUg2HG",
+        "ty": "playlist",
+        "summary": "Seri Fundamental Investasi Crypto 17 Episode oleh Timothy Ronald: mindset, siklus 4 tahun, dan membangun portofolio jangka panjang.",
+        "keyPoints": [
+          "Memahami siklus 4 tahunan Bitcoin Halving dan hubungannya dengan likuiditas moneter global.",
+          "Alokasi inti: jadikan BTC & ETH sebagai fondasi portofolio dengan porsi terbesar (60-80%).",
+          "Strategi DCA (Dollar Cost Averaging) disiplin di bear market untuk akumulasi harga terendah.",
+          "Mengunci profit bertahap saat euforia pasar bull market mencapai titik tertinggi."
+        ],
+        "takeaway": "Kunci sukses investasi crypto adalah kesabaran menahan aset terbaik selama fase bear market dan tidak tamak di puncak bull market."
+      },
+      {
+        "t": "Crypto Investing Strategy \"7 Episode\" — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkS4_pIcxNHO-xTHYJroSVmq",
+        "ty": "playlist",
+        "summary": "Strategi Investasi Crypto 7 Episode oleh Kalimasada: alokasi aset taktis, rotasi keuntungan, dan mitigasi risiko pasar.",
+        "keyPoints": [
+          "Membagi portofolio ke dalam 3 tier: Safety (BTC/ETH/Stable), Growth (Mid-Cap), dan Moonshot (Small-Cap).",
+          "Strategi rotasi modal saat koin utama sudah jenuh ke sektor yang baru mulai bergerak.",
+          "Manajemen kas: selalu simpan cadangan stablecoin untuk memanfaatkan crash/flash dip."
+        ],
+        "takeaway": "Jangan pernah berada dalam posisi 100% all-in tanpa cadangan stablecoin likuid."
+      },
+      {
+        "t": "Crypto Investing Principles \"7 Episode\" — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkRYwMEgIbFQgRvUAxT29H2C",
+        "ty": "playlist",
+        "summary": "Prinsip Inti Investasi Crypto 7 Episode oleh Kalimasada: disiplin psikologi, memisahkan fakta dari noise, dan survival rule.",
+        "keyPoints": [
+          "Memahami hukum probabilitas dan ekspektasi matematis dalam setiap keputusan investasi.",
+          "Menghindari bias konfirmasi dan kecintaan berlebihan pada satu koin tertentu.",
+          "Aturan utama: bertahan di pasar (survive) lebih penting daripada keuntungan sesaat."
+        ],
+        "takeaway": "Tujuan utama investor adalah melindungi modal pokok (capital preservation) terlebih dahulu, baru mencari pertumbuhan."
+      },
+      {
+        "t": "Crypto Investing Tools \"5 Episode\" — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQqOhQqJzgNOfABfqDDkSnu",
+        "ty": "playlist",
+        "summary": "Panduan Tools Riset Investasi 5 Episode oleh Kalimasada: DefiLlama, CoinMarketCap, Etherscan, Dune, & TokenUnlocks.",
+        "keyPoints": [
+          "Memanfaatkan DefiLlama untuk melihat aliran dana protokol dan yield farming teraman.",
+          "Dune Analytics untuk dashboard visual data on-chain khusus protokol tertentu.",
+          "Coinglass untuk memantau Open Interest, Funding Rate, dan likuidasi global."
+        ],
+        "takeaway": "Kuasai 3 tools utama (DefiLlama, Dune, TokenUnlocks) untuk riset independen setara analis profesional."
+      },
+      {
+        "t": "Crypto Investing Guide \"8 Episode\" — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQSQv_b0lmx-MpAehS_i943",
+        "ty": "playlist",
+        "summary": "Panduan Praktis Investasi Crypto 8 Episode oleh Kalimasada: eksekusi dari nol hingga penyusunan portofolio matang.",
+        "keyPoints": [
+          "Langkah demi langkah mendaftar bursa, mengamankan akun, hingga menarik aset ke wallet pribadi.",
+          "Menentukan profil risiko pribadi dan target finansial realistis.",
+          "Membuat catatan investasi (Investment Journal) yang terorganisir."
+        ],
+        "takeaway": "Eksekusi yang terencana rapi menghilangkan kecemasan saat volatilitas pasar mengguncang."
+      },
+      {
+        "t": "Crypto Investing Alpha \"7 Episode\" — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQ0AmpJ6ZQAONsFC9P4ICPo",
+        "ty": "playlist",
+        "summary": "Mencari Alpha & Peluang Awal 7 Episode oleh Kalimasada: airdrop hunting, testnet participation, dan early investment.",
+        "keyPoints": [
+          "Mengenal ekosistem baru sebelum ada token (Pre-token ecosystem).",
+          "Menghitung rasio Risk-to-Reward saat mengikuti airdrop atau staking modal.",
+          "Strategi multi-wallet yang aman tanpa terdeteksi sebagai sybil attacker."
+        ],
+        "takeaway": "Alpha sejati ditemukan pada sektor yang sedang sepi pembicaraan publik namun rajin merilis update produk."
+      },
+      {
+        "t": "Crypto Portofolio Management",
+        "u": "https://www.youtube.com/playlist?list=PLC6s39uM1p4A",
+        "ty": "playlist",
+        "summary": "Manajemen Portofolio Crypto: model piramida alokasi, rebalancing periodik, dan mitigasi drawdown.",
+        "keyPoints": [
+          "Piramida Portofolio: Fondasi BTC/ETH (50-70%), Lapisan Menengah L1/L2 Terpilih (20-30%), Puncak Spekulasi (10%).",
+          "Rebalancing bulanan: jual sebagian aset yang naik drastis untuk dialihkan kembali ke aset fondasi atau kas.",
+          "Membatasi kerugian portofolio keseluruhan agar tidak mengalami drawdown >30%."
+        ],
+        "takeaway": "Rebalancing sistematis memaksa Anda otomatis menjual di harga tinggi dan membeli di harga rendah."
+      },
+      {
+        "t": "Crypto Entry Mastery",
+        "u": "https://www.youtube.com/playlist?list=PLIsMrJBdYn4c",
+        "ty": "playlist",
+        "summary": "Mastery Titik Masuk (Entry): menemukan zona beli optimal dengan konfluensi fundamental dan teknikal.",
+        "keyPoints": [
+          "Memanfaatkan fase akumulasi Wyckoff dan diskon harga pasca koreksi 60-80% dari all-time high.",
+          "Teknik Scale-in (membeli bertahap dalam beberapa pecahan harga) daripada all-in sekaligus.",
+          "Konfirmasi volume yang meningkat di zona support kuat."
+        ],
+        "takeaway": "Entry terbaik terjadi saat sentimen pasar berada pada fase Extreme Fear."
+      },
+      {
+        "t": "Real World Asset",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsIP1Ei-FjPmrqBgRdS_Uzo",
+        "ty": "playlist",
+        "summary": "Real World Asset (RWA): tokenisasi instrumen keuangan tradisional (obligasi, US Treasury, properti) di blockchain.",
+        "keyPoints": [
+          "RWA menjembatani triliunan dolar aset tradisional ke sistem DeFi.",
+          "Mekanisme yield riil dari US Treasury Bills (contoh: Ondo Finance, Mountain Protocol).",
+          "Tantangan kepatuhan hukum, audit kustodian fisik, dan izin regulator."
+        ],
+        "takeaway": "Sektor RWA adalah pintu masuk terbesar modal institusi tradisional ke ekosistem crypto."
+      },
+      {
+        "t": "Enterprise & Real-World Adoption",
+        "u": "https://www.youtube.com/watch?v=vRfMtz4JjTQ&list=PLYabrfyDAEnsK96ABz9WwoRH-r91EcAyV",
+        "ty": "playlist",
+        "summary": "Adopsi Institusional & Korporasi: integrasi blockchain di industri perbankan, supply chain, dan ETF.",
+        "keyPoints": [
+          "Dampak ETF Spot Bitcoin & Ethereum terhadap likuiditas pasar jangka panjang.",
+          "Perusahaan publik yang mengadopsi standar Bitcoin Treasury (contoh: MicroStrategy).",
+          "Integrasi jaringan pembayaran tradisional (Visa, Mastercard, Swift) dengan stablecoin."
+        ],
+        "takeaway": "Adopsi institusi menciptakan dasar harga (price floor) yang lebih kokoh bagi aset crypto utama."
+      },
+      {
+        "t": "Tokens",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntChVp_npaBNSBGXV5tQaAQ",
+        "ty": "playlist",
+        "summary": "Klasifikasi Token: perbedaan fungsi Utility Token, Governance Token, Security Token, dan Value Capture.",
+        "keyPoints": [
+          "Utility Token: dipakai untuk membayar gas fee atau akses layanan dalam dApp.",
+          "Governance Token: hak voting keputusan protokol (sering kali tidak memiliki klaim langsung atas dividen/revenue).",
+          "Security Token: representasi kepemilikan saham atau instrumen berharga yang diawasi regulator."
+        ],
+        "takeaway": "Pastikan token yang Anda pegang memiliki mekanisme penangkapan nilai (value capture), bukan hanya token voting kosong."
+      },
+      {
+        "t": "Automated Portfolio Management",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEns1M7jG7to_z04MN6qZydf3",
+        "ty": "playlist",
+        "summary": "Otomasi Portofolio: penggunaan bot DCA, auto-rebalance, dan strategi pasif berbasis algoritma.",
+        "keyPoints": [
+          "Memanfaatkan fitur auto-invest bursa untuk konsistensi tanpa emosi.",
+          "Menetapkan aturan rebalance berbasis deviasi persentase aset.",
+          "Kelebihan dan risiko eksekusi bot di bursa tersentralisasi vs on-chain."
+        ],
+        "takeaway": "Otomasi membantu menghilangkan bias psikologis dan memastikan disiplin menabung crypto."
+      },
+      {
+        "t": "Portfolio & Risk Management",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnuZLPX0Q-B_OEPxJAs2BYln",
+        "ty": "playlist",
+        "summary": "Manajemen Portofolio & Risiko: rumus Position Sizing, Risk of Ruin, dan toleransi volatilitas.",
+        "keyPoints": [
+          "Jangan pernah merisikokan lebih dari persentase yang siap Anda relakan hilang.",
+          "Diversifikasi yang tepat: miliki 5-10 aset pilihan, jangan over-diversifikasi hingga puluhan koin.",
+          "Menetapkan batas cut-loss portofolio jika kondisi fundamental proyek berubah total."
+        ],
+        "takeaway": "Profit besar tidak ada artinya jika Anda tidak memiliki sistem proteksi modal dari kehancuran mendadak."
+      },
+      {
+        "t": "Crypto Risk Management",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsTSiyvfigE34tLG3IWeRho",
+        "ty": "playlist",
+        "summary": "Manajemen Risiko Spesifik Crypto: ancaman depeg stablecoin, exploit dApp, dan risiko regulasi mendadak.",
+        "keyPoints": [
+          "Sebar cadangan stablecoin ke beberapa jenis (USDC, USDT, DAI).",
+          "Hindari menaruh seluruh aset di satu protokol DeFi atau satu bursa sentral.",
+          "Gunakan dompet burner terpisah saat berinteraksi dengan smart contract baru."
+        ],
+        "takeaway": "Pemisahan risiko (segregasi aset) adalah dinding pertahanan terbaik di dunia Web3."
+      },
+      {
+        "t": "Zcash",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsm1nwj8Z6LaJkU-MxA_aG1",
+        "ty": "playlist",
+        "summary": "Zcash & Privacy Coins: teknologi Zero-Knowledge (zk-SNARKs), privasi transaksi, dan perdebatan regulasi.",
+        "keyPoints": [
+          "Zcash memungkinkan transaksi terlindungi (shielded transactions) dengan menyembunyikan pengirim, penerima, dan nominal.",
+          "Perbedaan transparansi Bitcoin vs privasi mutlak zk-SNARKs.",
+          "Risiko delisting di bursa sentral akibat tekanan regulasi anti-pencucian uang (AML)."
+        ],
+        "takeaway": "Privasi adalah hak fundamental finansial, namun perhatikan likuiditas koin privasi yang terdampak regulasi."
+      },
+      {
+        "t": "NFTs & Tokenization Beyond ERC721",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsU9d-qtadDnGmM8_-8NREl",
+        "ty": "playlist",
+        "summary": "NFT & Tokenisasi Lanjutan: melampaui standar ERC-721 menuju ERC-1155, Dynamic NFT, dan utilitas nyata.",
+        "keyPoints": [
+          "Perbedaan token non-fungible unik (ERC-721) vs semi-fungible multi-token (ERC-1155).",
+          "Dynamic NFT yang metadata-nya dapat berubah sesuai data orakel dunia nyata atau game.",
+          "Aplikasi untuk sertifikat keaslian fisik, tiket konser, royalti musik, dan identitas digital."
+        ],
+        "takeaway": "Masa depan NFT terletak pada utilitas fungsional dan tokenisasi aset dunia nyata, bukan sekadar gambar profil spekulatif."
+      },
+      {
+        "t": "Stablecoins",
+        "u": "https://www.youtube.com/watch?v=IwrmWRQojI0&list=PLYabrfyDAEnspe2jLtfuucZiqBb9HxpjR",
+        "ty": "playlist",
+        "summary": "Stablecoins: bedah mekanisme Fiat-Backed (USDC, USDT), Crypto-Backed (DAI), dan risiko Algorithmic.",
+        "keyPoints": [
+          "Fiat-backed didukung cadangan kas riil dan obligasi di bank kustodian resmi.",
+          "Crypto-backed menggunakan over-collateralization aset seperti ETH untuk menjaga peg $1.",
+          "Algorithmic stablecoin tanpa jaminan riil memiliki risiko kematian spiral (death spiral) seperti kasus UST Luna."
+        ],
+        "takeaway": "Pilihlah stablecoin yang transparan dengan laporan audit cadangan berkala dari auditor independen terkemuka."
+      },
+      {
+        "t": "Decentralised Autonomous Organisation - DAO",
+        "u": "https://www.youtube.com/watch?v=MVlswEjdr-s&list=PLYabrfyDAEnsm5y5pqIto-t80nW4nTAh0",
+        "ty": "playlist",
+        "summary": "DAO (Decentralized Autonomous Organization): tata kelola tanpa perantara, perbendaharaan kas, dan voting on-chain.",
+        "keyPoints": [
+          "Keputusan protokol diambil melalui proposal SIP/EIP dan pemungutan suara pemegang token.",
+          "Pengelolaan kas bersama (DAO Treasury) melalui dompet multisig.",
+          "Tantangan plutokrasi (pemegang token terbanyak mendominasi suara) dan voter apathy."
+        ],
+        "takeaway": "Keberlanjutan DAO sangat bergantung pada transparansi eksekusi dana treasury dan partisipasi aktif komunitas."
+      },
+      {
+        "t": "Liquid Staking & Liquid Restaking Token",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsA8jTKbY-_iaZGel2rx7Qg",
+        "ty": "playlist",
+        "summary": "Liquid Staking & Restaking (LST/LRT): konsep Lido, stETH, EigenLayer, dan pelapisan yield DeFi.",
+        "keyPoints": [
+          "Liquid Staking memungkinkan koin yang di-stake tetap memiliki representasi likuid untuk dipakai di DeFi.",
+          "Restaking (EigenLayer) meminjamkan keamanan Ethereum ke protokol eksternal (AVS) untuk yield tambahan.",
+          "Risiko cascading slashing dan kerentanan smart contract berlapis."
+        ],
+        "takeaway": "LST/LRT menawarkan yield menarik, namun selalu perhitungkan risiko leverage smart contract yang bertumpuk."
+      },
+      {
+        "t": "Fan Token",
+        "u": "https://www.youtube.com/watch?v=2o0IQ4-LQfM&list=PLYabrfyDAEnu3Gzj_C0GpPtAlK3BpbbR_",
+        "ty": "playlist",
+        "summary": "Fan Token: token ekosistem olahraga & hiburan, pola volatilitas event, dan keterlibatan fans.",
+        "keyPoints": [
+          "Memberikan hak istimewa bagi penggemar untuk voting jersey, tiket VIP, atau merchandise eksklusif.",
+          "Harga sangat dipengaruhi oleh jadwal pertandingan besar (Piala Dunia, Liga Champions).",
+          "Pola pergerakan: pump menjelang turnamen besar, dan dump saat turnamen resmi dimulai (\"sell the news\")."
+        ],
+        "takeaway": "Trading Fan Token sangat bergantung pada kalender turnamen olahraga dan momentum event."
+      },
+      {
+        "t": "Ethereum Name Service - ENS",
+        "u": "https://www.youtube.com/watch?v=Du6A2kN6jfM&list=PLYabrfyDAEnvSkIONiJIIcgg-Qyz55mJy",
+        "ty": "playlist",
+        "summary": "Ethereum Name Service (ENS): domain blockchain .eth, identitas terdesentralisasi, dan akun abstraksi.",
+        "keyPoints": [
+          "Mengganti alamat hex panjang (0x123...) menjadi nama mudah dibaca (contoh: nama.eth).",
+          "Dapat menyimpan berbagai alamat dompet multi-chain, avatar, email, dan situs web IPFS.",
+          "Aset NFT yang memiliki masa sewa tahunan dan pasar sekunder domain berharga tinggi."
+        ],
+        "takeaway": "ENS adalah pondasi identitas digital Web3 yang mempermudah UX transfer dana secara signifikan."
+      },
+      {
+        "t": "Central Bank Digital Currency",
+        "u": "https://www.youtube.com/watch?v=kzNJN0_G-ec&list=PLYabrfyDAEnuhy4AxootwYGGbvz1mEhc-",
+        "ty": "playlist",
+        "summary": "Central Bank Digital Currency (CBDC): konsep Digital Rupiah / CBDC global vs Crypto desentralisasi.",
+        "keyPoints": [
+          "CBDC diterbitkan langsung oleh bank sentral negara dengan sifat legal tender resmi.",
+          "Perbedaan utama: CBDC tersentralisasi dan dapat diprogram (programmable money dengan batas kedaluwarsa/kontrol belanja).",
+          "Bitcoin dan crypto publik hadir sebagai lindung nilai desentralisasi yang tidak dapat disensor pemerintah."
+        ],
+        "takeaway": "Kehadiran CBDC akan mempercepat digitalisasi masyarakat namun sekaligus meningkatkan permintaan aset privat seperti Bitcoin."
+      },
+      {
+        "t": "Decentralized Physical Infrastructure Network - DePIN",
+        "u": "https://www.youtube.com/watch?v=mB0L9Af6Q0g&list=PLYabrfyDAEnsJ6Wx-UBfybqgrJrCEeAKP",
+        "ty": "playlist",
+        "summary": "DePIN (Decentralized Physical Infrastructure Networks): komputasi AI terdistribusi, jaringan nirkabel, dan storage.",
+        "keyPoints": [
+          "Memanfaatkan insentif token untuk membangun infrastruktur fisik dunia nyata (GPU, Wi-Fi, sensor cuaca).",
+          "Contoh sektor: Komputasi AI (Render, Akash), Penyimpanan Data (Filecoin, Arweave), Jaringan (Helium).",
+          "Model bisnis dengan permintaan riil dari industri teknologi dan AI."
+        ],
+        "takeaway": "DePIN adalah salah satu jembatan terkuat antara utilitas fisik dunia nyata dan efisiensi insentif ekonomi crypto."
+      }
+    ]
+  },
+  {
+    "id": "m3",
+    "num": "03",
+    "ticker": "CTRD",
+    "name": "Crypto Trading & Strategy",
+    "accent": "#FB923C",
+    "sub": "Kurikulum trading lengkap — dari dex trading, pola & indikator, sampai strategi lanjutan (momentum, mean reversal, grid/DCA, technical & top-down analysis).",
+    "resources": [
+      {
+        "t": "Dex Trading Tutorial part 1",
+        "u": "https://www.youtube.com/watch?v=EMXg_rAb3pI&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=1",
+        "ty": "video",
+        "summary": "Tutorial DEX Trading Part 1: Instalasi dompet Web3 (Phantom, MetaMask), pengamanan Seed Phrase, dan transfer gas fee.",
+        "keyPoints": [
+          "Cara mengamankan private key tanpa pernah menyimpannya di cloud atau screenshot digital.",
+          "Menambahkan jaringan custom RPC pada MetaMask dan membiayai native token untuk gas fee.",
+          "Mengenal interface dasar bursa terdesentralisasi (Uniswap, Raydium)."
+        ],
+        "takeaway": "Gas fee selalu dibayar menggunakan koin asli jaringan (ETH di Ethereum, SOL di Solana, BNB di BSC)."
+      },
+      {
+        "t": "Dex Trading Tutorial part 2",
+        "u": "https://www.youtube.com/watch?v=ZwTLjPwRXN4&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=2",
+        "ty": "video",
+        "summary": "Tutorial DEX Trading Part 2: Cara membaca Liquidity Pool (LP), Pair Explorer di DexScreener, dan slippage tolerance.",
+        "keyPoints": [
+          "Memahami fungsi Pool Likuiditas dan bagaimana AMM (Automated Market Maker) menentukan harga token.",
+          "Mengatur Slippage Tolerance secara tepat: terlalu rendah order gagal, terlalu tinggi rentan diserang bot sandwich.",
+          "Membaca grafik real-time di DexScreener, Birdeye, dan DEXTools."
+        ],
+        "takeaway": "Cek selalu kedalaman likuiditas (Liquidity USD) sebelum melakukan swap dalam jumlah besar."
+      },
+      {
+        "t": "Dex Trading Tutorial part 3",
+        "u": "https://www.youtube.com/watch?v=2VqHdPbfUOM&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=3",
+        "ty": "video",
+        "summary": "Tutorial DEX Trading Part 3: Membaca Smart Contract, deteksi Scam Honeypot, dan verifikasi Token Tax.",
+        "keyPoints": [
+          "Gunakan tools audit cepat seperti TokenSniffer, RugCheck, dan Honeypot.is.",
+          "Waspadai token dengan Buy/Sell Tax tinggi (>5%) atau fungsi blacklist dompet pembeli.",
+          "Cek apakah fungsi minting masih aktif dan likuiditas terkunci permanen."
+        ],
+        "takeaway": "Jangan pernah swap token yang tidak lolos pengecekan Honeypot.is meskipun grafiknya tampak naik terus."
+      },
+      {
+        "t": "Dex Trading Tutorial part 4",
+        "u": "https://www.youtube.com/watch?v=UmRIX3yl4Oo&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=4",
+        "ty": "video",
+        "summary": "Tutorial DEX Trading Part 4: Penggunaan Trading Bot Telegram (Trojan, Maestro, Photon) untuk eksekusi ultra-cepat.",
+        "keyPoints": [
+          "Keunggulan Bot Telegram: eksekusi swap dalam hitungan milidetik, fitur auto-buy, dan proteksi MEV anti-sandwich.",
+          "Setting limit order, stop loss otomatis, dan trailing take profit di jaringan Solana/Ethereum.",
+          "Manajemen keamanan dompet bot: hanya deposit dana trading harian, jangan simpan tabungan utama di bot."
+        ],
+        "takeaway": "Bot trading mempercepat eksekusi saat token baru rilis, namun membutuhkan manajemen risiko kunci privat yang ketat."
+      },
+      {
+        "t": "Dex Trading Tutorial part 5",
+        "u": "https://www.youtube.com/watch?v=TuNm1CsFAY4&list=PL1hlgGm52pkSq5ArXxxCBo02EWes4Rawp&index=5",
+        "ty": "video",
+        "summary": "Tutorial DEX Trading Part 5: Strategi Sniping, melacak dompet Smart Money (Whale Tracking), dan rotasi profit.",
+        "keyPoints": [
+          "Menggunakan DeBank, Solscan, atau Arkham Intelligence untuk melacak dompet trader top yang konsisten profit.",
+          "Menganalisis pola akumulasi whale sebelum token meledak di media sosial.",
+          "Mekanisme take profit cepat kembali ke SOL/ETH/USDC saat target tercapai."
+        ],
+        "takeaway": "Ikuti jejak transaksi smart money, tetapi hindari menyalin secara buta tanpa memeriksa likuiditas keluar."
+      },
+      {
+        "t": "01. Crypto Trading — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkSW_Ln6qn8YlhFO1YpNxlgA",
+        "ty": "playlist",
+        "summary": "Dasar Trading Crypto Kalimasada: struktur market, Order Book, Bid-Ask Spread, Market vs Limit Order.",
+        "keyPoints": [
+          "Perbedaan fundamental pasar Spot (beli aset riil tanpa leverage) vs Futures/Derivatif (kontrak harga ber-leverage).",
+          "Mekanisme Order Book: antrean limit order pembeli (Bid) dan penjual (Ask).",
+          "Bahaya Market Order pada koin berlikuiditas rendah akibat slippage besar."
+        ],
+        "takeaway": "Utamakan penggunaan Limit Order untuk mendapatkan harga presisi dan menghemat biaya fee taker."
+      },
+      {
+        "t": "02. Kamus Pattern Crypto — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQ3zJrpA2l_POSXmq4dZrTv",
+        "ty": "playlist",
+        "summary": "Kamus Pola Chart (Chart Patterns): pola Reversal (pembalikan) dan Continuation (kelanjutan tren).",
+        "keyPoints": [
+          "Reversal Patterns: Head and Shoulders, Double Top/Bottom, Falling/Rising Wedge di zona ekstrim.",
+          "Continuation Patterns: Bull/Bear Flag, Pennant, Ascending/Descending Triangle.",
+          "Wajib menunggu konfirmasi breakout dan retest garis leher (neckline) sebelum masuk posisi."
+        ],
+        "takeaway": "Jangan entry di tengah pola sebelum terjadi breakout valid yang dikonfirmasi oleh lonjakan volume."
+      },
+      {
+        "t": "03. Crypto Technical Indicators — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkTkQfZFKlN7LTuErnCDxGSk",
+        "ty": "playlist",
+        "summary": "Indikator Teknikal Crypto: RSI, MACD, EMA (Exponential Moving Average), dan Bollinger Bands.",
+        "keyPoints": [
+          "RSI (Relative Strength Index): mengukur kondisi Overbought (>70) & Oversold (<30) serta Regular/Hidden Divergence.",
+          "EMA 20, 50, 200: menentukan arah tren jangka pendek, menengah, dan konfirmasi Golden/Death Cross.",
+          "MACD: membaca momentum percepatan harga dan pergeseran histogram tenaga buyer/seller."
+        ],
+        "takeaway": "Indikator hanyalah alat bantu turunan dari harga (price action); jangan gunakan lebih dari 2-3 indikator sekaligus."
+      },
+      {
+        "t": "04. Crypto Fibonacci Secret — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkR0YG-DjruO4JCXRqX49smy",
+        "ty": "playlist",
+        "summary": "Rahasia Fibonacci: Golden Pocket Retracement (0.618 - 0.65) dan Fibonacci Extension untuk target TP.",
+        "keyPoints": [
+          "Cara menarik swing low ke swing high pada tren naik, dan sebaliknya pada tren turun.",
+          "Zona Golden Pocket (0.618 - 0.65) merupakan area pantulan dengan probabilitas tertinggi di pasar crypto.",
+          "Level Fibonacci Extension (1.272, 1.618, 2.618) sebagai target realistis saat harga mencetak rekor baru (Price Discovery)."
+        ],
+        "takeaway": "Kombinasikan level Fibonacci 0.618 dengan level support horizontal untuk mendapatkan titik konfluensi kuat."
+      },
+      {
+        "t": "05. Crypto Smart Money — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkSjFvK-EsAxVEqIM0E7cEwx",
+        "ty": "playlist",
+        "summary": "Smart Money Concepts (SMC): Break of Structure (BOS), Change of Character (CHoCH), Order Block (OB), & FVG.",
+        "keyPoints": [
+          "BOS menandakan kelanjutan tren yang sedang berjalan; CHoCH menandakan awal pembalikan arah struktur market.",
+          "Order Block (OB): lilin terakhir sebelum pergerakan impulsif besar yang meninggalkan jejak institusi.",
+          "Fair Value Gap (FVG): area ketidakseimbangan harga (imbalance) yang cenderung dijemput kembali oleh market."
+        ],
+        "takeaway": "Entry pada Order Block yang belum pernah tersentuh (unmitigated) dan memiliki FVG aktif di depannya."
+      },
+      {
+        "t": "06. Crypto Order Flow — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkSLvSG3eOhFZSbg5NCJjHy4",
+        "ty": "playlist",
+        "summary": "Order Flow Trading: membaca Footprint Chart, Cumulative Volume Delta (CVD), Open Interest (OI), & Heatmap.",
+        "keyPoints": [
+          "Open Interest (OI) naik + Harga naik = Trend Bullish didukung uang baru masuk.",
+          "CVD Divergence: harga membuat Higher High tetapi CVD membuat Lower High = penyerapan (absorption) oleh seller pasif.",
+          "Liquidation Heatmap: peta konsentrasi likuidasi trader retail yang sering menjadi target buruan algoritma market maker."
+        ],
+        "takeaway": "Market selalu bergerak ke arah kumpulan likuidasi terbesar (Liquidity Pools) sebelum melanjutkan arah tren asli."
+      },
+      {
+        "t": "07. Crypto Harmonic Trading — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkTA7R16GuLHJCclg8YDE-F5",
+        "ty": "playlist",
+        "summary": "Harmonic Trading: Pola Geometri Gartley, Bat, Butterfly, Crab, dan Potential Reversal Zone (PRZ).",
+        "keyPoints": [
+          "Pola harmonik menggabungkan struktur swing X-A-B-C-D dengan rasio Fibonacci presisi.",
+          "Mengenal titik D sebagai Potential Reversal Zone (PRZ) tempat mencari setup entry pembalikan.",
+          "Menetapkan Stop Loss ketat di luar batas ekstensi titik X."
+        ],
+        "takeaway": "Disiplin menguji rasio kaki B dan C; jika rasio meleset jauh, batalkan setup harmonik."
+      },
+      {
+        "t": "08. Narrative Research — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkRyIifhLD_aSoI8i667P-lt",
+        "ty": "playlist",
+        "summary": "Narrative Research Trading: trading berbasis momentum rotasi sektor, katalis upgrade, dan berita global.",
+        "keyPoints": [
+          "Setiap siklus memiliki tema dominan (DeFi Summer, NFT Mania, AI Boom, Meme Season).",
+          "Masuk saat sektor baru mulai diuji di pasar dan keluar saat bursa besar mulai me-listing secara massal.",
+          "Pantau kalender event upgrade jaringan (misal: halving, hardfork, tokenomic overhaul)."
+        ],
+        "takeaway": "Trading narasi membutuhkan kecepatan eksekusi dan tidak boleh jatuh cinta pada fundamental jangka panjang."
+      },
+      {
+        "t": "09. Crypto Money Psychology — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkTq1Y05AAKuJHjay2Ox5-G5",
+        "ty": "playlist",
+        "summary": "Psikologi Trading & Uang: mengendalikan FOMO, Revenge Trading, Bias Emosional, dan Disiplin Trading Plan.",
+        "keyPoints": [
+          "90% kegagalan trader disebabkan oleh ketidakmampuan mengendalikan emosi pasca mengalami kerugian.",
+          "Aturan 1%: batasi risiko maksimal kerugian per transaksi tidak melebihi 1-2% dari total modal akun.",
+          "Tulis Trading Journal: catat alasan entry, eksekusi, emosi saat transaksi, dan evaluasi hasil."
+        ],
+        "takeaway": "Trader profesional fokus pada eksekusi sistem trading yang konsisten, bukan pada hasil satu transaksi tunggal."
+      },
+      {
+        "t": "10. Strategi Trading untuk 100 Juta Pertama",
+        "u": "https://www.youtube.com/watch?v=oYYfuxkXc8E&list=PL1hlgGm52pkSs8IIOw_RbcvStT95THLmv&index=4",
+        "ty": "video",
+        "summary": "Strategi Menghasilkan 100 Juta Pertama dari Trading: formula compounding modal kecil secara konsisten dan aman.",
+        "keyPoints": [
+          "Gunakan kekuatan bunga berbunga (compounding): profit konsisten 5-10% per bulan jauh lebih kuat daripada judi koin 100x.",
+          "Fokus pada rasio Risk-to-Reward (minimal 1:2 atau 1:3); dengan win rate 40% Anda tetap menghasilkan profit bersih.",
+          "Tarik sebagian profit secara berkala (WD) ke rekening bank untuk mengamankan psikologi."
+        ],
+        "takeaway": "Pertumbuhan modal adalah maraton disiplin, bukan sprint satu malam."
+      },
+      {
+        "t": "11. Crypto Wyckoff Trading — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQJOkiNWJu8NtD40fUegcZe",
+        "ty": "playlist",
+        "summary": "Wyckoff Trading Method: Fase Akumulasi, Markup, Distribusi, Markdown, Spring, dan Upthrust (UTAD).",
+        "keyPoints": [
+          "Fase Akumulasi: Smart Money menyerap suplai di zona range bawah (Selling Climax, Automatic Rally, Spring).",
+          "Spring: jebakan breakdown semu di bawah support untuk memicu stop-loss retail sebelum harga terbang.",
+          "Fase Distribusi: Smart Money menjual aset di zona puncak (Buying Climax, Upthrust After Distribution/UTAD)."
+        ],
+        "takeaway": "Membeli di fase Spring (Akumulasi) dan menjual di fase UTAD (Distribusi) adalah inti strategi Wyckoff."
+      },
+      {
+        "t": "12. Token Unlock Trading Strategy — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkSLNB0rb543lwOgfpr33o-l",
+        "ty": "playlist",
+        "summary": "Strategi Trading Token Unlock: memanfaatkan volatilitas event unlock token besar untuk setup Long & Short.",
+        "keyPoints": [
+          "Memeriksa persentase unlock terhadap circulating supply (>5% tergolong besar dan berdampak signifikan).",
+          "Pola pergerakan harga: sering terjadi reli harga sementara beberapa hari sebelum unlock untuk menarik likuiditas pembeli.",
+          "Membuka posisi Short saat hari-H unlock ketika pasokan baru mulai mengalir ke bursa."
+        ],
+        "takeaway": "Gunakan TokenUnlocks untuk memetakan tanggal kritis rilis token berkapitalisasi besar."
+      },
+      {
+        "t": "13. Cara Screening Altcoin dari 0 — Kalimasada",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQXePTmW6W_diad21w51z3Y",
+        "ty": "playlist",
+        "summary": "Cara Screening Altcoin dari Nol: metode menyaring ratusan token menjadi 3-5 watchlist prioritas tinggi.",
+        "keyPoints": [
+          "Filter berdasarkan Relative Strength vs Bitcoin (koin yang tetap hijau atau bertahan saat BTC koreksi).",
+          "Filter volume harian yang meningkat tajam di atas rata-rata 30 hari.",
+          "Pilih koin yang sedang berada di area konsolidasi panjang (Base Building) siap breakout."
+        ],
+        "takeaway": "Koin yang menolak turun saat Bitcoin jatuh sering kali menjadi koin yang terbang paling tinggi saat Bitcoin pulih."
+      },
+      {
+        "t": "Live Trading",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnuyPJ5bSeGwQ-nU-WqsiyKC",
+        "ty": "playlist",
+        "summary": "Live Trading Session: demonstrasi eksekusi langsung, manajemen posisi real-time, dan pembacaan grafik hidup.",
+        "keyPoints": [
+          "Melihat cara profesional mengidentifikasi level kritis secara langsung di market yang sedang bergerak.",
+          "Manajemen order: penempatan Stop Loss dan Take Profit bertahap.",
+          "Mengatasi situasi tak terduga (false breakout, berita flash)."
+        ],
+        "takeaway": "Perhatikan proses berpikir dan manajemen risiko saat live trade, bukan hanya hasil profitnya."
+      },
+      {
+        "t": "Crypto Spot Trading",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvWJ21PNVU-K1MpcQfH49lv",
+        "ty": "playlist",
+        "summary": "Crypto Spot Trading: teknik akumulasi spot tanpa risiko likuidasi dan strategi swing trading.",
+        "keyPoints": [
+          "Keunggulan spot: Anda memiliki aset sejati dan tidak bisa terkena likuidasi paksa oleh jarum harga (wick).",
+          "Strategi Swing Trading: menahan posisi selama beberapa hari hingga beberapa minggu mengikuti tren besar.",
+          "Menetapkan trailing stop untuk mengunci keuntungan yang sudah berjalan."
+        ],
+        "takeaway": "Spot trading adalah metode paling sehat untuk membangun kekayaan jangka panjang tanpa stres tinggi."
+      },
+      {
+        "t": "Momentum & Trend Following Trading",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsGxeQI9mMLsAUgEQXlfxSz",
+        "ty": "playlist",
+        "summary": "Momentum & Trend Following Trading: strategi mengikuti tren kuat menggunakan Donchian Channels, MA, & Breakout.",
+        "keyPoints": [
+          "Prinsip utama: \"The trend is your friend until the end\". Jangan pernah melawan tren dominan.",
+          "Beli di harga tinggi dan jual di harga lebih tinggi lagi saat terjadi breakout tren baru.",
+          "Biarkan pemenang berlari (let your winners run) dan potong kerugian dengan cepat (cut your losses short)."
+        ],
+        "takeaway": "Dalam trend following, win rate bisa saja hanya 35-40%, tetapi rasio Risk-Reward yang besar (1:5+) menghasilkan profit konsisten."
+      },
+      {
+        "t": "Mean Reversal Trading",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEns8Z99wyLQ4NXRKjp_-C9fu",
+        "ty": "playlist",
+        "summary": "Mean Reversion Trading: strategi trading pembalikan harga ke nilai rata-rata saat kondisi ekstrim.",
+        "keyPoints": [
+          "Harga aset crypto cenderung selalu kembali ke nilai rata-ratanya (Moving Average) setelah menjauh terlalu jauh.",
+          "Menggunakan Bollinger Bands (2-3 Standar Deviasi) dan RSI Ekstrim (<20 atau >80).",
+          "Cocok diterapkan pada kondisi market sideway / ranging."
+        ],
+        "takeaway": "Hindari strategi Mean Reversion saat pasar sedang berada dalam fase breakout tren super kuat."
+      },
+      {
+        "t": "Crypto Quantitative Trading Strategy",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntDAL3oGz5ZUPmJmD0NCFrG",
+        "ty": "playlist",
+        "summary": "Crypto Quantitative Trading Strategy: dasar algoritma trading kuantitatif, backtesting, dan statistik pasar.",
+        "keyPoints": [
+          "Membangun aturan trading berbasis data statistik historis yang objektif.",
+          "Melakukan backtest strategi minimal 2 tahun data pasar untuk menguji Maximum Drawdown dan Sharpe Ratio.",
+          "Menghilangkan emosi manusia dengan aturan eksekusi terprogram."
+        ],
+        "takeaway": "Strategi kuantitatif yang baik harus terbukti menguntungkan di berbagai rezim pasar (bull, bear, sideway)."
+      },
+      {
+        "t": "Grid Trading And DCA",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEns7ml2aRBiuwmPdjmXbGHqg",
+        "ty": "playlist",
+        "summary": "Grid Trading & DCA Strategy: setup bot Grid Spot & Futures untuk menjaring profit otomatis di pasar berfluktuasi.",
+        "keyPoints": [
+          "Grid Trading membagi range harga menjadi beberapa jaring order beli di bawah dan jual di atas secara otomatis.",
+          "Sangat efektif pada pasar yang bergerak sideways dengan volatilitas tinggi.",
+          "Perhatikan batas bawah range (Lower Limit) agar bot tidak menanggung kerugian floating besar saat breakdown."
+        ],
+        "takeaway": "Gunakan Grid Trading pada koin fundamental bagus seperti BTC/ETH agar nyaman menahan aset jika harga turun ke bawah grid."
+      },
+      {
+        "t": "Technical Analysis 101",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvTZrDNAZW37zI9RR-K6pSL",
+        "ty": "playlist",
+        "summary": "Technical Analysis 101: pengantar komprehensif analisis teknikal, candlestick patterns, dan dasar tren.",
+        "keyPoints": [
+          "Anatomi Candlestick: Body, Wick (Shadow), Open, High, Low, Close.",
+          "Mengidentifikasi Uptrend (Higher High & Higher Low) dan Downtrend (Lower High & Lower Low).",
+          "Konsep Support menjadi Resistance (S/R Flip) dan sebaliknya."
+        ],
+        "takeaway": "Kuasai dasar struktur tren terlebih dahulu sebelum mempelajari indikator yang rumit."
+      },
+      {
+        "t": "Top Down Analysis",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnu5MweIN0tBQRocg6pctE7k",
+        "ty": "playlist",
+        "summary": "Top Down Analysis: metodologi analisa hirarkis dari Makro (Weekly/Daily) menuju Mikro (4H/1H/15M).",
+        "keyPoints": [
+          "Timeframe Weekly/Daily: menentukan arah bias utama (Bullish/Bearish) dan area Support/Resistance kunci.",
+          "Timeframe 4H/1H: mengidentifikasi pola struktur market dan area Order Block yang valid.",
+          "Timeframe 15M/5M: mencari sinyal konfirmasi entry dengan risiko Stop Loss yang sangat ketat."
+        ],
+        "takeaway": "Jangan pernah mengambil posisi di timeframe kecil yang bertentangan langsung dengan tren timeframe besar."
+      },
+      {
+        "t": "Crypto Exit Strategy",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntJAA13gDwIkc2PhnJBrwI5",
+        "ty": "playlist",
+        "summary": "Crypto Exit Strategy: strategi take profit bertahap, trailing stop, dan mengamankan kekayaan di puncak bull run.",
+        "keyPoints": [
+          "Kesalahan fatal investor adalah pandai membeli tetapi tidak tahu kapan harus menjual.",
+          "Mekanisme Take Profit Skala: jual 25% modal awal di target 1, 25% di target 2, dan pasang trailing stop untuk sisa 50%.",
+          "Gunakan metrik on-chain (Pi Cycle Top, MVRV Z-Score, Puell Multiple) untuk mendeteksi puncak euforia siklus pasar."
+        ],
+        "takeaway": "Anda tidak akan pernah miskin karena mengambil keuntungan (taking profit)."
+      },
+      {
+        "t": "Screening Cryptocurrency",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnveEPIJnI0859c-LDhMmwGs",
+        "ty": "playlist",
+        "summary": "Screening Cryptocurrency: panduan praktis menggunakan screener teknikal dan filter bursa.",
+        "keyPoints": [
+          "Menyaring koin dengan volatilitas tinggi untuk Day Trading vs koin akumulasi tenang untuk Swing Trading.",
+          "Menyimpan template filter di TradingView atau Coinglass.",
+          "Membuat sistem alarm notifikasi harga (Price Alert) agar tidak perlu menatap grafik 24 jam."
+        ],
+        "takeaway": "Otomatisasi proses screening menghemat waktu dan meningkatkan kualitas setup trading Anda."
+      },
+      {
+        "t": "Staking",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnslGi3MPJ86Yb4YpHxTc4E9",
+        "ty": "playlist",
+        "summary": "Staking Strategy: mengoptimalkan pendapatan pasif (Passive Income) melalui PoS Staking dan DeFi.",
+        "keyPoints": [
+          "Perbedaan Staking Native (mengamankan jaringan PoS seperti Solana/Ethereum) vs Staking di DeFi Pool.",
+          "Memahami konsep Unbonding Period (waktu tunggu penarikan aset dari staking).",
+          "Menghitung APR riil setelah dikurangi inflasi token tahunan."
+        ],
+        "takeaway": "Hanya lakukan staking pada koin yang memang berniat Anda simpan dalam jangka panjang."
+      }
+    ]
+  },
+  {
+    "id": "m4",
+    "num": "04",
+    "ticker": "BLKT",
+    "name": "Blockchain Technology & Security",
+    "accent": "#818CF8",
+    "sub": "Jalur teknis blockchain — smart contract, konsensus, keamanan, self custody, DeFi, cross-chain, oracle, sampai cara kenali penipuan.",
+    "resources": [
+      {
+        "t": "01. Smart Contract Development",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQoSi4_cEe8sWlBdGM5BOJx",
+        "ty": "playlist",
+        "summary": "Smart Contract Development: dasar pemrograman smart contract di Ethereum (Solidity), EVM, dan siklus deployment.",
+        "keyPoints": [
+          "Smart Contract adalah program komputer yang tereksekusi otomatis di blockchain tanpa pihak penengah.",
+          "Mengenal struktur kode Solidity: State Variables, Functions, Modifiers, dan Events.",
+          "Tools pengembangan: Remix IDE, Hardhat, Foundry untuk kompilasi dan testing lokal."
+        ],
+        "takeaway": "Smart contract yang telah di-deploy ke mainnet bersifat immutable (tidak bisa diedit); testing menyeluruh adalah wajib."
+      },
+      {
+        "t": "02. Blockchain Interoperability",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkSvkLu0dbp4IeId43vvNahl",
+        "ty": "playlist",
+        "summary": "Blockchain Interoperability: protokol jembatan (Bridges), Cross-Chain Communication, Cosmos IBC, & Chainlink CCIP.",
+        "keyPoints": [
+          "Tantangan menghubungkan data dan likuiditas antar blockchain yang terisolasi.",
+          "Mekanisme Bridge: Lock-and-Mint vs Burn-and-Mint vs Liquidity Pool.",
+          "Keamanan lintas rantai: Chainlink CCIP dan LayerZero sebagai standar komunikasi pesan terpercaya."
+        ],
+        "takeaway": "Cross-chain bridge merupakan salah satu target empuk peretasan di Web3; gunakan hanya bridge berkeamanan tinggi."
+      },
+      {
+        "t": "03. Smart Contract Security",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQ9BATsPJRWyNRu5acx_8hl",
+        "ty": "playlist",
+        "summary": "Smart Contract Security: kerentanan umum (Reentrancy, Integer Overflow, Flash Loan) dan cara audit kode.",
+        "keyPoints": [
+          "Reentrancy Attack: penarikan dana berulang sebelum status saldo smart contract terupdate (penyebab The DAO Hack).",
+          "Flash Loan: pinjaman tanpa agunan bernilai jutaan dolar dalam 1 blok transaksi yang kerap dipakai memanipulasi orakel harga.",
+          "Pencegahan: penggunaan library OpenZeppelin, Checks-Effects-Interactions pattern, dan ReentrancyGuard."
+        ],
+        "takeaway": "Gunakan protokol yang smart contract-nya memakai standar keamanan OpenZeppelin dan telah melewati multi-audit."
+      },
+      {
+        "t": "04. Cryptocurrency Security",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkT5CyMokqqvnfbz7cCANEIf",
+        "ty": "playlist",
+        "summary": "Cryptocurrency Security: keamanan operasional (OpSec), proteksi 2FA autentikasi, dan perlindungan perangkat pribadi.",
+        "keyPoints": [
+          "Ganti 2FA SMS dengan Authenticator App (Google Authenticator / YubiKey) untuk mencegah SIM-swap scam.",
+          "Pisahkan email khusus crypto yang tidak terhubung dengan aktivitas sosial media sehari-hari.",
+          "Waspadai ekstensi browser mencurigakan dan selalu gunakan antivirus serta OS yang terupdate."
+        ],
+        "takeaway": "Keamanan crypto bergantung 100% pada kebiasaan disiplin keamanan pribadi Anda sendiri."
+      },
+      {
+        "t": "05. Crypto Self Custody",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkTgLp87pWVbSdF-qh1pNrZc",
+        "ty": "playlist",
+        "summary": "Crypto Self Custody: penguasaan aset penuh di dompet non-kustodial (\"Not your keys, not your coins\").",
+        "keyPoints": [
+          "Menyimpan aset di bursa (CEX) berarti Anda hanya memegang IOU (klaim piutang), bukan pemilik sejati koin.",
+          "Prinsip Private Key & 12/24 kata Seed Phrase sebagai kunci enkripsi master.",
+          "Cara kerja dompet Hardware (Ledger, Trezor, Keystone) dalam menandatangani transaksi offline tanpa memaparkan private key ke internet."
+        ],
+        "takeaway": "Simpan tabungan crypto utama Anda di hardware wallet dengan backup seed phrase fisik dari baja anti-api."
+      },
+      {
+        "t": "06. Cryptocurrency Fundamentals",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkSX4m6Ai7I6-G-ZVwJ34Jbk",
+        "ty": "playlist",
+        "summary": "Fundamental Blockchain: desentralisasi, kriptografi kunci asimetris (Public-Private Key), dan fungsi Hash SHA-256.",
+        "keyPoints": [
+          "Kriptografi Public-Private Key: Public Key sebagai alamat penerima, Private Key sebagai tanda tangan digital sah.",
+          "Fungsi Hash Kriptografis (SHA-256): satu arah, deterministik, dan tahan tabrakan (collision resistant).",
+          "Struktur Block: Merkle Tree, Previous Block Hash, Timestamp, dan Nonce."
+        ],
+        "takeaway": "Integritas data blockchain dijamin secara matematis dan kriptografis, bukan oleh kepercayaan manusia."
+      },
+      {
+        "t": "07. Monero Anonymity",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQIJ4LzQgSxQEpR6xNMPUt5",
+        "ty": "playlist",
+        "summary": "Monero & Teknologi Privasi: Ring Signatures, Stealth Addresses, dan RingCT untuk transaksi anonim mutlak.",
+        "keyPoints": [
+          "Ring Signatures menyamarkan penandatangan asli di antara kumpulan transaksi palsu.",
+          "Stealth Address membuat alamat penerima sekali pakai yang unik untuk setiap transaksi.",
+          "RingCT menyembunyikan jumlah nominal koin yang dikirimkan."
+        ],
+        "takeaway": "Monero adalah standar emas privasi finansial terdesentralisasi yang tidak dapat dilacak oleh penjelajah blok publik."
+      },
+      {
+        "t": "08. Ethereum Programmable Money",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkT56nVEJiQz7tRyoC6kE5Oq",
+        "ty": "playlist",
+        "summary": "Ethereum: Uang Terprogram (Programmable Money), EVM (Ethereum Virtual Machine), dan Gas Mechanism.",
+        "keyPoints": [
+          "Ethereum memperluas fungsi Bitcoin dari sekadar buku besar kas menjadi komputer global turing-complete.",
+          "EVM mengeksekusi bytecode smart contract di ribuan node secara serentak.",
+          "Gas Fee sebagai bahan bakar komputasi untuk mencegah serangan infinite loop (Spamming Network)."
+        ],
+        "takeaway": "EVM telah menjadi standar arsitektur industri yang diadopsi oleh puluhan jaringan blockchain Layer 1 dan Layer 2."
+      },
+      {
+        "t": "09. Bitcoin Transaction in Depth",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkTfrsBywgQoFOgTsxXVX5uX",
+        "ty": "playlist",
+        "summary": "Transaksi Bitcoin Mendalam: struktur UTXO (Unspent Transaction Output), Script, dan mempool.",
+        "keyPoints": [
+          "Model UTXO bekerja seperti uang kertas fisik: setiap transaksi menghabiskan output lama dan menghasilkan output baru + kembalian.",
+          "Mempool adalah ruang antrean transaksi yang belum dimasukkan ke dalam blok oleh miner.",
+          "Bitcoin Scripting Language bersifat non-turing complete untuk memaksimalkan keamanan dan kesederhanaan sistem."
+        ],
+        "takeaway": "Memahami model UTXO sangat penting untuk mengoptimalkan biaya transaksi (fee rate sat/vB) saat mempool padat."
+      },
+      {
+        "t": "10. Crypto Research",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQ9uaFae78dyUQIQCqBDuL0",
+        "ty": "playlist",
+        "summary": "Metodologi Riset Crypto: framework evaluasi komprehensif ekosistem blockchain dan aset digital.",
+        "keyPoints": [
+          "Evaluasi 4 pilar: Teknologi, Ekonomi Token, Tim & Komunitas, serta Kepatuhan Regulasi.",
+          "Membaca metrik pertumbuhan developer activity di GitHub repository.",
+          "Memvalidasi keaslian volume dan likuiditas protokol di berbagai platform analitik."
+        ],
+        "takeaway": "Riset mandiri (DYOR) yang mendalam adalah satu-satunya pelindung modal dari tipu daya marketing crypto."
+      },
+      {
+        "t": "11. Key, Wallets, & How They Work",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkRI2Np0SHo8E4Pr2EuOBCHR",
+        "ty": "playlist",
+        "summary": "Kunci & Dompet: cara kerja BIP-39 (Mnemonic Phrase), Derivation Path, dan hierarki dompet HD (Hierarchical Deterministic).",
+        "keyPoints": [
+          "Standard BIP-39 mengubah angka biner acak menjadi 12 atau 24 kata kamus yang mudah dicatat manusia.",
+          "Satu Seed Phrase dapat menghasilkan jutaan alamat dompet di berbagai blockchain melalui Derivation Path (BIP-44).",
+          "Passphrase tambahan (25th word) sebagai lapisan keamanan tersembunyi (hidden wallet)."
+        ],
+        "takeaway": "Siapa pun yang mengetahui seed phrase Anda memiliki akses 100% mutlak atas seluruh dana di dompet tersebut."
+      },
+      {
+        "t": "12. Digital Money And Double Spending",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkTyoODXGPPClW-b_jQkKE9X",
+        "ty": "playlist",
+        "summary": "Uang Digital & Double Spending: bagaimana Bitcoin memecahkan masalah pengeluaran ganda tanpa pihak ketiga.",
+        "keyPoints": [
+          "Double Spending: risiko uang digital disalin dan dibelanjakan dua kali secara bersamaan.",
+          "Solusi Satoshi Nakamoto: Buku besar publik terdistribusi dengan timestamping kriptografis berbasis Proof of Work.",
+          "Aturan rantai terpanjang (Longest Chain Rule) menentukan kebenaran tunggal konsensus riwayat transaksi."
+        ],
+        "takeaway": "Inovasi sejati Bitcoin adalah penciptaan kelangkaan digital (digital scarcity) pertama di dunia."
+      },
+      {
+        "t": "13. Consensus Proof Of And Security Premises",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQbhfROXcOUNWKSg0Xtviik",
+        "ty": "playlist",
+        "summary": "Konsensus Blockchain: Proof of Work (PoW) vs Proof of Stake (PoS), dan premis keamanan 51% Attack.",
+        "keyPoints": [
+          "Proof of Work: mengikat keamanan jaringan dengan energi listrik dan perangkat keras fisik (ASIC miner).",
+          "Proof of Stake: mengikat keamanan dengan modal finansial yang di-stake dan hukuman slashing jika bertindak curang.",
+          "51% Attack: biaya yang harus dikeluarkan penyerang untuk mereorganisasi riwayat blok."
+        ],
+        "takeaway": "PoW memberikan keamanan termodinamika yang tak tertandingi, sedangkan PoS menawarkan efisiensi energi dan throughput lebih tinggi."
+      },
+      {
+        "t": "14. Blockchain Trilemma",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQn_UfP0iKtPn7noK1wX3RT",
+        "ty": "playlist",
+        "summary": "Blockchain Trilemma: trade-off mendasar antara Desentralisasi, Keamanan (Security), dan Skalabilitas.",
+        "keyPoints": [
+          "Teorema Vitalik Buterin: blockchain hanya bisa memaksimalkan 2 dari 3 aspek sekaligus.",
+          "Bitcoin/Ethereum L1: memprioritaskan Desentralisasi & Keamanan dengan mengorbankan kecepatan transaksi (TPS rendah).",
+          "Solusi Modular: menyelesaikan trilemma dengan membagi tugas ke Execution Layer (L2), Settlement (L1), dan Data Availability."
+        ],
+        "takeaway": "Blockchain masa depan bergerak ke arah arsitektur modular untuk menembus batasan Blockchain Trilemma."
+      },
+      {
+        "t": "15. Bitcoin Anonymity",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkRMN8cT3ayvHW5QSktpcZY4",
+        "ty": "playlist",
+        "summary": "Anonimitas Bitcoin: sifat Pseudo-Anonim Bitcoin, analisis kluster dompet, dan praktik pencampuran (CoinJoin).",
+        "keyPoints": [
+          "Bitcoin bukan anonim, melainkan pseudo-anonim: seluruh riwayat transaksi tercatat terbuka di buku besar publik.",
+          "Firma analitik (Chainalysis, Elliptic) dapat menghubungkan dompet dengan identitas KYC bursa.",
+          "Teknik meningkatkan privasi: tidak menggunakan ulang alamat dompet yang sama dan memanfaatkan CoinJoin / Lightning Network."
+        ],
+        "takeaway": "Setiap transaksi yang Anda lakukan dari bursa ber-KYC langsung terhubung dengan identitas dunia nyata Anda di blockchain."
+      },
+      {
+        "t": "16. What is a Smart Contract",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQX_hJaqiidqKyQ89GbbuCb",
+        "ty": "playlist",
+        "summary": "Apa itu Smart Contract: analogi mesin penjual otomatis (Vending Machine), logika If-This-Then-That, dan otonomi kode.",
+        "keyPoints": [
+          "Smart contract mengeksekusi perjanjian secara otomatis begitu parameter prasyarat terpenuhi.",
+          "Menghilangkan biaya notaris, perantara, dan risiko manipulasi manusia.",
+          "Diterapkan pada pinjam-meminjam (DeFi), asuransi otomatis, royalti seni, dan game."
+        ],
+        "takeaway": "\"Code is Law\" adalah filosofi smart contract, yang menuntut penulisan kode tanpa celah cacat logika."
+      },
+      {
+        "t": "17. Type of Accounts",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQ2Wn9wTM-2KDfnIisgNfIo",
+        "ty": "playlist",
+        "summary": "Tipe Akun Blockchain: EOA (Externally Owned Account) vs Contract Account, dan evolusi Account Abstraction (ERC-4337).",
+        "keyPoints": [
+          "EOA (seperti MetaMask standar): dikendalikan oleh private key tunggal, rentan jika seed phrase bocor.",
+          "Contract Account: dompet berbasis kode cerdas (Smart Wallet) dengan fitur pemulihan sosial dan pembatasan transfer.",
+          "ERC-4337 Account Abstraction memungkinkan bayar gas fee pakai stablecoin, transaksi tanpa signature berulang, dan 2FA on-chain."
+        ],
+        "takeaway": "Account Abstraction adalah masa depan antarmuka pengguna Web3 yang membuat wallet crypto semudah aplikasi perbankan modern."
+      },
+      {
+        "t": "18. UTXO Model vs Account Model",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkS-sRyPe6KWPYsuzzdRI-wf",
+        "ty": "playlist",
+        "summary": "Model UTXO vs Model Akun: perbandingan arsitektur Bitcoin/Cardano vs Ethereum/Solana.",
+        "keyPoints": [
+          "Model Akun (Ethereum): mirip rekening bank dengan saldo saldo global yang berubah setiap transaksi; mudah untuk smart contract kompleks.",
+          "Model UTXO (Bitcoin): transaksi independen yang dapat diproses secara paralel; lebih unggul dalam privasi dan skalabilitas verifikasi.",
+          "Masing-masing arsitektur memiliki kelebihan unik untuk use-case yang berbeda."
+        ],
+        "takeaway": "Model akun unggul untuk logika dApp interaktif, sedangkan UTXO unggul untuk settlement pembayaran murni yang deterministik."
+      },
+      {
+        "t": "19. Security Issues",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQe6TAVs9JSZA8MUablgI53",
+        "ty": "playlist",
+        "summary": "Masalah Keamanan Web3: eksploitasi jembatan, manipulasi flash loan, penipuan tanda tangan dompet, dan rugpull.",
+        "keyPoints": [
+          "Penyebab kerugian terbesar di Web3 berasal dari phishing signature (Permit2 scam) dan eksploitasi logika smart contract.",
+          "Pentingnya membaca pesan tanda tangan (Sign Message) sebelum mengklik konfirmasi di wallet.",
+          "Rutin mencabut izin dApp (Approve Spender) menggunakan Revoke.cash."
+        ],
+        "takeaway": "Jangan pernah menandatangani (Sign) transaksi yang teksnya tidak Anda pahami atau dari situs yang tidak diverifikasi."
+      },
+      {
+        "t": "20. Layer 2 Rollups",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkT5XG1DvuE7gF4wO3rDEqWl",
+        "ty": "playlist",
+        "summary": "Layer 2 Rollups: Optimistic Rollups (Arbitrum, Optimism) vs Zero-Knowledge Rollups (ZKsync, Starknet).",
+        "keyPoints": [
+          "Rollup mengeksekusi ribuan transaksi di luar rantai utama L1, lalu menggulungnya menjadi satu bukti kecil yang dikirim ke Ethereum.",
+          "Optimistic Rollups mengasumsikan transaksi valid kecuali ada bukti kecurangan (Fraud Proof dengan waktu tantangan 7 hari).",
+          "ZK-Rollups membuktikan keabsahan instan dengan matematika kriptografi Zero-Knowledge (Validity Proofs) tanpa waktu tunggu penarikan."
+        ],
+        "takeaway": "ZK-Rollups dianggap sebagai solusi akhir penskalaan jangka panjang bagi ekosistem Ethereum."
+      },
+      {
+        "t": "Blockchain and AI (Drive)",
+        "u": "https://drive.google.com/drive/folders/1aEK8eJDlMh3IuH4ryhQ8MYqXpMvyB67A",
+        "ty": "drive",
+        "summary": "Blockchain dan Artificial Intelligence (Drive): materi komprehensif integrasi desentralisasi data dengan model AI.",
+        "keyPoints": [
+          "Menggabungkan transparansi dan integritas data blockchain dengan kecerdasan model komputasi AI.",
+          "Pasar komputasi GPU terdesentralisasi untuk training dan inferensi LLM.",
+          "Inisiasi agen otonom AI (AI Agents) yang memegang dompet crypto sendiri untuk bertransaksi on-chain."
+        ],
+        "takeaway": "Crypto adalah rel mata uang digital yang ideal bagi agen kecerdasan buatan (AI) di masa depan."
+      },
+      {
+        "t": "Crypto Self Custody part 1",
+        "u": "https://www.youtube.com/watch?v=vOf98L-E8BQ&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=1",
+        "ty": "video",
+        "summary": "Seri Self Custody Part 1: Mengapa self-custody wajib, risiko kebangkrutan bursa (kasus FTX), dan pengenalan hardware wallet.",
+        "keyPoints": [
+          "Pelajaran dari kebangkrutan bursa besar: dana Anda di CEX dicampur dan dipinjamkan tanpa izin.",
+          "Membedakan Hot Wallet (terhubung internet) vs Cold Wallet (terisolasi fisik).",
+          "Langkah pertama memilih hardware wallet resmi langsung dari situs produsen asli."
+        ],
+        "takeaway": "Beli hardware wallet hanya dari toko resmi pabrik, jangan pernah dari marketplace pihak ketiga yang tidak resmi."
+      },
+      {
+        "t": "Crypto Self Custody part 2",
+        "u": "https://www.youtube.com/watch?v=nwU9a11qXbc&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=2",
+        "ty": "video",
+        "summary": "Seri Self Custody Part 2: Setup perangkat Ledger & Trezor dari nol, inisialisasi PIN, dan pencatatan recovery sheet.",
+        "keyPoints": [
+          "Memverifikasi integritas fisik segel dan firmware original perangkat saat dibuka.",
+          "Membuat PIN yang kuat dan mencatat 24 seed phrase pada kertas recovery fisik.",
+          "Larangan mutlak: jangan pernah mengetikkan seed phrase di keyboard komputer atau menyimpannya di kamera HP."
+        ],
+        "takeaway": "Komputer Anda bisa saja terinfeksi malware, namun hardware wallet menjaga private key tetap aman di dalam chip fisiknya."
+      },
+      {
+        "t": "Crypto Self Custody part 3",
+        "u": "https://www.youtube.com/watch?v=TiBjmsipEzM&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=3",
+        "ty": "video",
+        "summary": "Seri Self Custody Part 3: Pengujian Recovery (Simulasi Restore Wallet) sebelum memasukkan dana besar.",
+        "keyPoints": [
+          "Lakukan uji coba wipe (reset) perangkat baru dan pulihkan kembali menggunakan 24 kata yang telah dicatat.",
+          "Langkah ini membuktikan bahwa catatan backup Anda 100% benar dan berfungsi sempurna.",
+          "Kirim transaksi kecil uji coba (Test Transaction) sebelum mengirim seluruh portofolio."
+        ],
+        "takeaway": "Selalu lakukan simulasi restore sebelum mempercayakan aset berharga pada seed phrase baru."
+      },
+      {
+        "t": "Crypto Self Custody part 4",
+        "u": "https://www.youtube.com/watch?v=2HYwFjJ9lJo&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=4",
+        "ty": "video",
+        "summary": "Seri Self Custody Part 4: Fitur Lanjutan Passphrase (25th Word) untuk membuat Hidden Wallet terenkripsi.",
+        "keyPoints": [
+          "Passphrase adalah kata sandi tambahan yang Anda buat sendiri di luar 24 kata standar.",
+          "Membuat dompet tersembunyi (Hidden Wallet) untuk mengantisipasi ancaman fisik (pemerasan/ancaman kunci $5).",
+          "Passphrase yang berbeda akan membuka akun wallet yang sama sekali berbeda."
+        ],
+        "takeaway": "Passphrase tidak tersimpan di mana pun; jika Anda lupa passphrase, dana di hidden wallet tidak akan pernah bisa dipulihkan."
+      },
+      {
+        "t": "Crypto Self Custody part 5",
+        "u": "https://www.youtube.com/watch?v=XJHkyMbftNI&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=5",
+        "ty": "video",
+        "summary": "Seri Self Custody Part 5: Backup Fisik Baja Tahan Api & Air (Steel Capsule) dan strategi penyimpanan tempat aman.",
+        "keyPoints": [
+          "Kertas recovery rentan rusak akibat banjir, kebakaran, atau rayap.",
+          "Gunakan plat baja anti karat (Cryptosteel, Keystone Tablet) untuk mengukir seed phrase.",
+          "Strategi pembagian lokasi penyimpanan (Safe Deposit Box bank, brankas rumah rahasia)."
+        ],
+        "takeaway": "Backup logam anti-api memastikan modal Anda selamat dari bencana fisik rumah tangga."
+      },
+      {
+        "t": "Crypto Self Custody part 6",
+        "u": "https://www.youtube.com/watch?v=EWDOq7vKFt0&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=6",
+        "ty": "video",
+        "summary": "Seri Self Custody Part 6: Multisig Wallet (Gnosis Safe) untuk manajemen dana tim dan keamanan tingkat institusi.",
+        "keyPoints": [
+          "Multisig membutuhkan tanda tangan M dari N dompet (contoh: 2 dari 3 signer) untuk menyetujui setiap transaksi.",
+          "Menghilangkan Single Point of Failure: jika 1 perangkat hilang atau disusupi, peretas tetap tidak bisa mencuri dana.",
+          "Standar emas untuk pengelolaan perbendaharaan perusahaan, DAO, atau kekayaan keluarga."
+        ],
+        "takeaway": "Gunakan multisig 2-of-3 untuk portofolio berskala besar guna proteksi maksimal dari pencurian internal dan eksternal."
+      },
+      {
+        "t": "Crypto Self Custody part 7",
+        "u": "https://www.youtube.com/watch?v=sF52P4DvK9k&list=PL1hlgGm52pkQ2ZvwjsNJqzHxPMzOHsqeY&index=7",
+        "ty": "video",
+        "summary": "Seri Self Custody Part 7: Rencana Warisan Crypto (Inheritance Plan) dan protokol darurat keluarga.",
+        "keyPoints": [
+          "Triliunan dolar crypto hilang selamanya karena pemilik wafat tanpa meninggalkan instruksi akses bagi ahli waris.",
+          "Menyusun dokumen warisan tertulis (Dead Man Switch / instruksi safe deposit box) yang aman dari peretasan.",
+          "Edukasi teknis dasar bagi pasangan atau keluarga dekat tentang cara mencairkan dana saat kondisi darurat."
+        ],
+        "takeaway": "Rencana warisan yang jelas memastikan hasil perjuangan investasi Anda dapat dinikmati oleh keluarga tercinta."
+      },
+      {
+        "t": "DeFi: Lending and Borrowing",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvsINd8RIRrEwCHLc7XgMIC",
+        "ty": "playlist",
+        "summary": "DeFi Lending & Borrowing: protokol Aave, Compound, rasio LTV (Loan to Value), dan mekanisme likuidasi otomatis.",
+        "keyPoints": [
+          "Meminjam stablecoin dengan mengagunkan aset crypto (BTC/ETH) tanpa perlu menjual aset dasar (menghindari pajak & tetap terekspos kenaikan).",
+          "LTV (Loan-to-Value) dan Health Factor menentukan seberapa dekat posisi pinjaman Anda dari batas likuidasi paksa.",
+          "Bahaya flash crash harga agunan yang memicu penalti likuidasi tinggi."
+        ],
+        "takeaway": "Jaga Health Factor di atas 2.0 (LTV rendah) agar posisi pinjaman Anda aman dari ayunan volatilitas pasar."
+      },
+      {
+        "t": "Cross-Chain Technology",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvQGTDGkGdqCCh9kjCOHILJ",
+        "ty": "playlist",
+        "summary": "Teknologi Cross-Chain: jembatan likuiditas, interoperabilitas protokol, dan keamanan pertukaran multi-rantai.",
+        "keyPoints": [
+          "Mekanisme Atomic Swaps dan protokol interoperabilitas universal.",
+          "Tantangan konsistensi data antar rantai dengan kecepatan konfirmasi blok yang berbeda.",
+          "Evolusi ekosistem omnichain yang menyatukan likuiditas global."
+        ],
+        "takeaway": "Omnichain dApps mempermudah pengguna bertransaksi di rantai mana pun tanpa perlu pusing memikirkan proses bridge manual."
+      },
+      {
+        "t": "Blockchain Oracles",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnuowuZI12GCoxVXwJvA80g4",
+        "ty": "playlist",
+        "summary": "Blockchain Oracles: Chainlink, Pyth Network, transmisi data dunia nyata, dan serangan Oracle Manipulation.",
+        "keyPoints": [
+          "Blockchain bersifat tertutup (deterministic) dan tidak bisa menarik data eksternal (harga pasar, cuaca, hasil pemilu) tanpa Oracle.",
+          "Oracle Terdesentralisasi mengumpulkan dan mengagregasi data dari puluhan node independen.",
+          "Oracle Manipulation Attack: peretas memanipulasi pool likuiditas tipis di DEX untuk mengelabui harga di protokol lending."
+        ],
+        "takeaway": "Chainlink Price Feeds adalah benteng utama yang melindungi miliaran dolar aset DeFi dari serangan manipulasi harga kilat."
+      },
+      {
+        "t": "Core Blockchain & Consensus Topics",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnupQjH2nkdqsk6BFkxNoFuL",
+        "ty": "playlist",
+        "summary": "Topik Inti Blockchain & Konsensus: Proof of Authority (PoA), Directed Acyclic Graph (DAG), dan finalitas transaksi.",
+        "keyPoints": [
+          "Mengenal arsitektur alternatif DAG (Kaspa, Fantom, Nano) untuk throughput tinggi tanpa struktur blok tradisional.",
+          "Probabilistic Finality (Bitcoin) vs Instant Deterministic Finality (Tendermint/Cosmos).",
+          "Desain insentif game theory (Nash Equilibrium) dalam menjaga kejujuran validator."
+        ],
+        "takeaway": "Kecepatan finalitas menentukan seberapa cepat transaksi dapat dianggap permanen dan mustahil dibatalkan."
+      },
+      {
+        "t": "Smart Legal Contracts",
+        "u": "https://www.youtube.com/watch?v=XtTnDOmxacc&list=PLYabrfyDAEnvOL2voLA8-lkUJvQBBS9XV",
+        "ty": "playlist",
+        "summary": "Smart Legal Contracts: konvergensi kontrak hukum tradisional dengan kode yang dapat dieksekusi di blockchain.",
+        "keyPoints": [
+          "Menghubungkan klausul hukum terikat hukum perdata dengan eksekusi otomatis smart contract.",
+          "Standardisasi Ricardian Contracts dan kekuatan hukum tanda tangan kriptografis.",
+          "Penerapan pada sewa properti, pembiayaan perdagangan internasional, dan penyelesaian sengketa terdesentralisasi (Kleros)."
+        ],
+        "takeaway": "Smart Legal Contracts akan mengotomatisasi industri hukum komersial dengan efisiensi dan transparansi tinggi."
+      },
+      {
+        "t": "Blockchain dan AI",
+        "u": "https://www.youtube.com/watch?v=6iTCS2sWg1c&list=PLYabrfyDAEnua64_u2sfPjlZh0t9wQ4Sm",
+        "ty": "playlist",
+        "summary": "Blockchain dan AI: integrasi jaringan komputasi terdistribusi, data availability, dan pasar model AI.",
+        "keyPoints": [
+          "Mengamankan provenance (asal-usul) data training AI agar tidak dimanipulasi atau bias.",
+          "Insentif tokenomics bagi pemilik data dan penyedia kartu grafis GPU di seluruh dunia.",
+          "Verifikasi output model kecerdasan buatan menggunakan teknologi ZK-ML (Zero-Knowledge Machine Learning)."
+        ],
+        "takeaway": "Blockchain memastikan data dan model AI bersifat terbuka, dapat diverifikasi, dan tidak dimonopoli oleh segelintir korporasi raksasa."
+      },
+      {
+        "t": "Smart Contract Series",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntsge4tLRiurRZhbFtGVgaS",
+        "ty": "playlist",
+        "summary": "Seri Smart Contract: arsitektur modular, standardisasi token ERC-20, ERC-721, dan optimasi gas execution.",
+        "keyPoints": [
+          "Membedakan standar token fungible standar (ERC-20) dan representasi aset unik.",
+          "Optimasi variabel penyimpanan (storage packing) untuk menghemat biaya gas deploy dan interaksi.",
+          "Pola Proxy Contract untuk memungkinkan upgrade logika smart contract tanpa memindahkan data state."
+        ],
+        "takeaway": "Pengembang yang efisien mampu memangkas biaya gas transaksi pengguna hingga lebih dari 50% melalui penataan storage yang tepat."
+      },
+      {
+        "t": "Privacy, Security And Risk Management",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnulpToG0N1EaUd_Ruua2Rml",
+        "ty": "playlist",
+        "summary": "Privasi, Keamanan, & Manajemen Risiko: audit OpSec menyeluruh untuk trader, investor, dan pengembang Web3.",
+        "keyPoints": [
+          "Audit footprint jejak digital publik Anda yang berpotensi menjadi sasaran social engineering.",
+          "Penggunaan burner wallet, VPN terpercaya, dan browser privasi (Brave).",
+          "Pemisahan identitas publik (doxxed) dengan dompet penampung kekayaan utama (cold storage)."
+        ],
+        "takeaway": "Jangan pernah memamerkan saldo atau keuntungan crypto Anda di media sosial publik."
+      },
+      {
+        "t": "Infrastructure & Data Handling",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnusncMDpBmwUbrvhzr418J0",
+        "ty": "playlist",
+        "summary": "Infrastruktur & Penanganan Data: Node RPC, The Graph (Indexing subgraphs), IPFS, dan Data Availability.",
+        "keyPoints": [
+          "RPC Node sebagai jembatan aplikasi frontend ke blockchain ledger.",
+          "The Graph mengindeks dan menyajikan data on-chain kompleks secara cepat via GraphQL API.",
+          "Penyimpanan terdesentralisasi permanen IPFS & Arweave untuk metadata NFT dan frontend website anti-sensor."
+        ],
+        "takeaway": "Frontend terdesentralisasi di IPFS memastikan aplikasi dApp tetap dapat diakses meskipun domain web utamanya diblokir."
+      },
+      {
+        "t": "Emerging Concepts & New Tech Trends",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEns0M9D0S1z2DA6QVxDTic15",
+        "ty": "playlist",
+        "summary": "Tren Teknologi Baru di Crypto: Modular Blockchains (Celestia), Parallel EVM (Monad, Sei), dan Restaking.",
+        "keyPoints": [
+          "Modular Blockchain memisahkan tugas Execution, Consensus, dan Data Availability untuk throughput jutaan TPS.",
+          "Parallel EVM memungkinkan eksekusi beberapa transaksi independen secara bersamaan seperti sistem Solana.",
+          "Inovasi zk-EVM yang menghadirkan skalabilitas ZK ke lingkungan bahasa Solidity Ethereum."
+        ],
+        "takeaway": "Parallel EVM dan arsitektur modular adalah medan pertempuran inovasi infrastruktur blockchain generasi berikutnya."
+      },
+      {
+        "t": "Identifying Scam Tricks & Security Tips",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsFloe2UylM-zbwM5eNwoP6",
+        "ty": "playlist",
+        "summary": "Mengenali Trik Scam & Tips Keamanan: bedah kasus Phishing, Fake Telegram Admins, Malicious Signatures, & Drainers.",
+        "keyPoints": [
+          "Admin asli TIDAK PERNAH mengirim pesan pribadi (DM) terlebih dahulu di Telegram atau Discord.",
+          "Waspadai situs phishing yang meniru URL bursa/wallet (cek sertifikat SSL dan bookmark URL resmi).",
+          "Wallet Drainer bekerja dengan meminta approval \"SetApprovalForAll\" atau \"Permit\" yang memberi izin peretas menguras seluruh isi dompet."
+        ],
+        "takeaway": "Setiap kali ada tawaran airdrop gratis mendesak yang meminta koneksi wallet dan tanda tangan transaksi, 99.9% itu adalah jebakan drainer."
+      }
+    ]
+  },
+  {
+    "id": "m5",
+    "num": "05",
+    "ticker": "WEBM",
+    "name": "Webinar, Live Class & Komunitas",
+    "accent": "#58A6FF",
+    "sub": "Webinar, masterclass, live class, kelas komunitas, dan update berita. Materi hanya untuk penggunaan pribadi — mohon tidak disebarluaskan di luar komunitas.",
+    "resources": [
+      {
+        "t": "Crypto Market Outlook 2025 (17 Dec 2024)",
+        "u": "https://youtu.be/CSEGkBTAFvI",
+        "ty": "video",
+        "grp": "Webinar, Liveclass, Kuliah",
+        "summary": "Crypto Market Outlook 2025: proyeksi makro, siklus likuiditas M2 global, dan sektor katalis utama pasca Halving.",
+        "keyPoints": [
+          "Proyeksi puncak siklus bull market berdasarkan pola historis 4 tahunan.",
+          "Dampak aliran dana institusi melalui ETF dan adopsi korporasi skala global.",
+          "Pemetaan narasi sektor prioritas: AI x Crypto, DePIN, Real World Assets, dan ekosistem Bitcoin L2."
+        ],
+        "takeaway": "Siklus 2025 didorong oleh likuiditas institusional; fokus pada proyek yang memiliki adopsi riil dan revenue nyata."
+      },
+      {
+        "t": "US Election Market Outlook (3 Nov 2024)",
+        "u": "https://www.youtube.com/watch?v=lR9sISGi-Mk",
+        "ty": "video",
+        "grp": "Webinar, Liveclass, Kuliah",
+        "summary": "US Election Market Outlook: analisis dampak kebijakan pemilu Amerika Serikat dan regulasi terhadap arah industri crypto.",
+        "keyPoints": [
+          "Kebijakan kepemimpinan terhadap regulasi SEC, inovasi DeFi, dan cadangan strategis Bitcoin nasional.",
+          "Korelasi siklus pasar crypto dengan pemilu presiden AS dan pemangkasan suku bunga (Rate Cuts) The Fed.",
+          "Sentimen pasar institusional terhadap kejelasan hukum regulasi aset digital."
+        ],
+        "takeaway": "Kejelasan regulasi di Amerika Serikat membuka keran adopsi masif perbankan dan dana pensiun global ke crypto."
+      },
+      {
+        "t": "Preparing For Octobull (1 Oct 2024)",
+        "u": "https://youtu.be/oaK71Ar3fjE",
+        "ty": "video",
+        "grp": "Webinar, Liveclass, Kuliah",
+        "summary": "Preparing For Octobull: strategi positioning menyambut reli musiman kuartal ke-4 (Q4 Uptober).",
+        "keyPoints": [
+          "Secara historis, Q4 merupakan kuartal dengan performa kenaikan rata-rata tertinggi bagi Bitcoin dan altcoins.",
+          "Menyusun portofolio sebelum momentum reli dimulai (fase September accumulation).",
+          "Menghindari fomo membeli di puncak reli kuartal 4 dengan menyusun target profit bertahap."
+        ],
+        "takeaway": "Waktu terbaik mengakumulasi posisi untuk reli Q4 adalah saat pasar mengalami koreksi membosankan di bulan September."
+      },
+      {
+        "t": "The Art of Crypto Trading",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkSc7jlBxPbLCQz15nC7TF3A",
+        "ty": "playlist",
+        "grp": "Webinar, Liveclass, Kuliah",
+        "summary": "The Art of Crypto Trading: seri masterclass trading mendalam, seni membaca dinamika pasar, dan eksekusi presisi.",
+        "keyPoints": [
+          "Seni menyatukan analisa makro, struktur chart teknikal, dan data aliran dana on-chain.",
+          "Manajemen modal adaptif: memperbesar ukuran posisi saat kondisi pasar ideal dan memperkecil saat pasar liar.",
+          "Mengembangkan intuisi trader berdasarkan jam terbang dan pencatatan statistik trading berkala."
+        ],
+        "takeaway": "Trading adalah perpaduan antara sains probabilitas matematika dan seni pengendalian disiplin mental."
+      },
+      {
+        "t": "Crypto Trading Psychology",
+        "u": "https://youtu.be/Sz9BJzwP_98",
+        "ty": "video",
+        "grp": "Webinar, Liveclass, Kuliah",
+        "summary": "Crypto Trading Psychology: membedah perangkap mental trader, mengatasi keserakahan (Greed), ketakutan, dan ego.",
+        "keyPoints": [
+          "Musuh terbesar trader bukan market maker, melainkan ego dan ketidakdisiplinan diri sendiri.",
+          "Cara mengatasi trauma loss beruntun tanpa terjebak dalam lingkaran setan revenge trading.",
+          "Membangun rutinitas trading yang tenang, sehat, dan terbebas dari kecanduan menatap layar."
+        ],
+        "takeaway": "Kuasai psikologi Anda terlebih dahulu, maka konsistensi profit akan mengikuti secara otomatis."
+      },
+      {
+        "t": "Mastering Altcoins",
+        "u": "https://youtu.be/9Yfdc8ALR5A",
+        "ty": "video",
+        "grp": "Webinar, Liveclass, Kuliah",
+        "summary": "Mastering Altcoins: strategi menyaring, mengakumulasi, dan mendulang keuntungan maksimal dari Altcoin Season.",
+        "keyPoints": [
+          "Memahami metrik Bitcoin Dominance (BTC.D) dan kapan fase rotasi modal ke altcoins dimulai.",
+          "Memilih altcoin pemimpin (Market Leader) di setiap sektor dibanding koin peniru (Copycat).",
+          "Strategi agresif mengamankan modal awal saat altcoin sudah melonjak 2x-3x."
+        ],
+        "takeaway": "Saat Altcoin Season tiba, amankan modal pokok terlebih dahulu dan biarkan sisa profit bergulir bebas menuju target puncak."
+      },
+      {
+        "t": "Masterclass Session",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkTVvMpPp9tPRfjvXIofUL_X",
+        "ty": "playlist",
+        "grp": "Webinar, Liveclass, Kuliah",
+        "summary": "Masterclass Session: sesi eksklusif pembahasan strategi tingkat lanjut, studi kasus trading, dan bedah portofolio.",
+        "keyPoints": [
+          "Review mendalam performa portofolio dan perbaikan kesalahan strategi umum.",
+          "Bedah studi kasus transaksi sukses dan transaksi yang terkena stop loss.",
+          "Tanya jawab langsung membahas kondisi teknikal aset-aset potensial."
+        ],
+        "takeaway": "Belajar dari studi kasus kesalahan nyata mempercepat kurva pembelajaran Anda bertahun-tahun lebih cepat."
+      },
+      {
+        "t": "All Webinar/Liveclass Recording",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkQOw8z8vneRSlc-mBRW73aq",
+        "ty": "playlist",
+        "grp": "Recordings",
+        "summary": "Kumpulan Rekaman Lengkap Webinar & Live Class Akademi Crypto.",
+        "keyPoints": [
+          "Arsip komprehensif seluruh sesi live edukasi berkala bersama mentor Akademi Crypto.",
+          "Meninjau kembali analisa pasar dari masa ke masa untuk memahami siklus pergerakan harga.",
+          "Panduan terapan dari teori menjadi eksekusi di pasar riil."
+        ],
+        "takeaway": "Tonton rekaman sesi live untuk melihat cara para analis senior menyikapi berbagai kondisi market yang berbeda."
+      },
+      {
+        "t": "Kuliah Crypto",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkS4tAzW6rIx5yW8Pi4NZua-",
+        "ty": "playlist",
+        "grp": "Recordings",
+        "summary": "Kuliah Crypto: seri kuliah kurikulum berjenjang memahami seluruh pilar industri aset digital.",
+        "keyPoints": [
+          "Pondasi ilmiah ekonomi moneter, kriptografi, hingga sistem keuangan desentralisasi.",
+          "Membangun kerangka berpikir logis dan sistematis dalam menilai sebuah aset digital.",
+          "Pemahaman holistik tentang pergeseran teknologi finansial masa depan."
+        ],
+        "takeaway": "Pemahaman teori yang kuat memberikan keyakinan (conviction) tinggi saat menahan aset berharga di masa-masa sulit."
+      },
+      {
+        "t": "Bonus: Sales Mastery",
+        "u": "https://www.youtube.com/playlist?list=PL1hlgGm52pkR_axjnn8ocScFYtTLDQp08",
+        "ty": "playlist",
+        "grp": "Recordings",
+        "summary": "Bonus Sales Mastery: strategi komunikasi, negosiasi, dan soft-skill untuk kesuksesan finansial menyeluruh.",
+        "keyPoints": [
+          "Mengembangkan keterampilan persuasi dan komunikasi bernilai tinggi di dunia profesional.",
+          "Keahlian penjualan sebagai mesin penghasil modal kas aktif (Active Income) untuk diinvestasikan ke crypto.",
+          "Membangun personal branding dan jejaring relasi di industri Web3."
+        ],
+        "takeaway": "Tingkatkan active income dari keahlian bernilai tinggi untuk memperbesar amunisi investasi crypto Anda secara berkelanjutan."
+      },
+      {
+        "t": "Live Class",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnt1vzqX6jQe6eprxanFuY9P",
+        "ty": "playlist",
+        "grp": "Recordings",
+        "summary": "Live Class Komunitas: sesi interaktif bedah analisa pasar mingguan dan sesi tanya jawab anggota.",
+        "keyPoints": [
+          "Pembahasan langsung grafik aset crypto terpopuler setiap minggu.",
+          "Diskusi interaktif seputar kendala teknis dan peluang trading terkini.",
+          "Kolaborasi komunitas dalam berbagi informasi riset dan temuan alpha terbaru."
+        ],
+        "takeaway": "Manfaatkan kekuatan kecerdasan kolektif komunitas untuk memperluas jangkauan riset Anda."
+      },
+      {
+        "t": "Margin Call — 6 July 2024",
+        "u": "https://youtu.be/ZDnIJunBB-A",
+        "ty": "video",
+        "grp": "Margin Call (Private)",
+        "summary": "Margin Call (Private Session): pelajaran kritis mitigasi risiko dari peristiwa likuidasi massal di pasar derivatif.",
+        "keyPoints": [
+          "Bedah anatomi peristiwa leverage liquidation cascade yang mengguncang pasar.",
+          "Bahaya penggunaan leverage berlebih (High Leverage) di tengah likuiditas tipis.",
+          "Prosedur manajemen darurat saat terjadi pergerakan harga anomali ekstrem."
+        ],
+        "takeaway": "Leverage adalah pedang bermata dua; tanpa manajemen risiko mutlak, margin call hanya tinggal menunggu waktu."
+      },
+      {
+        "t": "2030 The Great Reset",
+        "u": "https://www.youtube.com/watch?v=Zpp4ja9DOFo&list=PL1hlgGm52pkQOw8z8vneRSlc-mBRW73aq&index=17",
+        "ty": "video",
+        "grp": "Bonus Materials",
+        "summary": "2030 The Great Reset: transformasi sistem keuangan global, inflasi fiat, dan posisi strategis Bitcoin.",
+        "keyPoints": [
+          "Pergeseran tatanan ekonomi dunia dan de-dolarisasi cadangan devisa global.",
+          "Masalah utang global yang tak berkelanjutan dan pencetakan uang bank sentral.",
+          "Peran Bitcoin sebagai emas digital tanpa batasan yurisdiksi dan benteng pelindung daya beli manusia."
+        ],
+        "takeaway": "Bitcoin bukan sekadar instrumen spekulasi, melainkan asuransi moneter terhadap devaluasi mata uang fiat."
+      },
+      {
+        "t": "ID Sign in 2025 Crypto Regulation",
+        "u": "https://www.youtube.com/watch?v=WzXHL9cfSko&list=PL1hlgGm52pkQOw8z8vneRSlc-mBRW73aq&index=18",
+        "ty": "video",
+        "grp": "Bonus Materials",
+        "summary": "Regulasi Crypto Indonesia 2025: transisi pengawasan Bappebti ke OJK, pajak crypto, dan legalitas industri.",
+        "keyPoints": [
+          "Peralihan pengawasan aset keuangan digital ke Otoritas Jasa Keuangan (OJK).",
+          "Ketentuan perpajakan PPh dan PPN transaksi crypto di bursa terdaftar di Indonesia.",
+          "Perlindungan konsumen dan kepatuhan bursa kripto berlisensi di tanah air."
+        ],
+        "takeaway": "Patuhi regulasi dan kewajiban pajak lokal demi kelancaran dan keamanan legalitas hasil investasi Anda."
+      },
+      {
+        "t": "Webinar AI Supercycle 2025 (Drive)",
+        "u": "https://drive.google.com/file/d/1tj-R2vyNAWKtt0QeaDLoOgPOVL8XS_5W/view?usp=sharing",
+        "ty": "drive",
+        "grp": "Bonus Materials",
+        "summary": "Webinar AI Supercycle 2025: ledakan narasi kecerdasan buatan, desentralisasi komputasi, dan token AI.",
+        "keyPoints": [
+          "Peluang super-cycle sektor AI yang didorong oleh kebutuhan GPU global yang melonjak.",
+          "Proyek crypto penyedia infrastruktur AI terdesentralisasi vs dApp AI konsumen.",
+          "Metode valuasi proyek AI crypto berdasarkan kapasitas komputasi dan revenue nyata."
+        ],
+        "takeaway": "Pilihlah proyek AI yang memiliki kemitraan riil dengan industri teknologi dan hardware fungsional."
+      },
+      {
+        "t": "The Great Reset.zip",
+        "u": "https://cdn.discordapp.com/attachments/1346715745127632916/1346715899633340417/The_Great_Reset.zip",
+        "ty": "file",
+        "grp": "Bonus Materials",
+        "summary": "Berkas Tambahan: The Great Reset (Arsip Dokumen & Materi Studi Pendukung).",
+        "keyPoints": [
+          "Dokumen referensi makroekonomi dan sejarah moneter global.",
+          "Kumpulan materi pendukung untuk memperdalam wawasan seputar pergeseran ekonomi masa depan."
+        ],
+        "takeaway": "Pelajari dokumen sejarah ekonomi untuk memahami pola siklus besar peradaban finansial."
+      },
+      {
+        "t": "Klik disini untuk akses (Telegram)",
+        "u": "https://t.me/+5iTzMIS7hlFjZmQ1",
+        "ty": "telegram",
+        "grp": "Komunitas",
+        "summary": "Grup Komunitas Resmi Telegram: wadah diskusi interaktif, sinyal update, dan jejaring member Akademi Crypto.",
+        "keyPoints": [
+          "Akses ke saluran komunikasi resmi komunitas sesama member dan mentor.",
+          "Update berita kilat dan diskusi pasar harian secara real-time."
+        ],
+        "takeaway": "Gunakan grup komunitas untuk berdiskusi secara produktif dan saling bertukar perspektif riset."
+      },
+      {
+        "t": "Berita",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnu3f5UBASGZxhI8MiJ5C675",
+        "ty": "playlist",
+        "grp": "Komunitas",
+        "summary": "Update Berita & Analisis Terkini: rangkuman peristiwa krusial yang menggerakkan pasar aset digital.",
+        "keyPoints": [
+          "Rangkuman berita ekonomi makro, kebijakan bank sentral, dan regulasi global.",
+          "Analisis dampak sentimen berita terhadap pergerakan likuiditas pasar crypto."
+        ],
+        "takeaway": "Ikuti perkembangan berita untuk memahami konteks narasi di balik pergerakan grafik harga."
+      }
+    ]
+  },
+  {
+    "id": "m6",
+    "num": "06",
+    "ticker": "EBOOK",
+    "name": "Ebook & Bacaan",
+    "accent": "#B084F5",
+    "sub": "Kumpulan ebook dan bacaan pendukung — 100 ebook keuangan & investasi, plus 5 seri ebook Akademi Crypto.",
+    "resources": [
+      {
+        "t": "100 Ebook Keuangan dan Investasi (Drive)",
+        "u": "https://drive.google.com/drive/folders/1hcVU_iOEG_-v5SwHAJulLTPYXdpRE3pt",
+        "ty": "drive",
+        "summary": "Koleksi 100 Ebook Keuangan & Investasi: literatur klasik finansial, value investing, psikologi uang, dan kepemimpinan.",
+        "keyPoints": [
+          "Kumpulan literatur terbaik dunia seputar pengelolaan kekayaan, investasi saham, dan ekonomi.",
+          "Membentuk pola pikir (mindset) kemakmuran jangka panjang dari para pakar keuangan legendaris.",
+          "Referensi belajar mandiri tanpa batas untuk memperluas cakrawala finansial."
+        ],
+        "takeaway": "Membaca buku adalah cara termurah untuk menyerap pengalaman puluhan tahun para investor tersukses dunia."
+      },
+      {
+        "t": "Crypto Investing Principles",
+        "u": "https://cloudpdf.io/view/hoOCSaGZ6",
+        "ty": "pdf",
+        "pw": "EA43DsMnlifymnp",
+        "summary": "Ebook Crypto Investing Principles: prinsip-prinsip fundamental dalam membangun kekayaan berkesinambungan di crypto.",
+        "keyPoints": [
+          "Pondasi filosofis investasi aset digital dan navigasi siklus 4 tahunan.",
+          "Strategi alokasi aset dan pengelolaan kas anti-stress.",
+          "Disiplin mempertahankan conviction di tengah kepanikan bear market."
+        ],
+        "takeaway": "Pegang teguh prinsip investasi tertulis untuk menjaga ketenangan mental dalam segala kondisi pasar."
+      },
+      {
+        "t": "Crypto Smart Money",
+        "u": "https://cloudpdf.io/view/AQz5710eV",
+        "ty": "pdf",
+        "pw": "LpyDO2D2DG1k0BH",
+        "summary": "Ebook Crypto Smart Money: melacak jejak institusi, aliran dana whale, dan membaca pergerakan pasar cerdas.",
+        "keyPoints": [
+          "Memahami cara berpikir institusi keuangan dan bandar besar dalam mengakumulasi aset.",
+          "Membaca jejak manipulasi likuiditas dan area jebakan harga retail.",
+          "Menyelaraskan posisi trading Anda di sisi yang sama dengan Smart Money."
+        ],
+        "takeaway": "Jangan melawan pergerakan uang pintar (Smart Money); posisikan diri Anda mengikuti arus mereka."
+      },
+      {
+        "t": "Crypto Trading Guide",
+        "u": "https://cloudpdf.io/view/CdYdK_wkq",
+        "ty": "pdf",
+        "pw": "JQrI0Ib0EDsnxZS",
+        "summary": "Ebook Crypto Trading Guide: panduan praktis step-by-step analisa teknikal, setup order, dan manajemen risiko trading.",
+        "keyPoints": [
+          "Panduan visual chart pattern, level Fibonacci, dan indikator momentum pilihan.",
+          "Checklist lengkap persiapan sebelum membuka posisi (Trading Checklist).",
+          "Rumus perhitungan ukuran posisi (Position Sizing) dan penempatan stop loss ideal."
+        ],
+        "takeaway": "Gunakan panduan ini sebagai buku saku referensi cepat saat menyusun rencana trading harian."
+      },
+      {
+        "t": "Crypto Trading Psychology",
+        "u": "https://cloudpdf.io/view/QDnn4Qwpn",
+        "ty": "pdf",
+        "pw": "1ENXLTACAIeEF8Y",
+        "summary": "Ebook Crypto Trading Psychology: panduan menguasai emosi, menaklukkan ketakutan & keserakahan, dan disiplin mental.",
+        "keyPoints": [
+          "Strategi psikologis memutus siklus emosional FOMO, panik jual, dan over-trading.",
+          "Membangun mental baja seorang trader profesional yang tidak terpengaruh oleh satu hasil trading.",
+          "Protokol pemulihan psikologi pasca mengalami kerugian beruntun."
+        ],
+        "takeaway": "Kemenangan sejati seorang trader adalah ketika ia mampu menundukkan egonya sendiri di depan grafik."
+      },
+      {
+        "t": "Mastering Altcoins",
+        "u": "https://cloudpdf.io/view/2xpujxiTo",
+        "ty": "pdf",
+        "pw": "V3l0c!tyTw3lv3Pr!nc3",
+        "summary": "Ebook Mastering Altcoins: strategi mendalam memilih altcoin potensial berlipat ganda dan menunggangi Altseason.",
+        "keyPoints": [
+          "Kriteria seleksi altcoin berfundamental kuat dengan valuasi yang masih terdiskon.",
+          "Menghitung fase perputaran likuiditas dari Bitcoin Dominance menuju Altcoin Index.",
+          "Strategi take profit bertahap untuk memastikan keuntungan berhasil dibawa pulang ke rekening kas."
+        ],
+        "takeaway": "Altcoin adalah instrumen pengali kekayaan yang luar biasa asalkan Anda disiplin mengunci profit tepat waktu."
+      }
+    ]
+  },
+  {
+    "id": "m7",
+    "num": "07",
+    "ticker": "PROG",
+    "name": "Programming & Data Skills",
+    "accent": "#6EE7B7",
+    "sub": "Playlist tentang dasar-dasar programming, analisis data, dan tools pendukung riset crypto.",
+    "resources": [
+      {
+        "t": "Python & Programing Basics",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsKCuPBaRMPVw_TXQNunjC3",
+        "ty": "playlist",
+        "summary": "Python & Programming Basics: dasar bahasa pemrograman Python untuk pengolahan data dan otomasi keuangan.",
+        "keyPoints": [
+          "Pengenalan sintaks dasar Python, tipe data (Numbers, Strings, Lists, Dictionaries), dan variabel.",
+          "Instalasi lingkungan Python (VS Code, Jupyter Notebook).",
+          "Mengapa Python menjadi bahasa paling populer untuk data science dan algoritma crypto."
+        ],
+        "takeaway": "Python sangat mudah dipelajari dan merupakan keahlian wajib untuk membangun sistem analisa data modern."
+      },
+      {
+        "t": "Control Flow & Function",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnu9ih4wRjAjbz_4OINFcBbi",
+        "ty": "playlist",
+        "summary": "Control Flow & Functions: logika percabangan (If-Else), perulangan (Loops), dan pembuatan fungsi modular.",
+        "keyPoints": [
+          "Logika kondisi boolean untuk menyaring data harga pasar.",
+          "Perulangan For dan While untuk memproses data ribuan transaksi secara otomatis.",
+          "Menulis Function reusable untuk menghitung indikator teknikal (misal: Moving Average)."
+        ],
+        "takeaway": "Fungsi yang terstruktur rapi mempermudah pengujian dan otomasi algoritma trading Anda."
+      },
+      {
+        "t": "Data Analysis & Visualisasi",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntLMrmHtdK9_qn5UY35dKey",
+        "ty": "playlist",
+        "summary": "Data Analysis & Visualisasi: eksplorasi data pasar crypto menggunakan library Pandas, NumPy, dan Matplotlib.",
+        "keyPoints": [
+          "Memanipulasi data time-series harga crypto dalam bentuk Pandas DataFrame.",
+          "Menghitung statistik volatilitas, korelasi antar koin, dan rata-rata pergerakan harga.",
+          "Membuat grafik visual profesional candlestick dan diagram distribusi likuiditas dengan Matplotlib/Seaborn."
+        ],
+        "takeaway": "Visualisasi data membantu mengungkap pola tersembunyi yang sulit dilihat hanya dari tabel angka."
+      },
+      {
+        "t": "Bekerja Dengan API Crypto",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntU5Y8o3WLdm27_pCM19nNo",
+        "ty": "playlist",
+        "summary": "Bekerja dengan API Crypto: menarik data harga real-time, volume, dan riwayat order dari REST API bursa & CoinGecko.",
+        "keyPoints": [
+          "Pengenalan protokol REST API, HTTP Requests (GET/POST), dan parsing format JSON.",
+          "Menghubungkan script Python ke API publik CoinGecko, Binance, atau Bybit.",
+          "Mengatur autentikasi API Key dan manajemen batasan frekuensi request (Rate Limits)."
+        ],
+        "takeaway": "Menguasai API memungkinkan Anda membuat dashboard kustom dan bot pemantau harga otomatis 24/7."
+      },
+      {
+        "t": "Excel Modelling 101",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvRqv_kjAVZ5pPEbTqq8bCj",
+        "ty": "playlist",
+        "summary": "Excel Modelling 101: pemodelan keuangan, simulasi portofolio, dan rumus analitik di Microsoft Excel / Google Sheets.",
+        "keyPoints": [
+          "Rumus esensial: VLOOKUP/XLOOKUP, INDEX-MATCH, SUMIFS, dan fungsi keuangan.",
+          "Membangun template portofolio tracker dinamis dengan integrasi live feed harga crypto.",
+          "Simulasi skenario risiko (Scenario Analysis) dan perhitungan expected value portofolio."
+        ],
+        "takeaway": "Excel adalah alat pemodelan keuangan paling fleksibel dan cepat untuk menguji skenario investasi."
+      },
+      {
+        "t": "Onboarding & Education",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnuwAufqHejHLvCtfZ1yCLxf",
+        "ty": "playlist",
+        "summary": "Onboarding & Education: panduan langkah demi langkah mengadopsi tools komputasi dan manajemen workspace data.",
+        "keyPoints": [
+          "Setup alur kerja efisien dan manajemen direktori proyek data analitik.",
+          "Penggunaan Git & GitHub dasar untuk backup kode dan kolaborasi.",
+          "Integrasi tools produktivitas untuk mendukung riset mandiri."
+        ],
+        "takeaway": "Workspace yang tertata rapi meningkatkan produktivitas riset Anda secara drastis."
+      },
+      {
+        "t": "User-Focused Topics",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnv9aLzIavr9GAs38CUluIp7",
+        "ty": "playlist",
+        "summary": "User-Focused Topics: perancangan antarmuka visual data yang intuitif dan mudah dipahami pengguna.",
+        "keyPoints": [
+          "Prinsip penyajian dashboard data yang bersih tanpa informasi berlebih (Clutter-free).",
+          "Menyusun indikator kunci (KPI) utama di posisi teratas agar mudah dipantau.",
+          "Mempermudah pengambilan keputusan cepat berdasarkan ringkasan visual data."
+        ],
+        "takeaway": "Data terbaik adalah data yang disajikan secara sederhana sehingga memicu keputusan aksi yang tepat."
+      }
+    ]
+  },
+  {
+    "id": "m8",
+    "num": "08",
+    "ticker": "FINTRD",
+    "name": "Finance Tradisional / Keuangan Pribadi",
+    "accent": "#CBD5E1",
+    "sub": "Playlist seputar keuangan pribadi dan finance tradisional — mulai dari perbankan, ekonomi, pajak, sampai perencanaan keuangan.",
+    "resources": [
+      {
+        "t": "Banking 101",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvngvfytIMo7tEQ3UsyNt0j",
+        "ty": "playlist",
+        "summary": "Banking 101: cara kerja sistem perbankan komersial, Fractional Reserve Banking, dan penciptaan uang fiat.",
+        "keyPoints": [
+          "Sistem Fractional Reserve: bank hanya menyimpan sebagian kecil cadangan kas dan meminjamkan sisanya ke masyarakat.",
+          "Mekanisme transmisi suku bunga acuan bank sentral ke pinjaman dan tabungan.",
+          "Perbedaan menabung di bank (tergerus inflasi) vs berinvestasi di aset produktif."
+        ],
+        "takeaway": "Uang di rekening bank bukan aset investasi, melainkan alat transaksi likuid yang nilainya menyusut oleh inflasi."
+      },
+      {
+        "t": "Corporate Action",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvguO7O4EEoyg5FFutySJYW",
+        "ty": "playlist",
+        "summary": "Corporate Action: aksi korporasi emiten (Right Issue, Stock Split, Dividen, Buyback, Reverse Split) dan dampaknya.",
+        "keyPoints": [
+          "Stock Split memecah nominal saham untuk meningkatkan likuiditas retail tanpa mengubah nilai total valuasi.",
+          "Right Issue (Penambahan Modal Hak Memesan Efek Terlebih Dahulu) dan risiko dilusi kepemilikan saham.",
+          "Dividen vs Stock Buyback sebagai bentuk pengembalian keuntungan kepada pemegang saham."
+        ],
+        "takeaway": "Pahami motif di balik aksi korporasi sebelum memutuskan menambah atau melepas posisi investasi."
+      },
+      {
+        "t": "Economy 101",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvGYO7FCYMQfSeexZlGTeIR",
+        "ty": "playlist",
+        "summary": "Economy 101: siklus ekonomi makro, Produk Domestik Bruto (PDB/GDP), inflasi, deflasi, dan kebijakan moneter.",
+        "keyPoints": [
+          "Siklus 4 fase ekonomi: Ekspansi, Puncak (Peak), Kontraksi (Resesi), dan Palung (Trough).",
+          "Peran Bank Sentral dalam mengendalikan inflasi melalui instrumen suku bunga dan Quantitative Easing/Tightening.",
+          "Bagaimana likuiditas global M2 mengalir dan menggelembungkan harga aset investasi."
+        ],
+        "takeaway": "Aset berisiko seperti saham dan crypto terbang saat likuiditas global melimpah (Quantitative Easing)."
+      },
+      {
+        "t": "Mengenal Konsep Mikro Ekonomi",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnt1D99e6nSgz9zxsP2qHmTK",
+        "ty": "playlist",
+        "summary": "Mengenal Konsep Mikro Ekonomi: hukum penawaran-permintaan, elastisitas harga, dan struktur pasar persaingan.",
+        "keyPoints": [
+          "Hukum Penawaran dan Permintaan dalam menentukan titik ekuilibrium harga wajar barang/jasa.",
+          "Elastisitas Permintaan: produk kebutuhan pokok inelastis vs produk barang mewah elastis.",
+          "Struktur Pasar: Persaingan Sempurna, Oligopoli, dan Monopoli serta dampaknya pada margin laba bisnis."
+        ],
+        "takeaway": "Perusahaan dengan keunggulan monopoli (Economic Moat) memiliki kekuatan menetapkan harga (pricing power) terbaik."
+      },
+      {
+        "t": "Saham 101",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsE0Xn5c9BL9nVWzIOslvqp",
+        "ty": "playlist",
+        "summary": "Saham 101: dasar kepemilikan bisnis melalui instrumen pasar modal, bursa efek, dan valuasi saham.",
+        "keyPoints": [
+          "Membeli saham berarti membeli porsi kepemilikan bisnis riil yang memiliki aset, karyawan, dan arus kas.",
+          "Dua sumber keuntungan: Capital Gain (kenaikan harga) dan Dividen (bagi hasil laba).",
+          "Membaca rasio valuasi standar: Price-to-Earnings Ratio (PER) dan Price-to-Book Value (PBV)."
+        ],
+        "takeaway": "Perlakukan investasi saham sebagai kepemilikan bisnis jangka panjang, bukan sekadar kertas judi harian."
+      },
+      {
+        "t": "Laporan Keuangan 101",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnv25P3G3kYaOi8KrEAPotKA",
+        "ty": "playlist",
+        "summary": "Laporan Keuangan 101: cara membaca Neraca (Balance Sheet), Laba Rugi (Income Statement), dan Arus Kas (Cash Flow).",
+        "keyPoints": [
+          "Neraca: Aset = Liabilitas (Utang) + Ekuitas (Modal Bersih). Menilai kesehatan solvabilitas perusahaan.",
+          "Laba Rugi: mengukur pertumbuhan Pendapatan (Revenue), Laba Kotor, dan Laba Bersih (Net Profit).",
+          "Laporan Arus Kas (Cash Flow): memeriksa apakah laba bersih benar-benar masuk sebagai uang kas nyata (Operating Cash Flow)."
+        ],
+        "takeaway": "Laba adalah opini akuntansi, tetapi Arus Kas (Cash Flow) adalah fakta riil kesehatan perusahaan."
+      },
+      {
+        "t": "E-IPO",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsJBRhO5lGou9RNVqxQM9q4",
+        "ty": "playlist",
+        "summary": "E-IPO: mekanisme penawaran umum perdana saham secara elektronik, prospektus, dan penjatahan saham baru.",
+        "keyPoints": [
+          "Proses perusahaan go-public dan membuka akses kepemilikan kepada publik melalui sistem e-IPO.",
+          "Membaca prospektus untuk melihat penggunaan dana IPO (ekspansi usaha vs membayar utang lama pemilik).",
+          "Strategi alokasi penjatahan fixed allotment dan pooling allotment."
+        ],
+        "takeaway": "Hindari perusahaan IPO yang mayoritas dana hasil IPO-nya dipakai untuk melunasi utang pemilik lama."
+      },
+      {
+        "t": "Richest Man in Babylon",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsUBXockvG-EFo5bkf_MbXb",
+        "ty": "playlist",
+        "summary": "The Richest Man in Babylon: hikmah abadi pengelolaan kekayaan dari peradaban kuno Babilonia.",
+        "keyPoints": [
+          "Aturan Pertama: Sisihkan minimal 10% dari seluruh penghasilan untuk diri sendiri sebagai modal masa depan.",
+          "Kendalikan pengeluaran agar selalu berada di bawah penghasilan; bedakan kebutuhan primer dengan keinginan nafsu.",
+          "Pastikan modal Anda bekerja menghasilkan keuntungan berkelanjutan dan carilah nasihat hanya dari orang yang ahli di bidangnya."
+        ],
+        "takeaway": "Hukum emas kekayaan tidak pernah berubah: bayar diri Anda terlebih dahulu sebelum membayar orang lain."
+      },
+      {
+        "t": "Mengenal Kewajiban Pajak Bagi Investor",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnt477EWFt8I1aMh10cjmVPM",
+        "ty": "playlist",
+        "summary": "Kewajiban Pajak Bagi Investor: memahami pajak final saham, PPh/PPN crypto, dan pelaporan SPT Tahunan.",
+        "keyPoints": [
+          "Pajak final saham di bursa Indonesia (0.1% dari nilai bruto penjualan) dan pajak dividen (10% atau 0% jika diinvestasikan kembali).",
+          "Pajak transaksi crypto di exchange terdaftar (PPh Pasal 22 Final 0.1% + PPN 0.11%).",
+          "Kewajiban mencantumkan kepemilikan harta aset crypto pada kolom daftar harta SPT Tahunan pribadi."
+        ],
+        "takeaway": "Tertib administrasi pajak melindungi Anda dari denda pemeriksaan dan menjaga ketenangan aset jangka panjang."
+      },
+      {
+        "t": "Intermediate Financial Analysis",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnuo-eH6Mxuofs7Pvfdi4IlL",
+        "ty": "playlist",
+        "summary": "Intermediate Financial Analysis: analisis rasio keuangan mendalam (ROE, ROIC, Free Cash Flow, Debt to Equity).",
+        "keyPoints": [
+          "Return on Equity (ROE) & Return on Invested Capital (ROIC): mengukur efisiensi manajemen memutar modal menjadi laba.",
+          "Debt-to-Equity Ratio (DER) & Interest Coverage Ratio: mengukur ketahanan perusahaan menghadapi krisis kredit.",
+          "Free Cash Flow (FCF): kas murni yang tersisa setelah belanja modal (CapEx) untuk dividen atau ekspansi."
+        ],
+        "takeaway": "Perusahaan dengan ROIC tinggi dan utang rendah secara historis mampu mengalahkan performa indeks pasar modal."
+      },
+      {
+        "t": "Consumer Goods",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvdnP6sSxHraF4k8zbkczVV",
+        "ty": "playlist",
+        "summary": "Sektor Consumer Goods: karakteristik bisnis barang konsumsi, siklus defensif, dan kekuatan brand moat.",
+        "keyPoints": [
+          "Karakteristik saham defensif: produk tetap dibeli masyarakat dalam kondisi ekonomi krisis sekalipun.",
+          "Kekuatan Brand Moat dan jalur distribusi luas sebagai pelindung pangsa pasar.",
+          "Sensitivitas margin terhadap harga bahan baku komoditas (gandum, CPO, gula, kemasan plastik)."
+        ],
+        "takeaway": "Saham consumer goods unggulan memberikan stabilitas arus kas dan dividen rutin bagi portofolio konservatif."
+      },
+      {
+        "t": "Blockchain",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntQ0arY0Rv8RBhqvegdCX2X",
+        "ty": "playlist",
+        "summary": "Blockchain dalam Spektrum Keuangan Global: perbandingan efisiensi rel penyelesaian aset digital vs sistem SWIFT.",
+        "keyPoints": [
+          "Sistem perbankan koresponden tradisional membutuhkan waktu 2-5 hari kerja untuk transfer antar negara dengan biaya mahal.",
+          "Blockchain menyelesaikan transaksi internasional dalam hitungan detik dengan biaya pecahan sen (Finality Instan).",
+          "Revolusi stablecoin sebagai mata uang penyelesaian perdagangan lintas batas negara."
+        ],
+        "takeaway": "Blockchain adalah evolusi rel infrastruktur keuangan global yang memotong inefisiensi birokrasi perbankan lama."
+      },
+      {
+        "t": "Financial Planning for Intermediate part 1",
+        "u": "https://www.youtube.com/watch?v=4NlAvYu-nO4&list=PLYabrfyDAEns6H8PvwVuBjSuWpnY89o1_&index=1",
+        "ty": "playlist",
+        "summary": "Financial Planning for Intermediate Part 1: piramida perencanaan keuangan, dana darurat, dan proteksi aset.",
+        "keyPoints": [
+          "Piramida Keuangan: Fondasi Dana Darurat & Asuransi -> Investasi Pertumbuhan -> Investasi Spekulatif -> Warisan.",
+          "Besaran Dana Darurat ideal: 3-6 bulan pengeluaran rutin bagi lajang, 6-12 bulan bagi yang sudah berkeluarga.",
+          "Simpan dana darurat di instrumen likuid dan bebas risiko modal (Pasar Uang / Tabungan Khusus)."
+        ],
+        "takeaway": "Jangan pernah melompat ke investasi berisiko tinggi sebelum fondasi dana darurat Anda kokoh terpenuhi."
+      },
+      {
+        "t": "Financial Planning for Intermediate part 2",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnsFAIUDXhbkls8UxJwrU4RA",
+        "ty": "playlist",
+        "summary": "Financial Planning for Intermediate Part 2: alokasi tujuan finansial, perencanaan pensiun, dan kebebasan finansial (FIRE).",
+        "keyPoints": [
+          "Menghitung angka kebutuhan pensiun (Metode 4% Rule / 25x pengeluaran tahunan).",
+          "Memisahkan pos tabungan jangka pendek (<1 tahun), menengah (1-5 tahun), dan jangka panjang (>5 tahun).",
+          "Konsep Financial Independence Retire Early (FIRE) melalui akumulasi aset produktif penghasil pasif income."
+        ],
+        "takeaway": "Kebebasan finansial bukan tentang menjadi kaya raya tanpa batas, melainkan memiliki waktu penuh atas hidup Anda sendiri."
+      },
+      {
+        "t": "From History to Market Mastery",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntFwymj8SVWwOnv7oPMEogK",
+        "ty": "playlist",
+        "summary": "From History to Market Mastery: mempelajari sejarah krisis keuangan global (Tulip Mania, 1929 Crash, Dotcom Bubble, 2008 GFC).",
+        "keyPoints": [
+          "Setiap krisis keuangan selalu dipicu oleh pola yang sama: kredit longgar -> spekulasi berlebih -> euforia -> pengetatan likuiditas -> kepanikan.",
+          "Sifat dasar keserakahan dan ketakutan manusia tidak pernah berubah selama ratusan tahun.",
+          "Peluang akumulasi kekayaan terbesar selalu tercipta di titik terendah kepanikan krisis global."
+        ],
+        "takeaway": "Mereka yang tidak mempelajari sejarah keuangan ditakdirkan untuk mengulangi kesalahan fatal di masa depan."
+      },
+      {
+        "t": "Behavioral Finance",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvdsi3OxFHsnI-fhCIpgKpo",
+        "ty": "playlist",
+        "summary": "Behavioral Finance: bias kognitif dalam pengambilan keputusan uang (Loss Aversion, Anchoring, Herding Effect).",
+        "keyPoints": [
+          "Loss Aversion: rasa sakit kehilangan Rp 1 juta terasa 2x lebih menyakitkan daripada rasa senang mendapat Rp 1 juta.",
+          "Herding Effect: kecenderungan ikut-ikutan kerumunan massa yang berujung membeli di pucuk harga.",
+          "Anchoring Bias: terpaku pada harga beli masa lalu sehingga menolak menjual aset yang prospeknya sudah rusak."
+        ],
+        "takeaway": "Mengenali bias psikologis pribadi adalah langkah pertama menjadi pengambil keputusan finansial yang rasional."
+      },
+      {
+        "t": "Income 101",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvd_MwRon-bl4GcMN1zxbzO",
+        "ty": "playlist",
+        "summary": "Income 101: membedakan Active Income, Portfolio Income, dan Passive Income serta strategi akselerasi pendapatan.",
+        "keyPoints": [
+          "Active Income: menukar waktu langsung dengan uang (gaji, freelance, jasa). Mesin utama pencetak modal awal.",
+          "Portfolio Income: keuntungan dari penjualan aset investasi modal (capital gain).",
+          "Passive Income: arus kas yang mengalir dari aset tanpa keterlibatan waktu harian (dividen, sewa properti, staking yield)."
+        ],
+        "takeaway": "Gunakan active income untuk membeli aset penghasil passive income sampai passive income Anda melampaui biaya hidup."
+      },
+      {
+        "t": "Hutang 101",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntmun2m_y6W6pjbMR6I8XCJ",
+        "ty": "playlist",
+        "summary": "Hutang 101: membedakan Hutang Produktif vs Hutang Konsumtif, manajemen Debt Service Ratio (DSR), dan keluar dari jeratan utang.",
+        "keyPoints": [
+          "Hutang Produktif: utang untuk membeli aset yang menghasilkan arus kas lebih besar dari biaya bunga pinjaman.",
+          "Hutang Konsumtif: utang berbunga tinggi (pinjol, kartu kredit, paylater) untuk membeli barang yang nilainya menyusut.",
+          "Batas aman Debt Service Ratio: total cicilan utang bulanan maksimal 30% dari penghasilan rutin.",
+          "Metode pelunasan utang: Debt Snowball (lunasi nominal terkecil dulu untuk psikologi) vs Debt Avalanche (lunasi bunga tertinggi dulu)."
+        ],
+        "takeaway": "Hindari segala bentuk utang konsumtif; bunga berbunga yang bekerja melawan Anda adalah racun finansial paling mematikan."
+      },
+      {
+        "t": "Asuransi 101",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnuALOkT4QXOhZ2evccQ_njf",
+        "ty": "playlist",
+        "summary": "Asuransi 101: fungsi proteksi risiko, asuransi kesehatan murni vs asuransi jiwa tradisional vs unit link.",
+        "keyPoints": [
+          "Tujuan asuransi adalah memindahkan risiko bencana finansial yang tak terduga, bukan untuk mencari keuntungan investasi.",
+          "Prioritaskan Asuransi Kesehatan Murni (Rawat Inap) dan Asuransi Jiwa Term-Life bagi pencari nafkah keluarga.",
+          "Hindari mencampuradukkan asuransi dengan investasi (Unit Link) yang membebankan biaya pengelolaan tinggi dan hasil tidak optimal."
+        ],
+        "takeaway": "Beli asuransi murni untuk proteksi risiko, dan investasikan sisa uang Anda secara mandiri di aset produktif."
+      },
+      {
+        "t": "Mengenal Konsep Permintaan",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEntOY9R5oi9eko9oAPEKamK2",
+        "ty": "playlist",
+        "summary": "Mengenal Konsep Permintaan: faktor pendorong daya beli konsumen, tren konsumsi, dan siklus pendapatan.",
+        "keyPoints": [
+          "Hubungan negatif antara tingkat harga dengan jumlah permintaan barang/jasa.",
+          "Faktor penggeser kurva permintaan: tingkat pendapatan masyarakat, selera tren, harga barang substitusi, dan ekspektasi masa depan.",
+          "Menilai ketahanan permintaan produk sebuah bisnis saat daya beli masyarakat menurun."
+        ],
+        "takeaway": "Bisnis terbaik adalah bisnis yang produknya memiliki permintaan stabil tanpa terpengaruh kondisi penurunan daya beli."
+      },
+      {
+        "t": "Money Management THR Edition",
+        "u": "https://www.youtube.com/playlist?list=PLYabrfyDAEnvGigJu7Z7-q-QYG5rnWp_e",
+        "ty": "playlist",
+        "summary": "Money Management THR & Bonus Edition: strategi mengalokasikan dana tak terduga (Windfall Money) secara bijak.",
+        "keyPoints": [
+          "Formula 50-30-20 untuk dana bonus: 50% tabungan masa depan/investasi, 30% kewajiban/dana darurat, 20% konsumsi/hari raya.",
+          "Hindari Lifestyle Inflation (kebiasaan menaikkan gaya hidup seketika saat menerima bonus besar).",
+          "Memanfaatkan momen dana THR untuk melunasi sisa utang tertunda atau mengunci posisi investasi koin fundamental."
+        ],
+        "takeaway": "Uang bonus adalah akselerator tercepat untuk melipatgandakan portofolio jika tidak dihabiskan untuk konsumsi sesaat."
+      }
+    ]
+  }
 ];
 
 // assign stable ids
@@ -868,29 +2693,79 @@ function linkIconSvg(){
   return '<svg class="r-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
 }
 
+let openSummaries = {};
+let currentModalTab = 'video';
+
+function toggleSummary(id, e){
+  if(e) e.stopPropagation();
+  openSummaries[id] = !openSummaries[id];
+  const drawer = document.getElementById('summary-drawer-' + id);
+  const btn = document.getElementById('btn-sum-' + id);
+  if(drawer){
+    drawer.classList.toggle('hidden', !openSummaries[id]);
+  }
+  if(btn){
+    btn.classList.toggle('active', openSummaries[id]);
+  }
+}
+
+function toggleAllSummariesInModule(){
+  const m = MODULES.find(x => x.id === activeModule);
+  if(!m) return;
+  const anyClosed = m.resources.some(r => !openSummaries[r.id]);
+  m.resources.forEach(r => { openSummaries[r.id] = anyClosed; });
+  renderMain();
+}
+
 function resourceRow(r, mCtx){
-    const isDone = !!progress[r.id];
-    const pwLine = r.pw ? `<div class="r-meta">kata sandi: <code>${r.pw}</code></div>` : '';
-    const embeddable = (r.ty === 'video' || r.ty === 'playlist');
-    const titleHtml = embeddable
-      ? `<span class="r-title r-title-play" onclick="openVideoModal('${r.id}')">${r.t}</span>`
-      : `<span class="r-title"><a href="${r.u}" target="_blank" rel="noopener">${r.t}</a></span>`;
-    const modTag = mCtx ? `<span class="badge badge-modtag" style="--accent:${mCtx.accent}">${mCtx.ticker}</span>` : '';
-    return `
-      <div class="resource ${isDone?'done':''}" style="${mCtx ? '--accent:'+mCtx.accent : ''}">
-        <div class="chk ${isDone?'checked':''}" onclick="toggleResource('${r.id}')"></div>
-        <div class="r-body">
-          <div class="r-top">
-            <span class="badge badge-${r.ty}">${TYPE_ICONS[r.ty]}<span>${ICONS[r.ty]}</span></span>
-            ${modTag}
-            ${titleHtml}
-          </div>
-          ${pwLine}
-        </div>
-        <a href="${r.u}" target="_blank" rel="noopener" class="r-link-icon">${linkIconSvg()}</a>
+  const isDone = !!progress[r.id];
+  const isOpen = !!openSummaries[r.id];
+  const pwLine = r.pw ? `<div class="r-meta">kata sandi: <code>${r.pw}</code></div>` : '';
+  const embeddable = (r.ty === 'video' || r.ty === 'playlist');
+  const titleHtml = embeddable
+    ? `<span class="r-title r-title-play" onclick="openVideoModal('${r.id}')">${escapeHtml(r.t)}</span>`
+    : `<span class="r-title"><a href="${r.u}" target="_blank" rel="noopener">${escapeHtml(r.t)}</a></span>`;
+  const modTag = mCtx ? `<span class="badge badge-modtag" style="--accent:${mCtx.accent}">${mCtx.ticker}</span>` : '';
+  
+  const hasSummary = !!(r.summary || r.keyPoints?.length || r.takeaway);
+  const summaryBtn = hasSummary
+    ? `<button class="btn-summary ${isOpen?'active':''}" id="btn-sum-${r.id}" onclick="toggleSummary('${r.id}', event)">⚡ Ringkasan</button>`
+    : '';
+
+  let summaryDrawerHtml = '';
+  if(hasSummary){
+    const pointsHtml = r.keyPoints && r.keyPoints.length
+      ? `<ul class="r-summary-points">${r.keyPoints.map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>`
+      : '';
+    const takeawayHtml = r.takeaway
+      ? `<div class="r-summary-takeaway"><strong>🎯 Takeaway</strong><span>${escapeHtml(r.takeaway)}</span></div>`
+      : '';
+    summaryDrawerHtml = `
+      <div class="r-summary-drawer ${isOpen?'':'hidden'}" id="summary-drawer-${r.id}">
+        ${r.summary ? `<div class="r-summary-text">${escapeHtml(r.summary)}</div>` : ''}
+        ${pointsHtml}
+        ${takeawayHtml}
       </div>
     `;
   }
+
+  return `
+    <div class="resource ${isDone?'done':''}" style="${mCtx ? '--accent:'+mCtx.accent : ''}" id="res-card-${r.id}">
+      <div class="chk ${isDone?'checked':''}" onclick="toggleResource('${r.id}')" title="Tandai Selesai"></div>
+      <div class="r-body">
+        <div class="r-top">
+          <span class="badge badge-${r.ty}">${TYPE_ICONS[r.ty]}<span>${ICONS[r.ty]}</span></span>
+          ${modTag}
+          ${titleHtml}
+          ${summaryBtn}
+        </div>
+        ${pwLine}
+        ${summaryDrawerHtml}
+      </div>
+      <a href="${r.u}" target="_blank" rel="noopener" class="r-link-icon" title="Buka tautan">${linkIconSvg()}</a>
+    </div>
+  `;
+}
 
 function clearSearch(){
   searchQuery = '';
@@ -906,20 +2781,30 @@ function renderSearchResults(){
   const results = [];
   MODULES.forEach(m=>{
     m.resources.forEach(r=>{
-      if(r.t.toLowerCase().includes(searchQuery)){ results.push({r, m}); }
+      const matchTitle = r.t.toLowerCase().includes(searchQuery);
+      const matchSum = r.summary && r.summary.toLowerCase().includes(searchQuery);
+      const matchTakeaway = r.takeaway && r.takeaway.toLowerCase().includes(searchQuery);
+      const matchPoints = r.keyPoints && r.keyPoints.some(p => p.toLowerCase().includes(searchQuery));
+      if(matchTitle || matchSum || matchTakeaway || matchPoints){
+        results.push({r, m, isSummaryMatch: !matchTitle && (matchSum || matchTakeaway || matchPoints)});
+      }
     });
   });
 
   const safeQuery = escapeHtml(searchQuery);
   const bodyHtml = results.length
-    ? results.map(({r,m})=>resourceRow(r, m)).join('')
+    ? results.map(({r,m,isSummaryMatch})=>{
+        // Automatically open summary if matched via summary
+        if(isSummaryMatch) openSummaries[r.id] = true;
+        return resourceRow(r, m);
+      }).join('')
     : `<div class="search-empty">Tidak ada hasil untuk "${safeQuery}".</div>`;
 
   panel.innerHTML = `
     <div class="mod-header">
-      <div class="eyebrow mono">HASIL PENCARIAN</div>
+      <div class="eyebrow mono">HASIL PENCARIAN & RANGKUMAN</div>
       <h2><span class="word">"${safeQuery}"</span></h2>
-      <div class="sub">${results.length} hasil ditemukan di seluruh modul.</div>
+      <div class="sub">${results.length} hasil ditemukan mencakup judul materi dan isi rangkuman.</div>
     </div>
     ${bodyHtml}
   `;
@@ -951,14 +2836,20 @@ function renderMain(){
     groups[g].forEach(r=>{ bodyHtml += resourceRow(r); });
   });
 
+  const anyClosed = m.resources.some(r => !openSummaries[r.id]);
   panel.innerHTML = `
     <div class="mod-header">
       <div class="eyebrow mono">MODUL ${m.num} · ${m.ticker}</div>
       <h2>${staggerWords(m.name)}</h2>
       ${m.sub ? `<div class="sub">${m.sub}</div>` : ''}
-      <div class="mod-progress-line">
-        <div class="track"><div class="fill" style="width:${s.pct}%"></div></div>
-        <div class="txt">${s.done} / ${s.total} · ${s.pct}%</div>
+      <div class="mod-actions-bar">
+        <div class="mod-progress-line" style="margin-top:0;">
+          <div class="track"><div class="fill" style="width:${s.pct}%"></div></div>
+          <div class="txt">${s.done} / ${s.total} · ${s.pct}%</div>
+        </div>
+        <button class="btn-toggle-all-summaries" onclick="toggleAllSummariesInModule()">
+          ⚡ ${anyClosed ? 'Buka Semua Ringkasan' : 'Tutup Semua Ringkasan'}
+        </button>
       </div>
     </div>
     ${bodyHtml}
@@ -1060,11 +2951,64 @@ function playVideoInModal(videoId, playlistId){
   });
 }
 
+
+function renderModalSummary(r){
+  const panel = document.getElementById('video-modal-summary-panel');
+  if(!panel) return;
+  if(!r.summary && (!r.keyPoints || !r.keyPoints.length) && !r.takeaway){
+    panel.innerHTML = '<div class="pl-status">Tidak ada rangkuman khusus untuk materi ini.</div>';
+    return;
+  }
+  const pointsHtml = r.keyPoints && r.keyPoints.length
+    ? `<div class="v-sum-section-title">Poin Kunci & Pembahasan</div>
+       <ul class="v-sum-points">${r.keyPoints.map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>`
+    : '';
+  const takeawayHtml = r.takeaway
+    ? `<div class="v-sum-takeaway"><strong>🎯 Action Item / Takeaway Inti:</strong>${escapeHtml(r.takeaway)}</div>`
+    : '';
+
+  panel.innerHTML = `
+    <div class="v-sum-head">
+      <span class="v-sum-badge">RINGKASAN CEPAT</span>
+      <span class="v-sum-title">${escapeHtml(r.t)}</span>
+    </div>
+    ${r.summary ? `<div class="v-sum-desc">${escapeHtml(r.summary)}</div>` : ''}
+    ${pointsHtml}
+    ${takeawayHtml}
+  `;
+}
+
+function setModalTab(tab){
+  currentModalTab = tab;
+  const tabVideo = document.getElementById('modal-tab-video');
+  const tabSum = document.getElementById('modal-tab-summary');
+  const frameEl = document.getElementById('video-modal-frame');
+  const sumEl = document.getElementById('video-modal-summary-panel');
+  const plEl = document.getElementById('video-modal-playlist');
+
+  if(tab === 'summary'){
+    tabVideo.classList.remove('active');
+    tabSum.classList.add('active');
+    frameEl.classList.add('hidden');
+    sumEl.classList.remove('hidden');
+    if(plEl) plEl.classList.add('hidden');
+  } else {
+    tabSum.classList.remove('active');
+    tabVideo.classList.add('active');
+    frameEl.classList.remove('hidden');
+    sumEl.classList.add('hidden');
+    const r = findResource(modalResourceId);
+    if(r && r.ty === 'playlist' && plEl) plEl.classList.remove('hidden');
+  }
+}
+
 async function openPlaylistModal(id, r, playlistId){
   modalResourceId = id;
   const mod = MODULES.find(mm => mm.resources.some(x => x.id === id));
   if(mod) document.getElementById('video-modal-overlay').style.setProperty('--accent', mod.accent);
   document.getElementById('video-modal-title').textContent = r.t;
+  renderModalSummary(r);
+  setModalTab('video');
   document.getElementById('video-modal').classList.add('has-playlist');
   const listEl = document.getElementById('video-modal-playlist');
   listEl.classList.remove('hidden');
@@ -1109,6 +3053,8 @@ function openVideoModal(id){
   document.getElementById('video-modal-playlist').classList.add('hidden');
   document.getElementById('video-modal-playlist').innerHTML = '';
   document.getElementById('video-modal-title').textContent = r.t;
+  renderModalSummary(r);
+  setModalTab('video');
   document.getElementById('video-modal-frame').innerHTML =
     `<iframe src="${embed}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
   document.getElementById('video-modal-overlay').classList.add('open');
