@@ -1186,10 +1186,159 @@
     .video-modal.has-playlist .video-modal-playlist{ height:auto; }
   }
 
-  @media (max-width: 780px){
-    .layout{ flex-direction:column; }
-    nav.sidebar{ width:100%; max-height:260px; border-right:none; border-bottom:1px solid var(--border); }
-    main{ max-height:none; padding:22px 18px 50px; }
+  /* ---- Mobile First & Mobile Responsive Optimizations ---- */
+  .mobile-bottom-nav{ display: none; }
+
+  @media (max-width: 768px){
+    /* Header mobile layout */
+    header{
+      padding: 12px 14px 10px;
+      gap: 10px;
+    }
+    .brand{ width: 100%; justify-content: flex-start; }
+    .brand-mark{ width: 30px; height: 30px; font-size: 14px; }
+    .brand-text h1{ font-size: 17px; }
+    .brand-text p{ font-size: 10.5px; }
+
+    .header-right{
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .rpg-header-widget{
+      flex: 1;
+      padding: 5px 8px;
+      gap: 6px;
+    }
+    .rpg-rank-badge{ font-size: 9.5px; padding: 2px 6px; }
+    .rpg-xp-block{ min-width: 80px; }
+    .header-stat{ display: none; }
+    .user-chip .name{ max-width: 85px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+
+    /* Layout & Sidebar on mobile */
+    .layout{ flex-direction: column; }
+    nav.sidebar{
+      width: 100%;
+      max-height: none !important;
+      border-right: none;
+      border-bottom: 2px solid var(--border);
+      padding: 8px 0 4px !important;
+    }
+    .sidebar-search{ padding: 0 14px 6px; }
+    .sidebar-label{ display: none; }
+    #mod-list{
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 14px 6px;
+      gap: 6px;
+    }
+    #mod-list::-webkit-scrollbar{ display: none; }
+    .mod-row{
+      flex-shrink: 0;
+      width: 140px;
+      padding: 8px 10px;
+      border: 1.5px solid var(--border);
+      border-left: 3px solid transparent;
+      margin-bottom: 0;
+    }
+    .mod-row.active{
+      border-left-color: var(--accent, var(--green));
+      background: var(--bg-hover);
+    }
+    .mod-num{ display: none; }
+    .mod-ticker{ font-size: 11px; }
+    .mod-name{ font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Main view padding on mobile */
+    main{
+      max-height: none !important;
+      padding: 14px 14px 86px !important;
+    }
+    .mod-header h2{ font-size: 20px; }
+    .mod-header .sub{ font-size: 12px; }
+
+    /* Resource row on mobile */
+    .resource{ padding: 10px 12px; gap: 10px; }
+    .r-title{ font-size: 12.5px; }
+
+    /* Mobile Bottom Navigation Bar */
+    .mobile-bottom-nav{
+      display: flex;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 58px;
+      background: #0d131a;
+      border-top: 2px solid var(--border);
+      z-index: 1500;
+      justify-content: space-around;
+      align-items: center;
+      padding: 2px 4px;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.5);
+    }
+    .mobile-nav-item{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 4px 1px;
+      transition: color .15s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-nav-item.active{
+      color: var(--amber);
+    }
+    .mob-nav-icon{ font-size: 16px; line-height: 1.1; }
+    .mob-nav-lbl{ font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+
+    footer.hint{ margin-bottom: 60px; }
+
+    /* Modals on mobile */
+    .video-modal-overlay{ padding: 10px; }
+    .video-modal{ box-shadow: 4px 4px 0 var(--accent, var(--green)); }
+    .video-modal-head{ padding: 8px 12px; }
+    .video-modal-actions{ gap: 4px; }
+    .video-modal-tab{ font-size: 10px; padding: 4px 6px; }
+    .rpg-modal-card{ padding: 20px 16px; box-shadow: 5px 5px 0 var(--amber); }
+
+    /* Daily Quests on mobile */
+    .quests-hero-card{ padding: 12px 14px; gap: 10px; }
+    .streak-week-card{ padding: 12px 14px; }
+    .streak-days-grid{ grid-template-columns: repeat(7, 1fr) !important; gap: 3px !important; }
+    .streak-day-box{ padding: 5px 2px !important; }
+    .streak-day-name{ font-size: 8.5px !important; }
+    .streak-day-status{ font-size: 12px !important; }
+    .quest-card{ flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; }
+    .quest-reward-wrap{ justify-content: space-between; width: 100%; }
+
+    /* Boss Battle on mobile */
+    .battle-hud{ grid-template-columns: 1fr !important; padding: 12px !important; gap: 8px !important; }
+    .battle-q-card{ padding: 14px !important; box-shadow: 4px 4px 0 var(--red) !important; }
+    .battle-options-grid{ grid-template-columns: 1fr !important; gap: 8px !important; }
+    .battle-opt-btn{ font-size: 12.5px !important; padding: 10px 12px !important; }
+
+    /* Paper Trading on mobile */
+    .sim-stats-bar{ grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+    .sim-stat-box{ padding: 10px !important; }
+    .sim-stat-val{ font-size: 14.5px !important; }
+    .sim-canvas-wrap{ height: 200px !important; }
+    .sim-table th, .sim-table td{ padding: 6px 8px !important; font-size: 10px !important; }
+
+    /* Badges on mobile */
+    .badges-grid{ grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+    .badge-card{ padding: 12px !important; }
+    .badge-card-icon{ font-size: 26px !important; }
+    .badge-card-name{ font-size: 13px !important; }
+    .badge-card-desc{ font-size: 11px !important; min-height: 0 !important; }
   }
 </style>
 </head>
@@ -1289,6 +1438,34 @@
   </div>
 
   <footer class="hint">Progres tersimpan otomatis dan tetap ada setiap kali Anda kembali.</footer>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <button class="mobile-nav-item active" id="mob-nav-modules" onclick="setViewMode('modules')">
+      <span class="mob-nav-icon">📋</span>
+      <span class="mob-nav-lbl">Modul</span>
+    </button>
+    <button class="mobile-nav-item" id="mob-nav-tree" onclick="setViewMode('tree')">
+      <span class="mob-nav-icon">🌳</span>
+      <span class="mob-nav-lbl">Tree</span>
+    </button>
+    <button class="mobile-nav-item" id="mob-nav-boss" onclick="setViewMode('boss')">
+      <span class="mob-nav-icon">⚔️</span>
+      <span class="mob-nav-lbl">Boss</span>
+    </button>
+    <button class="mobile-nav-item" id="mob-nav-quests" onclick="setViewMode('quests')">
+      <span class="mob-nav-icon">🎯</span>
+      <span class="mob-nav-lbl">Misi</span>
+    </button>
+    <button class="mobile-nav-item" id="mob-nav-sim" onclick="setViewMode('sim')">
+      <span class="mob-nav-icon">📈</span>
+      <span class="mob-nav-lbl">Trading</span>
+    </button>
+    <button class="mobile-nav-item" id="mob-nav-badges" onclick="setViewMode('badges')">
+      <span class="mob-nav-icon">🏆</span>
+      <span class="mob-nav-lbl">Lencana</span>
+    </button>
+  </nav>
 </div>
 
 <div class="video-modal-overlay" id="video-modal-overlay" onclick="if(event.target===this) closeVideoModal()">
@@ -6047,6 +6224,20 @@ function updateViewTabs(){
   if(btnQuests) btnQuests.classList.toggle('active', currentViewMode === 'quests');
   if(btnSim) btnSim.classList.toggle('active', currentViewMode === 'sim');
   if(btnBadges) btnBadges.classList.toggle('active', currentViewMode === 'badges');
+
+  // Mobile Bottom Nav Sync
+  const mobMods = document.getElementById('mob-nav-modules');
+  const mobTree = document.getElementById('mob-nav-tree');
+  const mobBoss = document.getElementById('mob-nav-boss');
+  const mobQuests = document.getElementById('mob-nav-quests');
+  const mobSim = document.getElementById('mob-nav-sim');
+  const mobBadges = document.getElementById('mob-nav-badges');
+  if(mobMods) mobMods.classList.toggle('active', currentViewMode === 'modules');
+  if(mobTree) mobTree.classList.toggle('active', currentViewMode === 'tree');
+  if(mobBoss) mobBoss.classList.toggle('active', currentViewMode === 'boss');
+  if(mobQuests) mobQuests.classList.toggle('active', currentViewMode === 'quests');
+  if(mobSim) mobSim.classList.toggle('active', currentViewMode === 'sim');
+  if(mobBadges) mobBadges.classList.toggle('active', currentViewMode === 'badges');
 }
 
 function renderSidebar(){
