@@ -283,6 +283,131 @@
   .rpg-stat-box .v{ font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:700; color:var(--green); }
   .rpg-stat-box .k{ font-size:10px; color:var(--text-dim); text-transform:uppercase; margin-top:2px; }
 
+  /* ---- Skill Tree RPG View ---- */
+  .view-switcher-tabs{
+    display:flex; gap:6px; margin-bottom:10px; padding:10px 18px 0;
+  }
+  .view-tab-btn{
+    flex:1; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700;
+    color:var(--text-dim); background:var(--bg); border:1.5px solid var(--border);
+    padding:6px 8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;
+    transition:all .15s;
+  }
+  .view-tab-btn:hover{ color:var(--text); border-color:var(--text-dim); }
+  .view-tab-btn.active{
+    background:var(--green); color:#06110D; border-color:var(--text);
+    box-shadow:2px 2px 0 var(--amber); font-weight:700;
+  }
+
+  .skill-tree-container{
+    padding:0 0 32px; animation:fadeIn .25s ease;
+  }
+  .skill-tree-header{
+    background:var(--bg-raised); border:2px solid var(--border);
+    border-left:4px solid var(--green); padding:16px 20px; margin-bottom:20px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+  }
+  .st-head-title{
+    font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .st-head-desc{ font-size:12px; color:var(--text-dim); margin-top:2px; }
+  .st-stats-badges{ display:flex; gap:10px; flex-wrap:wrap; }
+  .st-stat-chip{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;
+    padding:4px 10px; background:var(--bg); border:1.5px solid var(--border);
+    color:var(--text); display:flex; align-items:center; gap:6px;
+  }
+  .st-stat-chip strong{ color:var(--green); }
+
+  .st-branches-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;
+  }
+  .st-branch-card{
+    background:var(--bg-raised); border:2px solid var(--border); padding:16px;
+    display:flex; flex-direction:column; gap:12px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+  }
+  .st-branch-head{
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--border); padding-bottom:8px;
+  }
+  .st-branch-title{
+    font-family:'Space Grotesk',sans-serif; font-size:13.5px; font-weight:700;
+    text-transform:uppercase; display:flex; align-items:center; gap:6px;
+  }
+  .st-branch-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px; padding:2px 6px;
+    border:1px solid var(--border); color:var(--text-dim); text-transform:uppercase;
+  }
+
+  .st-nodes-flow{
+    display:flex; flex-direction:column; gap:8px; position:relative;
+  }
+  .st-node-connector{
+    display:flex; justify-content:center; align-items:center; height:16px;
+    color:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;
+  }
+  .st-node-connector.active{ color:var(--green); font-weight:bold; }
+  
+  .st-node{
+    background:var(--bg); border:2px solid var(--border); padding:12px;
+    cursor:pointer; transition:transform .12s, border-color .15s, box-shadow .15s;
+    position:relative;
+  }
+  .st-node:hover{
+    transform:translate(-2px, -2px); border-color:var(--accent, var(--green));
+    box-shadow:4px 4px 0 var(--accent, var(--green));
+  }
+  .st-node.mastered{
+    border-color:var(--green); background:rgba(38,230,166,0.06);
+    box-shadow:3px 3px 0 rgba(38,230,166,0.25);
+  }
+  .st-node.in-progress{
+    border-color:var(--amber); background:rgba(240,185,11,0.05);
+    box-shadow:3px 3px 0 rgba(240,185,11,0.2);
+  }
+  .st-node.locked{
+    opacity:0.65; border-style:dashed;
+  }
+  .st-node.locked:hover{
+    transform:none; border-color:var(--red); box-shadow:none;
+  }
+
+  .st-node-top{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:5px;
+  }
+  .st-node-tier{
+    font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .st-node-status-badge{
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px; font-weight:700;
+    padding:2px 6px; text-transform:uppercase;
+  }
+  .st-badge-mastered{ background:rgba(38,230,166,0.15); color:var(--green); border:1px solid var(--green); }
+  .st-badge-active{ background:rgba(240,185,11,0.15); color:var(--amber); border:1px solid var(--amber); }
+  .st-badge-ready{ background:rgba(88,166,255,0.15); color:var(--blue); border:1px solid var(--blue); }
+  .st-badge-locked{ background:rgba(246,70,93,0.15); color:var(--red); border:1px solid var(--red); }
+
+  .st-node-name{
+    font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; line-height:1.35;
+  }
+  .st-node-desc{
+    font-size:11.5px; color:var(--text-dim); margin-bottom:10px; line-height:1.4;
+  }
+  .st-node-bottom{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .st-node-progress-bar{
+    flex:1; height:6px; background:var(--bg-raised); border:1px solid var(--border); overflow:hidden;
+  }
+  .st-node-progress-fill{
+    height:100%; background:var(--accent, var(--green)); transition:width .4s;
+  }
+  .st-node-xp{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-dim); flex-shrink:0;
+  }
+
   /* ---- Ticker strip ---- */
   .ticker-strip{
     display:flex; border-bottom:1px solid var(--border);
@@ -637,6 +762,10 @@
     <nav class="sidebar">
       <div class="sidebar-search">
         <input type="text" id="search-input" placeholder="Cari video, playlist...">
+      </div>
+      <div class="view-switcher-tabs">
+        <button class="view-tab-btn active" id="tab-btn-modules" onclick="setViewMode('modules')">📋 Modul</button>
+        <button class="view-tab-btn" id="tab-btn-tree" onclick="setViewMode('tree')">🌳 Skill Tree</button>
       </div>
       <div class="sidebar-label">Kurikulum</div>
       <div id="mod-list"></div>
@@ -2712,12 +2841,225 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let progress = {};
 let activeModule = MODULES[0].id;
+let currentViewMode = 'modules'; // 'modules' | 'tree'
 let currentUser = null;
 let currentProfile = null;
 let searchQuery = '';
 let modalResourceId = null;
 let lastDoneShown = 0;
 let statAnimFrame = null;
+
+// ---- Skill Tree Branches Definition ----
+const SKILL_TREE_BRANCHES = [
+  {
+    id: 'b-macro',
+    title: '🏛️ Pondasi Finansial & Riset',
+    tag: 'Fondasi Utama',
+    accent: '#CBD5E1',
+    nodes: [
+      {
+        modId: 'm8',
+        tier: 'TIER 1 (ROOT)',
+        prereqModId: null,
+        minPrereqPct: 0,
+        desc: 'Mindset keuangan pribadi, arus kas, manajemen utang, dan dana darurat.'
+      },
+      {
+        modId: 'm1',
+        tier: 'TIER 2 (CORE)',
+        prereqModId: 'm8',
+        minPrereqPct: 20,
+        desc: 'Fondasi riset crypto: FDV, on-chain metrics, whitepaper, dan ekosistem L1 vs L2.'
+      }
+    ]
+  },
+  {
+    id: 'b-trading',
+    title: '📈 Alpha Trader & Valuasi',
+    tag: 'Spesialis Pasar',
+    accent: '#FB923C',
+    nodes: [
+      {
+        modId: 'm2',
+        tier: 'TIER 2 (INVEST)',
+        prereqModId: 'm1',
+        minPrereqPct: 25,
+        desc: 'Valuasi token, narasi siklus pasar, alokasi portofolio, dan staking yield.'
+      },
+      {
+        modId: 'm3',
+        tier: 'TIER 3 (ADVANCED)',
+        prereqModId: 'm2',
+        minPrereqPct: 25,
+        desc: 'Eksekusi trading teknikal, price action, leverage risk, dan psikologi market.'
+      }
+    ]
+  },
+  {
+    id: 'b-tech',
+    title: '💻 Blockchain Architect & Data',
+    tag: 'Spesialis Tech',
+    accent: '#818CF8',
+    nodes: [
+      {
+        modId: 'm4',
+        tier: 'TIER 2 (SECURITY)',
+        prereqModId: 'm1',
+        minPrereqPct: 25,
+        desc: 'Arsitektur smart contract, konsensus blockchain, cold storage, dan audit DeFi.'
+      },
+      {
+        modId: 'm7',
+        tier: 'TIER 3 (DATA & DEV)',
+        prereqModId: 'm4',
+        minPrereqPct: 25,
+        desc: 'Python on-chain data, Dune Analytics, scraping, dan automation bot.'
+      }
+    ]
+  },
+  {
+    id: 'b-mastery',
+    title: '👑 Komunitas & Perpustakaan',
+    tag: 'Mastery Capstone',
+    accent: '#B084F5',
+    nodes: [
+      {
+        modId: 'm6',
+        tier: 'TIER 1 (LIBRARY)',
+        prereqModId: null,
+        minPrereqPct: 0,
+        desc: 'Buku wajib trader, mental model investasi, dan playbook strategi.'
+      },
+      {
+        modId: 'm5',
+        tier: 'TIER 3 (COMMUNITY)',
+        prereqModId: 'm1',
+        minPrereqPct: 20,
+        desc: 'Live class case studies, interaksi komunitas pro, dan alpha call breakdown.'
+      }
+    ]
+  }
+];
+
+function setViewMode(mode){
+  currentViewMode = mode;
+  updateViewTabs();
+  renderMain();
+  playXpBeep();
+}
+
+function openModuleFromTree(modId){
+  activeModule = modId;
+  setViewMode('modules');
+  clearSearch();
+  render();
+  document.getElementById('main-panel').scrollTop = 0;
+}
+
+function renderSkillTree(){
+  const panel = document.getElementById('main-panel');
+  panel.style.removeProperty('--accent');
+  document.body.style.removeProperty('--accent');
+
+  let totalBranchesMastered = 0;
+  let totalNodesCount = 0;
+  let masteredNodesCount = 0;
+
+  const branchesHtml = SKILL_TREE_BRANCHES.map(branch => {
+    let branchMastered = true;
+    const nodesHtml = branch.nodes.map((node, i) => {
+      totalNodesCount++;
+      const m = MODULES.find(x => x.id === node.modId);
+      if(!m) return '';
+      const s = modStats(m);
+      const isMastered = s.pct === 100;
+      if(isMastered) masteredNodesCount++;
+      else branchMastered = false;
+
+      // Check prereq
+      let isPrereqMet = true;
+      let prereqTicker = '';
+      if(node.prereqModId){
+        const prereqMod = MODULES.find(x => x.id === node.prereqModId);
+        if(prereqMod){
+          prereqTicker = prereqMod.ticker;
+          const ps = modStats(prereqMod);
+          isPrereqMet = ps.pct >= node.minPrereqPct;
+        }
+      }
+
+      let statusClass = 'locked';
+      let badgeHtml = '';
+      if(isMastered){
+        statusClass = 'mastered';
+        badgeHtml = '<span class="st-node-status-badge st-badge-mastered">👑 DIKUASAI</span>';
+      } else if(s.pct > 0){
+        statusClass = 'in-progress';
+        badgeHtml = `<span class="st-node-status-badge st-badge-active">⚡ ${s.pct}% PROGRES</span>`;
+      } else if(isPrereqMet){
+        statusClass = 'unlocked';
+        badgeHtml = '<span class="st-node-status-badge st-badge-ready">🔓 TERBUKA</span>';
+      } else {
+        statusClass = 'locked';
+        badgeHtml = `<span class="st-node-status-badge st-badge-locked">🔒 BUTUH ${prereqTicker} ≥ ${node.minPrereqPct}%</span>`;
+      }
+
+      const connectorHtml = (i > 0)
+        ? `<div class="st-node-connector ${isPrereqMet ? 'active' : ''}">▼</div>`
+        : '';
+
+      return `
+        ${connectorHtml}
+        <div class="st-node ${statusClass}" style="--accent:${m.accent}" onclick="openModuleFromTree('${m.id}')" title="Klik untuk membuka modul ${m.ticker}">
+          <div class="st-node-top">
+            <span class="st-node-tier">${node.tier} · ${m.ticker}</span>
+            ${badgeHtml}
+          </div>
+          <div class="st-node-name">${m.name}</div>
+          <div class="st-node-desc">${node.desc}</div>
+          <div class="st-node-bottom">
+            <div class="st-node-progress-bar">
+              <div class="st-node-progress-fill" style="width:${s.pct}%"></div>
+            </div>
+            <div class="st-node-xp">${s.done}/${s.total} Materi · ${s.total * 50} XP</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if(branchMastered) totalBranchesMastered++;
+
+    return `
+      <div class="st-branch-card" style="border-top:3px solid ${branch.accent};">
+        <div class="st-branch-head">
+          <div class="st-branch-title">${branch.title}</div>
+          <span class="st-branch-tag">${branch.tag}</span>
+        </div>
+        <div class="st-nodes-flow">
+          ${nodesHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="skill-tree-container">
+      <div class="skill-tree-header">
+        <div>
+          <div class="st-head-title">🌳 POHON KEAHLIAN / CRYPTO SKILL TREE</div>
+          <div class="st-head-desc">Selesaikan modul fondasi untuk membuka cabang keahlian trading, analisa on-chain, dan security.</div>
+        </div>
+        <div class="st-stats-badges">
+          <div class="st-stat-chip">Talenta Dikuasai: <strong>${masteredNodesCount} / ${totalNodesCount}</strong></div>
+          <div class="st-stat-chip">Cabang Selesai: <strong>${totalBranchesMastered} / ${SKILL_TREE_BRANCHES.length}</strong></div>
+        </div>
+      </div>
+      <div class="st-branches-grid">
+        ${branchesHtml}
+      </div>
+    </div>
+  `;
+}
 
 // ---- RPG Gamification Engine ----
 const RPG_RANKS = [
@@ -3134,9 +3476,16 @@ function renderTicker(){
     seg.style.setProperty('--accent', m.accent);
     seg.title = m.name + ' — ' + s.pct + '%';
     seg.innerHTML = '<div class="fill" style="width:'+s.pct+'%"></div>';
-    seg.onclick = ()=>{ activeModule = m.id; clearSearch(); render(); document.getElementById('main-panel').scrollTop = 0; };
+    seg.onclick = ()=>{ currentViewMode = 'modules'; activeModule = m.id; updateViewTabs(); clearSearch(); render(); document.getElementById('main-panel').scrollTop = 0; };
     strip.appendChild(seg);
   });
+}
+
+function updateViewTabs(){
+  const btnMods = document.getElementById('tab-btn-modules');
+  const btnTree = document.getElementById('tab-btn-tree');
+  if(btnMods) btnMods.classList.toggle('active', currentViewMode === 'modules');
+  if(btnTree) btnTree.classList.toggle('active', currentViewMode === 'tree');
 }
 
 function renderSidebar(){
@@ -3147,7 +3496,7 @@ function renderSidebar(){
     const row = document.createElement('div');
     row.className = 'mod-row' + (m.id===activeModule ? ' active':'');
     row.style.setProperty('--accent', m.accent);
-    row.onclick = ()=>{ activeModule = m.id; clearSearch(); render(); document.getElementById('main-panel').scrollTop=0; };
+    row.onclick = ()=>{ currentViewMode = 'modules'; activeModule = m.id; updateViewTabs(); clearSearch(); render(); document.getElementById('main-panel').scrollTop=0; };
     row.innerHTML = `
       <div class="mod-num mono">${m.num}</div>
       <div class="mod-info">
@@ -3298,6 +3647,7 @@ function renderSearchResults(){
 
 function renderMain(){
   if(searchQuery){ renderSearchResults(); return; }
+  if(currentViewMode === 'tree'){ renderSkillTree(); return; }
 
   const m = MODULES.find(x=>x.id===activeModule);
   const s = modStats(m);
