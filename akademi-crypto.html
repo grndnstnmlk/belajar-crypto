@@ -829,6 +829,96 @@
   }
   .btn-close-pos:hover{ border-color:var(--red); color:var(--red); }
 
+  /* ---- Badges & Achievements Gallery ---- */
+  .badges-container{ padding:0 0 36px; animation:fadeIn .25s ease; }
+  .badges-header{
+    background:var(--bg-raised); border:2px solid var(--border); border-left:4px solid var(--purple);
+    padding:16px 20px; margin-bottom:18px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+  }
+  .badges-head-title{
+    font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700;
+    color:var(--purple); text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .badges-head-desc{ font-size:12.5px; color:var(--text-dim); margin-top:2px; }
+
+  /* Filters */
+  .badge-filters-bar{
+    display:flex; gap:8px; margin-bottom:18px; overflow-x:auto; scrollbar-width:none;
+  }
+  .badge-filter-btn{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:600;
+    background:var(--bg-raised); border:1.5px solid var(--border); padding:6px 14px;
+    color:var(--text-dim); cursor:pointer; transition:all .12s; white-space:nowrap;
+  }
+  .badge-filter-btn.active{
+    border-color:var(--purple); color:var(--purple); background:rgba(176,132,245,0.1);
+  }
+
+  /* Badges Grid */
+  .badges-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;
+  }
+  .badge-card{
+    background:var(--bg-raised); border:2px solid var(--border); padding:16px;
+    display:flex; flex-direction:column; gap:10px; position:relative;
+    transition:transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .badge-card.unlocked{
+    border-color:var(--badge-color, var(--purple));
+    box-shadow:4px 4px 0 var(--badge-color, var(--purple));
+  }
+  .badge-card.unlocked:hover{
+    transform:translate(-2px, -2px);
+    box-shadow:6px 6px 0 var(--badge-color, var(--purple));
+  }
+  .badge-card.locked{
+    opacity:0.65; filter:grayscale(0.7);
+  }
+  .badge-card-top{
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .badge-card-icon{
+    font-size:34px; line-height:1;
+  }
+  .badge-rarity-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px; font-weight:700;
+    padding:2px 7px; border:1px solid currentColor; text-transform:uppercase;
+  }
+  .rarity-common{ color:var(--blue); background:rgba(88,166,255,0.1); }
+  .rarity-rare{ color:var(--green); background:rgba(38,230,166,0.1); }
+  .rarity-epic{ color:var(--amber); background:rgba(240,185,11,0.1); }
+  .rarity-legendary{ color:var(--purple); background:rgba(176,132,245,0.15); box-shadow:0 0 8px rgba(176,132,245,0.3); }
+
+  .badge-card-name{
+    font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; color:var(--text);
+  }
+  .badge-card-desc{
+    font-size:12px; color:var(--text-dim); line-height:1.45; min-height:34px;
+  }
+  .badge-card-footer{
+    display:flex; align-items:center; justify-content:space-between;
+    border-top:1px solid var(--border); padding-top:10px; margin-top:auto;
+  }
+  .badge-xp-reward{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700; color:var(--green);
+  }
+  .badge-status-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:700;
+  }
+
+  /* Unlock Toast Notification */
+  .achievement-toast{
+    position:fixed; bottom:24px; right:24px; z-index:9999;
+    background:var(--bg-raised); border:3px solid var(--amber); box-shadow:6px 6px 0 var(--amber);
+    padding:14px 20px; display:flex; align-items:center; gap:12px;
+    animation:slideToast .4s cubic-bezier(.1,.8,.2,1) forwards;
+  }
+  @keyframes slideToast{
+    0%{ opacity:0; transform:translateY(30px) scale(0.9); }
+    100%{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
   /* ---- Ticker strip ---- */
   .ticker-strip{
     display:flex; border-bottom:1px solid var(--border);
@@ -1189,7 +1279,8 @@
         <button class="view-tab-btn" id="tab-btn-tree" onclick="setViewMode('tree')">🌳 Skill Tree</button>
         <button class="view-tab-btn" id="tab-btn-boss" onclick="setViewMode('boss')">⚔️ Boss</button>
         <button class="view-tab-btn" id="tab-btn-quests" onclick="setViewMode('quests')">🎯 Misi</button>
-        <button class="view-tab-btn" id="tab-btn-sim" onclick="setViewMode('sim')">📈 Sim Trading</button>
+        <button class="view-tab-btn" id="tab-btn-sim" onclick="setViewMode('sim')">📈 Trading</button>
+        <button class="view-tab-btn" id="tab-btn-badges" onclick="setViewMode('badges')">🏆 Lencana</button>
       </div>
       <div class="sidebar-label">Kurikulum</div>
       <div id="mod-list"></div>
@@ -1267,6 +1358,12 @@
         <div class="k">Boss Kalah ⚔️</div>
       </div>
     </div>
+
+    <div style="font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px; display:flex; justify-content:space-between;">
+      <span>Lencana Prestasi (<span id="profile-badge-count">0</span>)</span>
+      <span style="color:var(--purple); cursor:pointer;" onclick="closeRpgProfileModal(); setViewMode('badges');">Lihat Semua →</span>
+    </div>
+    <div id="profile-badges-row" style="display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;"></div>
 
     <div style="font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">Pohon Pangkat (Rank Hierarchy)</div>
     <div class="rpg-ladder-list" id="rpg-ladder-list"></div>
@@ -3934,6 +4031,7 @@ function checkBattleEndCondition(){
     if(firstTime){
       triggerFloatingXp(reward, '🏆 BOSS DEFEATED');
     }
+    checkAndUnlockAchievements();
     renderBossBattleArena();
     renderRpgUI(true);
     return true;
@@ -4648,6 +4746,7 @@ function executeSimOrder(){
 
   playOrderFilledSound();
   triggerFloatingXp(30, `📈 Order ${selectedSimDirection} Dibuka`);
+  checkAndUnlockAchievements();
 
   renderPaperTrading();
 }
@@ -4695,6 +4794,7 @@ function closeSimPosition(posId){
     playPlayerDamagedSound();
   }
 
+  checkAndUnlockAchievements();
   renderPaperTrading();
 }
 
@@ -5007,6 +5107,340 @@ function renderPaperTrading(){
   updateSimPositionsLiveHtml();
 }
 
+// ---- Badges & Terminal Achievements System ----
+const BADGES_CONFIG = [
+  // --- Kurikulum & Riset ---
+  {
+    id: 'first_step',
+    name: 'Genesis Block',
+    desc: 'Selesaikan dan centang materi pembelajaran pertama Anda.',
+    category: 'curriculum',
+    rarity: 'COMMON',
+    color: 'var(--blue)',
+    icon: '🐣',
+    rewardXp: 50,
+    check: (ctx) => ctx.totalDone >= 1
+  },
+  {
+    id: 'scholar_10',
+    name: 'Crypto Scholar',
+    desc: 'Selesaikan minimal 10 materi pembelajaran kurikulum.',
+    category: 'curriculum',
+    rarity: 'RARE',
+    color: 'var(--green)',
+    icon: '📜',
+    rewardXp: 100,
+    check: (ctx) => ctx.totalDone >= 10
+  },
+  {
+    id: 'mod_master',
+    name: 'Foundation Master',
+    desc: 'Kuasai 100% materi pada modul FINTRD (Mindset & Manajemen).',
+    category: 'curriculum',
+    rarity: 'EPIC',
+    color: 'var(--amber)',
+    icon: '👑',
+    rewardXp: 150,
+    check: (ctx) => {
+      const m = MODULES.find(x => x.ticker === 'FINTRD');
+      return m && modStats(m).pct >= 100;
+    }
+  },
+  {
+    id: 'grand_master',
+    name: 'Terminal Architect',
+    desc: 'Kuasai minimal 3 modul pembelajaran dengan progres 100%.',
+    category: 'curriculum',
+    rarity: 'LEGENDARY',
+    color: 'var(--purple)',
+    icon: '💎',
+    rewardXp: 300,
+    check: (ctx) => {
+      const mastered = MODULES.filter(m => modStats(m).pct >= 100).length;
+      return mastered >= 3;
+    }
+  },
+  {
+    id: 'intel_hound',
+    name: 'DeFi Researcher',
+    desc: 'Buka dan telaah minimal 10 Ringkasan Materi eksklusif.',
+    category: 'curriculum',
+    rarity: 'RARE',
+    color: 'var(--green)',
+    icon: '🔍',
+    rewardXp: 150,
+    check: (ctx) => Object.keys(ctx.rpg.readSummaries || {}).length >= 10
+  },
+
+  // --- Boss Battle Arena ---
+  {
+    id: 'slayer_bear',
+    name: 'Winter Survivor',
+    desc: 'Kalahkan The Bear Market Golem di Boss Battle Quiz.',
+    category: 'boss',
+    rarity: 'COMMON',
+    color: 'var(--blue)',
+    icon: '🐻',
+    rewardXp: 100,
+    check: (ctx) => !!(ctx.rpg.defeatedBosses && ctx.rpg.defeatedBosses['boss-bear'])
+  },
+  {
+    id: 'slayer_liq',
+    name: 'Anti-Liquidation Shield',
+    desc: 'Tundukkan The Liquidation Demon dengan keahlian leverage.',
+    category: 'boss',
+    rarity: 'RARE',
+    color: 'var(--green)',
+    icon: '🦀',
+    rewardXp: 150,
+    check: (ctx) => !!(ctx.rpg.defeatedBosses && ctx.rpg.defeatedBosses['boss-liq'])
+  },
+  {
+    id: 'slayer_rug',
+    name: 'Smart Contract Auditor',
+    desc: 'Basmi The Rug Puller Phantom dengan audit on-chain.',
+    category: 'boss',
+    rarity: 'EPIC',
+    color: 'var(--amber)',
+    icon: '🎭',
+    rewardXp: 200,
+    check: (ctx) => !!(ctx.rpg.defeatedBosses && ctx.rpg.defeatedBosses['boss-rug'])
+  },
+  {
+    id: 'slayer_whale',
+    name: 'Apex Predator',
+    desc: 'Taklukkan The Mega Whale Overlord di level Extreme.',
+    category: 'boss',
+    rarity: 'LEGENDARY',
+    color: 'var(--purple)',
+    icon: '🐋',
+    rewardXp: 300,
+    check: (ctx) => !!(ctx.rpg.defeatedBosses && ctx.rpg.defeatedBosses['boss-whale'])
+  },
+  {
+    id: 'boss_conqueror',
+    name: 'God of the Arena',
+    desc: 'Kalahkan seluruh 4 monster Boss Battle Akademi Crypto.',
+    category: 'boss',
+    rarity: 'LEGENDARY',
+    color: 'var(--purple)',
+    icon: '🏆',
+    rewardXp: 500,
+    check: (ctx) => Object.keys(ctx.rpg.defeatedBosses || {}).length >= 4
+  },
+
+  // --- Paper Trading Simulator ---
+  {
+    id: 'first_trade',
+    name: 'First Execution',
+    desc: 'Buka order transaksi pertama di Paper Trading Simulator.',
+    category: 'trading',
+    rarity: 'COMMON',
+    color: 'var(--blue)',
+    icon: '🚀',
+    rewardXp: 50,
+    check: (ctx) => (ctx.sim.positions?.length > 0 || ctx.sim.tradeHistory?.length > 0)
+  },
+  {
+    id: 'first_profit',
+    name: 'Green Candle',
+    desc: 'Tutup posisi trading dengan hasil keuntungan (Profit).',
+    category: 'trading',
+    rarity: 'RARE',
+    color: 'var(--green)',
+    icon: '💰',
+    rewardXp: 100,
+    check: (ctx) => (ctx.sim.tradeHistory || []).some(t => t.pnlUsdt > 0)
+  },
+  {
+    id: 'risk_master',
+    name: 'Disciplined Trader',
+    desc: 'Tutup posisi trading dengan Take Profit (TP) atau Stop Loss (SL) aktif.',
+    category: 'trading',
+    rarity: 'EPIC',
+    color: 'var(--amber)',
+    icon: '🛡️',
+    rewardXp: 150,
+    check: (ctx) => (ctx.sim.tradeHistory || []).some(t => t.reason && (t.reason.includes('TAKE PROFIT') || t.reason.includes('STOP LOSS')))
+  },
+  {
+    id: 'profit_whale',
+    name: 'Samudera Trader',
+    desc: 'Capai minimal 5 transaksi profit di Paper Trading Simulator.',
+    category: 'trading',
+    rarity: 'LEGENDARY',
+    color: 'var(--purple)',
+    icon: '🌊',
+    rewardXp: 300,
+    check: (ctx) => (ctx.sim.tradeHistory || []).filter(t => t.pnlUsdt > 0).length >= 5
+  },
+
+  // --- Streak & Dedikasi ---
+  {
+    id: 'streak_3',
+    name: 'Spark Trader',
+    desc: 'Capai minimal 3 hari learning streak berturut-turut.',
+    category: 'streak',
+    rarity: 'COMMON',
+    color: 'var(--blue)',
+    icon: '🔥',
+    rewardXp: 100,
+    check: (ctx) => (ctx.rpg.streakDays || 1) >= 3
+  },
+  {
+    id: 'streak_7',
+    name: 'Disciplined HODLer',
+    desc: 'Capai 7 hari learning streak berturut-turut.',
+    category: 'streak',
+    rarity: 'EPIC',
+    color: 'var(--amber)',
+    icon: '⚡',
+    rewardXp: 250,
+    check: (ctx) => (ctx.rpg.streakDays || 1) >= 7
+  }
+];
+
+let activeBadgeFilter = 'all';
+
+function checkAndUnlockAchievements(showToast = true){
+  const rpg = getRpgState();
+  if(!rpg.unlockedBadges) rpg.unlockedBadges = {};
+
+  const g = globalStats();
+  const sim = getSimState();
+  const ctx = { totalDone: g.done, rpg, sim };
+
+  let newlyUnlocked = [];
+
+  BADGES_CONFIG.forEach(b => {
+    if(!rpg.unlockedBadges[b.id] && b.check(ctx)){
+      rpg.unlockedBadges[b.id] = {
+        unlockedAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+      };
+      newlyUnlocked.push(b);
+    }
+  });
+
+  if(newlyUnlocked.length > 0){
+    saveRpgState(rpg);
+    if(showToast){
+      newlyUnlocked.forEach((b, idx) => {
+        setTimeout(()=>{
+          showAchievementToast(b);
+          playLevelUpFanfare();
+        }, idx * 1500);
+      });
+    }
+    renderRpgUI(true);
+    if(currentViewMode === 'badges'){
+      renderBadgesGallery();
+    }
+  }
+}
+
+function showAchievementToast(badge){
+  const toast = document.createElement('div');
+  toast.className = 'achievement-toast';
+  toast.innerHTML = `
+    <div style="font-size:32px;">${badge.icon}</div>
+    <div>
+      <div style="font-family:'Space Grotesk',sans-serif; font-size:13.5px; font-weight:700; color:var(--amber);">🏆 LENCANA DIBUKA!</div>
+      <div style="font-size:12px; font-weight:600; color:var(--text);">${badge.name} (+${badge.rewardXp} XP)</div>
+    </div>
+  `;
+  document.body.appendChild(toast);
+  setTimeout(()=>{
+    toast.style.transition = 'opacity .5s, transform .5s';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(20px)';
+    setTimeout(()=> toast.remove(), 500);
+  }, 4000);
+}
+
+function setBadgeFilter(f){
+  activeBadgeFilter = f;
+  renderBadgesGallery();
+}
+
+function renderBadgesGallery(){
+  const panel = document.getElementById('main-panel');
+  panel.style.removeProperty('--accent');
+  document.body.style.removeProperty('--accent');
+
+  const rpgState = getRpgState();
+  const unlockedMap = rpgState.unlockedBadges || {};
+  const totalBadges = BADGES_CONFIG.length;
+  const unlockedCount = Object.keys(unlockedMap).length;
+  const pct = Math.round((unlockedCount / totalBadges) * 100);
+
+  const filteredBadges = (activeBadgeFilter === 'all')
+    ? BADGES_CONFIG
+    : BADGES_CONFIG.filter(b => b.category === activeBadgeFilter);
+
+  const filterTabs = [
+    { key: 'all', label: 'Semua Lencana' },
+    { key: 'curriculum', label: '🎓 Kurikulum & Riset' },
+    { key: 'boss', label: '⚔️ Boss Slayers' },
+    { key: 'trading', label: '📈 Paper Trading' },
+    { key: 'streak', label: '🔥 Streak & Dedikasi' }
+  ];
+
+  const filtersHtml = filterTabs.map(ft => `
+    <button class="badge-filter-btn ${activeBadgeFilter === ft.key ? 'active' : ''}" onclick="setBadgeFilter('${ft.key}')">
+      ${ft.label}
+    </button>
+  `).join('');
+
+  const badgesHtml = filteredBadges.map(b => {
+    const isUnlocked = !!unlockedMap[b.id];
+    const unlockedData = unlockedMap[b.id];
+    const rarityClass = `rarity-${b.rarity.toLowerCase()}`;
+
+    return `
+      <div class="badge-card ${isUnlocked ? 'unlocked' : 'locked'}" style="--badge-color:${b.color};">
+        <div class="badge-card-top">
+          <div class="badge-card-icon">${b.icon}</div>
+          <span class="badge-rarity-tag ${rarityClass}">${b.rarity}</span>
+        </div>
+        <div>
+          <div class="badge-card-name">${b.name}</div>
+          <div class="badge-card-desc">${b.desc}</div>
+        </div>
+        <div class="badge-card-footer">
+          <span class="badge-xp-reward mono">+${b.rewardXp} XP</span>
+          <span class="badge-status-tag mono" style="color:${isUnlocked ? 'var(--green)' : 'var(--text-dim)'};">
+            ${isUnlocked ? '✓ TERBUKA (' + unlockedData.unlockedAt + ')' : '🔒 TERKUNCI'}
+          </span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="badges-container">
+      <div class="badges-header">
+        <div>
+          <div class="badges-head-title">🏆 LENCANA & PRESTASI TERMINAL</div>
+          <div class="badges-head-desc">Buktikan dedikasi dan penguasaan ilmu crypto Anda dengan mengoleksi lencana prestasi terminal!</div>
+        </div>
+        <div class="st-stats-badges">
+          <div class="st-stat-chip">Koleksi: <strong>${unlockedCount} / ${totalBadges} (${pct}%)</strong></div>
+        </div>
+      </div>
+
+      <!-- Filters Bar -->
+      <div class="badge-filters-bar">
+        ${filtersHtml}
+      </div>
+
+      <!-- Badges Grid -->
+      <div class="badges-grid">
+        ${badgesHtml}
+      </div>
+    </div>
+  `;
+}
+
 // ---- RPG Gamification Engine ----
 const RPG_RANKS = [
   { level: 1, name: 'Plankton', icon: '🦐', minXp: 0, maxXp: 150, desc: 'Pemula di samudera crypto. Mulai eksplorasi materi fondasi!' },
@@ -5269,7 +5703,16 @@ function calculateCurrentXp(){
     });
   }
   const questXp = state.claimedDailyXpTotal || 0;
-  return doneXp + summaryXp + streakBonus + bossXp + questXp;
+  
+  let badgeXp = 0;
+  if(state.unlockedBadges){
+    Object.keys(state.unlockedBadges).forEach(bId => {
+      const b = BADGES_CONFIG.find(x => x.id === bId);
+      if(b) badgeXp += b.rewardXp;
+    });
+  }
+
+  return doneXp + summaryXp + streakBonus + bossXp + questXp + badgeXp;
 }
 
 function getRankData(xp){
@@ -5377,6 +5820,8 @@ function openRpgProfileModal(){
   const xpStatEl = document.getElementById('profile-stat-xp');
   const streakStatEl = document.getElementById('profile-stat-streak');
   const bossStatEl = document.getElementById('profile-stat-boss');
+  const badgeCountEl = document.getElementById('profile-badge-count');
+  const badgesRowEl = document.getElementById('profile-badges-row');
   const ladderListEl = document.getElementById('rpg-ladder-list');
   const sfxBtn = document.getElementById('btn-toggle-sfx');
 
@@ -5390,6 +5835,21 @@ function openRpgProfileModal(){
     bossStatEl.textContent = `${defeatedCount} / ${BOSS_DATA.length}`;
   }
   if(sfxBtn) sfxBtn.textContent = sfxEnabled ? '🔊 SFX ON' : '🔇 SFX OFF';
+
+  const unlockedBadges = state.unlockedBadges || {};
+  const unlockedIds = Object.keys(unlockedBadges);
+  if(badgeCountEl) badgeCountEl.textContent = `${unlockedIds.length} / ${BADGES_CONFIG.length}`;
+  if(badgesRowEl){
+    if(unlockedIds.length === 0){
+      badgesRowEl.innerHTML = `<div style="font-size:11px; color:var(--text-dim); font-style:italic;">Belum ada lencana terbuka. Selesaikan materi atau kuis!</div>`;
+    } else {
+      badgesRowEl.innerHTML = unlockedIds.map(bId => {
+        const b = BADGES_CONFIG.find(x => x.id === bId);
+        if(!b) return '';
+        return `<span title="${b.name}: ${b.desc}" style="font-size:20px; background:var(--bg); border:1.5px solid var(--border); padding:3px 6px; cursor:help;">${b.icon}</span>`;
+      }).join('');
+    }
+  }
 
   if(ladderListEl){
     ladderListEl.innerHTML = RPG_RANKS.map(r=>{
@@ -5487,6 +5947,7 @@ async function handleSignedIn(session){
   recordDailyQuestProgress('login');
   startSimTickEngine();
   await loadProgress();
+  checkAndUnlockAchievements(false);
   renderRpgUI(false);
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app-screen').classList.remove('hidden');
@@ -5539,6 +6000,7 @@ async function toggleResource(id, e){
   if(next){
     triggerFloatingXp(50, '⚡ Selesai', e?.clientX, e?.clientY);
     recordDailyQuestProgress('material');
+    checkAndUnlockAchievements();
     await sb.from('progress').upsert({ user_id: currentUser.id, resource_id:id, done:true, updated_at: new Date().toISOString() });
   } else {
     await sb.from('progress').delete().eq('user_id', currentUser.id).eq('resource_id', id);
@@ -5578,11 +6040,13 @@ function updateViewTabs(){
   const btnBoss = document.getElementById('tab-btn-boss');
   const btnQuests = document.getElementById('tab-btn-quests');
   const btnSim = document.getElementById('tab-btn-sim');
+  const btnBadges = document.getElementById('tab-btn-badges');
   if(btnMods) btnMods.classList.toggle('active', currentViewMode === 'modules');
   if(btnTree) btnTree.classList.toggle('active', currentViewMode === 'tree');
   if(btnBoss) btnBoss.classList.toggle('active', currentViewMode === 'boss');
   if(btnQuests) btnQuests.classList.toggle('active', currentViewMode === 'quests');
   if(btnSim) btnSim.classList.toggle('active', currentViewMode === 'sim');
+  if(btnBadges) btnBadges.classList.toggle('active', currentViewMode === 'badges');
 }
 
 function renderSidebar(){
@@ -5637,6 +6101,7 @@ function toggleSummary(id, e){
       state.readSummaries[id] = true;
       saveRpgState(state);
       triggerFloatingXp(10, '📖 Ringkasan', e?.clientX, e?.clientY);
+      checkAndUnlockAchievements();
       renderRpgUI(true);
     }
   }
@@ -5749,6 +6214,7 @@ function renderMain(){
   if(currentViewMode === 'boss'){ renderBossBattleArena(); return; }
   if(currentViewMode === 'quests'){ renderDailyQuests(); return; }
   if(currentViewMode === 'sim'){ renderPaperTrading(); return; }
+  if(currentViewMode === 'badges'){ renderBadgesGallery(); return; }
 
   const m = MODULES.find(x=>x.id===activeModule);
   const s = modStats(m);
