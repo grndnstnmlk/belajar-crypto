@@ -829,6 +829,16 @@
   }
   .btn-close-pos:hover{ border-color:var(--red); color:var(--red); }
 
+  .btn-close-all-pos{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700;
+    background:rgba(246,70,93,0.15); border:1.5px solid var(--red); color:var(--red);
+    padding:3px 8px; cursor:pointer; transition:all .12s;
+  }
+  .btn-close-all-pos:hover{
+    background:var(--red); color:#fff;
+    box-shadow:2px 2px 0 var(--amber);
+  }
+
   /* ---- Badges & Achievements Gallery ---- */
   .badges-container{ padding:0 0 36px; animation:fadeIn .25s ease; }
   .badges-header{
@@ -4975,6 +4985,59 @@ function closeSimPosition(posId){
   renderPaperTrading();
 }
 
+function closeAllSimPositions(){
+  const state = getSimState();
+  if(!state.positions || state.positions.length === 0) return;
+
+  const totalPositions = state.positions.length;
+  let totalRealizedPnl = 0;
+  if(!state.tradeHistory) state.tradeHistory = [];
+
+  const closeTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+  state.positions.forEach(pos => {
+    const currentPrice = SIM_PAIRS[pos.pair]?.price || pos.entryPrice;
+    const diffPct = (pos.direction === 'LONG')
+      ? (currentPrice - pos.entryPrice) / pos.entryPrice
+      : (pos.entryPrice - currentPrice) / pos.entryPrice;
+    
+    const roiPct = diffPct * pos.leverage;
+    const pnlUsdt = pos.amountUsdt * roiPct;
+    const returnAmount = Math.max(0, pos.amountUsdt + pnlUsdt);
+
+    state.balance += returnAmount;
+    totalRealizedPnl += pnlUsdt;
+
+    state.tradeHistory.unshift({
+      id: pos.id,
+      pair: pos.pair,
+      direction: pos.direction,
+      entryPrice: pos.entryPrice,
+      closePrice: currentPrice,
+      amountUsdt: pos.amountUsdt,
+      leverage: pos.leverage,
+      pnlUsdt: parseFloat(pnlUsdt.toFixed(2)),
+      roiPct: parseFloat((roiPct * 100).toFixed(2)),
+      reason: 'CLOSE ALL',
+      closeTime
+    });
+  });
+
+  state.positions = [];
+  saveSimState(state);
+
+  if(totalRealizedPnl > 0){
+    playProfitCashSound();
+    triggerFloatingXp(75, `💰 Net Profit +$${totalRealizedPnl.toFixed(2)}`);
+  } else {
+    playPlayerDamagedSound();
+    triggerFloatingXp(30, `🚨 ${totalPositions} Posisi Ditutup`);
+  }
+
+  checkAndUnlockAchievements();
+  renderPaperTrading();
+}
+
 function updateSimPriceDisplay(){
   const p = SIM_PAIRS[selectedSimPair];
   const priceEl = document.getElementById('sim-live-price');
@@ -5230,9 +5293,14 @@ function renderPaperTrading(){
       </div>
 
       <div class="sim-table-card">
-        <div class="sim-table-title">
-          <span>⚡ Posisi Aktif (${(state.positions||[]).length})</span>
-          <span class="mono" style="font-size:10px; color:var(--text-dim);">Live PnL Tick Realtime</span>
+        <div class="sim-table-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+          <div>
+            <span>⚡ Posisi Aktif (${(state.positions||[]).length})</span>
+            <span class="mono" style="font-size:10px; color:var(--text-dim); margin-left:6px;">Live PnL Tick Realtime</span>
+          </div>
+          ${(state.positions && state.positions.length > 0) ? `
+            <button class="btn-close-all-pos" onclick="closeAllSimPositions()">🚨 TUTUP SEMUA (${state.positions.length})</button>
+          ` : ''}
         </div>
         <div class="sim-table-wrap">
           <table class="sim-table">
