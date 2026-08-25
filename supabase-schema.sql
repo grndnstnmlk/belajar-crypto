@@ -72,6 +72,7 @@ create table if not exists public.user_gamification (
   rpg_state jsonb not null default '{}'::jsonb,
   quests_state jsonb not null default '{}'::jsonb,
   sim_state jsonb not null default '{}'::jsonb,
+  bot_state jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );
 
@@ -81,4 +82,5 @@ create policy "User kelola data gamifikasi sendiri"
   on public.user_gamification for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
 

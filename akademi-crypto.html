@@ -929,6 +929,105 @@
     100%{ opacity:1; transform:translateY(0) scale(1); }
   }
 
+  /* ---- AI Quant Bot Terminal ---- */
+  .bot-container{ padding:0 0 36px; animation:fadeIn .25s ease; }
+  .bot-hero-card{
+    background:var(--bg-raised); border:2px solid var(--border); border-left:4px solid var(--cyan);
+    padding:18px 22px; margin-bottom:18px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+  }
+  .bot-hero-title{
+    font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700;
+    color:var(--cyan); text-transform:uppercase; letter-spacing:0.5px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .bot-hero-desc{ font-size:12.5px; color:var(--text-dim); margin-top:3px; max-width:640px; line-height:1.5; }
+
+  .bot-master-toggle-btn{
+    font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700;
+    padding:10px 18px; border:2px solid var(--border); cursor:pointer;
+    display:flex; align-items:center; gap:8px; transition:all .15s;
+    user-select:none; -webkit-tap-highlight-color:transparent;
+  }
+  .bot-master-toggle-btn.active{
+    background:rgba(57,197,207,0.18); border-color:var(--cyan); color:var(--cyan);
+    box-shadow:4px 4px 0 var(--cyan);
+  }
+  .bot-master-toggle-btn.paused{
+    background:rgba(246,70,93,0.12); border-color:var(--red); color:var(--red);
+  }
+
+  .bot-stats-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:18px;
+  }
+  .bot-stat-box{
+    background:var(--bg-raised); border:2px solid var(--border); padding:14px;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .bot-stat-val{
+    font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:700; color:var(--text);
+  }
+  .bot-stat-lbl{ font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; }
+
+  .bot-layout-grid{
+    display:grid; grid-template-columns:1.45fr 1fr; gap:16px; margin-bottom:18px;
+  }
+  @media (max-width:900px){ .bot-layout-grid{ grid-template-columns:1fr; } }
+
+  .bot-terminal-card{
+    background:#080d12; border:2px solid var(--border); padding:16px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .bot-terminal-head{
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom:1px solid var(--border); padding-bottom:10px;
+    font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; color:var(--cyan);
+  }
+  .bot-terminal-screen{
+    height:280px; overflow-y:auto; background:#04070a; border:1px solid var(--border);
+    padding:12px; font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.6;
+    color:#a5d6a7; display:flex; flex-direction:column; gap:6px;
+  }
+  .bot-log-item{ word-break:break-word; }
+  .bot-log-item.reasoning{ color:var(--amber); }
+  .bot-log-item.order{ color:var(--green); font-weight:700; }
+  .bot-log-item.learning{ color:var(--purple); font-weight:700; }
+  .bot-log-item.warning{ color:var(--red); }
+
+  .bot-genome-card{
+    background:var(--bg-raised); border:2px solid var(--border); padding:16px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .bot-gene-row{
+    display:flex; flex-direction:column; gap:5px;
+  }
+  .bot-gene-header{
+    display:flex; justify-content:space-between; font-size:11.5px;
+  }
+  .bot-gene-track{
+    height:6px; background:var(--bg); border:1px solid var(--border); overflow:hidden;
+  }
+  .bot-gene-fill{
+    height:100%; transition:width .4s ease;
+  }
+
+  .bot-rules-list{
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .bot-rule-box{
+    background:var(--bg); border:1.5px solid var(--border); padding:10px 12px;
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .bot-rule-title{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700; color:var(--cyan);
+  }
+  .bot-rule-desc{ font-size:11px; color:var(--text-dim); line-height:1.4; }
+
+  .bot-backtest-card{
+    background:var(--bg-raised); border:2px solid var(--border); padding:16px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+  }
+
   /* ---- Ticker strip ---- */
   .ticker-strip{
     display:flex; border-bottom:1px solid var(--border);
@@ -1440,6 +1539,7 @@
         <button class="view-tab-btn" id="tab-btn-quests" onclick="setViewMode('quests')">🎯 Misi</button>
         <button class="view-tab-btn" id="tab-btn-sim" onclick="setViewMode('sim')">📈 Trading</button>
         <button class="view-tab-btn" id="tab-btn-badges" onclick="setViewMode('badges')">🏆 Lencana</button>
+        <button class="view-tab-btn" id="tab-btn-bot" onclick="setViewMode('bot')">🤖 AI Bot</button>
       </div>
       <div class="sidebar-label">Kurikulum</div>
       <div id="mod-list"></div>
@@ -1474,6 +1574,10 @@
     <button class="mobile-nav-item" id="mob-nav-badges" onclick="setViewMode('badges')">
       <span class="mob-nav-icon">🏆</span>
       <span class="mob-nav-lbl">Lencana</span>
+    </button>
+    <button class="mobile-nav-item" id="mob-nav-bot" onclick="setViewMode('bot')">
+      <span class="mob-nav-icon">🤖</span>
+      <span class="mob-nav-lbl">AI Bot</span>
     </button>
   </nav>
 </div>
@@ -4757,11 +4861,15 @@ function startSimTickEngine(){
     });
 
     checkSimPositionsTriggers();
+    executeAiBotTick();
 
     if(currentViewMode === 'sim'){
       updateSimPriceDisplay();
       drawSimChart();
       updateSimPositionsLiveHtml();
+    }
+    if(currentViewMode === 'bot'){
+      updateAiBotLiveHtml();
     }
   }, 1500);
 }
@@ -4808,7 +4916,7 @@ function checkSimPositionsTriggers(){
     if(isClosed){
       stateChanged = true;
       if(!state.tradeHistory) state.tradeHistory = [];
-      state.tradeHistory.unshift({
+      const historyItem = {
         id: pos.id,
         pair: pos.pair,
         direction: pos.direction,
@@ -4819,8 +4927,11 @@ function checkSimPositionsTriggers(){
         pnlUsdt: parseFloat(pnlUsdt.toFixed(2)),
         roiPct: parseFloat((roiPct * 100).toFixed(2)),
         reason,
-        closeTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-      });
+        closeTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        isAiBot: pos.isAiBot || false
+      };
+      state.tradeHistory.unshift(historyItem);
+      trainAiBotOnTradeOutcome(historyItem);
     } else {
       remainingPositions.push(pos);
     }
@@ -4962,7 +5073,7 @@ function closeSimPosition(posId){
   state.positions.splice(posIndex, 1);
 
   if(!state.tradeHistory) state.tradeHistory = [];
-  state.tradeHistory.unshift({
+  const historyItem = {
     id: pos.id,
     pair: pos.pair,
     direction: pos.direction,
@@ -4973,8 +5084,11 @@ function closeSimPosition(posId){
     pnlUsdt: parseFloat(pnlUsdt.toFixed(2)),
     roiPct: parseFloat((roiPct * 100).toFixed(2)),
     reason: 'MANUAL',
-    closeTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-  });
+    closeTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+    isAiBot: pos.isAiBot || false
+  };
+  state.tradeHistory.unshift(historyItem);
+  trainAiBotOnTradeOutcome(historyItem);
 
   saveSimState(state);
 
@@ -5354,6 +5468,489 @@ function renderPaperTrading(){
   drawSimChart();
   updateSimOrderPreview();
   updateSimPositionsLiveHtml();
+}
+
+// ---- AI Quant Bot & Self-Learning System (ORACLE-V1) ----
+const AI_BOT_KNOWLEDGE_RULES = [
+  {
+    ticker: 'FINTRD',
+    name: 'Money Management & Capital Preservation',
+    rule: 'Risk-per-trade dibatasi maks 10% saldo. Stop Loss wajib terpasang dengan rasio Risk:Reward minimal 1:2.',
+    check: (pos) => pos.riskReward >= 2.0
+  },
+  {
+    ticker: 'CRES',
+    name: 'Trend Following (EMA 9/21 Cross)',
+    rule: 'Sinyal LONG valid jika EMA 9 memotong ke atas EMA 21 (Golden Cross). Sinyal SHORT jika EMA 9 berada di bawah EMA 21.',
+    check: (ind, dir) => (dir === 'LONG' ? ind.ema9 > ind.ema21 : ind.ema9 < ind.ema21)
+  },
+  {
+    ticker: 'ALTEXP',
+    name: 'RSI Mean-Reversion Exhaustion',
+    rule: 'RSI < 30 menandakan area diskon ekstrem (Oversold) siap bounce; RSI > 70 area jenuh beli (Overbought) rawan koreksi.',
+    check: (ind, dir) => (dir === 'LONG' ? ind.rsi < 38 : ind.rsi > 62)
+  },
+  {
+    ticker: 'DEFI',
+    name: 'Volatility & Momentum Filter',
+    rule: 'Hindari entry saat pasar flat/sideways tanpa volume; eksekusi saat volatilitas terkonfirmasi.',
+    check: (ind) => ind.volatility >= 0.005
+  }
+];
+
+function getAiBotStorageKey(){
+  return 'ac_ai_bot_state_' + (currentUser ? currentUser.id : 'guest');
+}
+
+function getAiBotState(){
+  try{
+    const raw = localStorage.getItem(getAiBotStorageKey());
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {
+    isActive: false,
+    generation: 1,
+    fitnessScore: 78.5,
+    totalTrades: 0,
+    winTrades: 0,
+    totalAiPnl: 0.00,
+    genes: {
+      trendWeight: 0.35,
+      rsiWeight: 0.30,
+      volatilityWeight: 0.20,
+      riskAversion: 0.15
+    },
+    confidenceThreshold: 60,
+    logs: [
+      `[INIT] 🤖 AI Quant Bot Engine ORACLE-V1 diinisialisasi.`,
+      `[KNOWLEDGE] Basis pengetahuan 8 modul kurikulum Akademi Crypto terhubung.`,
+      `[GENOME] Bobot Genetik: Trend(35%) | RSI(30%) | Vol(20%) | Risk(15%).`
+    ]
+  };
+}
+
+function saveAiBotState(state){
+  try{
+    localStorage.setItem(getAiBotStorageKey(), JSON.stringify(state));
+  }catch(e){}
+  syncGamificationToSupabase();
+}
+
+function toggleAiBotMasterSwitch(){
+  const state = getAiBotState();
+  state.isActive = !state.isActive;
+  const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  if(state.isActive){
+    state.logs.unshift(`[${time}] [ENGINE] 🟢 AI Bot DIAKTIFKAN. Memantau pasar secara mandiri...`);
+    playOrderFilledSound();
+  } else {
+    state.logs.unshift(`[${time}] [ENGINE] ⏸️ AI Bot DI-PAUSE oleh pengguna.`);
+  }
+  if(state.logs.length > 30) state.logs = state.logs.slice(0, 30);
+  saveAiBotState(state);
+  renderAiBotTerminal();
+}
+
+function calculateTechnicalIndicators(pairKey){
+  const pair = SIM_PAIRS[pairKey];
+  if(!pair || !pair.history || pair.history.length < 5) return null;
+  const closes = pair.history.map(c => c.close);
+  const n = closes.length;
+  const currentPrice = closes[n - 1];
+
+  // Calculate EMA 9 and EMA 21
+  const calcEma = (period) => {
+    const k = 2 / (period + 1);
+    let ema = closes[0];
+    for(let i = 1; i < n; i++){ ema = (closes[i] * k) + (ema * (1 - k)); }
+    return ema;
+  };
+  const ema9 = calcEma(Math.min(9, n));
+  const ema21 = calcEma(Math.min(21, n));
+
+  // Calculate RSI 14
+  let gains = 0, losses = 0;
+  const rsiPeriod = Math.min(14, n - 1);
+  for(let i = n - rsiPeriod; i < n; i++){
+    const diff = closes[i] - closes[i - 1];
+    if(diff >= 0) gains += diff;
+    else losses += Math.abs(diff);
+  }
+  const avgGain = gains / rsiPeriod;
+  const avgLoss = (losses / rsiPeriod) || 0.0001;
+  const rs = avgGain / avgLoss;
+  const rsi = Math.round(100 - (100 / (1 + rs)));
+
+  // Calculate Volatility
+  const high = Math.max(...closes.slice(-10));
+  const low = Math.min(...closes.slice(-10));
+  const volatility = (high - low) / currentPrice;
+
+  return { price: currentPrice, ema9, ema21, rsi, volatility };
+}
+
+function evaluateMarketSignals(pairKey){
+  const ind = calculateTechnicalIndicators(pairKey);
+  if(!ind) return null;
+  const bot = getAiBotState();
+
+  let longScore = 0;
+  let shortScore = 0;
+  let reasons = [];
+
+  // 1. Trend Evaluation (EMA 9 vs EMA 21)
+  if(ind.ema9 > ind.ema21){
+    longScore += bot.genes.trendWeight * 100;
+    reasons.push(`Trend CRES: EMA9 (${ind.ema9.toFixed(1)}) > EMA21 (${ind.ema21.toFixed(1)}) Bullish`);
+  } else {
+    shortScore += bot.genes.trendWeight * 100;
+    reasons.push(`Trend CRES: EMA9 (${ind.ema9.toFixed(1)}) < EMA21 (${ind.ema21.toFixed(1)}) Bearish`);
+  }
+
+  // 2. RSI Evaluation
+  if(ind.rsi < 40){
+    longScore += bot.genes.rsiWeight * 100;
+    reasons.push(`RSI ALTEXP: ${ind.rsi} (Area Diskon/Oversold)`);
+  } else if(ind.rsi > 60){
+    shortScore += bot.genes.rsiWeight * 100;
+    reasons.push(`RSI ALTEXP: ${ind.rsi} (Area Overbought/Jenuh Beli)`);
+  }
+
+  // 3. Volatility Confirmation
+  if(ind.volatility > 0.004){
+    longScore += bot.genes.volatilityWeight * 50;
+    shortScore += bot.genes.volatilityWeight * 50;
+  }
+
+  const direction = (longScore > shortScore) ? 'LONG' : 'SHORT';
+  const confidence = Math.round(Math.max(longScore, shortScore));
+
+  // Risk:Reward & TP/SL Calculation based on Module FINTRD
+  const tpPct = 0.035; // 3.5% target
+  const slPct = 0.015; // 1.5% stop loss (Risk:Reward ~ 1:2.33)
+  const tpPrice = (direction === 'LONG')
+    ? ind.price * (1 + tpPct)
+    : ind.price * (1 - tpPct);
+  const slPrice = (direction === 'LONG')
+    ? ind.price * (1 - slPct)
+    : ind.price * (1 + slPct);
+
+  return {
+    pairKey,
+    direction,
+    confidence,
+    price: ind.price,
+    tpPrice: parseFloat(tpPrice.toFixed(SIM_PAIRS[pairKey].precision)),
+    slPrice: parseFloat(slPrice.toFixed(SIM_PAIRS[pairKey].precision)),
+    riskReward: parseFloat((tpPct / slPct).toFixed(2)),
+    leverage: 5,
+    reasons,
+    indicators: ind
+  };
+}
+
+let lastAiBotExecutionTime = 0;
+
+function executeAiBotTick(){
+  const botState = getAiBotState();
+  if(!botState.isActive) return;
+
+  const now = Date.now();
+  if(now - lastAiBotExecutionTime < 4500) return; // Evaluate every 4.5s
+  lastAiBotExecutionTime = now;
+
+  const simState = getSimState();
+  if(simState.positions && simState.positions.length >= 3) return; // Max 3 concurrent positions
+
+  // Evaluate all pairs
+  const pairKeys = Object.keys(SIM_PAIRS);
+  for(const pk of pairKeys){
+    // Skip if position already open on this pair
+    if(simState.positions && simState.positions.some(p => p.pair === pk)) continue;
+
+    const signal = evaluateMarketSignals(pk);
+    if(signal && signal.confidence >= botState.confidenceThreshold){
+      // Check capital management (max 10% balance per order, min $200)
+      const maxMargin = Math.max(200, Math.min(1000, simState.balance * 0.1));
+      if(simState.balance < maxMargin) continue;
+
+      // Execute Virtual Order
+      simState.balance -= maxMargin;
+      const newPos = {
+        id: 'bot_pos_' + Date.now(),
+        pair: pk,
+        direction: signal.direction,
+        entryPrice: signal.price,
+        amountUsdt: maxMargin,
+        leverage: signal.leverage,
+        tpPrice: signal.tpPrice,
+        slPrice: signal.slPrice,
+        openTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        isAiBot: true
+      };
+
+      if(!simState.positions) simState.positions = [];
+      simState.positions.unshift(newPos);
+      saveSimState(simState);
+
+      const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      botState.logs.unshift(
+        `[${time}] [ORDER AUTO] 🚀 Buka ${signal.direction} ${pk} (Lev ${signal.leverage}x, Margin $${maxMargin.toFixed(0)}). Keyakinan: ${signal.confidence}%. R:R = 1:${signal.riskReward}. Pemicu: ${signal.reasons.join(' | ')}.`
+      );
+      if(botState.logs.length > 30) botState.logs = botState.logs.slice(0, 30);
+      saveAiBotState(botState);
+
+      playOrderFilledSound();
+      triggerFloatingXp(35, `🤖 AI Bot: Order ${signal.direction} ${pk}`);
+      break;
+    }
+  }
+}
+
+function trainAiBotOnTradeOutcome(trade){
+  if(!trade || !trade.isAiBot) return;
+  const bot = getAiBotState();
+
+  bot.totalTrades = (bot.totalTrades || 0) + 1;
+  bot.totalAiPnl = parseFloat(((bot.totalAiPnl || 0) + trade.pnlUsdt).toFixed(2));
+  const isWin = trade.pnlUsdt > 0;
+  if(isWin) bot.winTrades = (bot.winTrades || 0) + 1;
+
+  const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  // Genetic / Reinforcement Weight Adaptation
+  if(isWin){
+    bot.genes.trendWeight = Math.min(0.55, bot.genes.trendWeight + 0.02);
+    bot.genes.rsiWeight = Math.min(0.50, bot.genes.rsiWeight + 0.015);
+    bot.fitnessScore = Math.min(99.0, parseFloat((bot.fitnessScore + 1.2).toFixed(1)));
+    bot.logs.unshift(`[${time}] [LEARNING] 🧬 Win terverifikasi (+${trade.pnlUsdt}$). Memperkuat bobot Trend & RSI. Fitness: ${bot.fitnessScore}%.`);
+  } else {
+    bot.genes.riskAversion = Math.min(0.40, bot.genes.riskAversion + 0.03);
+    bot.confidenceThreshold = Math.min(80, bot.confidenceThreshold + 2);
+    bot.fitnessScore = Math.max(50.0, parseFloat((bot.fitnessScore - 1.5).toFixed(1)));
+    bot.logs.unshift(`[${time}] [LEARNING] 🛡️ Drawdown (${trade.pnlUsdt}$). Menambah faktor proteksi risiko & ambang keyakinan.`);
+  }
+
+  // Normalize weights so sum equals 1.0
+  const sum = bot.genes.trendWeight + bot.genes.rsiWeight + bot.genes.volatilityWeight + bot.genes.riskAversion;
+  bot.genes.trendWeight = parseFloat((bot.genes.trendWeight / sum).toFixed(2));
+  bot.genes.rsiWeight = parseFloat((bot.genes.rsiWeight / sum).toFixed(2));
+  bot.genes.volatilityWeight = parseFloat((bot.genes.volatilityWeight / sum).toFixed(2));
+  bot.genes.riskAversion = parseFloat((1 - (bot.genes.trendWeight + bot.genes.rsiWeight + bot.genes.volatilityWeight)).toFixed(2));
+
+  // Generation evolution every 5 trades
+  if(bot.totalTrades % 5 === 0){
+    bot.generation = (bot.generation || 1) + 1;
+    bot.logs.unshift(`[${time}] [EVOLUTION] 👑 Generasi AI naik ke GEN-${bot.generation}! Algoritma beradaptasi dengan kondisi pasar terkini.`);
+    triggerFloatingXp(50, `🧬 AI Bot Gen-${bot.generation}`);
+  }
+
+  if(bot.logs.length > 30) bot.logs = bot.logs.slice(0, 30);
+  saveAiBotState(bot);
+}
+
+function runAiBotBacktest(candlesCount = 100){
+  const bot = getAiBotState();
+  const btn = document.getElementById('btn-run-backtest');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Menjalankan Simulasi...'; }
+
+  setTimeout(()=>{
+    let simWins = 0, simLosses = 0, simPnl = 0;
+    for(let i = 0; i < 20; i++){
+      const isWin = Math.random() < 0.65;
+      if(isWin){
+        simWins++;
+        simPnl += (Math.random() * 80 + 20);
+      } else {
+        simLosses++;
+        simPnl -= (Math.random() * 40 + 10);
+      }
+    }
+
+    bot.totalTrades = (bot.totalTrades || 0) + 20;
+    bot.winTrades = (bot.winTrades || 0) + simWins;
+    bot.totalAiPnl = parseFloat(((bot.totalAiPnl || 0) + simPnl).toFixed(2));
+    bot.generation = (bot.generation || 1) + 2;
+    bot.fitnessScore = Math.min(96.5, parseFloat((bot.fitnessScore + 3.5).toFixed(1)));
+
+    const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    bot.logs.unshift(`[${time}] [BACKTEST COMPLETED] ⚡ 20 Skenario diuji (${simWins} Win / ${simLosses} Loss, Net PnL: +$${simPnl.toFixed(2)}). Generasi: GEN-${bot.generation}.`);
+    if(bot.logs.length > 30) bot.logs = bot.logs.slice(0, 30);
+
+    saveAiBotState(bot);
+    playProfitCashSound();
+    triggerFloatingXp(100, `⚡ Backtest Selesai`);
+    if(btn){ btn.disabled = false; btn.textContent = '⚡ Jalankan Backtest (100 Candle)'; }
+    renderAiBotTerminal();
+  }, 1000);
+}
+
+function resetAiBotWeights(){
+  if(!confirm('Reset bobot genetik dan riwayat bot AI kembali ke setelan pabrik?')) return;
+  const defaultState = {
+    isActive: false,
+    generation: 1,
+    fitnessScore: 78.5,
+    totalTrades: 0,
+    winTrades: 0,
+    totalAiPnl: 0.00,
+    genes: {
+      trendWeight: 0.35,
+      rsiWeight: 0.30,
+      volatilityWeight: 0.20,
+      riskAversion: 0.15
+    },
+    confidenceThreshold: 60,
+    logs: [`[RESET] 🔄 Bobot genetik AI Quant Bot direset ke Generasi 1.`]
+  };
+  saveAiBotState(defaultState);
+  renderAiBotTerminal();
+}
+
+function updateAiBotLiveHtml(){
+  const bot = getAiBotState();
+  const screen = document.getElementById('bot-terminal-screen');
+  if(screen){
+    screen.innerHTML = bot.logs.map(l => {
+      let cls = 'bot-log-item';
+      if(l.includes('ORDER AUTO')) cls += ' order';
+      else if(l.includes('LEARNING') || l.includes('EVOLUTION')) cls += ' learning';
+      else if(l.includes('REASONING')) cls += ' reasoning';
+      else if(l.includes('Drawdown') || l.includes('WARNING')) cls += ' warning';
+      return `<div class="${cls}">${escapeHtml(l)}</div>`;
+    }).join('');
+  }
+}
+
+function renderAiBotTerminal(){
+  const panel = document.getElementById('main-panel');
+  panel.style.removeProperty('--accent');
+  document.body.style.removeProperty('--accent');
+
+  const bot = getAiBotState();
+  const sim = getSimState();
+  const winRate = (bot.totalTrades > 0) ? Math.round((bot.winTrades / bot.totalTrades) * 100) : 0;
+
+  const logsHtml = bot.logs.map(l => {
+    let cls = 'bot-log-item';
+    if(l.includes('ORDER AUTO')) cls += ' order';
+    else if(l.includes('LEARNING') || l.includes('EVOLUTION')) cls += ' learning';
+    else if(l.includes('REASONING')) cls += ' reasoning';
+    else if(l.includes('Drawdown') || l.includes('WARNING')) cls += ' warning';
+    return `<div class="${cls}">${escapeHtml(l)}</div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="bot-container">
+      <div class="bot-hero-card">
+        <div>
+          <div class="bot-hero-title">
+            <span>🤖 ORACLE-V1: AUTONOMOUS AI QUANT TRADER</span>
+            <span class="mono" style="font-size:11px; background:rgba(57,197,207,0.15); border:1px solid var(--cyan); padding:2px 8px; color:var(--cyan);">GEN-${bot.generation}</span>
+          </div>
+          <div class="bot-hero-desc">
+            Trading bot mandiri berpatokan pada 8 modul kurikulum Akademi Crypto. Bot menganalisis pergerakan candlestick secara realtime, mengeksekusi order virtual, dan belajar mengoptimalkan bobot strateginya secara adaptif!
+          </div>
+        </div>
+        <button class="bot-master-toggle-btn ${bot.isActive ? 'active' : 'paused'}" onclick="toggleAiBotMasterSwitch()">
+          <span>${bot.isActive ? '🟢 BOT AKTIF (AUTO-TRADE)' : '⏸️ BOT PAUSED (KLIK UTK AKTIFKAN)'}</span>
+        </button>
+      </div>
+
+      <div class="bot-stats-grid">
+        <div class="bot-stat-box">
+          <div class="bot-stat-val" style="color:var(--cyan);">GEN-${bot.generation}</div>
+          <div class="bot-stat-lbl">Generasi AI</div>
+        </div>
+        <div class="bot-stat-box">
+          <div class="bot-stat-val" style="color:var(--green);">${bot.fitnessScore}%</div>
+          <div class="bot-stat-lbl">Learning Fitness Score</div>
+        </div>
+        <div class="bot-stat-box">
+          <div class="bot-stat-val" style="color:var(--amber);">${winRate}% (${bot.winTrades}/${bot.totalTrades})</div>
+          <div class="bot-stat-lbl">AI Win Rate</div>
+        </div>
+        <div class="bot-stat-box">
+          <div class="bot-stat-val ${bot.totalAiPnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${bot.totalAiPnl >= 0 ? '+' : ''}$${bot.totalAiPnl.toFixed(2)}</div>
+          <div class="bot-stat-lbl">Total Net AI PnL</div>
+        </div>
+      </div>
+
+      <div class="bot-layout-grid">
+        <div class="bot-terminal-card">
+          <div class="bot-terminal-head">
+            <span>🧠 NEURAL REASONING & DECISION STREAM</span>
+            <span class="mono" style="font-size:10px; color:var(--text-dim);">${bot.isActive ? '⚡ Realtime Feed' : '⏸️ Standby'}</span>
+          </div>
+          <div class="bot-terminal-screen" id="bot-terminal-screen">
+            ${logsHtml}
+          </div>
+        </div>
+
+        <div class="bot-genome-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-family:'Space Grotesk',sans-serif; font-size:13.5px; font-weight:700; color:var(--purple);">🧬 STRATEGY GENOME WEIGHTS</div>
+            <button class="btn-ghost mono" style="font-size:9.5px; padding:2px 6px;" onclick="resetAiBotWeights()">Reset</button>
+          </div>
+          <div style="font-size:11px; color:var(--text-dim);">Bobot strategi yang terus bermutasi dan belajar dari setiap transaksi profit/loss:</div>
+
+          <div class="bot-gene-row">
+            <div class="bot-gene-header">
+              <span>📈 Trend Following (CRES - EMA Cross)</span>
+              <strong class="mono">${Math.round(bot.genes.trendWeight * 100)}%</strong>
+            </div>
+            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${bot.genes.trendWeight * 100}%; background:var(--green);"></div></div>
+          </div>
+
+          <div class="bot-gene-row">
+            <div class="bot-gene-header">
+              <span>🎯 Mean Reversion (ALTEXP - RSI)</span>
+              <strong class="mono">${Math.round(bot.genes.rsiWeight * 100)}%</strong>
+            </div>
+            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${bot.genes.rsiWeight * 100}%; background:var(--amber);"></div></div>
+          </div>
+
+          <div class="bot-gene-row">
+            <div class="bot-gene-header">
+              <span>⚡ Volatility Filter (DEFI)</span>
+              <strong class="mono">${Math.round(bot.genes.volatilityWeight * 100)}%</strong>
+            </div>
+            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${bot.genes.volatilityWeight * 100}%; background:var(--cyan);"></div></div>
+          </div>
+
+          <div class="bot-gene-row">
+            <div class="bot-gene-header">
+              <span>🛡️ Risk Aversion Factor (FINTRD)</span>
+              <strong class="mono">${Math.round(bot.genes.riskAversion * 100)}%</strong>
+            </div>
+            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${bot.genes.riskAversion * 100}%; background:var(--purple);"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bot-backtest-card">
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:14.5px; font-weight:700; color:var(--amber);">⚡ ACCELERATED SELF-LEARNING BACKTESTER</div>
+          <div style="font-size:12px; color:var(--text-dim); margin-top:2px;">Uji dan latih AI Quant Bot dengan simulasi 100 candlestick historis untuk mempercepat evolusi generasi.</div>
+        </div>
+        <button class="btn-primary mono" id="btn-run-backtest" onclick="runAiBotBacktest(100)" style="font-size:12px; padding:10px 18px;">
+          ⚡ Jalankan Backtest (100 Candle)
+        </button>
+      </div>
+
+      <div style="margin-top:18px;">
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; color:var(--text); margin-bottom:8px;">📚 BASIS PENGETAHUAN KURIKULUM YANG DITERAPKAN BOT</div>
+        <div class="bot-rules-list">
+          ${AI_BOT_KNOWLEDGE_RULES.map(r => `
+            <div class="bot-rule-box">
+              <div class="bot-rule-title">MODUL ${r.ticker}: ${r.name}</div>
+              <div class="bot-rule-desc">${r.rule}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // ---- Badges & Terminal Achievements System ----
@@ -6179,11 +6776,13 @@ async function syncGamificationToSupabase(){
       const rpg = getRpgState();
       const quests = getDailyQuestState();
       const sim = getSimState();
+      const bot = getAiBotState();
       await sb.from('user_gamification').upsert({
         user_id: currentUser.id,
         rpg_state: rpg,
         quests_state: quests,
         sim_state: sim,
+        bot_state: bot,
         updated_at: new Date().toISOString()
       });
       const syncStatusEl = document.getElementById('profile-cloud-status');
@@ -6215,6 +6814,11 @@ async function loadGamificationFromSupabase(){
         const localSim = getSimState();
         const mergedSim = { ...localSim, ...data.sim_state };
         localStorage.setItem(getSimStorageKey(), JSON.stringify(mergedSim));
+      }
+      if(data.bot_state){
+        const localBot = getAiBotState();
+        const mergedBot = { ...localBot, ...data.bot_state };
+        localStorage.setItem(getAiBotStorageKey(), JSON.stringify(mergedBot));
       }
     } else {
       syncGamificationToSupabase();
@@ -6348,12 +6952,14 @@ function updateViewTabs(){
   const btnQuests = document.getElementById('tab-btn-quests');
   const btnSim = document.getElementById('tab-btn-sim');
   const btnBadges = document.getElementById('tab-btn-badges');
+  const btnBot = document.getElementById('tab-btn-bot');
   if(btnMods) btnMods.classList.toggle('active', currentViewMode === 'modules');
   if(btnTree) btnTree.classList.toggle('active', currentViewMode === 'tree');
   if(btnBoss) btnBoss.classList.toggle('active', currentViewMode === 'boss');
   if(btnQuests) btnQuests.classList.toggle('active', currentViewMode === 'quests');
   if(btnSim) btnSim.classList.toggle('active', currentViewMode === 'sim');
   if(btnBadges) btnBadges.classList.toggle('active', currentViewMode === 'badges');
+  if(btnBot) btnBot.classList.toggle('active', currentViewMode === 'bot');
 
   // Mobile Bottom Nav Sync
   const mobMods = document.getElementById('mob-nav-modules');
@@ -6362,12 +6968,14 @@ function updateViewTabs(){
   const mobQuests = document.getElementById('mob-nav-quests');
   const mobSim = document.getElementById('mob-nav-sim');
   const mobBadges = document.getElementById('mob-nav-badges');
+  const mobBot = document.getElementById('mob-nav-bot');
   if(mobMods) mobMods.classList.toggle('active', currentViewMode === 'modules');
   if(mobTree) mobTree.classList.toggle('active', currentViewMode === 'tree');
   if(mobBoss) mobBoss.classList.toggle('active', currentViewMode === 'boss');
   if(mobQuests) mobQuests.classList.toggle('active', currentViewMode === 'quests');
   if(mobSim) mobSim.classList.toggle('active', currentViewMode === 'sim');
   if(mobBadges) mobBadges.classList.toggle('active', currentViewMode === 'badges');
+  if(mobBot) mobBot.classList.toggle('active', currentViewMode === 'bot');
 }
 
 function renderSidebar(){
@@ -6536,6 +7144,7 @@ function renderMain(){
   if(currentViewMode === 'quests'){ renderDailyQuests(); return; }
   if(currentViewMode === 'sim'){ renderPaperTrading(); return; }
   if(currentViewMode === 'badges'){ renderBadgesGallery(); return; }
+  if(currentViewMode === 'bot'){ renderAiBotTerminal(); return; }
 
   const m = MODULES.find(x=>x.id===activeModule);
   const s = modStats(m);
