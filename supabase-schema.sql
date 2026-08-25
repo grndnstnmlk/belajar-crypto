@@ -63,3 +63,22 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- =========================================================================
+-- Tabel Gamifikasi & Cloud Data User (RPG State, Daily Quests, Paper Trading, Badges)
+-- =========================================================================
+create table if not exists public.user_gamification (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  rpg_state jsonb not null default '{}'::jsonb,
+  quests_state jsonb not null default '{}'::jsonb,
+  sim_state jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.user_gamification enable row level security;
+
+create policy "User kelola data gamifikasi sendiri"
+  on public.user_gamification for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+

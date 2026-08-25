@@ -1555,6 +1555,8 @@
     <div style="font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">Pohon Pangkat (Rank Hierarchy)</div>
     <div class="rpg-ladder-list" id="rpg-ladder-list"></div>
 
+    <div id="profile-cloud-status" class="mono" style="font-size:10px; color:var(--green); text-align:center; margin-top:10px; background:rgba(38,230,166,0.08); padding:5px 8px; border:1px solid rgba(38,230,166,0.3);">☁️ Cloud Sync Aktif: Tersinkronisasi ke Supabase</div>
+
     <button class="btn-primary" style="margin-top:8px;" onclick="closeRpgProfileModal()">TUTUP TERMINAL</button>
   </div>
 </div>
@@ -4482,6 +4484,7 @@ function saveDailyQuestState(state){
   try{
     localStorage.setItem(getDailyQuestStorageKey(), JSON.stringify(state));
   }catch(e){}
+  syncGamificationToSupabase();
 }
 
 function recordDailyQuestProgress(type, count = 1){
@@ -4719,6 +4722,7 @@ function saveSimState(state){
   try{
     localStorage.setItem(getSimStorageKey(), JSON.stringify(state));
   }catch(e){}
+  syncGamificationToSupabase();
 }
 
 function resetSimBalance(){
@@ -5910,6 +5914,7 @@ function saveRpgState(state){
   try{
     localStorage.setItem(getRpgStorageKey(), JSON.stringify(state));
   }catch(e){}
+  syncGamificationToSupabase();
 }
 
 function updateDailyStreak(){
@@ -6163,6 +6168,62 @@ async function init(){
   });
 }
 
+// ---- Supabase Cloud Gamification Sync Engine ----
+let syncDebounceTimer = null;
+
+async function syncGamificationToSupabase(){
+  if(!currentUser || !sb) return;
+  if(syncDebounceTimer) clearTimeout(syncDebounceTimer);
+  syncDebounceTimer = setTimeout(async ()=>{
+    try{
+      const rpg = getRpgState();
+      const quests = getDailyQuestState();
+      const sim = getSimState();
+      await sb.from('user_gamification').upsert({
+        user_id: currentUser.id,
+        rpg_state: rpg,
+        quests_state: quests,
+        sim_state: sim,
+        updated_at: new Date().toISOString()
+      });
+      const syncStatusEl = document.getElementById('profile-cloud-status');
+      if(syncStatusEl) syncStatusEl.textContent = '☁️ Cloud Sync Aktif: Tersinkronisasi ke Supabase';
+    }catch(err){
+      console.warn('Supabase cloud sync warning:', err);
+    }
+  }, 400);
+}
+
+async function loadGamificationFromSupabase(){
+  if(!currentUser || !sb) return;
+  try{
+    const { data, error } = await sb.from('user_gamification').select('*').eq('user_id', currentUser.id).single();
+    if(!error && data){
+      if(data.rpg_state){
+        const localRpg = getRpgState();
+        const mergedRpg = { ...localRpg, ...data.rpg_state };
+        localStorage.setItem(getRpgStorageKey(), JSON.stringify(mergedRpg));
+      }
+      if(data.quests_state){
+        const localQuests = getDailyQuestState();
+        if(data.quests_state.date === getTodayIsoString()){
+          const mergedQuests = { ...localQuests, ...data.quests_state };
+          localStorage.setItem(getDailyQuestStorageKey(), JSON.stringify(mergedQuests));
+        }
+      }
+      if(data.sim_state){
+        const localSim = getSimState();
+        const mergedSim = { ...localSim, ...data.sim_state };
+        localStorage.setItem(getSimStorageKey(), JSON.stringify(mergedSim));
+      }
+    } else {
+      syncGamificationToSupabase();
+    }
+  }catch(err){
+    console.warn('Supabase load gamification error:', err);
+  }
+}
+
 async function handleSignedIn(session){
   currentUser = session.user;
   const { data: profile } = await sb.from('profiles').select('full_name, is_admin, expires_at').eq('id', currentUser.id).single();
@@ -6192,6 +6253,7 @@ async function handleSignedIn(session){
   recordDailyQuestProgress('login');
   startSimTickEngine();
   await loadProgress();
+  await loadGamificationFromSupabase();
   checkAndUnlockAchievements(false);
   renderRpgUI(false);
   document.getElementById('auth-screen').classList.add('hidden');
