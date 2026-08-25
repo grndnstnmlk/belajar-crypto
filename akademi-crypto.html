@@ -148,9 +148,140 @@
     background:transparent; border:2px solid var(--border); border-radius:0;
     padding:6px 10px; cursor:pointer; transition: box-shadow .1s, border-color .1s;
   }
-  .btn-ghost:hover{ color:var(--text); border-color:var(--text); box-shadow:2px 2px 0 var(--text-faint); }
-  .admin-link{ color: var(--amber); text-decoration:none; font-size:11.5px; }
-  .admin-link:hover{ text-decoration:underline; }
+  /* ---- RPG Gamification System ---- */
+  .rpg-header-widget{
+    display:flex; align-items:center; gap:10px;
+    background:var(--bg-raised); border:2px solid var(--border);
+    padding:6px 12px; cursor:pointer;
+    transition:transform .1s, border-color .15s, box-shadow .15s;
+    user-select:none;
+  }
+  .rpg-header-widget:hover{
+    border-color:var(--amber);
+    box-shadow:3px 3px 0 var(--amber);
+    transform:translate(-1px, -1px);
+  }
+  .rpg-rank-badge{
+    display:flex; align-items:center; gap:5px;
+    background:rgba(240,185,11,0.12); border:1.5px solid var(--amber);
+    padding:3px 8px; font-size:11px; font-weight:700; color:var(--amber);
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .rpg-rank-icon{ font-size:13px; }
+  .rpg-xp-block{ display:flex; flex-direction:column; gap:3px; min-width:115px; }
+  .rpg-xp-info{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:10.5px; color:var(--text-dim); gap:6px;
+  }
+  .rpg-xp-title{ color:var(--green); font-weight:700; font-size:10px; }
+  .rpg-streak{
+    color:var(--amber); font-weight:700; font-size:10px;
+    background:rgba(240,185,11,0.12); padding:1px 5px; border:1px solid rgba(240,185,11,0.3);
+  }
+  .rpg-xp-bar-track{
+    width:100%; height:6px; background:var(--bg);
+    border:1px solid var(--border); overflow:hidden; position:relative;
+  }
+  .rpg-xp-bar-fill{
+    height:100%; width:0%;
+    background:linear-gradient(90deg, var(--green), var(--cyan));
+    transition:width .4s cubic-bezier(.2,.8,.2,1);
+  }
+
+  /* Floating XP Particles */
+  .xp-float-particle{
+    position:fixed; z-index:9999; pointer-events:none;
+    font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px;
+    color:#06110D; background:var(--amber); border:2px solid var(--text);
+    padding:4px 9px; box-shadow:3px 3px 0 var(--green);
+    animation:floatUpAndFade 1.2s cubic-bezier(.1,.8,.2,1) forwards;
+  }
+  @keyframes floatUpAndFade{
+    0%{ opacity:0; transform:translate(-50%, 10px) scale(0.8); }
+    15%{ opacity:1; transform:translate(-50%, 0) scale(1.08); }
+    30%{ transform:translate(-50%, -6px) scale(1); }
+    100%{ opacity:0; transform:translate(-50%, -42px) scale(0.9); }
+  }
+
+  /* Level Up & RPG Profile Modals */
+  .rpg-modal-overlay{
+    position:fixed; inset:0; background:rgba(6,17,13,0.88);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    z-index:2500; display:flex; align-items:center; justify-content:center;
+    padding:20px; animation:fadeIn .2s ease;
+  }
+  .rpg-modal-card{
+    width:100%; max-width:480px; background:var(--bg-raised);
+    border:3px solid var(--text); padding:28px 24px;
+    box-shadow:9px 9px 0 var(--amber); position:relative;
+    animation:rpgPopIn .25s cubic-bezier(.175, .885, .32, 1.275);
+  }
+  @keyframes rpgPopIn{
+    from{ opacity:0; transform:scale(0.92) translateY(10px); }
+    to{ opacity:1; transform:scale(1) translateY(0); }
+  }
+  .rpg-modal-tag{
+    position:absolute; top:-14px; right:16px;
+    background:var(--green); color:#06110D;
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700;
+    padding:4px 10px; border:2px solid var(--text);
+  }
+  .rpg-modal-close{
+    position:absolute; top:12px; right:14px;
+    background:transparent; border:none; color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace; font-size:18px; cursor:pointer;
+  }
+  .rpg-modal-close:hover{ color:var(--red); }
+  .lvl-up-header{ text-align:center; margin-bottom:18px; }
+  .lvl-up-badge{
+    font-size:46px; margin-bottom:8px; display:inline-block;
+    filter:drop-shadow(0 0 16px rgba(240,185,11,0.4));
+    animation:rpgBounce 1.5s infinite;
+  }
+  @keyframes rpgBounce{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-8px); }
+  }
+  .lvl-up-title{
+    font-family:'Space Grotesk',sans-serif; font-size:23px; font-weight:700;
+    color:var(--amber); text-transform:uppercase; letter-spacing:0.8px;
+  }
+  .lvl-up-rank{
+    font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:700;
+    color:var(--text); margin-top:4px;
+  }
+  .lvl-up-desc{
+    font-size:13px; color:var(--text-dim); line-height:1.5; margin:14px 0 20px;
+    background:var(--bg); border:1.5px solid var(--border); padding:12px;
+  }
+
+  .rpg-ladder-list{
+    display:flex; flex-direction:column; gap:7px;
+    max-height:240px; overflow-y:auto; margin:14px 0; padding-right:4px;
+  }
+  .rpg-ladder-item{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:7px 11px; background:var(--bg); border:1.5px solid var(--border);
+    font-size:12px;
+  }
+  .rpg-ladder-item.unlocked{
+    border-color:var(--green); background:rgba(38,230,166,0.05);
+  }
+  .rpg-ladder-item.current{
+    border-color:var(--amber); background:rgba(240,185,11,0.12);
+    box-shadow:3px 3px 0 var(--amber);
+  }
+  .rpg-ladder-item.locked{ opacity:0.5; }
+  .rpg-ladder-left{ display:flex; align-items:center; gap:8px; }
+  .rpg-ladder-right{ font-size:10.5px; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); }
+  .rpg-stat-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;
+  }
+  .rpg-stat-box{
+    background:var(--bg); border:1.5px solid var(--border); padding:9px; text-align:center;
+  }
+  .rpg-stat-box .v{ font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:700; color:var(--green); }
+  .rpg-stat-box .k{ font-size:10px; color:var(--text-dim); text-transform:uppercase; margin-top:2px; }
 
   /* ---- Ticker strip ---- */
   .ticker-strip{
@@ -462,6 +593,25 @@
       </div>
     </div>
     <div class="header-right">
+      <!-- RPG Rank & XP Widget -->
+      <div class="rpg-header-widget" id="rpg-widget" onclick="openRpgProfileModal()" title="Klik untuk lihat Status RPG & Pangkat">
+        <div class="rpg-rank-badge mono" id="rpg-rank-badge">
+          <span class="rpg-rank-icon" id="rpg-rank-icon">🦐</span>
+          <span class="rpg-rank-level" id="rpg-rank-level">LV.1</span>
+          <span class="rpg-rank-name" id="rpg-rank-name">PLANKTON</span>
+        </div>
+        <div class="rpg-xp-block">
+          <div class="rpg-xp-info">
+            <span class="rpg-xp-title mono">XP</span>
+            <span class="rpg-xp-val mono" id="rpg-xp-val">0 / 150</span>
+            <span class="rpg-streak mono" id="rpg-streak-badge" title="Daily Streak Belajar">🔥 <span id="rpg-streak-num">1</span>d</span>
+          </div>
+          <div class="rpg-xp-bar-track">
+            <div class="rpg-xp-bar-fill" id="rpg-xp-bar-fill" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="header-stat">
         <svg class="progress-ring" width="42" height="42" viewBox="0 0 46 46">
           <circle class="ring-bg" cx="23" cy="23" r="19"></circle>
@@ -506,7 +656,7 @@
           <button class="video-modal-tab active" id="modal-tab-video" onclick="setModalTab('video')">🎬 Video</button>
           <button class="video-modal-tab" id="modal-tab-summary" onclick="setModalTab('summary')">⚡ Ringkasan</button>
         </div>
-        <button class="video-modal-done" id="video-modal-done-btn" onclick="toggleModalDone()">Tandai Selesai</button>
+        <button class="video-modal-done" id="video-modal-done-btn" onclick="toggleModalDone(event)">Tandai Selesai</button>
         <button class="video-modal-close" onclick="closeVideoModal()">Tutup ✕</button>
       </div>
     </div>
@@ -517,6 +667,58 @@
     </div>
   </div>
 </div>
+
+<!-- RPG Level Up Celebration Modal -->
+<div class="rpg-modal-overlay hidden" id="level-up-overlay" onclick="if(event.target===this) closeLevelUpModal()">
+  <div class="rpg-modal-card">
+    <div class="rpg-modal-tag">LEVEL UP!</div>
+    <button class="rpg-modal-close" onclick="closeLevelUpModal()">✕</button>
+    <div class="lvl-up-header">
+      <div class="lvl-up-badge" id="lvl-up-icon">🦐</div>
+      <div class="lvl-up-title">PANGKAT NAIK!</div>
+      <div class="lvl-up-rank" id="lvl-up-name">LEVEL 2: SHRIMP</div>
+    </div>
+    <div class="lvl-up-desc" id="lvl-up-desc">
+      Selamat! Kamu naik peringkat di ekosistem crypto. Terus selesaikan materi dan tantangan untuk menjadi Market Maker!
+    </div>
+    <button class="btn-primary" onclick="closeLevelUpModal()">⚡ KLAIM & LANJUTKAN</button>
+  </div>
+</div>
+
+<!-- RPG Profile / Rank Ladder Modal -->
+<div class="rpg-modal-overlay hidden" id="rpg-profile-overlay" onclick="if(event.target===this) closeRpgProfileModal()">
+  <div class="rpg-modal-card">
+    <div class="rpg-modal-tag">STATUS TERMINAL</div>
+    <button class="rpg-modal-close" onclick="closeRpgProfileModal()">✕</button>
+    
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:14px;">
+      <div style="font-size:32px;" id="profile-rank-icon">🦐</div>
+      <div>
+        <div style="font-size:16px; font-weight:700; font-family:'Space Grotesk',sans-serif;" id="profile-rank-title">PLANKTON (LV.1)</div>
+        <div style="font-size:12px; color:var(--text-dim);" id="profile-user-name">Trader Terminal</div>
+      </div>
+      <button class="btn-ghost mono" id="btn-toggle-sfx" onclick="toggleSfx()" style="margin-left:auto; font-size:10px; padding:4px 8px;" title="Audio Suara 8-Bit">🔊 SFX ON</button>
+    </div>
+
+    <div class="rpg-stat-grid">
+      <div class="rpg-stat-box">
+        <div class="v" id="profile-stat-xp">0</div>
+        <div class="k">Total XP Terkumpul</div>
+      </div>
+      <div class="rpg-stat-box">
+        <div class="v" id="profile-stat-streak">1 Hari</div>
+        <div class="k">Daily Learning Streak 🔥</div>
+      </div>
+    </div>
+
+    <div style="font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">Pohon Pangkat (Rank Hierarchy)</div>
+    <div class="rpg-ladder-list" id="rpg-ladder-list"></div>
+
+    <button class="btn-primary" style="margin-top:8px;" onclick="closeRpgProfileModal()">TUTUP TERMINAL</button>
+  </div>
+</div>
+
+<div id="xp-floating-container"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
@@ -2517,6 +2719,275 @@ let modalResourceId = null;
 let lastDoneShown = 0;
 let statAnimFrame = null;
 
+// ---- RPG Gamification Engine ----
+const RPG_RANKS = [
+  { level: 1, name: 'Plankton', icon: '🦐', minXp: 0, maxXp: 150, desc: 'Pemula di samudera crypto. Mulai eksplorasi materi fondasi!' },
+  { level: 2, name: 'Shrimp', icon: '🦐', minXp: 150, maxXp: 350, desc: 'Mulai memahami ekosistem crypto & dasar-dasar riset proyek.' },
+  { level: 3, name: 'Crab', icon: '🦀', minXp: 350, maxXp: 650, desc: 'Mampu membaca candlestick, support-resistance, dan tren pasar.' },
+  { level: 4, name: 'Octopus', icon: '🐙', minXp: 650, maxXp: 1050, desc: 'Menguasai multi-ekosistem Layer 1, Layer 2, dan fundamental on-chain.' },
+  { level: 5, name: 'Dolphin', icon: '🐬', minXp: 1050, maxXp: 1550, desc: 'Paham strategi money management portofolio & protokol DeFi.' },
+  { level: 6, name: 'Shark', icon: '🦈', minXp: 1550, maxXp: 2200, desc: 'Predator pasar dengan analisa tajam dan eksekusi terukur.' },
+  { level: 7, name: 'Whale', icon: '🐋', minXp: 2200, maxXp: 3000, desc: 'Penggerak likuiditas tangguh dengan jam terbang tinggi.' },
+  { level: 8, name: 'Market Maker', icon: '👑', minXp: 3000, maxXp: 999999, desc: 'Legenda Terminal Akademi Crypto. Menguasai seluruh modul pembelajaran!' }
+];
+
+let sfxEnabled = localStorage.getItem('ac_sfx_enabled') !== 'false';
+let audioCtx = null;
+
+function getAudioCtx(){
+  if(!audioCtx){
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if(AudioContext) audioCtx = new AudioContext();
+  }
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playXpBeep(){
+  if(!sfxEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(587.33, now); // D5
+    osc.frequency.setValueAtTime(880, now + 0.07); // A5
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.23);
+  }catch(e){}
+}
+
+function playLevelUpFanfare(){
+  if(!sfxEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    notes.forEach((freq, i)=>{
+      const now = ctx.currentTime + (i * 0.11);
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.26);
+    });
+  }catch(e){}
+}
+
+function toggleSfx(){
+  sfxEnabled = !sfxEnabled;
+  localStorage.setItem('ac_sfx_enabled', sfxEnabled);
+  const btn = document.getElementById('btn-toggle-sfx');
+  if(btn) btn.textContent = sfxEnabled ? '🔊 SFX ON' : '🔇 SFX OFF';
+  if(sfxEnabled) playXpBeep();
+}
+
+function getRpgStorageKey(){
+  return 'ac_rpg_state_' + (currentUser ? currentUser.id : 'guest');
+}
+
+function getRpgState(){
+  try{
+    const raw = localStorage.getItem(getRpgStorageKey());
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {
+    readSummaries: {},
+    lastActiveDate: null,
+    streakDays: 1,
+    lastLevel: 1
+  };
+}
+
+function saveRpgState(state){
+  try{
+    localStorage.setItem(getRpgStorageKey(), JSON.stringify(state));
+  }catch(e){}
+}
+
+function updateDailyStreak(){
+  const state = getRpgState();
+  const today = new Date().toISOString().slice(0, 10);
+  if(!state.lastActiveDate){
+    state.lastActiveDate = today;
+    state.streakDays = 1;
+  } else if(state.lastActiveDate !== today){
+    const last = new Date(state.lastActiveDate);
+    const curr = new Date(today);
+    const diffDays = Math.round((curr - last) / (1000 * 60 * 60 * 24));
+    if(diffDays === 1){
+      state.streakDays = (state.streakDays || 1) + 1;
+    } else if(diffDays > 1){
+      state.streakDays = 1;
+    }
+    state.lastActiveDate = today;
+  }
+  saveRpgState(state);
+  return state.streakDays;
+}
+
+function calculateCurrentXp(){
+  const g = globalStats();
+  const state = getRpgState();
+  const doneXp = g.done * 50; // 50 XP per completed module/resource
+  const summaryCount = Object.keys(state.readSummaries || {}).length;
+  const summaryXp = summaryCount * 10; // 10 XP per unique summary read
+  const streakBonus = Math.min(10, state.streakDays || 1) * 15; // streak bonus
+  return doneXp + summaryXp + streakBonus;
+}
+
+function getRankData(xp){
+  for(let i = 0; i < RPG_RANKS.length; i++){
+    const rank = RPG_RANKS[i];
+    if(xp >= rank.minXp && (i === RPG_RANKS.length - 1 || xp < rank.maxXp)){
+      const nextRank = RPG_RANKS[i + 1] || null;
+      const range = nextRank ? (rank.maxXp - rank.minXp) : 1000;
+      const progressInLevel = nextRank ? (xp - rank.minXp) : range;
+      const pct = nextRank ? Math.min(100, Math.max(0, Math.round((progressInLevel / range) * 100))) : 100;
+      return {
+        ...rank,
+        nextRank,
+        pct,
+        xpNeeded: nextRank ? (rank.maxXp - xp) : 0
+      };
+    }
+  }
+  return { ...RPG_RANKS[0], nextRank: RPG_RANKS[1], pct: 0, xpNeeded: 150 };
+}
+
+function triggerFloatingXp(amount, label, x, y){
+  const container = document.getElementById('xp-floating-container');
+  if(!container) return;
+  const el = document.createElement('div');
+  el.className = 'xp-float-particle';
+  el.textContent = `+${amount} XP ${label || '⚡'}`;
+  
+  if(x !== undefined && y !== undefined && x > 0 && y > 0){
+    el.style.left = `${Math.max(30, Math.min(window.innerWidth - 120, x))}px`;
+    el.style.top = `${Math.max(20, y - 20)}px`;
+  } else {
+    el.style.left = `${window.innerWidth - 200}px`;
+    el.style.top = '72px';
+  }
+
+  container.appendChild(el);
+  playXpBeep();
+  setTimeout(()=>{ el.remove(); }, 1250);
+}
+
+function renderRpgUI(checkLevelUp = true){
+  const xp = calculateCurrentXp();
+  const rank = getRankData(xp);
+  const state = getRpgState();
+
+  const iconEl = document.getElementById('rpg-rank-icon');
+  const levelEl = document.getElementById('rpg-rank-level');
+  const nameEl = document.getElementById('rpg-rank-name');
+  const xpValEl = document.getElementById('rpg-xp-val');
+  const xpFillEl = document.getElementById('rpg-xp-bar-fill');
+  const streakNumEl = document.getElementById('rpg-streak-num');
+
+  if(iconEl) iconEl.textContent = rank.icon;
+  if(levelEl) levelEl.textContent = `LV.${rank.level}`;
+  if(nameEl) nameEl.textContent = rank.name;
+  if(streakNumEl) streakNumEl.textContent = state.streakDays || 1;
+
+  if(xpValEl){
+    if(rank.nextRank){
+      xpValEl.textContent = `${xp} / ${rank.maxXp} XP`;
+    } else {
+      xpValEl.textContent = `${xp} XP (MAX)`;
+    }
+  }
+
+  if(xpFillEl){
+    xpFillEl.style.width = `${rank.pct}%`;
+  }
+
+  // Check Level Up trigger
+  if(checkLevelUp && state.lastLevel && rank.level > state.lastLevel){
+    showLevelUpModal(rank);
+  }
+  state.lastLevel = rank.level;
+  saveRpgState(state);
+}
+
+function showLevelUpModal(rank){
+  playLevelUpFanfare();
+  const modal = document.getElementById('level-up-overlay');
+  const iconEl = document.getElementById('lvl-up-icon');
+  const nameEl = document.getElementById('lvl-up-name');
+  const descEl = document.getElementById('lvl-up-desc');
+
+  if(iconEl) iconEl.textContent = rank.icon;
+  if(nameEl) nameEl.textContent = `LEVEL ${rank.level}: ${rank.name.toUpperCase()}`;
+  if(descEl) descEl.textContent = rank.desc;
+  if(modal) modal.classList.remove('hidden');
+}
+
+function closeLevelUpModal(){
+  const modal = document.getElementById('level-up-overlay');
+  if(modal) modal.classList.add('hidden');
+}
+
+function openRpgProfileModal(){
+  const xp = calculateCurrentXp();
+  const rank = getRankData(xp);
+  const state = getRpgState();
+
+  const titleEl = document.getElementById('profile-rank-title');
+  const userEl = document.getElementById('profile-user-name');
+  const iconEl = document.getElementById('profile-rank-icon');
+  const xpStatEl = document.getElementById('profile-stat-xp');
+  const streakStatEl = document.getElementById('profile-stat-streak');
+  const ladderListEl = document.getElementById('rpg-ladder-list');
+  const sfxBtn = document.getElementById('btn-toggle-sfx');
+
+  if(titleEl) titleEl.textContent = `${rank.name.toUpperCase()} (LV.${rank.level})`;
+  if(userEl) userEl.textContent = currentProfile?.full_name || 'Trader Terminal';
+  if(iconEl) iconEl.textContent = rank.icon;
+  if(xpStatEl) xpStatEl.textContent = `${xp} XP`;
+  if(streakStatEl) streakStatEl.textContent = `${state.streakDays || 1} Hari`;
+  if(sfxBtn) sfxBtn.textContent = sfxEnabled ? '🔊 SFX ON' : '🔇 SFX OFF';
+
+  if(ladderListEl){
+    ladderListEl.innerHTML = RPG_RANKS.map(r=>{
+      const isUnlocked = xp >= r.minXp;
+      const isCurrent = rank.level === r.level;
+      let statusClass = isCurrent ? 'current' : (isUnlocked ? 'unlocked' : 'locked');
+      let tagText = isCurrent ? '📍 POSISI SAAT INI' : (isUnlocked ? '✓ TERBUKA' : `🔒 ${r.minXp} XP`);
+      return `
+        <div class="rpg-ladder-item ${statusClass}">
+          <div class="rpg-ladder-left">
+            <span>${r.icon}</span>
+            <strong>LV.${r.level} ${r.name}</strong>
+          </div>
+          <div class="rpg-ladder-right">${tagText}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const modal = document.getElementById('rpg-profile-overlay');
+  if(modal) modal.classList.remove('hidden');
+}
+
+function closeRpgProfileModal(){
+  const modal = document.getElementById('rpg-profile-overlay');
+  if(modal) modal.classList.add('hidden');
+}
+
 function updateScrollProgress(){
   const main = document.getElementById('main-panel');
   const bar = document.getElementById('scroll-progress');
@@ -2582,7 +3053,9 @@ async function handleSignedIn(session){
     expiryEl.classList.add('hidden');
   }
   document.getElementById('admin-link').classList.toggle('hidden', !currentProfile.is_admin);
+  updateDailyStreak();
   await loadProgress();
+  renderRpgUI(false);
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app-screen').classList.remove('hidden');
 }
@@ -2627,11 +3100,12 @@ async function loadProgress(){
   render();
 }
 
-async function toggleResource(id){
+async function toggleResource(id, e){
   const next = !progress[id];
   progress[id] = next;
   render();
   if(next){
+    triggerFloatingXp(50, '⚡ Selesai', e?.clientX, e?.clientY);
     await sb.from('progress').upsert({ user_id: currentUser.id, resource_id:id, done:true, updated_at: new Date().toISOString() });
   } else {
     await sb.from('progress').delete().eq('user_id', currentUser.id).eq('resource_id', id);
@@ -2707,6 +3181,18 @@ function toggleSummary(id, e){
   if(btn){
     btn.classList.toggle('active', openSummaries[id]);
   }
+
+  // Grant XP on first read of summary
+  if(openSummaries[id]){
+    const state = getRpgState();
+    if(!state.readSummaries) state.readSummaries = {};
+    if(!state.readSummaries[id]){
+      state.readSummaries[id] = true;
+      saveRpgState(state);
+      triggerFloatingXp(10, '📖 Ringkasan', e?.clientX, e?.clientY);
+      renderRpgUI(true);
+    }
+  }
 }
 
 function toggleAllSummariesInModule(){
@@ -2751,7 +3237,7 @@ function resourceRow(r, mCtx){
 
   return `
     <div class="resource ${isDone?'done':''}" style="${mCtx ? '--accent:'+mCtx.accent : ''}" id="res-card-${r.id}">
-      <div class="chk ${isDone?'checked':''}" onclick="toggleResource('${r.id}')" title="Tandai Selesai"></div>
+      <div class="chk ${isDone?'checked':''}" onclick="toggleResource('${r.id}', event)" title="Tandai Selesai"></div>
       <div class="r-body">
         <div class="r-top">
           <span class="badge badge-${r.ty}">${TYPE_ICONS[r.ty]}<span>${ICONS[r.ty]}</span></span>
@@ -2869,6 +3355,7 @@ function renderHeaderStat(){
 
 function render(){
   renderHeaderStat();
+  renderRpgUI(true);
   renderTicker();
   renderSidebar();
   renderMain();
@@ -3077,9 +3564,9 @@ function updateModalDoneBtn(){
   btn.classList.toggle('done', isDone);
 }
 
-function toggleModalDone(){
+function toggleModalDone(e){
   if(!modalResourceId) return;
-  toggleResource(modalResourceId);
+  toggleResource(modalResourceId, e);
   updateModalDoneBtn();
 }
 
