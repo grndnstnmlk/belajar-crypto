@@ -1028,6 +1028,55 @@
     display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
   }
 
+  /* ---- Lucide Animated Icons & Spring Motion Physics ---- */
+  .lucide, i[data-lucide], svg.lucide{
+    display: inline-block;
+    vertical-align: middle;
+    width: 15px; height: 15px;
+    stroke-width: 1.8px;
+    transition: transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275), stroke 0.2s ease, filter 0.2s ease;
+  }
+  .view-tab-btn:hover .lucide,
+  .mobile-nav-item:hover .lucide,
+  .btn-primary:hover .lucide,
+  .btn-ghost:hover .lucide,
+  .rpg-header-widget:hover .lucide,
+  .badge-card:hover .lucide{
+    transform: translateY(-2px) scale(1.18);
+    filter: drop-shadow(0 0 6px currentColor);
+  }
+  .view-tab-btn:active .lucide,
+  .mobile-nav-item:active .lucide,
+  .btn-primary:active .lucide{
+    transform: scale(0.88);
+  }
+
+  /* Perpetual Micro-Motion Animations */
+  @keyframes lucidePulseSlow{
+    0%, 100%{ transform: scale(1); opacity: 1; }
+    50%{ transform: scale(1.16); opacity: 0.85; filter: drop-shadow(0 0 8px var(--cyan)); }
+  }
+  .motion-pulse-bot{ animation: lucidePulseSlow 2.2s ease-in-out infinite; }
+
+  @keyframes lucideFlicker{
+    0%, 100%{ transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px var(--amber)); }
+    25%{ transform: scale(1.1) rotate(-3deg); filter: drop-shadow(0 0 8px var(--amber)); }
+    75%{ transform: scale(0.95) rotate(3deg); filter: drop-shadow(0 0 6px var(--amber)); }
+  }
+  .motion-flicker{ animation: lucideFlicker 1.8s ease-in-out infinite; }
+
+  @keyframes lucideSpinSlow{
+    from{ transform: rotate(0deg); }
+    to{ transform: rotate(360deg); }
+  }
+  .motion-spin-slow{ animation: lucideSpinSlow 10s linear infinite; }
+
+  @keyframes lucideFloat{
+    0%, 100%{ transform: translateY(0); }
+    50%{ transform: translateY(-3px); }
+  }
+  .motion-float{ animation: lucideFloat 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite; }
+
   /* ---- Ticker strip ---- */
   .ticker-strip{
     display:flex; border-bottom:1px solid var(--border);
@@ -1533,13 +1582,13 @@
         <input type="text" id="search-input" placeholder="Cari video, playlist...">
       </div>
       <div class="view-switcher-tabs">
-        <button class="view-tab-btn active" id="tab-btn-modules" onclick="setViewMode('modules')">📋 Modul</button>
-        <button class="view-tab-btn" id="tab-btn-tree" onclick="setViewMode('tree')">🌳 Skill Tree</button>
-        <button class="view-tab-btn" id="tab-btn-boss" onclick="setViewMode('boss')">⚔️ Boss</button>
-        <button class="view-tab-btn" id="tab-btn-quests" onclick="setViewMode('quests')">🎯 Misi</button>
-        <button class="view-tab-btn" id="tab-btn-sim" onclick="setViewMode('sim')">📈 Trading</button>
-        <button class="view-tab-btn" id="tab-btn-badges" onclick="setViewMode('badges')">🏆 Lencana</button>
-        <button class="view-tab-btn" id="tab-btn-bot" onclick="setViewMode('bot')">🤖 AI Bot</button>
+        <button class="view-tab-btn active" id="tab-btn-modules" onclick="setViewMode('modules')"><i data-lucide="layout-grid"></i> Modul</button>
+        <button class="view-tab-btn" id="tab-btn-tree" onclick="setViewMode('tree')"><i data-lucide="git-fork"></i> Skill Tree</button>
+        <button class="view-tab-btn" id="tab-btn-boss" onclick="setViewMode('boss')"><i data-lucide="swords"></i> Boss Arena</button>
+        <button class="view-tab-btn" id="tab-btn-quests" onclick="setViewMode('quests')"><i data-lucide="target"></i> Misi</button>
+        <button class="view-tab-btn" id="tab-btn-sim" onclick="setViewMode('sim')"><i data-lucide="trending-up"></i> Trading</button>
+        <button class="view-tab-btn" id="tab-btn-badges" onclick="setViewMode('badges')"><i data-lucide="award"></i> Lencana</button>
+        <button class="view-tab-btn" id="tab-btn-bot" onclick="setViewMode('bot')"><i data-lucide="bot" class="motion-pulse-bot"></i> AI Bot</button>
       </div>
       <div class="sidebar-label">Kurikulum</div>
       <div id="mod-list"></div>
@@ -1552,31 +1601,31 @@
   <!-- Mobile Bottom Navigation Bar -->
   <nav class="mobile-bottom-nav">
     <button class="mobile-nav-item active" id="mob-nav-modules" onclick="setViewMode('modules')">
-      <span class="mob-nav-icon">📋</span>
+      <span class="mob-nav-icon"><i data-lucide="layout-grid"></i></span>
       <span class="mob-nav-lbl">Modul</span>
     </button>
     <button class="mobile-nav-item" id="mob-nav-tree" onclick="setViewMode('tree')">
-      <span class="mob-nav-icon">🌳</span>
+      <span class="mob-nav-icon"><i data-lucide="git-fork"></i></span>
       <span class="mob-nav-lbl">Tree</span>
     </button>
     <button class="mobile-nav-item" id="mob-nav-boss" onclick="setViewMode('boss')">
-      <span class="mob-nav-icon">⚔️</span>
+      <span class="mob-nav-icon"><i data-lucide="swords"></i></span>
       <span class="mob-nav-lbl">Boss</span>
     </button>
     <button class="mobile-nav-item" id="mob-nav-quests" onclick="setViewMode('quests')">
-      <span class="mob-nav-icon">🎯</span>
+      <span class="mob-nav-icon"><i data-lucide="target"></i></span>
       <span class="mob-nav-lbl">Misi</span>
     </button>
     <button class="mobile-nav-item" id="mob-nav-sim" onclick="setViewMode('sim')">
-      <span class="mob-nav-icon">📈</span>
+      <span class="mob-nav-icon"><i data-lucide="trending-up"></i></span>
       <span class="mob-nav-lbl">Trading</span>
     </button>
     <button class="mobile-nav-item" id="mob-nav-badges" onclick="setViewMode('badges')">
-      <span class="mob-nav-icon">🏆</span>
+      <span class="mob-nav-icon"><i data-lucide="award"></i></span>
       <span class="mob-nav-lbl">Lencana</span>
     </button>
     <button class="mobile-nav-item" id="mob-nav-bot" onclick="setViewMode('bot')">
-      <span class="mob-nav-icon">🤖</span>
+      <span class="mob-nav-icon"><i data-lucide="bot" class="motion-pulse-bot"></i></span>
       <span class="mob-nav-lbl">AI Bot</span>
     </button>
   </nav>
@@ -1667,9 +1716,22 @@
 
 <div id="xp-floating-container"></div>
 
+<script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script>
+function refreshLucideIcons(){
+  try{
+    if(window.lucide && typeof window.lucide.createIcons === 'function'){
+      window.lucide.createIcons({
+        attrs: {
+          'stroke-width': 1.8
+        }
+      });
+    }
+  }catch(e){}
+}
+
 const ICONS = {
   video: 'VIDEO', playlist: 'DAFTAR PUTAR', drive: 'DRIVE', pdf: 'PDF', telegram: 'TELEGRAM', file: 'BERKAS'
 };
@@ -7143,8 +7205,8 @@ function renderMain(){
   if(currentViewMode === 'boss'){ renderBossBattleArena(); return; }
   if(currentViewMode === 'quests'){ renderDailyQuests(); return; }
   if(currentViewMode === 'sim'){ renderPaperTrading(); return; }
-  if(currentViewMode === 'badges'){ renderBadgesGallery(); return; }
-  if(currentViewMode === 'bot'){ renderAiBotTerminal(); return; }
+  if(currentViewMode === 'badges'){ renderBadgesGallery(); refreshLucideIcons(); return; }
+  if(currentViewMode === 'bot'){ renderAiBotTerminal(); refreshLucideIcons(); return; }
 
   const m = MODULES.find(x=>x.id===activeModule);
   const s = modStats(m);
@@ -7206,6 +7268,7 @@ function render(){
   renderTicker();
   renderSidebar();
   renderMain();
+  refreshLucideIcons();
 }
 
 function findResource(id){
