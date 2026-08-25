@@ -275,7 +275,7 @@
   .rpg-ladder-left{ display:flex; align-items:center; gap:8px; }
   .rpg-ladder-right{ font-size:10.5px; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); }
   .rpg-stat-grid{
-    display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px;
   }
   .rpg-stat-box{
     background:var(--bg); border:1.5px solid var(--border); padding:9px; text-align:center;
@@ -406,6 +406,192 @@
   }
   .st-node-xp{
     font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-dim); flex-shrink:0;
+  }
+
+  /* ---- Boss Battle Quiz System ---- */
+  .boss-arena-container{
+    padding:0 0 36px; animation:fadeIn .25s ease;
+  }
+  .boss-header{
+    background:var(--bg-raised); border:2px solid var(--border);
+    border-left:4px solid var(--red); padding:16px 20px; margin-bottom:20px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+  }
+  .boss-head-title{
+    font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700;
+    color:var(--red); text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .boss-head-desc{ font-size:12px; color:var(--text-dim); margin-top:2px; }
+
+  /* Boss Cards Lobby */
+  .boss-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;
+  }
+  .boss-card{
+    background:var(--bg-raised); border:2px solid var(--border); padding:18px;
+    display:flex; flex-direction:column; gap:12px; position:relative;
+    transition:transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .boss-card:hover{
+    transform:translate(-2px, -2px); border-color:var(--boss-accent, var(--red));
+    box-shadow:5px 5px 0 var(--boss-accent, var(--red));
+  }
+  .boss-card-head{
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .boss-card-icon{ font-size:36px; }
+  .boss-diff-badge{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:700;
+    padding:2px 8px; border:1px solid currentColor;
+  }
+  .diff-easy{ color:var(--blue); background:rgba(88,166,255,0.1); }
+  .diff-medium{ color:var(--amber); background:rgba(240,185,11,0.1); }
+  .diff-hard{ color:var(--red); background:rgba(246,70,93,0.1); }
+  .diff-extreme{ color:var(--purple); background:rgba(176,132,245,0.1); }
+
+  .boss-card-name{
+    font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700;
+    color:var(--text); line-height:1.3;
+  }
+  .boss-card-title{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-dim);
+  }
+  .boss-card-desc{ font-size:12px; color:var(--text-dim); line-height:1.45; }
+  .boss-card-footer{
+    display:flex; align-items:center; justify-content:space-between; margin-top:auto;
+    border-top:1px solid var(--border); padding-top:12px;
+  }
+  .boss-reward-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700; color:var(--green);
+  }
+  .btn-challenge-boss{
+    font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:700;
+    color:#06110D; background:var(--red); border:2px solid var(--text);
+    padding:6px 14px; cursor:pointer; text-transform:uppercase;
+    box-shadow:3px 3px 0 var(--text); transition:all .1s;
+  }
+  .btn-challenge-boss:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--text); }
+
+  /* Active Battle Arena HUD */
+  .battle-arena{
+    display:flex; flex-direction:column; gap:16px; animation:fadeIn .2s ease;
+  }
+  .battle-hud{
+    display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:center;
+    background:var(--bg-raised); border:2px solid var(--border); padding:16px 20px;
+  }
+  @media (max-width:700px){
+    .battle-hud{ grid-template-columns:1fr; gap:10px; }
+  }
+  .fighter-box{ display:flex; align-items:center; gap:12px; }
+  .fighter-box.right{ flex-direction:row-reverse; text-align:right; }
+  .fighter-avatar{ font-size:36px; flex-shrink:0; }
+  .fighter-info{ flex:1; min-width:0; }
+  .fighter-name{ font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; }
+  .fighter-sub{ font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-dim); margin-bottom:4px; }
+  .fighter-hp-bar{
+    height:10px; background:var(--bg); border:1.5px solid var(--border); overflow:hidden;
+  }
+  .fighter-hp-fill{
+    height:100%; transition:width .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .hp-boss{ background:linear-gradient(90deg, var(--red), var(--amber)); }
+  .hp-player{ background:linear-gradient(90deg, var(--green), var(--cyan)); }
+  .battle-vs-badge{
+    font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700;
+    color:var(--amber); padding:4px 8px; border:2px solid var(--border);
+    background:var(--bg); text-align:center;
+  }
+
+  /* Question Box */
+  .battle-q-card{
+    background:var(--bg-raised); border:3px solid var(--text); padding:20px;
+    box-shadow:7px 7px 0 var(--red); position:relative;
+  }
+  .battle-q-header{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+  }
+  .battle-round-tag{ color:var(--amber); font-weight:700; }
+  .battle-timer-wrap{
+    display:flex; align-items:center; gap:8px; width:180px;
+  }
+  .battle-timer-bar-track{
+    flex:1; height:6px; background:var(--bg); border:1px solid var(--border);
+  }
+  .battle-timer-bar-fill{
+    height:100%; width:100%; background:var(--green); transition:width 1s linear, background-color .3s;
+  }
+  .battle-timer-text{ font-weight:700; min-width:28px; text-align:right; }
+
+  .battle-question-text{
+    font-size:15px; font-weight:600; line-height:1.5; color:var(--text); margin-bottom:18px;
+  }
+  .battle-options-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;
+  }
+  @media (max-width:650px){ .battle-options-grid{ grid-template-columns:1fr; } }
+  .battle-opt-btn{
+    background:var(--bg); border:2px solid var(--border); padding:12px 14px;
+    color:var(--text); font-family:'Inter',sans-serif; font-size:13px; font-weight:500;
+    text-align:left; cursor:pointer; line-height:1.4; transition:all .12s;
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .battle-opt-btn:hover:not(:disabled){
+    border-color:var(--amber); background:rgba(240,185,11,0.06); transform:translate(-2px, -2px);
+    box-shadow:3px 3px 0 var(--amber);
+  }
+  .battle-opt-btn.correct{
+    border-color:var(--green) !important; background:rgba(38,230,166,0.2) !important;
+    color:var(--green) !important; box-shadow:3px 3px 0 var(--green) !important;
+  }
+  .battle-opt-btn.wrong{
+    border-color:var(--red) !important; background:rgba(246,70,93,0.2) !important;
+    color:var(--red) !important; box-shadow:3px 3px 0 var(--red) !important;
+  }
+  .battle-opt-key{
+    font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:12px;
+    padding:2px 6px; background:var(--bg-raised); border:1px solid var(--border); flex-shrink:0;
+  }
+
+  /* Battle Terminal Log */
+  .battle-log-card{
+    background:var(--bg); border:2px solid var(--border); padding:12px 16px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; max-height:120px; overflow-y:auto;
+  }
+  .battle-log-item{ margin-bottom:4px; line-height:1.4; color:var(--text-dim); }
+  .battle-log-item:first-child{ color:var(--amber); font-weight:600; }
+
+  /* Battle Result Screens */
+  .battle-result-card{
+    background:var(--bg-raised); border:3px solid var(--text); padding:32px 24px;
+    text-align:center; box-shadow:8px 8px 0 var(--amber); max-width:540px; margin:20px auto;
+  }
+  .battle-result-icon{ font-size:54px; margin-bottom:12px; }
+  .battle-result-title{ font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; margin-bottom:8px; text-transform:uppercase; }
+  .battle-result-desc{ font-size:13.5px; color:var(--text-dim); line-height:1.5; margin-bottom:20px; }
+
+  /* Damage Floats */
+  .dmg-float-particle{
+    position:fixed; z-index:9999; pointer-events:none;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px;
+    padding:4px 8px; border:2px solid #000;
+    animation:dmgFloat 1s cubic-bezier(.1,.8,.2,1) forwards;
+  }
+  .dmg-crit{ background:var(--amber); color:#000; box-shadow:3px 3px 0 var(--red); font-size:18px; }
+  .dmg-norm{ background:var(--green); color:#000; box-shadow:2px 2px 0 #000; }
+  @keyframes dmgFloat{
+    0%{ opacity:0; transform:translate(-50%, 0) scale(0.7); }
+    20%{ opacity:1; transform:translate(-50%, -15px) scale(1.2); }
+    100%{ opacity:0; transform:translate(-50%, -60px) scale(0.9); }
+  }
+
+  .screen-shake{ animation: arenaShake .35s cubic-bezier(.36,.07,.19,.97) both; }
+  @keyframes arenaShake{
+    10%, 90% { transform: translate3d(-3px, 0, 0); }
+    20%, 80% { transform: translate3d(4px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+    40%, 60% { transform: translate3d(5px, 0, 0); }
   }
 
   /* ---- Ticker strip ---- */
@@ -766,6 +952,7 @@
       <div class="view-switcher-tabs">
         <button class="view-tab-btn active" id="tab-btn-modules" onclick="setViewMode('modules')">📋 Modul</button>
         <button class="view-tab-btn" id="tab-btn-tree" onclick="setViewMode('tree')">🌳 Skill Tree</button>
+        <button class="view-tab-btn" id="tab-btn-boss" onclick="setViewMode('boss')">⚔️ Boss Battle</button>
       </div>
       <div class="sidebar-label">Kurikulum</div>
       <div id="mod-list"></div>
@@ -832,11 +1019,15 @@
     <div class="rpg-stat-grid">
       <div class="rpg-stat-box">
         <div class="v" id="profile-stat-xp">0</div>
-        <div class="k">Total XP Terkumpul</div>
+        <div class="k">Total XP</div>
       </div>
       <div class="rpg-stat-box">
         <div class="v" id="profile-stat-streak">1 Hari</div>
-        <div class="k">Daily Learning Streak 🔥</div>
+        <div class="k">Streak 🔥</div>
+      </div>
+      <div class="rpg-stat-box">
+        <div class="v" id="profile-stat-boss">0 / 4</div>
+        <div class="k">Boss Kalah ⚔️</div>
       </div>
     </div>
 
@@ -3061,6 +3252,634 @@ function renderSkillTree(){
   `;
 }
 
+// ---- Boss Battle Quiz Engine ----
+const BOSS_DATA = [
+  {
+    id: 'boss-bear',
+    name: 'The Bear Market Golem',
+    title: 'Penjaga Musim Dingin Crypto',
+    icon: '🐻',
+    diffClass: 'diff-easy',
+    diffText: 'EASY (LV.1+)',
+    maxHp: 100,
+    rewardXp: 150,
+    accent: '#58A6FF',
+    desc: 'Golem es raksasa yang membekukan harga pasar. Kalahkan dia dengan pemahaman riset fundamental, FDV, dan manajemen likuiditas!',
+    questions: [
+      {
+        q: 'Apa perbedaan mendasar antara Market Cap (Kapitalisasi Pasar) dan FDV (Fully Diluted Valuation)?',
+        options: [
+          'Market Cap mengukur suplai beredar saat ini, FDV mengukur valuasi jika seluruh suplai sudah rilis',
+          'Market Cap hanya untuk Bitcoin, FDV untuk token altcoin baru',
+          'Market Cap selalu lebih besar daripada nilai FDV',
+          'FDV adalah harga token dikalikan volume transaksi harian'
+        ],
+        correct: 0,
+        explanation: 'Market Cap = Harga x Circulating Supply. FDV = Harga x Total Max Supply.'
+      },
+      {
+        q: 'Jika sebuah token memiliki Circulating Supply hanya 5% dari Total Supply dan FDV sangat tinggi, risiko utamanya adalah?',
+        options: [
+          'Token tidak dapat diperdagangkan di DEX',
+          'Tekanan jual masif saat jadwal token unlock investor dan tim di masa depan',
+          'Biaya gas fee transaksi di blockchain melonjak drastis',
+          'Likuiditas otomatis dikunci selamanya oleh protokol'
+        ],
+        correct: 1,
+        explanation: 'Low Float / High FDV token berisiko tinggi terdepresiasi saat token unlock tiba.'
+      },
+      {
+        q: 'Metrik Total Value Locked (TVL) pada protokol DeFi menunjukkan apa?',
+        options: [
+          'Total keuntungan bersih yang dibagikan kepada pendiri proyek',
+          'Total nilai aset kripto yang didepositkan dan dikunci oleh pengguna dalam protokol',
+          'Batas pinjaman maksimal yang bisa diambil oleh pemilik token governance',
+          'Rata-rata volume perdagangan token dalam 30 hari terakhir'
+        ],
+        correct: 1,
+        explanation: 'TVL mencerminkan seberapa besar kepercayaan dan likuiditas modal yang mengendap di protokol.'
+      },
+      {
+        q: 'Apa fungsi utama memiliki alokasi dana darurat sebelum mulai berinvestasi di aset crypto berisiko tinggi?',
+        options: [
+          'Agar bisa langsung membeli koin yang sedang breakout tanpa analisa',
+          'Mencegah terpaksa menjual aset investasi (Panic Selling / Cut Loss) saat pasar crash untuk kebutuhan mendesak',
+          'Meningkatkan batas leverage akun futures di platform exchange',
+          'Memenuhi persyaratan verifikasi identitas (KYC) di bursa lokal'
+        ],
+        correct: 1,
+        explanation: 'Dana darurat menjaga ketahanan finansial tanpa mengorbankan portofolio investasi saat krisis.'
+      },
+      {
+        q: 'Manakah dari berikut ini yang BUKAN merupakan karakteristik Layer 2 (seperti Arbitrum atau Optimism)?',
+        options: [
+          'Memproses transaksi di luar Layer 1 untuk kecepatan tinggi dan biaya murah',
+          'Mewarisi keamanan desentralisasi dari Layer 1 (Ethereum)',
+          'Memiliki blockchain independen tanpa bergantung sama sekali pada konsensus Ethereum',
+          'Menggunakan teknologi Rollup (Optimistic atau ZK-Rollup)'
+        ],
+        correct: 2,
+        explanation: 'Layer 2 selalu meminjam lapisan konsensus/keamanan dari Layer 1 induknya.'
+      }
+    ]
+  },
+  {
+    id: 'boss-liq',
+    name: 'The Liquidation Demon',
+    title: 'Iblis Pemburu Margin & Leverage',
+    icon: '🦀',
+    diffClass: 'diff-medium',
+    diffText: 'MEDIUM (LV.3+)',
+    maxHp: 150,
+    rewardXp: 250,
+    accent: '#FB923C',
+    desc: 'Monster api pemakan modal trader serakah. Kalahkan dengan disiplin analisa teknikal, position sizing, dan Stop Loss!',
+    questions: [
+      {
+        q: 'Apa yang terjadi pada posisi futures dengan leverage 10x jika harga bergerak berlawanan arah sebesar 10%?',
+        options: [
+          'Posisi hanya merugi 1% dari margin modal',
+          'Posisi terkena likuidasi total (kehilangan 100% modal margin)',
+          'Exchange otomatis menutup posisi dengan keuntungan 10%',
+          'Posisi otomatis dialihkan menjadi kepemilikan spot'
+        ],
+        correct: 1,
+        explanation: 'Kerugian = Persentase pergerakan x Leverage. 10% x 10 = 100% (Likuidasi total).'
+      },
+      {
+        q: 'Pola candlestick "Bullish Engulfing" di area Support kunci mengindikasikan apa?',
+        options: [
+          'Sinyal kuat potensi pembalikan arah harga dari tren turun menjadi naik',
+          'Sinyal bahwa likuiditas di pasar telah habis total',
+          'Konfirmasi mutlak bahwa harga pasti turun lebih dalam',
+          'Waktu terbaik untuk membuka posisi short sell leverage maksimal'
+        ],
+        correct: 0,
+        explanation: 'Bullish Engulfing menunjukkan dominasi buyer yang menelan candle seller sebelumnya di area support.'
+      },
+      {
+        q: 'Apa arti rasio Risk to Reward (R:R) 1:3 dalam perencanaan trading?',
+        options: [
+          'Anda bertaruh 3 dolar untuk mendapatkan keuntungan 1 dolar',
+          'Potensi target keuntungan adalah 3x lipat dibanding batas risiko kerugian jika Stop Loss tersentuh',
+          'Anda harus trading 3 kali sehari dan kalah 1 kali',
+          'Posisi trading wajib ditutup setelah 3 hari berturut-turut'
+        ],
+        correct: 1,
+        explanation: 'Dengan R:R 1:3, sistem trading tetap profitable bahkan dengan win rate hanya 30%.'
+      },
+      {
+        q: 'Apa yang dimaksud dengan fenomena "Liquidity Sweep" atau "Stop Hunt" di pasar?',
+        options: [
+          'Harga digerakkan sesaat menembus support/resistance untuk memicu stop loss retail sebelum berbalik arah',
+          'Exchange melakukan pemeliharaan server rutin setiap akhir pekan',
+          'Pemerintah menyita aset kripto di exchange terpusat',
+          'Semua order book dikosongkan karena likuiditas nol'
+        ],
+        correct: 0,
+        explanation: 'Institusi besar memburu likuiditas stop loss retail untuk mengisi volume order mereka.'
+      },
+      {
+        q: 'Kapan saat yang paling tepat untuk menahan posisi Cash / Stablecoin (Cash is King)?',
+        options: [
+          'Saat kondisi pasar choppy tanpa tren jelas atau menjelang rilis berita makro ekonomi berdampak tinggi (FOMC/CPI)',
+          'Saat harga Bitcoin naik 2% dalam 1 jam',
+          'Saat seluruh indikator teknikal menunjukkan sinyal buy bersamaan',
+          'Saat ada teman yang menyuruh membeli koin meme baru'
+        ],
+        correct: 0,
+        explanation: 'Menahan modal di saat volatilitas liar atau pasar tanpa arah adalah bentuk manajemen risiko tertinggi.'
+      }
+    ]
+  },
+  {
+    id: 'boss-rug',
+    name: 'The Rug Puller Phantom',
+    title: 'Hantu Manipulator Smart Contract',
+    icon: '🎭',
+    diffClass: 'diff-hard',
+    diffText: 'HARD (LV.5+)',
+    maxHp: 200,
+    rewardXp: 400,
+    accent: '#F6465D',
+    desc: 'Makhluk bayangan yang mengintai di dunia DeFi. Kalahkan dia dengan audit keamanan on-chain, seed phrase hygiene, dan analisa tokenomics!',
+    questions: [
+      {
+        q: 'Ciri-ciri mencurigakan (Red Flag) pada smart contract token baru yang berpotensi Honeypot adalah?',
+        options: [
+          'Fungsi transfer atau jual dinonaktifkan (Sell Fee 99% / Blacklist address pembeli)',
+          'Smart contract sudah diverifikasi dan diaudit oleh firma ternama (CertiK/OpenZeppelin)',
+          'Likuiditas di DEX dikunci selama minimal 2 tahun di unvested vault',
+          'Jumlah holder token tersebar merata ke puluhan ribu wallet aktif'
+        ],
+        correct: 0,
+        explanation: 'Honeypot memungkinkan user membeli token, tetapi tidak pernah bisa menjualnya kembali.'
+      },
+      {
+        q: 'Di mana tempat paling AMAN untuk menyimpan Secret Recovery Phrase (Seed Phrase 12/24 kata)?',
+        options: [
+          'Disimpan di draft email atau screenshot di Google Photos',
+          'Dicatat secara fisik di kertas/lempengan baja tahan karat dan disimpan di brankas offline',
+          'Ditulis di aplikasi Notes HP dan diunggah ke cloud storage',
+          'Diberikan kepada admin grup Telegram yang menawarkan customer support'
+        ],
+        correct: 1,
+        explanation: 'Seed phrase tidak boleh pernah bersentuhan dengan perangkat digital atau internet untuk mencegah malware & hack.'
+      },
+      {
+        q: 'Apa fungsi dari fitur "Revoke Token Approval" pada platform Web3?',
+        options: [
+          'Membatalkan izin smart contract dApp yang pernah kita hubungkan agar tidak bisa menyedot token dari wallet di masa depan',
+          'Menghapus riwayat transaksi lama di blockchain explorer',
+          'Menukar seluruh saldo koin menjadi stablecoin secara otomatis',
+          'Mempercepat konfirmasi transaksi yang pending di mempool'
+        ],
+        correct: 0,
+        explanation: 'Revoke approval memutus akses smart contract terhadap saldo token di wallet Anda.'
+      },
+      {
+        q: 'Apa itu Impermanent Loss dalam Liquidity Providing di Automated Market Maker (AMM DEX)?',
+        options: [
+          'Kehilangan token akibat lupa password wallet',
+          'Penurunan nilai portofolio penyedia likuiditas dibanding hanya menahan (HODL) token tersebut saat rasio harga berubah drastis',
+          'Biaya fee gas yang hilang saat transaksi swap gagal',
+          'Pajak kripto yang dipotong langsung oleh bursa lokal'
+        ],
+        correct: 1,
+        explanation: 'Impermanent loss terjadi akibat arbitrase yang menyeimbangkan rasio pool saat salah satu aset naik/turun tajam.'
+      },
+      {
+        q: 'Jika sebuah proyek mengklaim memberikan Fixed APY 10,000% per tahun tanpa use-case yang jelas, model ekonomi ini biasanya adalah?',
+        options: [
+          'Skema Ponzi berbasis inflasi cetak token tanpa batas yang akan runtuh saat arus pembeli baru terhenti',
+          'Teknologi revolusioner yang lebih unggul dari sistem perbankan global',
+          'Strategi monetisasi likuiditas Layer 0 yang didukung institusi',
+          'Pemberian dividen resmi dari keuntungan riil perusahaan'
+        ],
+        correct: 0,
+        explanation: 'APY yang tidak masuk akal berasal dari emisi token inflasioner murni yang pada akhirnya membuat nilai token anjlok ke 0.'
+      }
+    ]
+  },
+  {
+    id: 'boss-whale',
+    name: 'The Mega Whale Overlord',
+    title: 'Penguasa Likuiditas Global & Market Maker',
+    icon: '🐋',
+    diffClass: 'diff-extreme',
+    diffText: 'EXTREME (LV.7+)',
+    maxHp: 300,
+    rewardXp: 600,
+    accent: '#B084F5',
+    desc: 'Penguasa samudra likuiditas tertinggi di jagat crypto. Uji penguasaan menyeluruh Anda dari makroekonomi, siklus halving, hingga order flow!',
+    questions: [
+      {
+        q: 'Bagaimana siklus Bitcoin 4-Tahunan (Halving Cycle) mempengaruhi dinamika suplai pasar?',
+        options: [
+          'Mengurangi reward blok penambang sebesar 50%, memperketat laju pasokan koin baru di pasar',
+          'Menghapus 50% dari seluruh Bitcoin yang beredar di dompet pengguna',
+          'Menurunkan biaya transaksi jaringan Bitcoin sebesar 50%',
+          'Memaksa semua exchange menurunkan batas penarikan harian'
+        ],
+        correct: 0,
+        explanation: 'Halving memangkas inflasi penerbitan BTC baru separuhnya setiap 210,000 blok, memicu guncangan suplai (Supply Shock).'
+      },
+      {
+        q: 'Apa korelasi antara kenaikan suku bunga acuan bank sentral (The Fed) dengan pasar aset berisiko (Crypto)?',
+        options: [
+          'Kenaikan suku bunga menyedot likuiditas global ke aset aman (Dolar/Obligasi), umumnya menekan harga crypto',
+          'Kenaikan suku bunga otomatis membuat harga crypto melonjak tinggi',
+          'Tidak ada korelasi apa pun antara ekonomi makro dan harga Bitcoin',
+          'Kenaikan suku bunga hanya mempengaruhi koin stablecoin USDT'
+        ],
+        correct: 0,
+        explanation: 'Kebijakan moneter ketat (Tight Monetary Policy) menurunkan minat investor terhadap aset dengan volatilitas tinggi.'
+      },
+      {
+        q: 'Apa yang diindikasikan oleh metrik On-Chain "Exchange Inflow Mean Spike" yang besar?',
+        options: [
+          'Paus atau institusi sedang mengirimkan koin dalam jumlah besar ke bursa, mengindikasikan potensi tekanan jual (Dumping)',
+          'Semua bursa kripto sedang membagikan airdrop gratis kepada pengguna',
+          'Banyak pengguna yang memindahkan aset ke Cold Wallet untuk jangka panjang',
+          'Tingkat kesulitan penambangan sedang meningkat'
+        ],
+        correct: 0,
+        explanation: 'Inflow besar ke exchange biasanya bertujuan untuk mengeksekusi penjualan likuiditas ke pasar spot/futures.'
+      },
+      {
+        q: 'Dalam arsitektur MEV (Maximal Extractable Value), apa yang dimaksud dengan serangan "Sandwich Attack"?',
+        options: [
+          'Bot memasang order buy sebelum transaksi target (front-run) dan order sell tepat setelahnya (back-run) untuk mengambil untung dari slippage',
+          'Dua exchange bekerja sama untuk membekukan akun trader',
+          'Peretas mencuri seed phrase dengan metode phishing email ganda',
+          'Pengiriman token palsu ke dompet korban untuk mengelabui explorer'
+        ],
+        correct: 0,
+        explanation: 'Sandwich attack mengeksploitasi keterbukaan mempool DEX untuk memanipulasi harga beli dan jual di sekitar transaksi korban.'
+      },
+      {
+        q: 'Strategi Dollar Cost Averaging (DCA) yang dikombinasikan dengan Risk Management terbukti paling efektif karena?',
+        options: [
+          'Menghilangkan bias emosi, meratakan harga beli rata-rata di berbagai siklus, dan menghindari risiko all-in di puncak harga (FOMO)',
+          'Menjamin 100% keuntungan pasti dalam waktu kurang dari 7 hari',
+          'Membuat trader tidak perlu memahami apa pun tentang blockchain',
+          'Bebas dari segala bentuk biaya komisi exchange'
+        ],
+        correct: 0,
+        explanation: 'DCA disiplin mengalahkan sebagian besar trader emosional karena memanfaatkan diskon harga saat fase akumulasi pasar.'
+      }
+    ]
+  }
+];
+
+let activeBossId = null;
+let battleState = null;
+
+function triggerScreenShake(){
+  const panel = document.getElementById('main-panel');
+  if(!panel) return;
+  panel.classList.remove('screen-shake');
+  void panel.offsetWidth;
+  panel.classList.add('screen-shake');
+  setTimeout(()=> panel.classList.remove('screen-shake'), 400);
+}
+
+function triggerFloatingDamage(amount, isCrit, anchorEl){
+  const el = document.createElement('div');
+  el.className = 'dmg-float-particle ' + (isCrit ? 'dmg-crit' : 'dmg-norm');
+  el.textContent = (isCrit ? '💥 CRIT -' : '⚔️ -') + amount + ' HP';
+  
+  if(anchorEl){
+    const rect = anchorEl.getBoundingClientRect();
+    el.style.left = (rect.left + rect.width / 2) + 'px';
+    el.style.top = (rect.top - 20) + 'px';
+  } else {
+    el.style.left = (window.innerWidth / 2) + 'px';
+    el.style.top = '220px';
+  }
+
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 1100);
+}
+
+function startBossBattle(bossId){
+  const boss = BOSS_DATA.find(b => b.id === bossId);
+  if(!boss) return;
+  activeBossId = bossId;
+  battleState = {
+    boss,
+    bossHp: boss.maxHp,
+    userHp: 100,
+    currentQIndex: 0,
+    timeLeft: 15,
+    timerInterval: null,
+    combo: 0,
+    isAnswering: false,
+    status: 'fighting',
+    logs: [`[ARENA] Pertarungan dimulai melawan ${boss.name}!`]
+  };
+  currentViewMode = 'boss';
+  updateViewTabs();
+  renderBossBattleArena();
+  startRoundTimer();
+  playXpBeep();
+  document.getElementById('main-panel').scrollTop = 0;
+}
+
+function exitBossBattle(){
+  if(battleState && battleState.timerInterval){
+    clearInterval(battleState.timerInterval);
+  }
+  battleState = null;
+  activeBossId = null;
+  renderBossBattleArena();
+}
+
+function startRoundTimer(){
+  if(!battleState || battleState.status !== 'fighting') return;
+  if(battleState.timerInterval) clearInterval(battleState.timerInterval);
+  battleState.timeLeft = 15;
+  battleState.timerInterval = setInterval(()=>{
+    if(!battleState || battleState.status !== 'fighting'){
+      clearInterval(battleState.timerInterval);
+      return;
+    }
+    battleState.timeLeft--;
+    const timerBar = document.getElementById('battle-timer-bar');
+    const timerText = document.getElementById('battle-timer-text');
+    if(timerBar){
+      const pct = Math.max(0, (battleState.timeLeft / 15) * 100);
+      timerBar.style.width = pct + '%';
+      if(battleState.timeLeft <= 5){
+        timerBar.style.background = 'var(--red)';
+      } else if(battleState.timeLeft <= 8){
+        timerBar.style.background = 'var(--amber)';
+      } else {
+        timerBar.style.background = 'var(--green)';
+      }
+    }
+    if(timerText) timerText.textContent = `${battleState.timeLeft}s`;
+    
+    if(battleState.timeLeft <= 0){
+      clearInterval(battleState.timerInterval);
+      handleTimeOutAnswer();
+    }
+  }, 1000);
+}
+
+function handleTimeOutAnswer(){
+  if(!battleState || battleState.status !== 'fighting') return;
+  battleState.combo = 0;
+  battleState.userHp = Math.max(0, battleState.userHp - 25);
+  battleState.logs.unshift(`[TIMEOUT] ⏱️ Waktu habis! ${battleState.boss.name} melancarkan serangan (-25 HP).`);
+  playPlayerDamagedSound();
+  triggerScreenShake();
+  if(!checkBattleEndCondition()){
+    battleState.currentQIndex = (battleState.currentQIndex + 1) % battleState.boss.questions.length;
+    renderBossBattleArena();
+    startRoundTimer();
+  }
+}
+
+function submitBattleAnswer(optIndex, btnEl){
+  if(!battleState || battleState.status !== 'fighting' || battleState.isAnswering) return;
+  battleState.isAnswering = true;
+  if(battleState.timerInterval) clearInterval(battleState.timerInterval);
+
+  const currentQ = battleState.boss.questions[battleState.currentQIndex];
+  const isCorrect = (optIndex === currentQ.correct);
+
+  if(isCorrect){
+    battleState.combo++;
+    const isCritical = battleState.timeLeft >= 10;
+    const damage = isCritical ? 35 : 25;
+    battleState.bossHp = Math.max(0, battleState.bossHp - damage);
+    const critLabel = isCritical ? '🔥 CRITICAL HIT!' : '⚔️ HIT!';
+    battleState.logs.unshift(`[SERANGAN] ${critLabel} Jawaban benar! ${battleState.boss.name} terkena -${damage} HP.`);
+    if(btnEl) btnEl.classList.add('correct');
+    playBossHitSound();
+    triggerFloatingDamage(damage, isCritical, btnEl);
+  } else {
+    battleState.combo = 0;
+    battleState.userHp = Math.max(0, battleState.userHp - 25);
+    battleState.logs.unshift(`[GAGAL] ❌ Jawaban salah! ${battleState.boss.name} membalas serangan (-25 HP).`);
+    if(btnEl) btnEl.classList.add('wrong');
+    playPlayerDamagedSound();
+    triggerScreenShake();
+  }
+
+  setTimeout(()=>{
+    if(!battleState) return;
+    battleState.isAnswering = false;
+    if(checkBattleEndCondition()) return;
+    battleState.currentQIndex = (battleState.currentQIndex + 1) % battleState.boss.questions.length;
+    renderBossBattleArena();
+    startRoundTimer();
+  }, 1200);
+}
+
+function checkBattleEndCondition(){
+  if(battleState.bossHp <= 0){
+    battleState.status = 'won';
+    if(battleState.timerInterval) clearInterval(battleState.timerInterval);
+    const reward = battleState.boss.rewardXp;
+    battleState.logs.unshift(`[VICTORY] 🏆 ANDA MENANG! ${battleState.boss.name} berhasil ditaklukkan! (+${reward} XP)`);
+    playBossDefeatSound();
+    
+    // Save defeated boss into RPG state
+    const state = getRpgState();
+    if(!state.defeatedBosses) state.defeatedBosses = {};
+    const firstTime = !state.defeatedBosses[battleState.boss.id];
+    state.defeatedBosses[battleState.boss.id] = true;
+    saveRpgState(state);
+    
+    if(firstTime){
+      triggerFloatingXp(reward, '🏆 BOSS DEFEATED');
+    }
+    renderBossBattleArena();
+    renderRpgUI(true);
+    return true;
+  } else if(battleState.userHp <= 0){
+    battleState.status = 'lost';
+    if(battleState.timerInterval) clearInterval(battleState.timerInterval);
+    battleState.logs.unshift(`[DEFEAT] 💀 Portofolio Anda terlikuidasi! Pelajari kembali materi untuk menantang ulang.`);
+    renderBossBattleArena();
+    return true;
+  }
+  return false;
+}
+
+function renderBossBattleArena(){
+  const panel = document.getElementById('main-panel');
+  panel.style.removeProperty('--accent');
+  document.body.style.removeProperty('--accent');
+
+  const state = getRpgState();
+  const defeatedBosses = state.defeatedBosses || {};
+
+  // If in battle
+  if(battleState && battleState.status === 'fighting'){
+    const q = battleState.boss.questions[battleState.currentQIndex];
+    const bossHpPct = Math.round((battleState.bossHp / battleState.boss.maxHp) * 100);
+    const userHpPct = Math.round((battleState.userHp / 100) * 100);
+    const xp = calculateCurrentXp();
+    const rank = getRankData(xp);
+
+    const optionsHtml = q.options.map((opt, idx) => `
+      <button class="battle-opt-btn" onclick="submitBattleAnswer(${idx}, this)" ${battleState.isAnswering ? 'disabled' : ''}>
+        <span class="battle-opt-key mono">${String.fromCharCode(65 + idx)}</span>
+        <span>${escapeHtml(opt)}</span>
+      </button>
+    `).join('');
+
+    const logsHtml = battleState.logs.slice(0, 5).map(l => `<div class="battle-log-item">${escapeHtml(l)}</div>`).join('');
+
+    panel.innerHTML = `
+      <div class="boss-arena-container">
+        <div class="boss-header" style="border-left-color: ${battleState.boss.accent};">
+          <div>
+            <div class="boss-head-title" style="color:${battleState.boss.accent};">⚔️ ARENA PERTARUNGAN BOSS</div>
+            <div class="boss-head-desc">Jawab kuis dengan cepat & tepat untuk memberikan Critical Damage!</div>
+          </div>
+          <button class="btn-ghost mono" onclick="exitBossBattle()">🏳️ Menyerah / Keluar</button>
+        </div>
+
+        <div class="battle-arena">
+          <div class="battle-hud">
+            <!-- Player -->
+            <div class="fighter-box">
+              <div class="fighter-avatar">${rank.icon}</div>
+              <div class="fighter-info">
+                <div class="fighter-name">${escapeHtml(currentProfile?.full_name || 'Trader Terminal')}</div>
+                <div class="fighter-sub">LV.${rank.level} ${rank.name} · ${battleState.combo > 1 ? '🔥 ' + battleState.combo + 'x COMBO' : 'HP: ' + battleState.userHp + '/100'}</div>
+                <div class="fighter-hp-bar">
+                  <div class="fighter-hp-fill hp-player" style="width:${userHpPct}%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="battle-vs-badge mono">VS</div>
+
+            <!-- Boss -->
+            <div class="fighter-box right">
+              <div class="fighter-avatar">${battleState.boss.icon}</div>
+              <div class="fighter-info">
+                <div class="fighter-name">${battleState.boss.name}</div>
+                <div class="fighter-sub">${battleState.boss.title} · HP: ${battleState.bossHp}/${battleState.boss.maxHp}</div>
+                <div class="fighter-hp-bar">
+                  <div class="fighter-hp-fill hp-boss" style="width:${bossHpPct}%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question Card -->
+          <div class="battle-q-card">
+            <div class="battle-q-header">
+              <span class="battle-round-tag">RONDE ${battleState.currentQIndex + 1} / ${battleState.boss.questions.length}</span>
+              <div class="battle-timer-wrap">
+                <div class="battle-timer-bar-track">
+                  <div class="battle-timer-bar-fill" id="battle-timer-bar" style="width:${(battleState.timeLeft/15)*100}%;"></div>
+                </div>
+                <span class="battle-timer-text mono" id="battle-timer-text">${battleState.timeLeft}s</span>
+              </div>
+            </div>
+
+            <div class="battle-question-text">${escapeHtml(q.q)}</div>
+
+            <div class="battle-options-grid">
+              ${optionsHtml}
+            </div>
+          </div>
+
+          <!-- Battle Log -->
+          <div class="battle-log-card">
+            ${logsHtml}
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Victory Screen
+  if(battleState && battleState.status === 'won'){
+    panel.innerHTML = `
+      <div class="boss-arena-container">
+        <div class="battle-result-card">
+          <div class="battle-result-icon">🏆</div>
+          <div class="battle-result-title" style="color:var(--green);">VICTORY! BOSS DITAKLUKKAN!</div>
+          <div class="battle-result-desc">
+            Luar biasa! Anda berhasil mengalahkan <strong>${battleState.boss.name}</strong> dengan pemahaman crypto yang solid.<br>
+            Hadiah Kemenangan: <strong>+${battleState.boss.rewardXp} XP ⚡</strong>
+          </div>
+          <button class="btn-primary" onclick="exitBossBattle()">⚔️ KEMBALI KE LOBBY BOSS</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Defeat Screen
+  if(battleState && battleState.status === 'lost'){
+    panel.innerHTML = `
+      <div class="boss-arena-container">
+        <div class="battle-result-card" style="box-shadow:8px 8px 0 var(--red);">
+          <div class="battle-result-icon">💀</div>
+          <div class="battle-result-title" style="color:var(--red);">PORTFOLIO LIQUIDATED!</div>
+          <div class="battle-result-desc">
+            HP Anda habis saat bertarung melawan <strong>${battleState.boss.name}</strong>.<br>
+            Pelajari kembali materi di modul terkait dan latih analisa Anda sebelum mencoba lagi!
+          </div>
+          <button class="btn-primary" onclick="exitBossBattle()">🔄 COBA LAGI DARI LOBBY</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Boss Lobby Screen
+  const totalBossDefeated = Object.keys(defeatedBosses).length;
+  const bossCardsHtml = BOSS_DATA.map(b => {
+    const isDefeated = !!defeatedBosses[b.id];
+    return `
+      <div class="boss-card" style="--boss-accent:${b.accent}; border-top:3px solid ${b.accent};">
+        <div class="boss-card-head">
+          <div class="boss-card-icon">${b.icon}</div>
+          <span class="boss-diff-badge ${b.diffClass}">${b.diffText}</span>
+        </div>
+        <div>
+          <div class="boss-card-name">${b.name}</div>
+          <div class="boss-card-title">${b.title}</div>
+        </div>
+        <div class="boss-card-desc">${b.desc}</div>
+        <div class="boss-card-footer">
+          <div class="boss-reward-tag mono">${isDefeated ? '✓ DITAKLUKKAN' : '+' + b.rewardXp + ' XP'}</div>
+          <button class="btn-challenge-boss" onclick="startBossBattle('${b.id}')">${isDefeated ? 'TANTANG ULANG ⚔️' : 'TANTANG BOSS ⚔️'}</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="boss-arena-container">
+      <div class="boss-header">
+        <div>
+          <div class="boss-head-title">⚔️ ARENA BOSS BATTLE QUIZ</div>
+          <div class="boss-head-desc">Uji nyali dan ketajaman analisa Anda melawan monster pasar crypto dengan sistem pertarungan HP realtime!</div>
+        </div>
+        <div class="st-stats-badges">
+          <div class="st-stat-chip">Boss Ditaklukkan: <strong>${totalBossDefeated} / ${BOSS_DATA.length}</strong></div>
+        </div>
+      </div>
+
+      <div class="boss-grid">
+        ${bossCardsHtml}
+      </div>
+    </div>
+  `;
+}
+
 // ---- RPG Gamification Engine ----
 const RPG_RANKS = [
   { level: 1, name: 'Plankton', icon: '🦐', minXp: 0, maxXp: 150, desc: 'Pemula di samudera crypto. Mulai eksplorasi materi fondasi!' },
@@ -3127,6 +3946,68 @@ function playLevelUpFanfare(){
   }catch(e){}
 }
 
+function playBossHitSound(){
+  if(!sfxEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(110, now + 0.15);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.19);
+  }catch(e){}
+}
+
+function playPlayerDamagedSound(){
+  if(!sfxEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.setValueAtTime(80, now + 0.08);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.26);
+  }catch(e){}
+}
+
+function playBossDefeatSound(){
+  if(!sfxEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const notes = [440, 554.37, 659.25, 880, 1108.73];
+    notes.forEach((freq, i)=>{
+      const now = ctx.currentTime + (i * 0.1);
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.29);
+    });
+  }catch(e){}
+}
+
 function toggleSfx(){
   sfxEnabled = !sfxEnabled;
   localStorage.setItem('ac_sfx_enabled', sfxEnabled);
@@ -3146,6 +4027,7 @@ function getRpgState(){
   }catch(e){}
   return {
     readSummaries: {},
+    defeatedBosses: {},
     lastActiveDate: null,
     streakDays: 1,
     lastLevel: 1
@@ -3186,7 +4068,14 @@ function calculateCurrentXp(){
   const summaryCount = Object.keys(state.readSummaries || {}).length;
   const summaryXp = summaryCount * 10; // 10 XP per unique summary read
   const streakBonus = Math.min(10, state.streakDays || 1) * 15; // streak bonus
-  return doneXp + summaryXp + streakBonus;
+  let bossXp = 0;
+  if(state.defeatedBosses){
+    Object.keys(state.defeatedBosses).forEach(bossId => {
+      const b = BOSS_DATA.find(x => x.id === bossId);
+      if(b) bossXp += b.rewardXp;
+    });
+  }
+  return doneXp + summaryXp + streakBonus + bossXp;
 }
 
 function getRankData(xp){
@@ -3293,6 +4182,7 @@ function openRpgProfileModal(){
   const iconEl = document.getElementById('profile-rank-icon');
   const xpStatEl = document.getElementById('profile-stat-xp');
   const streakStatEl = document.getElementById('profile-stat-streak');
+  const bossStatEl = document.getElementById('profile-stat-boss');
   const ladderListEl = document.getElementById('rpg-ladder-list');
   const sfxBtn = document.getElementById('btn-toggle-sfx');
 
@@ -3301,6 +4191,10 @@ function openRpgProfileModal(){
   if(iconEl) iconEl.textContent = rank.icon;
   if(xpStatEl) xpStatEl.textContent = `${xp} XP`;
   if(streakStatEl) streakStatEl.textContent = `${state.streakDays || 1} Hari`;
+  if(bossStatEl){
+    const defeatedCount = Object.keys(state.defeatedBosses || {}).length;
+    bossStatEl.textContent = `${defeatedCount} / ${BOSS_DATA.length}`;
+  }
   if(sfxBtn) sfxBtn.textContent = sfxEnabled ? '🔊 SFX ON' : '🔇 SFX OFF';
 
   if(ladderListEl){
@@ -3484,8 +4378,10 @@ function renderTicker(){
 function updateViewTabs(){
   const btnMods = document.getElementById('tab-btn-modules');
   const btnTree = document.getElementById('tab-btn-tree');
+  const btnBoss = document.getElementById('tab-btn-boss');
   if(btnMods) btnMods.classList.toggle('active', currentViewMode === 'modules');
   if(btnTree) btnTree.classList.toggle('active', currentViewMode === 'tree');
+  if(btnBoss) btnBoss.classList.toggle('active', currentViewMode === 'boss');
 }
 
 function renderSidebar(){
@@ -3648,6 +4544,7 @@ function renderSearchResults(){
 function renderMain(){
   if(searchQuery){ renderSearchResults(); return; }
   if(currentViewMode === 'tree'){ renderSkillTree(); return; }
+  if(currentViewMode === 'boss'){ renderBossBattleArena(); return; }
 
   const m = MODULES.find(x=>x.id===activeModule);
   const s = modStats(m);
