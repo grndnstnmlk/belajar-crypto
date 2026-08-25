@@ -691,6 +691,144 @@
   .chest-title{ font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; text-transform:uppercase; color:var(--amber); }
   .chest-desc{ font-size:12.5px; color:var(--text-dim); max-width:400px; line-height:1.45; }
 
+  /* ---- Paper Trading Simulator Desk ---- */
+  .sim-container{ padding:0 0 36px; animation:fadeIn .25s ease; }
+  .sim-header{
+    background:var(--bg-raised); border:2px solid var(--border); border-left:4px solid var(--green);
+    padding:16px 20px; margin-bottom:18px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+  }
+  .sim-head-title{
+    font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700;
+    color:var(--green); text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .sim-head-desc{ font-size:12.5px; color:var(--text-dim); margin-top:2px; }
+
+  .sim-stats-bar{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:18px;
+  }
+  .sim-stat-box{
+    background:var(--bg-raised); border:1.5px solid var(--border); padding:12px 14px;
+  }
+  .sim-stat-val{ font-family:'IBM Plex Mono',monospace; font-size:18px; font-weight:700; color:var(--text); }
+  .sim-stat-lbl{ font-size:10.5px; color:var(--text-dim); text-transform:uppercase; margin-top:3px; }
+
+  /* Trading Layout Grid */
+  .sim-layout-grid{
+    display:grid; grid-template-columns: 1.8fr 1.2fr; gap:16px; margin-bottom:20px;
+  }
+  @media (max-width:850px){ .sim-layout-grid{ grid-template-columns:1fr; } }
+
+  /* Chart Panel */
+  .sim-chart-panel{
+    background:var(--bg-raised); border:2px solid var(--border); padding:16px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .sim-pair-tabs{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  .sim-pair-btns{ display:flex; gap:6px; }
+  .sim-pair-btn{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:700;
+    background:var(--bg); border:1.5px solid var(--border); padding:5px 10px;
+    color:var(--text-dim); cursor:pointer; transition:all .12s;
+  }
+  .sim-pair-btn.active{
+    border-color:var(--amber); color:var(--amber); background:rgba(240,185,11,0.1);
+  }
+  .sim-live-price-box{
+    font-family:'IBM Plex Mono',monospace; font-size:16px; font-weight:700;
+    padding:4px 10px; background:var(--bg); border:1.5px solid var(--border);
+  }
+  .sim-canvas-wrap{
+    width:100%; height:260px; background:#070b09; border:1.5px solid var(--border);
+    position:relative; overflow:hidden;
+  }
+  #sim-chart-canvas{ width:100%; height:100%; display:block; }
+
+  /* Order Form Panel */
+  .sim-order-panel{
+    background:var(--bg-raised); border:2px solid var(--border); padding:16px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .sim-dir-toggle{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .sim-dir-btn{
+    font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700;
+    padding:10px; border:2px solid var(--border); cursor:pointer; text-transform:uppercase;
+    text-align:center; transition:all .12s; background:var(--bg); color:var(--text-dim);
+  }
+  .sim-dir-btn.btn-long.active{
+    background:var(--green); color:#06110D; border-color:var(--green); box-shadow:3px 3px 0 var(--text);
+  }
+  .sim-dir-btn.btn-short.active{
+    background:var(--red); color:#fff; border-color:var(--red); box-shadow:3px 3px 0 var(--text);
+  }
+
+  .sim-field-group{ display:flex; flex-direction:column; gap:4px; }
+  .sim-field-lbl{ font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-dim); text-transform:uppercase; }
+  .sim-input{
+    background:var(--bg); border:1.5px solid var(--border); color:var(--text);
+    font-family:'IBM Plex Mono',monospace; font-size:13px; padding:8px 10px; outline:none;
+  }
+  .sim-input:focus{ border-color:var(--amber); }
+
+  .sim-leverage-pills{ display:flex; gap:6px; }
+  .sim-lev-pill{
+    flex:1; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700;
+    background:var(--bg); border:1.5px solid var(--border); padding:4px 0; text-align:center;
+    cursor:pointer; color:var(--text-dim); transition:all .1s;
+  }
+  .sim-lev-pill.active{
+    border-color:var(--amber); color:var(--amber); background:rgba(240,185,11,0.1);
+  }
+
+  .sim-preview-box{
+    background:var(--bg); border:1px dashed var(--border); padding:10px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-dim);
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .sim-preview-row{ display:flex; justify-content:space-between; }
+
+  .btn-execute-order{
+    font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700;
+    padding:12px; border:2px solid var(--text); cursor:pointer; text-transform:uppercase;
+    box-shadow:4px 4px 0 var(--text); transition:all .1s; margin-top:4px;
+  }
+  .btn-exec-long{ background:var(--green); color:#06110D; }
+  .btn-exec-short{ background:var(--red); color:#fff; }
+  .btn-execute-order:hover{ transform:translate(-1px,-1px); box-shadow:5px 5px 0 var(--text); }
+
+  /* Positions & History */
+  .sim-table-card{
+    background:var(--bg-raised); border:2px solid var(--border); padding:16px; margin-bottom:18px;
+  }
+  .sim-table-title{
+    font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700;
+    text-transform:uppercase; margin-bottom:12px; display:flex; justify-content:space-between;
+  }
+  .sim-table-wrap{ overflow-x:auto; }
+  .sim-table{
+    width:100%; border-collapse:collapse; font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+  }
+  .sim-table th{
+    text-align:left; padding:8px 10px; border-bottom:2px solid var(--border);
+    color:var(--text-dim); text-transform:uppercase; font-size:10px;
+  }
+  .sim-table td{
+    padding:10px; border-bottom:1px solid var(--border); vertical-align:middle;
+  }
+  .pos-dir-long{ color:var(--green); font-weight:700; }
+  .pos-dir-short{ color:var(--red); font-weight:700; }
+  .pnl-pos{ color:var(--green); font-weight:700; }
+  .pnl-neg{ color:var(--red); font-weight:700; }
+
+  .btn-close-pos{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700;
+    background:var(--bg); border:1.5px solid var(--border); padding:4px 8px;
+    cursor:pointer; color:var(--text); transition:all .1s;
+  }
+  .btn-close-pos:hover{ border-color:var(--red); color:var(--red); }
+
   /* ---- Ticker strip ---- */
   .ticker-strip{
     display:flex; border-bottom:1px solid var(--border);
@@ -1051,6 +1189,7 @@
         <button class="view-tab-btn" id="tab-btn-tree" onclick="setViewMode('tree')">🌳 Skill Tree</button>
         <button class="view-tab-btn" id="tab-btn-boss" onclick="setViewMode('boss')">⚔️ Boss</button>
         <button class="view-tab-btn" id="tab-btn-quests" onclick="setViewMode('quests')">🎯 Misi</button>
+        <button class="view-tab-btn" id="tab-btn-sim" onclick="setViewMode('sim')">📈 Sim Trading</button>
       </div>
       <div class="sidebar-label">Kurikulum</div>
       <div id="mod-list"></div>
@@ -4242,6 +4381,632 @@ function renderDailyQuests(){
   `;
 }
 
+// ---- Mini Sandbox: Paper Trading Simulator ----
+const SIM_PAIRS = {
+  'BTC/USDT': { name: 'Bitcoin', symbol: 'BTC', price: 64250, volatility: 0.0015, precision: 2, history: [] },
+  'ETH/USDT': { name: 'Ethereum', symbol: 'ETH', price: 3480, volatility: 0.0022, precision: 2, history: [] },
+  'SOL/USDT': { name: 'Solana', symbol: 'SOL', price: 152.5, volatility: 0.0035, precision: 2, history: [] }
+};
+
+let selectedSimPair = 'BTC/USDT';
+let selectedSimDirection = 'LONG';
+let selectedSimLeverage = 5;
+let simTickInterval = null;
+
+function initSimPairCandles(){
+  Object.keys(SIM_PAIRS).forEach(pairKey => {
+    const p = SIM_PAIRS[pairKey];
+    if(p.history.length === 0){
+      let curr = p.price;
+      for(let i = 24; i >= 0; i--){
+        const change = (Math.random() - 0.49) * p.price * p.volatility * 3;
+        const open = curr;
+        const close = open + change;
+        const high = Math.max(open, close) + Math.random() * (p.price * p.volatility);
+        const low = Math.min(open, close) - Math.random() * (p.price * p.volatility);
+        p.history.push({ open, high, low, close });
+        curr = close;
+      }
+      p.price = curr;
+    }
+  });
+}
+initSimPairCandles();
+
+function getSimStorageKey(){
+  return 'ac_sim_trading_' + (currentUser ? currentUser.id : 'guest');
+}
+
+function getSimState(){
+  try{
+    const raw = localStorage.getItem(getSimStorageKey());
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {
+    balance: 10000.00,
+    initialBalance: 10000.00,
+    positions: [],
+    tradeHistory: []
+  };
+}
+
+function saveSimState(state){
+  try{
+    localStorage.setItem(getSimStorageKey(), JSON.stringify(state));
+  }catch(e){}
+}
+
+function resetSimBalance(){
+  if(!confirm('Reset saldo trading virtual Anda kembali ke $10,000 USDT? Posisi aktif akan ditutup.')) return;
+  const state = {
+    balance: 10000.00,
+    initialBalance: 10000.00,
+    positions: [],
+    tradeHistory: []
+  };
+  saveSimState(state);
+  renderPaperTrading();
+}
+
+function startSimTickEngine(){
+  if(simTickInterval) clearInterval(simTickInterval);
+  simTickInterval = setInterval(()=>{
+    // Random walk price update
+    Object.keys(SIM_PAIRS).forEach(pairKey => {
+      const p = SIM_PAIRS[pairKey];
+      const deltaPct = (Math.random() - 0.495) * p.volatility;
+      const prevPrice = p.price;
+      const newPrice = Math.max(0.1, prevPrice * (1 + deltaPct));
+      p.price = parseFloat(newPrice.toFixed(p.precision));
+
+      const lastCandle = p.history[p.history.length - 1];
+      if(lastCandle){
+        lastCandle.close = p.price;
+        lastCandle.high = Math.max(lastCandle.high, p.price);
+        lastCandle.low = Math.min(lastCandle.low, p.price);
+      }
+    });
+
+    checkSimPositionsTriggers();
+
+    if(currentViewMode === 'sim'){
+      updateSimPriceDisplay();
+      drawSimChart();
+      updateSimPositionsLiveHtml();
+    }
+  }, 1500);
+}
+
+function checkSimPositionsTriggers(){
+  const state = getSimState();
+  if(!state.positions || state.positions.length === 0) return;
+
+  let stateChanged = false;
+  const remainingPositions = [];
+
+  state.positions.forEach(pos => {
+    const currentPrice = SIM_PAIRS[pos.pair]?.price || pos.entryPrice;
+    let isClosed = false;
+    let reason = '';
+
+    const diffPct = (pos.direction === 'LONG')
+      ? (currentPrice - pos.entryPrice) / pos.entryPrice
+      : (pos.entryPrice - currentPrice) / pos.entryPrice;
+    
+    const roiPct = diffPct * pos.leverage;
+    const pnlUsdt = pos.amountUsdt * roiPct;
+
+    if(roiPct <= -0.90){
+      isClosed = true;
+      reason = '💀 LIKUIDASI';
+      playLiquidatedSound();
+      triggerFloatingDamage(pos.amountUsdt, true);
+    }
+    else if(pos.tpPrice && ((pos.direction === 'LONG' && currentPrice >= pos.tpPrice) || (pos.direction === 'SHORT' && currentPrice <= pos.tpPrice))){
+      isClosed = true;
+      reason = '🎯 TAKE PROFIT';
+      playProfitCashSound();
+      state.balance += Math.max(0, pos.amountUsdt + pnlUsdt);
+      triggerFloatingXp(50, '🎯 TP Hit (+50 XP)');
+    }
+    else if(pos.slPrice && ((pos.direction === 'LONG' && currentPrice <= pos.slPrice) || (pos.direction === 'SHORT' && currentPrice >= pos.slPrice))){
+      isClosed = true;
+      reason = '🛑 STOP LOSS';
+      playPlayerDamagedSound();
+      state.balance += Math.max(0, pos.amountUsdt + pnlUsdt);
+    }
+
+    if(isClosed){
+      stateChanged = true;
+      if(!state.tradeHistory) state.tradeHistory = [];
+      state.tradeHistory.unshift({
+        id: pos.id,
+        pair: pos.pair,
+        direction: pos.direction,
+        entryPrice: pos.entryPrice,
+        closePrice: currentPrice,
+        amountUsdt: pos.amountUsdt,
+        leverage: pos.leverage,
+        pnlUsdt: parseFloat(pnlUsdt.toFixed(2)),
+        roiPct: parseFloat((roiPct * 100).toFixed(2)),
+        reason,
+        closeTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      });
+    } else {
+      remainingPositions.push(pos);
+    }
+  });
+
+  if(stateChanged){
+    state.positions = remainingPositions;
+    saveSimState(state);
+    if(currentViewMode === 'sim'){
+      renderPaperTrading();
+    }
+  }
+}
+
+function selectSimPair(pairKey){
+  selectedSimPair = pairKey;
+  renderPaperTrading();
+}
+
+function setSimDirection(dir){
+  selectedSimDirection = dir;
+  const btnLong = document.getElementById('btn-sim-long');
+  const btnShort = document.getElementById('btn-sim-short');
+  const execBtn = document.getElementById('btn-sim-exec');
+  if(btnLong) btnLong.classList.toggle('active', dir === 'LONG');
+  if(btnShort) btnShort.classList.toggle('active', dir === 'SHORT');
+  if(execBtn){
+    execBtn.className = `btn-execute-order ${dir === 'LONG' ? 'btn-exec-long' : 'btn-exec-short'}`;
+    execBtn.textContent = `BUKA POSISI ${dir} ${selectedSimLeverage}x 🚀`;
+  }
+  updateSimOrderPreview();
+}
+
+function setSimLeverage(lev){
+  selectedSimLeverage = lev;
+  document.querySelectorAll('.sim-lev-pill').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.lev) === lev);
+  });
+  const execBtn = document.getElementById('btn-sim-exec');
+  if(execBtn) execBtn.textContent = `BUKA POSISI ${selectedSimDirection} ${lev}x 🚀`;
+  updateSimOrderPreview();
+}
+
+function setSimAmountPct(pct){
+  const state = getSimState();
+  const amt = Math.floor((state.balance * pct) / 100);
+  const input = document.getElementById('sim-input-amount');
+  if(input){
+    input.value = amt;
+    updateSimOrderPreview();
+  }
+}
+
+function updateSimOrderPreview(){
+  const amtInput = document.getElementById('sim-input-amount');
+  const amt = parseFloat(amtInput?.value) || 0;
+  const pair = SIM_PAIRS[selectedSimPair];
+  if(!pair) return;
+
+  const currentPrice = pair.price;
+  const totalPositionSize = amt * selectedSimLeverage;
+
+  let estLiq = 0;
+  if(selectedSimDirection === 'LONG'){
+    estLiq = currentPrice * (1 - (0.90 / selectedSimLeverage));
+  } else {
+    estLiq = currentPrice * (1 + (0.90 / selectedSimLeverage));
+  }
+
+  const posSizeEl = document.getElementById('sim-prev-pos-size');
+  const liqEl = document.getElementById('sim-prev-liq');
+  if(posSizeEl) posSizeEl.textContent = `$${totalPositionSize.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  if(liqEl) liqEl.textContent = `$${estLiq.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+}
+
+function executeSimOrder(){
+  const amtInput = document.getElementById('sim-input-amount');
+  const tpInput = document.getElementById('sim-input-tp');
+  const slInput = document.getElementById('sim-input-sl');
+
+  const amount = parseFloat(amtInput?.value) || 0;
+  const tp = parseFloat(tpInput?.value) || null;
+  const sl = parseFloat(slInput?.value) || null;
+
+  if(amount <= 0){
+    alert('Masukkan nominal margin USDT yang valid!');
+    return;
+  }
+
+  const state = getSimState();
+  if(amount > state.balance){
+    alert('Saldo USDT virtual tidak mencukupi!');
+    return;
+  }
+
+  const pair = SIM_PAIRS[selectedSimPair];
+  state.balance -= amount;
+
+  const newPos = {
+    id: 'pos_' + Date.now(),
+    pair: selectedSimPair,
+    direction: selectedSimDirection,
+    entryPrice: pair.price,
+    amountUsdt: amount,
+    leverage: selectedSimLeverage,
+    tpPrice: tp,
+    slPrice: sl,
+    openTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+  };
+
+  if(!state.positions) state.positions = [];
+  state.positions.unshift(newPos);
+  saveSimState(state);
+
+  playOrderFilledSound();
+  triggerFloatingXp(30, `📈 Order ${selectedSimDirection} Dibuka`);
+
+  renderPaperTrading();
+}
+
+function closeSimPosition(posId){
+  const state = getSimState();
+  const posIndex = state.positions.findIndex(p => p.id === posId);
+  if(posIndex === -1) return;
+
+  const pos = state.positions[posIndex];
+  const currentPrice = SIM_PAIRS[pos.pair]?.price || pos.entryPrice;
+
+  const diffPct = (pos.direction === 'LONG')
+    ? (currentPrice - pos.entryPrice) / pos.entryPrice
+    : (pos.entryPrice - currentPrice) / pos.entryPrice;
+  
+  const roiPct = diffPct * pos.leverage;
+  const pnlUsdt = pos.amountUsdt * roiPct;
+  const returnAmount = Math.max(0, pos.amountUsdt + pnlUsdt);
+
+  state.balance += returnAmount;
+  state.positions.splice(posIndex, 1);
+
+  if(!state.tradeHistory) state.tradeHistory = [];
+  state.tradeHistory.unshift({
+    id: pos.id,
+    pair: pos.pair,
+    direction: pos.direction,
+    entryPrice: pos.entryPrice,
+    closePrice: currentPrice,
+    amountUsdt: pos.amountUsdt,
+    leverage: pos.leverage,
+    pnlUsdt: parseFloat(pnlUsdt.toFixed(2)),
+    roiPct: parseFloat((roiPct * 100).toFixed(2)),
+    reason: 'MANUAL',
+    closeTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+  });
+
+  saveSimState(state);
+
+  if(pnlUsdt > 0){
+    playProfitCashSound();
+    triggerFloatingXp(50, `💰 Profit +$${pnlUsdt.toFixed(2)}`);
+  } else {
+    playPlayerDamagedSound();
+  }
+
+  renderPaperTrading();
+}
+
+function updateSimPriceDisplay(){
+  const p = SIM_PAIRS[selectedSimPair];
+  const priceEl = document.getElementById('sim-live-price');
+  if(priceEl && p){
+    priceEl.textContent = `$${p.price.toLocaleString('en-US', { minimumFractionDigits: p.precision })}`;
+  }
+}
+
+function drawSimChart(){
+  const canvas = document.getElementById('sim-chart-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = (canvas.width = canvas.parentElement.clientWidth);
+  const h = (canvas.height = canvas.parentElement.clientHeight);
+
+  const p = SIM_PAIRS[selectedSimPair];
+  if(!p || !p.history.length) return;
+
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  for(let y = 30; y < h; y += 40){
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+
+  const candles = p.history.slice(-30);
+  let minPrice = Infinity;
+  let maxPrice = -Infinity;
+
+  candles.forEach(c => {
+    if(c.low < minPrice) minPrice = c.low;
+    if(c.high > maxPrice) maxPrice = c.high;
+  });
+
+  const range = (maxPrice - minPrice) || 1;
+  const candleW = Math.max(6, Math.floor((w - 60) / candles.length) - 4);
+
+  candles.forEach((c, idx) => {
+    const x = 20 + idx * (candleW + 4);
+    const isBull = c.close >= c.open;
+    const color = isBull ? '#26E6A6' : '#F6465D';
+
+    const yOpen = h - 25 - ((c.open - minPrice) / range) * (h - 50);
+    const yClose = h - 25 - ((c.close - minPrice) / range) * (h - 50);
+    const yHigh = h - 25 - ((c.high - minPrice) / range) * (h - 50);
+    const yLow = h - 25 - ((c.low - minPrice) / range) * (h - 50);
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x + candleW / 2, yHigh);
+    ctx.lineTo(x + candleW / 2, yLow);
+    ctx.stroke();
+
+    ctx.fillStyle = color;
+    const bodyTop = Math.min(yOpen, yClose);
+    const bodyH = Math.max(2, Math.abs(yClose - yOpen));
+    ctx.fillRect(x, bodyTop, candleW, bodyH);
+  });
+
+  const curY = h - 25 - ((p.price - minPrice) / range) * (h - 50);
+  ctx.strokeStyle = '#F0B90B';
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(0, curY);
+  ctx.lineTo(w, curY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#F0B90B';
+  ctx.font = '10px "IBM Plex Mono", monospace';
+  ctx.fillText(`$${p.price.toFixed(p.precision)}`, w - 75, curY - 4);
+}
+
+function updateSimPositionsLiveHtml(){
+  const state = getSimState();
+  const tbody = document.getElementById('sim-pos-tbody');
+  if(!tbody) return;
+
+  if(!state.positions || state.positions.length === 0){
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:16px;">Belum ada posisi aktif. Buka posisi di Order Form!</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = state.positions.map(pos => {
+    const curPrice = SIM_PAIRS[pos.pair]?.price || pos.entryPrice;
+    const diffPct = (pos.direction === 'LONG')
+      ? (curPrice - pos.entryPrice) / pos.entryPrice
+      : (pos.entryPrice - curPrice) / pos.entryPrice;
+    
+    const roiPct = diffPct * pos.leverage * 100;
+    const pnlUsdt = (pos.amountUsdt * roiPct) / 100;
+    const isProfitable = pnlUsdt >= 0;
+
+    return `
+      <tr>
+        <td><strong>${pos.pair}</strong></td>
+        <td><span class="pos-dir-${pos.direction.toLowerCase()}">${pos.direction} ${pos.leverage}x</span></td>
+        <td>$${pos.entryPrice.toLocaleString()}</td>
+        <td>$${curPrice.toLocaleString()}</td>
+        <td>$${pos.amountUsdt.toLocaleString()}</td>
+        <td class="${isProfitable ? 'pnl-pos' : 'pnl-neg'}">
+          ${isProfitable ? '+' : ''}$${pnlUsdt.toFixed(2)} (${isProfitable ? '+' : ''}${roiPct.toFixed(2)}%)
+        </td>
+        <td>
+          <button class="btn-close-pos" onclick="closeSimPosition('${pos.id}')">TUTUP ✕</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderPaperTrading(){
+  const panel = document.getElementById('main-panel');
+  panel.style.removeProperty('--accent');
+  document.body.style.removeProperty('--accent');
+
+  const state = getSimState();
+  const pair = SIM_PAIRS[selectedSimPair];
+
+  let totalMarginUsed = 0;
+  let totalUnrealizedPnl = 0;
+
+  (state.positions || []).forEach(pos => {
+    totalMarginUsed += pos.amountUsdt;
+    const curPrice = SIM_PAIRS[pos.pair]?.price || pos.entryPrice;
+    const diffPct = (pos.direction === 'LONG')
+      ? (curPrice - pos.entryPrice) / pos.entryPrice
+      : (pos.entryPrice - curPrice) / pos.entryPrice;
+    const pnl = pos.amountUsdt * diffPct * pos.leverage;
+    totalUnrealizedPnl += pnl;
+  });
+
+  const equity = state.balance + totalMarginUsed + totalUnrealizedPnl;
+  const totalTrades = (state.tradeHistory || []).length;
+  const winTrades = (state.tradeHistory || []).filter(t => t.pnlUsdt > 0).length;
+  const winRate = totalTrades > 0 ? Math.round((winTrades / totalTrades) * 100) : 0;
+
+  const pairBtnsHtml = Object.keys(SIM_PAIRS).map(pk => {
+    const p = SIM_PAIRS[pk];
+    return `<button class="sim-pair-btn ${pk === selectedSimPair ? 'active' : ''}" onclick="selectSimPair('${pk}')">${p.symbol} $${p.price.toLocaleString()}</button>`;
+  }).join('');
+
+  const historyHtml = (state.tradeHistory && state.tradeHistory.length > 0)
+    ? state.tradeHistory.slice(0, 8).map(t => `
+        <tr>
+          <td><strong>${t.pair}</strong></td>
+          <td><span class="pos-dir-${t.direction.toLowerCase()}">${t.direction} ${t.leverage}x</span></td>
+          <td>$${t.entryPrice.toLocaleString()}</td>
+          <td>$${t.closePrice.toLocaleString()}</td>
+          <td class="${t.pnlUsdt >= 0 ? 'pnl-pos' : 'pnl-neg'}">${t.pnlUsdt >= 0 ? '+' : ''}$${t.pnlUsdt.toFixed(2)} (${t.pnlUsdt >= 0 ? '+' : ''}${t.roiPct}%)</td>
+          <td><span style="font-size:10px; color:var(--text-dim);">${t.reason}</span></td>
+          <td style="color:var(--text-dim); font-size:10px;">${t.closeTime}</td>
+        </tr>
+      `).join('')
+    : `<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:14px;">Belum ada riwayat transaksi yang ditutup.</td></tr>`;
+
+  panel.innerHTML = `
+    <div class="sim-container">
+      <div class="sim-header">
+        <div>
+          <div class="sim-head-title">📈 MINI SANDBOX: PAPER TRADING SIMULATOR</div>
+          <div class="sim-head-desc">Latih strategi trading, psikologi pasar, dan money management tanpa risiko uang riil!</div>
+        </div>
+        <button class="btn-ghost mono" onclick="resetSimBalance()" style="font-size:11px;" title="Reset Akun Virtual">🔄 Reset Saldo ($10k)</button>
+      </div>
+
+      <div class="sim-stats-bar">
+        <div class="sim-stat-box">
+          <div class="sim-stat-val" style="color:var(--green);">$${state.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <div class="sim-stat-lbl">Saldo USDT Tersedia</div>
+        </div>
+        <div class="sim-stat-box">
+          <div class="sim-stat-val">$${equity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <div class="sim-stat-lbl">Total Ekuitas Akun</div>
+        </div>
+        <div class="sim-stat-box">
+          <div class="sim-stat-val ${totalUnrealizedPnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${totalUnrealizedPnl >= 0 ? '+' : ''}$${totalUnrealizedPnl.toFixed(2)}</div>
+          <div class="sim-stat-lbl">Floating PnL Posisi</div>
+        </div>
+        <div class="sim-stat-box">
+          <div class="sim-stat-val" style="color:var(--amber);">${winRate}% (${winTrades}/${totalTrades})</div>
+          <div class="sim-stat-lbl">Win Rate Historis</div>
+        </div>
+      </div>
+
+      <div class="sim-layout-grid">
+        <div class="sim-chart-panel">
+          <div class="sim-pair-tabs">
+            <div class="sim-pair-btns">${pairBtnsHtml}</div>
+            <div class="sim-live-price-box mono" id="sim-live-price">$${pair.price.toLocaleString('en-US', { minimumFractionDigits: pair.precision })}</div>
+          </div>
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-chart-canvas"></canvas>
+          </div>
+        </div>
+
+        <div class="sim-order-panel">
+          <div class="sim-dir-toggle">
+            <button class="sim-dir-btn btn-long ${selectedSimDirection === 'LONG' ? 'active' : ''}" id="btn-sim-long" onclick="setSimDirection('LONG')">🟢 BUY / LONG</button>
+            <button class="sim-dir-btn btn-short ${selectedSimDirection === 'SHORT' ? 'active' : ''}" id="btn-sim-short" onclick="setSimDirection('SHORT')">🔴 SELL / SHORT</button>
+          </div>
+
+          <div class="sim-field-group">
+            <div class="sim-field-lbl">Leverage Multiplier</div>
+            <div class="sim-leverage-pills">
+              <div class="sim-lev-pill ${selectedSimLeverage === 1 ? 'active' : ''}" data-lev="1" onclick="setSimLeverage(1)">1x Spot</div>
+              <div class="sim-lev-pill ${selectedSimLeverage === 2 ? 'active' : ''}" data-lev="2" onclick="setSimLeverage(2)">2x</div>
+              <div class="sim-lev-pill ${selectedSimLeverage === 5 ? 'active' : ''}" data-lev="5" onclick="setSimLeverage(5)">5x</div>
+              <div class="sim-lev-pill ${selectedSimLeverage === 10 ? 'active' : ''}" data-lev="10" onclick="setSimLeverage(10)">10x</div>
+              <div class="sim-lev-pill ${selectedSimLeverage === 20 ? 'active' : ''}" data-lev="20" onclick="setSimLeverage(20)">20x</div>
+            </div>
+          </div>
+
+          <div class="sim-field-group">
+            <div class="sim-field-lbl" style="display:flex; justify-content:space-between;">
+              <span>Margin Modal (USDT)</span>
+              <span style="color:var(--amber); cursor:pointer;" onclick="setSimAmountPct(100)">Maks: $${Math.floor(state.balance)}</span>
+            </div>
+            <input type="number" class="sim-input" id="sim-input-amount" value="500" min="10" max="${state.balance}" oninput="updateSimOrderPreview()">
+            <div style="display:flex; gap:4px; margin-top:4px;">
+              <button class="btn-ghost mono" style="flex:1; font-size:10px; padding:3px 0;" onclick="setSimAmountPct(25)">25%</button>
+              <button class="btn-ghost mono" style="flex:1; font-size:10px; padding:3px 0;" onclick="setSimAmountPct(50)">50%</button>
+              <button class="btn-ghost mono" style="flex:1; font-size:10px; padding:3px 0;" onclick="setSimAmountPct(75)">75%</button>
+              <button class="btn-ghost mono" style="flex:1; font-size:10px; padding:3px 0;" onclick="setSimAmountPct(100)">100%</button>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="sim-field-group">
+              <div class="sim-field-lbl" style="color:var(--green);">Take Profit ($)</div>
+              <input type="number" class="sim-input" id="sim-input-tp" placeholder="Opsional">
+            </div>
+            <div class="sim-field-group">
+              <div class="sim-field-lbl" style="color:var(--red);">Stop Loss ($)</div>
+              <input type="number" class="sim-input" id="sim-input-sl" placeholder="Opsional">
+            </div>
+          </div>
+
+          <div class="sim-preview-box">
+            <div class="sim-preview-row"><span>Ukuran Posisi:</span><strong id="sim-prev-pos-size">$2,500.00</strong></div>
+            <div class="sim-preview-row"><span>Estimasi Likuidasi:</span><strong id="sim-prev-liq" style="color:var(--red);">$52,685.00</strong></div>
+          </div>
+
+          <button class="btn-execute-order ${selectedSimDirection === 'LONG' ? 'btn-exec-long' : 'btn-exec-short'}" id="btn-sim-exec" onclick="executeSimOrder()">
+            BUKA POSISI ${selectedSimDirection} ${selectedSimLeverage}x 🚀
+          </button>
+        </div>
+      </div>
+
+      <div class="sim-table-card">
+        <div class="sim-table-title">
+          <span>⚡ Posisi Aktif (${(state.positions||[]).length})</span>
+          <span class="mono" style="font-size:10px; color:var(--text-dim);">Live PnL Tick Realtime</span>
+        </div>
+        <div class="sim-table-wrap">
+          <table class="sim-table">
+            <thead>
+              <tr>
+                <th>Pasangan</th>
+                <th>Arah / Lev</th>
+                <th>Harga Entry</th>
+                <th>Harga Terkini</th>
+                <th>Margin</th>
+                <th>Floating PnL</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="sim-pos-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sim-table-card">
+        <div class="sim-table-title">
+          <span>📜 Riwayat Transaksi Selesai</span>
+          <span class="mono" style="font-size:10px; color:var(--text-dim);">8 Transaksi Terakhir</span>
+        </div>
+        <div class="sim-table-wrap">
+          <table class="sim-table">
+            <thead>
+              <tr>
+                <th>Pasangan</th>
+                <th>Arah</th>
+                <th>Entry</th>
+                <th>Exit</th>
+                <th>Realized PnL</th>
+                <th>Keterangan</th>
+                <th>Waktu</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${historyHtml}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+
+  drawSimChart();
+  updateSimOrderPreview();
+  updateSimPositionsLiveHtml();
+}
+
 // ---- RPG Gamification Engine ----
 const RPG_RANKS = [
   { level: 1, name: 'Plankton', icon: '🦐', minXp: 0, maxXp: 150, desc: 'Pemula di samudera crypto. Mulai eksplorasi materi fondasi!' },
@@ -4367,6 +5132,72 @@ function playBossDefeatSound(){
       osc.start(now);
       osc.stop(now + 0.29);
     });
+  }catch(e){}
+}
+
+function playOrderFilledSound(){
+  if(!sfxEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    const notes = [659.25, 987.77];
+    notes.forEach((freq, i)=>{
+      const t = now + (i * 0.08);
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.16);
+    });
+  }catch(e){}
+}
+
+function playProfitCashSound(){
+  if(!sfxEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    const notes = [587.33, 739.99, 880, 1174.66];
+    notes.forEach((freq, i)=>{
+      const t = now + (i * 0.07);
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.14, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.21);
+    });
+  }catch(e){}
+}
+
+function playLiquidatedSound(){
+  if(!sfxEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(160, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.4);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.46);
   }catch(e){}
 }
 
@@ -4653,6 +5484,8 @@ async function handleSignedIn(session){
   }
   document.getElementById('admin-link').classList.toggle('hidden', !currentProfile.is_admin);
   updateDailyStreak();
+  recordDailyQuestProgress('login');
+  startSimTickEngine();
   await loadProgress();
   renderRpgUI(false);
   document.getElementById('auth-screen').classList.add('hidden');
@@ -4744,10 +5577,12 @@ function updateViewTabs(){
   const btnTree = document.getElementById('tab-btn-tree');
   const btnBoss = document.getElementById('tab-btn-boss');
   const btnQuests = document.getElementById('tab-btn-quests');
+  const btnSim = document.getElementById('tab-btn-sim');
   if(btnMods) btnMods.classList.toggle('active', currentViewMode === 'modules');
   if(btnTree) btnTree.classList.toggle('active', currentViewMode === 'tree');
   if(btnBoss) btnBoss.classList.toggle('active', currentViewMode === 'boss');
   if(btnQuests) btnQuests.classList.toggle('active', currentViewMode === 'quests');
+  if(btnSim) btnSim.classList.toggle('active', currentViewMode === 'sim');
 }
 
 function renderSidebar(){
@@ -4913,6 +5748,7 @@ function renderMain(){
   if(currentViewMode === 'tree'){ renderSkillTree(); return; }
   if(currentViewMode === 'boss'){ renderBossBattleArena(); return; }
   if(currentViewMode === 'quests'){ renderDailyQuests(); return; }
+  if(currentViewMode === 'sim'){ renderPaperTrading(); return; }
 
   const m = MODULES.find(x=>x.id===activeModule);
   const s = modStats(m);
