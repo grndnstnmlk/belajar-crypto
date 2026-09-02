@@ -1,0 +1,93 @@
+{
+  "generation": 4,
+  "fitness_score": 85.0,
+  "parameters": {
+    "min_risk_reward": 2.5,
+    "max_risk_per_trade_pct": 1.5,
+    "rsi_overbought": 70,
+    "rsi_oversold": 30,
+    "require_fvg_confluence": true,
+    "max_funding_rate_threshold": 0.02,
+    "weights": {
+      "trend_weight": 0.35,
+      "rsi_weight": 0.30,
+      "volatility_weight": 0.20,
+      "risk_aversion": 0.15
+    }
+  },
+  "regime_genomes": {
+    "TRENDING": {
+      "label": "🟢 TREND FOLLOWING ENGINE",
+      "min_risk_reward": 3.0,
+      "max_risk_per_trade_pct": 1.5,
+      "trailing_be_threshold_r": 1.0,
+      "rsi_overbought": 75,
+      "rsi_oversold": 25,
+      "strategy_focus": "EMA_CROSS_AND_TREND_PULLBACK",
+      "rationale": "Captures massive multi-candle continuation waves with wide trailing stops."
+    },
+    "RANGING": {
+      "label": "🟡 MEAN REVERSION ENGINE",
+      "min_risk_reward": 2.0,
+      "max_risk_per_trade_pct": 1.25,
+      "trailing_be_threshold_r": 0.75,
+      "rsi_overbought": 68,
+      "rsi_oversold": 32,
+      "strategy_focus": "RSI_AND_FVG_RANGE_FILL",
+      "rationale": "Scalps quick reversals from support/resistance with rapid profit locking."
+    },
+    "DEFENSIVE": {
+      "label": "⚪ CAPITAL PRESERVATION ENGINE",
+      "min_risk_reward": 2.5,
+      "max_risk_per_trade_pct": 0.75,
+      "allow_entry": false,
+      "strategy_focus": "STANDBY_SQUEEZE_PROTECTION",
+      "rationale": "Prevents capital attrition in choppy, low-liquidity volatility compression zones."
+    }
+  },
+  "benchmarks": {
+    "target_win_rate": 55.0,
+    "target_profit_factor": 2.0,
+    "max_drawdown_limit_pct": 5.0
+  },
+  "mutation_history": [
+    {
+      "generation": 1,
+      "timestamp": "2026-09-02 23:42:20",
+      "action": "INIT",
+      "hypothesis": "Initial baseline rules synthesized from Akademi Crypto Module 01-08."
+    },
+    {
+      "generation": 2,
+      "timestamp": "2026-09-02 23:42:29",
+      "action": "MUTATE_RR_FILTER (2.0 -> 2.25)",
+      "hypothesis": "Win rate (40.0%) is below target (55.0%). Raising minimum R:R from 2.0 to 2.25 to ensure positive mathematical expectancy with lower win rate.",
+      "performance_snapshot": {
+        "trades": 5,
+        "win_rate": 40.0,
+        "profit_factor": 1.75
+      }
+    },
+    {
+      "generation": 3,
+      "timestamp": "2026-09-03 02:56:12",
+      "action": "MUTATE_FUNDING_FILTER (0.025% -> 0.02%)",
+      "hypothesis": "SL rate is elevated (119/129 trades). Lowering Perp Funding Rate ceiling from 0.025% to 0.02% to filter out overleveraged late-entry long traps.",
+      "performance_snapshot": {
+        "trades": 129,
+        "win_rate": 7.75,
+        "profit_factor": 0.21
+      }
+    },
+    {
+      "generation": 4,
+      "timestamp": "2026-09-03 03:44:00",
+      "action": "DECOUPLE_MULTI_REGIME_GENOMES",
+      "hypothesis": "Decoupled global monolithic genome into 3 specialized sub-genomes: Trending (R:R 3.0), Ranging (R:R 2.0 fast capture), and Defensive (capital preservation). Enables adaptive parameter switching based on real-time ADX/ATR conditions.",
+      "performance_snapshot": {
+        "active_sub_genomes": 3,
+        "fitness_score": 85.0
+      }
+    }
+  ]
+}
