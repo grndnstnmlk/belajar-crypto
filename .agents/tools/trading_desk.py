@@ -182,16 +182,30 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             print(f"   [Peringatan] Volatilitas squeeze terdeteksi. Menghindari entry prematur.")
             continue
 
+        # Select Specialized Sub-Genome
+        reg_genomes = genome.get("regime_genomes", {})
+        if "TRENDING" in reg_name:
+            sub_gen = reg_genomes.get("TRENDING", {})
+        elif "RANGING" in reg_name or "DEVELOPING" in reg_name or "MIXED" in reg_name:
+            sub_gen = reg_genomes.get("RANGING", {})
+        else:
+            sub_gen = reg_genomes.get("DEFENSIVE", {})
+
+        effective_min_rr = sub_gen.get("min_risk_reward", min_rr)
+        effective_max_risk = sub_gen.get("max_risk_per_trade_pct", max_risk_pct)
+        sub_label = sub_gen.get("label", "STANDARD ENGINE")
+        print(f"   🧬 Sub-Genome Aktif: {sub_label} | Min R:R: 1:{effective_min_rr:.2f}")
+
         # Confluence Rules
         # Rule A: Bullish Setup
         has_bullish_fvg = "Bullish FVG" in fvg
         is_bullish_trend = ema20 and ema50 and price > ema20
-        rsi_safe_long = rsi < params.get("rsi_overbought", 70) and rsi > 35
+        rsi_safe_long = rsi < sub_gen.get("rsi_overbought", 70) and rsi > sub_gen.get("rsi_oversold", 30)
 
         # Rule B: Bearish Setup
         has_bearish_fvg = "Bearish FVG" in fvg
         is_bearish_trend = ema20 and ema50 and price < ema20
-        rsi_safe_short = rsi > params.get("rsi_oversold", 30) and rsi < 65
+        rsi_safe_short = rsi > sub_gen.get("rsi_oversold", 30) and rsi < sub_gen.get("rsi_overbought", 70)
 
         signal = None
         if has_bullish_fvg and rsi_safe_long:
@@ -200,7 +214,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             sl = round(low_24h * 0.998, 4)
             dist_sl = price - sl
             if dist_sl > 0:
-                tp = round(price + (dist_sl * min_rr), 4)
+                tp = round(price + (dist_sl * effective_min_rr), 4)
                 rr = (tp - price) / dist_sl
                 signal = {
                     "symbol": pair_sym,
@@ -210,7 +224,9 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     "sl": sl,
                     "tp": tp,
                     "rr": rr,
-                    "reason": f"Bullish FVG + RSI {rsi:.1f} + R:R 1:{rr:.2f}"
+                    "sub_genome": sub_label,
+                    "risk_pct": effective_max_risk,
+                    "reason": f"Bullish FVG + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
                 }
 
         elif has_bearish_fvg and rsi_safe_short:
@@ -219,7 +235,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             sl = round(high_24h * 1.002, 4)
             dist_sl = sl - price
             if dist_sl > 0:
-                tp = round(price - (dist_sl * min_rr), 4)
+                tp = round(price - (dist_sl * effective_min_rr), 4)
                 rr = (price - tp) / dist_sl
                 signal = {
                     "symbol": pair_sym,
@@ -229,10 +245,12 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     "sl": sl,
                     "tp": tp,
                     "rr": rr,
-                    "reason": f"Bearish FVG + RSI {rsi:.1f} + R:R 1:{rr:.2f}"
+                    "sub_genome": sub_label,
+                    "risk_pct": effective_max_risk,
+                    "reason": f"Bearish FVG + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
                 }
 
-        if signal and signal["rr"] >= min_rr:
+        if signal and signal["rr"] >= effective_min_rr:
             candidates.append(signal)
 
     # 3. Decision & Execution Desk
