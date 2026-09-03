@@ -5595,52 +5595,190 @@ function getAiBotStorageKey(){
   return 'ac_ai_bot_state_' + (currentUser ? currentUser.id : 'guest');
 }
 
-function getAiBotState(){
-  try{
-    const raw = localStorage.getItem(getAiBotStorageKey());
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return {
-    isActive: false,
-    generation: 1,
-    fitnessScore: 78.5,
-    totalTrades: 0,
-    winTrades: 0,
-    totalAiPnl: 0.00,
-    genes: {
-      trendWeight: 0.35,
-      rsiWeight: 0.30,
-      volatilityWeight: 0.20,
-      riskAversion: 0.15
-    },
-    confidenceThreshold: 60,
-    logs: [
-      `[INIT] 🤖 AI Quant Bot Engine ORACLE-V1 diinisialisasi.`,
-      `[KNOWLEDGE] Basis pengetahuan 8 modul kurikulum Akademi Crypto terhubung.`,
-      `[GENOME] Bobot Genetik: Trend(35%) | RSI(30%) | Vol(20%) | Risk(15%).`
-    ]
-  };
+function getActiveUserEmail(){
+  return (currentUser && currentUser.email) ? currentUser.email : 'guest';
 }
 
-function saveAiBotState(state){
+function getActiveUserName(){
+  if(currentProfile && currentProfile.full_name) return currentProfile.full_name;
+  if(currentUser && currentUser.email) return currentUser.email.split('@')[0];
+  return 'Tamu';
+}
+
+function getDefaultBotStateForUser(email, name){
+  const isDxmade = (email === 'dxmade@gmail.com');
+  if(isDxmade){
+    return {
+      activeAccountId: 'acc_dxmade',
+      accounts: {
+        'acc_dxmade': {
+          id: 'acc_dxmade',
+          email: 'dxmade@gmail.com',
+          name: name || 'dxmade@gmail.com',
+          exchange: 'binance_demo',
+          exchangeLabel: 'Binance Futures Demo',
+          exchangeStatus: 'API Ready',
+          tokocryptoStatus: 'Spot API Ready',
+          marketRegime: '1H BEARISH / 4H CHOPPY',
+          balance: 4998.09,
+          initialBalance: 5000.00,
+          isActive: false,
+          generation: 4,
+          fitnessScore: 92.4,
+          totalTrades: 18,
+          winTrades: 13,
+          totalAiPnl: 148.50,
+          strategyProfile: 'GEN-4 ADAPTIVE (SMC Order Flow)',
+          riskPct: 1.5,
+          minRr: 2.5,
+          leverage: 5,
+          genes: {
+            trendWeight: 0.35,
+            rsiWeight: 0.30,
+            volatilityWeight: 0.20,
+            riskAversion: 0.15
+          },
+          confidenceThreshold: 60,
+          positions: [
+            { id: 'pos_sui', pair: 'SUI/USDT', symbol: 'SUIUSDT', direction: 'LONG', amountUsdt: 2173, leverage: 5, entryPrice: 0.7287, tpPrice: 0.7840, slPrice: 0.7024, breakevenActive: true, isAiBot: true, openTime: '14:20' },
+            { id: 'pos_xrp', pair: 'XRP/USDT', symbol: 'XRPUSDT', direction: 'LONG', amountUsdt: 2493, leverage: 5, entryPrice: 1.3465, tpPrice: 1.4402, slPrice: 1.3090, breakevenActive: false, isAiBot: true, openTime: '14:25' },
+            { id: 'pos_sol', pair: 'SOL/USDT', symbol: 'SOLUSDT', direction: 'LONG', amountUsdt: 99, leverage: 5, entryPrice: 99.48, tpPrice: 104.50, slPrice: 97.20, breakevenActive: false, isAiBot: true, openTime: '14:30' }
+          ],
+          logs: [
+            `[INIT] 🤖 AI Quant Bot Engine ORACLE-V1 terhubung ke akun dxmade@gmail.com.`,
+            `[EXCHANGE] Binance Futures Demo (USD-M Testnet) aktif. Saldo: $4,998.09 USDT.`,
+            `[KNOWLEDGE] Basis pengetahuan 8 modul kurikulum Akademi Crypto terhubung.`,
+            `[GENOME] Bobot Genetik: Trend(35%) | RSI(30%) | Vol(20%) | Risk(15%).`
+          ]
+        }
+      }
+    };
+  } else {
+    const accId = 'acc_' + (email ? email.replace(/[^a-zA-Z0-9]/g, '_') : 'guest');
+    const accObj = {};
+    const displayName = name || (email ? email.split('@')[0] : 'Member');
+    accObj[accId] = {
+      id: accId,
+      email: email || 'guest@akademikripto.com',
+      name: displayName,
+      exchange: 'paper',
+      exchangeLabel: 'AI Paper Desk (Bebas Risiko)',
+      exchangeStatus: 'Simulasi Terhubung',
+      tokocryptoStatus: 'Belum Terhubung',
+      marketRegime: '1H BEARISH / 4H CHOPPY',
+      balance: 5000.00,
+      initialBalance: 5000.00,
+      isActive: false,
+      generation: 1,
+      fitnessScore: 78.5,
+      totalTrades: 0,
+      winTrades: 0,
+      totalAiPnl: 0.00,
+      strategyProfile: 'GEN-1 SMC PROTOTYPE',
+      riskPct: 1.5,
+      minRr: 2.0,
+      leverage: 5,
+      genes: {
+        trendWeight: 0.35,
+        rsiWeight: 0.30,
+        volatilityWeight: 0.20,
+        riskAversion: 0.15
+      },
+      confidenceThreshold: 60,
+      positions: [],
+      logs: [
+        `[INIT] 🤖 AI Quant Bot Engine ORACLE-V1 diinisialisasi untuk akun ${email}.`,
+        `[PORTFOLIO] Saldo awal virtual $5,000.00 USDT siap untuk simulasi otomatis.`,
+        `[KNOWLEDGE] Basis pengetahuan 8 modul kurikulum Akademi Crypto terhubung.`,
+        `[STANDBY] Bot dalam mode standby. Klik 'Aktifkan Bot' atau 'Test Sinyal AI' untuk mulai.`
+      ]
+    };
+    return {
+      activeAccountId: accId,
+      accounts: accObj
+    };
+  }
+}
+
+function getAiBotMultiAccountState(){
+  const email = getActiveUserEmail();
+  const name = getActiveUserName();
   try{
-    localStorage.setItem(getAiBotStorageKey(), JSON.stringify(state));
+    const raw = localStorage.getItem(getAiBotStorageKey());
+    if(raw){
+      const parsed = JSON.parse(raw);
+      // Migration from old single-bot format
+      if(!parsed.accounts){
+        const def = getDefaultBotStateForUser(email, name);
+        if(email === 'dxmade@gmail.com'){
+          def.accounts['acc_dxmade'] = { ...def.accounts['acc_dxmade'], ...parsed };
+        }
+        localStorage.setItem(getAiBotStorageKey(), JSON.stringify(def));
+        return def;
+      }
+      
+      // Strict separation: If current user is NOT dxmade, ensure dxmade's data or hardcoded positions are NEVER leaked
+      if(email !== 'dxmade@gmail.com'){
+        const activeAcc = parsed.accounts[parsed.activeAccountId];
+        if(!activeAcc || activeAcc.email === 'dxmade@gmail.com' || (activeAcc.positions && activeAcc.positions.some(p => p.id === 'pos_sui' && activeAcc.email !== 'dxmade@gmail.com'))){
+          const def = getDefaultBotStateForUser(email, name);
+          localStorage.setItem(getAiBotStorageKey(), JSON.stringify(def));
+          return def;
+        }
+      }
+      return parsed;
+    }
+  }catch(e){}
+
+  const defState = getDefaultBotStateForUser(email, name);
+  localStorage.setItem(getAiBotStorageKey(), JSON.stringify(defState));
+  return defState;
+}
+
+function saveAiBotMultiAccountState(multiState){
+  try{
+    localStorage.setItem(getAiBotStorageKey(), JSON.stringify(multiState));
   }catch(e){}
   syncGamificationToSupabase();
 }
 
+function getAiBotState(){
+  const multi = getAiBotMultiAccountState();
+  let acc = multi.accounts[multi.activeAccountId];
+  if(!acc){
+    const keys = Object.keys(multi.accounts);
+    if(keys.length > 0){
+      multi.activeAccountId = keys[0];
+      acc = multi.accounts[keys[0]];
+    } else {
+      const def = getDefaultBotStateForUser(getActiveUserEmail(), getActiveUserName());
+      multi.accounts = def.accounts;
+      multi.activeAccountId = def.activeAccountId;
+      acc = multi.accounts[multi.activeAccountId];
+    }
+  }
+  return acc;
+}
+
+function saveAiBotState(activeAccState){
+  const multi = getAiBotMultiAccountState();
+  if(!multi.accounts) multi.accounts = {};
+  multi.accounts[activeAccState.id || multi.activeAccountId] = activeAccState;
+  saveAiBotMultiAccountState(multi);
+}
+
 function toggleAiBotMasterSwitch(){
-  const state = getAiBotState();
-  state.isActive = !state.isActive;
+  const bot = getAiBotState();
+  bot.isActive = !bot.isActive;
   const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  if(state.isActive){
-    state.logs.unshift(`[${time}] [ENGINE] 🟢 AI Bot DIAKTIFKAN. Memantau pasar secara mandiri...`);
+  if(bot.isActive){
+    bot.logs.unshift(`[${time}] [ENGINE] 🟢 AI Bot DIAKTIFKAN untuk akun ${bot.email}. Memantau pasar...`);
     playOrderFilledSound();
   } else {
-    state.logs.unshift(`[${time}] [ENGINE] ⏸️ AI Bot DI-PAUSE oleh pengguna.`);
+    bot.logs.unshift(`[${time}] [ENGINE] ⏸️ AI Bot DI-PAUSE oleh pengguna.`);
   }
-  if(state.logs.length > 30) state.logs = state.logs.slice(0, 30);
-  saveAiBotState(state);
+  if(bot.logs.length > 30) bot.logs = bot.logs.slice(0, 30);
+  saveAiBotState(bot);
   renderAiBotTerminal();
 }
 
@@ -5691,36 +5829,42 @@ function evaluateMarketSignals(pairKey){
   let shortScore = 0;
   let reasons = [];
 
+  const trendW = bot.genes?.trendWeight || 0.35;
+  const rsiW = bot.genes?.rsiWeight || 0.30;
+  const volW = bot.genes?.volatilityWeight || 0.20;
+
   // 1. Trend Evaluation (EMA 9 vs EMA 21)
   if(ind.ema9 > ind.ema21){
-    longScore += bot.genes.trendWeight * 100;
+    longScore += trendW * 100;
     reasons.push(`Trend CRES: EMA9 (${ind.ema9.toFixed(1)}) > EMA21 (${ind.ema21.toFixed(1)}) Bullish`);
   } else {
-    shortScore += bot.genes.trendWeight * 100;
+    shortScore += trendW * 100;
     reasons.push(`Trend CRES: EMA9 (${ind.ema9.toFixed(1)}) < EMA21 (${ind.ema21.toFixed(1)}) Bearish`);
   }
 
   // 2. RSI Evaluation
   if(ind.rsi < 40){
-    longScore += bot.genes.rsiWeight * 100;
+    longScore += rsiW * 100;
     reasons.push(`RSI ALTEXP: ${ind.rsi} (Area Diskon/Oversold)`);
   } else if(ind.rsi > 60){
-    shortScore += bot.genes.rsiWeight * 100;
+    shortScore += rsiW * 100;
     reasons.push(`RSI ALTEXP: ${ind.rsi} (Area Overbought/Jenuh Beli)`);
   }
 
   // 3. Volatility Confirmation
   if(ind.volatility > 0.004){
-    longScore += bot.genes.volatilityWeight * 50;
-    shortScore += bot.genes.volatilityWeight * 50;
+    longScore += volW * 50;
+    shortScore += volW * 50;
   }
 
   const direction = (longScore > shortScore) ? 'LONG' : 'SHORT';
   const confidence = Math.round(Math.max(longScore, shortScore));
 
-  // Risk:Reward & TP/SL Calculation based on Module FINTRD
-  const tpPct = 0.035; // 3.5% target
-  const slPct = 0.015; // 1.5% stop loss (Risk:Reward ~ 1:2.33)
+  const minRr = bot.minRr || 2.0;
+  const slPct = (bot.riskPct || 1.5) / 100;
+  const tpPct = slPct * minRr;
+  const prec = SIM_PAIRS[pairKey]?.precision || 2;
+
   const tpPrice = (direction === 'LONG')
     ? ind.price * (1 + tpPct)
     : ind.price * (1 - tpPct);
@@ -5733,10 +5877,10 @@ function evaluateMarketSignals(pairKey){
     direction,
     confidence,
     price: ind.price,
-    tpPrice: parseFloat(tpPrice.toFixed(SIM_PAIRS[pairKey].precision)),
-    slPrice: parseFloat(slPrice.toFixed(SIM_PAIRS[pairKey].precision)),
-    riskReward: parseFloat((tpPct / slPct).toFixed(2)),
-    leverage: 5,
+    tpPrice: parseFloat(tpPrice.toFixed(prec)),
+    slPrice: parseFloat(slPrice.toFixed(prec)),
+    riskReward: parseFloat(minRr.toFixed(2)),
+    leverage: bot.leverage || 5,
     reasons,
     indicators: ind
   };
@@ -5745,56 +5889,110 @@ function evaluateMarketSignals(pairKey){
 let lastAiBotExecutionTime = 0;
 
 function executeAiBotTick(){
-  const botState = getAiBotState();
-  if(!botState.isActive) return;
+  const bot = getAiBotState();
+  if(!bot) return;
+
+  // 1. Live position tracking & SL/TP trigger check for THIS bot
+  if(bot.positions && bot.positions.length > 0){
+    let changed = false;
+    const remaining = [];
+    bot.positions.forEach(pos => {
+      const pairInfo = SIM_PAIRS[pos.pair] || SIM_PAIRS[pos.symbol] || Object.values(SIM_PAIRS).find(p => p.pair === pos.pair || p.ticker === pos.pair);
+      const currentPrice = pairInfo ? pairInfo.price : pos.entryPrice;
+      const diffPct = (pos.direction === 'LONG')
+        ? (currentPrice - pos.entryPrice) / pos.entryPrice
+        : (pos.entryPrice - currentPrice) / pos.entryPrice;
+      const roiPct = diffPct * (pos.leverage || 5);
+      const pnlUsdt = pos.amountUsdt * roiPct;
+
+      // Breakeven protection after +1.5% ROI
+      if(roiPct > 0.015 && !pos.breakevenActive){
+        pos.breakevenActive = true;
+        pos.slPrice = pos.entryPrice;
+        changed = true;
+      }
+
+      let isClosed = false;
+      let reason = '';
+
+      if(pos.tpPrice && ((pos.direction === 'LONG' && currentPrice >= pos.tpPrice) || (pos.direction === 'SHORT' && currentPrice <= pos.tpPrice))){
+        isClosed = true;
+        reason = '🎯 TAKE PROFIT';
+        bot.balance = parseFloat((bot.balance + pos.amountUsdt + pnlUsdt).toFixed(2));
+        playProfitCashSound();
+        triggerFloatingXp(50, `🎯 TP Hit ${pos.symbol || pos.pair} (+$${pnlUsdt.toFixed(2)})`);
+      } else if(pos.slPrice && ((pos.direction === 'LONG' && currentPrice <= pos.slPrice) || (pos.direction === 'SHORT' && currentPrice >= pos.slPrice))){
+        isClosed = true;
+        reason = '🛑 STOP LOSS';
+        bot.balance = parseFloat((bot.balance + pos.amountUsdt + pnlUsdt).toFixed(2));
+        playPlayerDamagedSound();
+      }
+
+      if(isClosed){
+        changed = true;
+        const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        bot.logs.unshift(`[${time}] [TRIGGER] ${reason} pada ${pos.symbol || pos.pair} (PnL: ${pnlUsdt >= 0 ? '+' : ''}$${pnlUsdt.toFixed(2)}).`);
+        trainAiBotOnTradeOutcome({ pnlUsdt, isAiBot: true });
+      } else {
+        remaining.push(pos);
+      }
+    });
+
+    if(changed){
+      bot.positions = remaining;
+      if(bot.logs.length > 30) bot.logs = bot.logs.slice(0, 30);
+      saveAiBotState(bot);
+      if(currentViewMode === 'bot') renderAiBotTerminal();
+    }
+  }
+
+  // 2. Automated trade opening if bot active
+  if(!bot.isActive) return;
 
   const now = Date.now();
   if(now - lastAiBotExecutionTime < 4500) return; // Evaluate every 4.5s
   lastAiBotExecutionTime = now;
 
-  const simState = getSimState();
-  if(simState.positions && simState.positions.length >= 3) return; // Max 3 concurrent positions
+  if(bot.positions && bot.positions.length >= 3) return; // Max 3 concurrent positions
 
-  // Evaluate all pairs
   const pairKeys = Object.keys(SIM_PAIRS);
   for(const pk of pairKeys){
-    // Skip if position already open on this pair
-    if(simState.positions && simState.positions.some(p => p.pair === pk)) continue;
+    if(bot.positions && bot.positions.some(p => p.pair === pk || p.symbol === pk.replace('/', ''))) continue;
 
     const signal = evaluateMarketSignals(pk);
-    if(signal && signal.confidence >= botState.confidenceThreshold){
-      // Check capital management (max 10% balance per order, min $200)
-      const maxMargin = Math.max(200, Math.min(1000, simState.balance * 0.1));
-      if(simState.balance < maxMargin) continue;
+    if(signal && signal.confidence >= (bot.confidenceThreshold || 60)){
+      const maxMargin = Math.max(100, Math.min(1000, bot.balance * 0.1));
+      if(bot.balance < maxMargin) continue;
 
-      // Execute Virtual Order
-      simState.balance -= maxMargin;
+      bot.balance = parseFloat((bot.balance - maxMargin).toFixed(2));
       const newPos = {
         id: 'bot_pos_' + Date.now(),
         pair: pk,
+        symbol: pk.replace('/', ''),
         direction: signal.direction,
         entryPrice: signal.price,
         amountUsdt: maxMargin,
-        leverage: signal.leverage,
+        leverage: bot.leverage || 5,
         tpPrice: signal.tpPrice,
         slPrice: signal.slPrice,
         openTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-        isAiBot: true
+        isAiBot: true,
+        breakevenActive: false
       };
 
-      if(!simState.positions) simState.positions = [];
-      simState.positions.unshift(newPos);
-      saveSimState(simState);
+      if(!bot.positions) bot.positions = [];
+      bot.positions.unshift(newPos);
 
       const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      botState.logs.unshift(
-        `[${time}] [ORDER AUTO] 🚀 Buka ${signal.direction} ${pk} (Lev ${signal.leverage}x, Margin $${maxMargin.toFixed(0)}). Keyakinan: ${signal.confidence}%. R:R = 1:${signal.riskReward}. Pemicu: ${signal.reasons.join(' | ')}.`
+      bot.logs.unshift(
+        `[${time}] [ORDER AUTO] 🚀 Buka ${signal.direction} ${pk} (Lev ${bot.leverage || 5}x, Margin $${maxMargin.toFixed(0)}). Keyakinan: ${signal.confidence}%. R:R = 1:${signal.riskReward}.`
       );
-      if(botState.logs.length > 30) botState.logs = botState.logs.slice(0, 30);
-      saveAiBotState(botState);
+      if(bot.logs.length > 30) bot.logs = bot.logs.slice(0, 30);
+      saveAiBotState(bot);
 
       playOrderFilledSound();
       triggerFloatingXp(35, `🤖 AI Bot: Order ${signal.direction} ${pk}`);
+      if(currentViewMode === 'bot') renderAiBotTerminal();
       break;
     }
   }
@@ -5811,16 +6009,20 @@ function trainAiBotOnTradeOutcome(trade){
 
   const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
+  if(!bot.genes){
+    bot.genes = { trendWeight: 0.35, rsiWeight: 0.30, volatilityWeight: 0.20, riskAversion: 0.15 };
+  }
+
   // Genetic / Reinforcement Weight Adaptation
   if(isWin){
     bot.genes.trendWeight = Math.min(0.55, bot.genes.trendWeight + 0.02);
     bot.genes.rsiWeight = Math.min(0.50, bot.genes.rsiWeight + 0.015);
-    bot.fitnessScore = Math.min(99.0, parseFloat((bot.fitnessScore + 1.2).toFixed(1)));
+    bot.fitnessScore = Math.min(99.0, parseFloat(((bot.fitnessScore || 78.5) + 1.2).toFixed(1)));
     bot.logs.unshift(`[${time}] [LEARNING] 🧬 Win terverifikasi (+${trade.pnlUsdt}$). Memperkuat bobot Trend & RSI. Fitness: ${bot.fitnessScore}%.`);
   } else {
     bot.genes.riskAversion = Math.min(0.40, bot.genes.riskAversion + 0.03);
-    bot.confidenceThreshold = Math.min(80, bot.confidenceThreshold + 2);
-    bot.fitnessScore = Math.max(50.0, parseFloat((bot.fitnessScore - 1.5).toFixed(1)));
+    bot.confidenceThreshold = Math.min(80, (bot.confidenceThreshold || 60) + 2);
+    bot.fitnessScore = Math.max(50.0, parseFloat(((bot.fitnessScore || 78.5) - 1.5).toFixed(1)));
     bot.logs.unshift(`[${time}] [LEARNING] 🛡️ Drawdown (${trade.pnlUsdt}$). Menambah faktor proteksi risiko & ambang keyakinan.`);
   }
 
@@ -5864,7 +6066,7 @@ function runAiBotBacktest(candlesCount = 100){
     bot.winTrades = (bot.winTrades || 0) + simWins;
     bot.totalAiPnl = parseFloat(((bot.totalAiPnl || 0) + simPnl).toFixed(2));
     bot.generation = (bot.generation || 1) + 2;
-    bot.fitnessScore = Math.min(96.5, parseFloat((bot.fitnessScore + 3.5).toFixed(1)));
+    bot.fitnessScore = Math.min(96.5, parseFloat(((bot.fitnessScore || 78.5) + 3.5).toFixed(1)));
 
     const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     bot.logs.unshift(`[${time}] [BACKTEST COMPLETED] ⚡ 20 Skenario diuji (${simWins} Win / ${simLosses} Loss, Net PnL: +$${simPnl.toFixed(2)}). Generasi: GEN-${bot.generation}.`);
@@ -5880,23 +6082,22 @@ function runAiBotBacktest(candlesCount = 100){
 
 function resetAiBotWeights(){
   if(!confirm('Reset bobot genetik dan riwayat bot AI kembali ke setelan pabrik?')) return;
-  const defaultState = {
-    isActive: false,
-    generation: 1,
-    fitnessScore: 78.5,
-    totalTrades: 0,
-    winTrades: 0,
-    totalAiPnl: 0.00,
-    genes: {
-      trendWeight: 0.35,
-      rsiWeight: 0.30,
-      volatilityWeight: 0.20,
-      riskAversion: 0.15
-    },
-    confidenceThreshold: 60,
-    logs: [`[RESET] 🔄 Bobot genetik AI Quant Bot direset ke Generasi 1.`]
+  const bot = getAiBotState();
+  bot.generation = 1;
+  bot.fitnessScore = 78.5;
+  bot.totalTrades = 0;
+  bot.winTrades = 0;
+  bot.totalAiPnl = 0.00;
+  bot.genes = {
+    trendWeight: 0.35,
+    rsiWeight: 0.30,
+    volatilityWeight: 0.20,
+    riskAversion: 0.15
   };
-  saveAiBotState(defaultState);
+  bot.confidenceThreshold = 60;
+  bot.logs.unshift(`[RESET] 🔄 Bobot genetik AI Quant Bot untuk akun ${bot.email} direset ke Generasi 1.`);
+  if(bot.logs.length > 30) bot.logs = bot.logs.slice(0, 30);
+  saveAiBotState(bot);
   renderAiBotTerminal();
 }
 
@@ -5913,6 +6114,438 @@ function updateAiBotLiveHtml(){
       return `<div class="${cls}">${escapeHtml(l)}</div>`;
     }).join('');
   }
+
+  // Update live mark prices and PnL in the active positions cards
+  if(bot.positions && bot.positions.length > 0){
+    bot.positions.forEach(pos => {
+      const pnlEl = document.getElementById('pos-pnl-' + pos.id);
+      const markEl = document.getElementById('pos-mark-' + pos.id);
+      if(pnlEl || markEl){
+        const pairInfo = SIM_PAIRS[pos.pair] || SIM_PAIRS[pos.symbol] || Object.values(SIM_PAIRS).find(p => p.pair === pos.pair || p.ticker === pos.pair) || { price: pos.entryPrice, precision: 2 };
+        const currentPrice = pairInfo.price;
+        const diffPct = (pos.direction === 'LONG')
+          ? (currentPrice - pos.entryPrice) / pos.entryPrice
+          : (pos.entryPrice - currentPrice) / pos.entryPrice;
+        const roiPct = (diffPct * (pos.leverage || 5)) * 100;
+        const pnlUsdt = pos.amountUsdt * (roiPct / 100);
+        const isProfit = pnlUsdt >= 0;
+
+        if(markEl) markEl.textContent = 'Mark: $' + currentPrice.toFixed(4);
+        if(pnlEl){
+          pnlEl.style.color = isProfit ? 'var(--green)' : 'var(--red)';
+          pnlEl.textContent = `PnL: ${isProfit ? '+' : ''}$${pnlUsdt.toFixed(2)} (${isProfit ? '+' : ''}${roiPct.toFixed(2)}%)`;
+        }
+      }
+    });
+  }
+}
+
+function closeBotPosition(posId){
+  const bot = getAiBotState();
+  if(!bot.positions) return;
+  const idx = bot.positions.findIndex(p => p.id === posId);
+  if(idx === -1) return;
+
+  const pos = bot.positions[idx];
+  const pairInfo = SIM_PAIRS[pos.pair] || SIM_PAIRS[pos.symbol] || Object.values(SIM_PAIRS).find(p => p.pair === pos.pair || p.ticker === pos.pair) || { price: pos.entryPrice, precision: 2 };
+  const currentPrice = pairInfo.price;
+  const diffPct = (pos.direction === 'LONG')
+    ? (currentPrice - pos.entryPrice) / pos.entryPrice
+    : (pos.entryPrice - currentPrice) / pos.entryPrice;
+  const pnlUsdt = pos.amountUsdt * diffPct * (pos.leverage || 5);
+
+  bot.balance = Math.max(0, parseFloat((bot.balance + pos.amountUsdt + pnlUsdt).toFixed(2)));
+  bot.positions.splice(idx, 1);
+  bot.totalTrades = (bot.totalTrades || 0) + 1;
+  bot.totalAiPnl = parseFloat(((bot.totalAiPnl || 0) + pnlUsdt).toFixed(2));
+  if(pnlUsdt > 0) bot.winTrades = (bot.winTrades || 0) + 1;
+
+  const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  bot.logs.unshift(`[${time}] [MANUAL CLOSE] Posisi ${pos.symbol || pos.pair} ditutup pada harga $${currentPrice.toFixed(4)}. PnL: ${pnlUsdt >= 0 ? '+' : ''}$${pnlUsdt.toFixed(2)}.`);
+  if(bot.logs.length > 30) bot.logs = bot.logs.slice(0, 30);
+
+  saveAiBotState(bot);
+  playOrderFilledSound();
+  renderAiBotTerminal();
+}
+
+function triggerManualAiBotSignal(){
+  const bot = getAiBotState();
+  const pairKeys = Object.keys(SIM_PAIRS);
+  const availablePairs = pairKeys.filter(pk => !bot.positions || !bot.positions.some(p => p.pair === pk || p.symbol === pk.replace('/', '')));
+  const targetPair = (availablePairs.length > 0)
+    ? availablePairs[Math.floor(Math.random() * availablePairs.length)]
+    : pairKeys[0];
+  const signal = evaluateMarketSignals(targetPair);
+  if(!signal) return;
+
+  const maxMargin = Math.max(100, Math.min(1000, bot.balance * 0.1));
+  if(bot.balance < maxMargin){
+    alert('Saldo akun tidak mencukupi untuk membuka posisi baru ($' + maxMargin.toFixed(0) + ' USDT dibutuhkan).');
+    return;
+  }
+
+  bot.balance = parseFloat((bot.balance - maxMargin).toFixed(2));
+  const newPos = {
+    id: 'bot_pos_' + Date.now(),
+    pair: targetPair,
+    symbol: targetPair.replace('/', ''),
+    direction: signal.direction,
+    entryPrice: signal.price,
+    amountUsdt: maxMargin,
+    leverage: bot.leverage || 5,
+    tpPrice: signal.tpPrice,
+    slPrice: signal.slPrice,
+    openTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+    isAiBot: true,
+    breakevenActive: false
+  };
+
+  if(!bot.positions) bot.positions = [];
+  bot.positions.unshift(newPos);
+  const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  bot.logs.unshift(`[${time}] [ORDER AUTO] 🚀 Buka ${signal.direction} ${targetPair} (Lev ${bot.leverage || 5}x, Margin $${maxMargin.toFixed(0)}). Keyakinan: ${signal.confidence}%. R:R = 1:${signal.riskReward}.`);
+  if(bot.logs.length > 30) bot.logs = bot.logs.slice(0, 30);
+
+  saveAiBotState(bot);
+  playOrderFilledSound();
+  triggerFloatingXp(40, `🤖 AI Bot: Order ${signal.direction} ${targetPair}`);
+  renderAiBotTerminal();
+}
+
+function openBotAccountSettingsModal(){
+  const bot = getAiBotState();
+  let overlay = document.getElementById('bot-account-modal-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bot-account-modal-overlay';
+    overlay.className = 'rpg-modal-overlay';
+    overlay.onclick = (e) => { if(e.target === overlay) closeBotAccountSettingsModal(); };
+    document.body.appendChild(overlay);
+  }
+  
+  overlay.innerHTML = `
+    <div class="rpg-modal-card" style="max-width:480px;">
+      <div class="rpg-modal-tag">PENGATURAN AKUN BOT</div>
+      <button class="rpg-modal-close" onclick="closeBotAccountSettingsModal()">✕</button>
+      <div style="font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; margin-bottom:4px; color:var(--cyan);">
+        ⚙️ PENGATURAN BOT &amp; BURSA
+      </div>
+      <div style="font-size:12px; color:var(--text-dim); margin-bottom:16px;">
+        Konfigurasi khusus untuk akun: <strong style="color:var(--text);">${escapeHtml(bot.email)}</strong>
+      </div>
+      
+      <form onsubmit="saveBotAccountSettings(event)">
+        <div class="field">
+          <label>Nama Profil Akun</label>
+          <input type="text" id="bot-setting-name" value="${escapeHtml(bot.name)}" required />
+        </div>
+        
+        <div class="field">
+          <label>Mode Bursa / Eksekusi</label>
+          <select id="bot-setting-exchange" onchange="handleBotExchangeChange(this.value)">
+            <option value="paper" ${bot.exchange === 'paper' ? 'selected' : ''}>AI Paper Desk (Simulasi Virtual Bebas Risiko)</option>
+            <option value="binance_demo" ${bot.exchange === 'binance_demo' ? 'selected' : ''}>Binance Futures Demo (Testnet)</option>
+            <option value="binance_live" ${bot.exchange === 'binance_live' ? 'selected' : ''}>Binance USD-M Futures (Live Real)</option>
+            <option value="tokocrypto" ${bot.exchange === 'tokocrypto' ? 'selected' : ''}>Tokocrypto Spot Indonesia</option>
+          </select>
+        </div>
+
+        <div id="bot-api-fields" style="${bot.exchange === 'paper' ? 'display:none;' : ''}">
+          <div class="field">
+            <label>API Key</label>
+            <input type="password" id="bot-setting-apikey" value="${escapeHtml(bot.apiKey || '')}" placeholder="Masukkan API Key" />
+          </div>
+          <div class="field">
+            <label>API Secret</label>
+            <input type="password" id="bot-setting-apisecret" value="${escapeHtml(bot.apiSecret || '')}" placeholder="Masukkan API Secret" />
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="field">
+            <label>Saldo / Modal (USDT)</label>
+            <input type="number" id="bot-setting-balance" step="10" min="50" value="${(bot.balance || 5000).toFixed(0)}" required />
+          </div>
+          <div class="field">
+            <label>Default Leverage</label>
+            <select id="bot-setting-leverage">
+              <option value="1" ${bot.leverage === 1 ? 'selected' : ''}>1x (Spot / Tanpa Leverage)</option>
+              <option value="3" ${bot.leverage === 3 ? 'selected' : ''}>3x (Konservatif)</option>
+              <option value="5" ${(bot.leverage || 5) === 5 ? 'selected' : ''}>5x (Rekomendasi Akademi)</option>
+              <option value="10" ${bot.leverage === 10 ? 'selected' : ''}>10x (Agresif)</option>
+              <option value="20" ${bot.leverage === 20 ? 'selected' : ''}>20x (Tinggi)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="field">
+            <label>Max Risk Per Trade (%)</label>
+            <select id="bot-setting-risk">
+              <option value="1.0" ${bot.riskPct === 1.0 ? 'selected' : ''}>1.0% (Sangat Aman)</option>
+              <option value="1.5" ${(bot.riskPct || 1.5) === 1.5 ? 'selected' : ''}>1.5% (Standar Modul 3)</option>
+              <option value="2.0" ${bot.riskPct === 2.0 ? 'selected' : ''}>2.0% (Dinamis)</option>
+              <option value="3.0" ${bot.riskPct === 3.0 ? 'selected' : ''}>3.0% (Maksimal)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Target Min R:R Ratio</label>
+            <select id="bot-setting-rr">
+              <option value="2.0" ${(bot.minRr || 2.0) === 2.0 ? 'selected' : ''}>1 : 2.00</option>
+              <option value="2.5" ${bot.minRr === 2.5 ? 'selected' : ''}>1 : 2.50 (Disarankan)</option>
+              <option value="3.0" ${bot.minRr === 3.0 ? 'selected' : ''}>1 : 3.00 (High-R)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+          <button type="button" class="btn-ghost mono" style="font-size:11px;" onclick="resetBotAccountBalance()">
+            🔄 Reset Saldo ($5,000)
+          </button>
+          <button type="submit" class="btn-primary mono" style="font-size:12px; padding:9px 18px;">
+            💾 Simpan Pengaturan
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+  overlay.classList.remove('hidden');
+}
+
+function handleBotExchangeChange(val){
+  const fields = document.getElementById('bot-api-fields');
+  if(fields){
+    fields.style.display = (val === 'paper') ? 'none' : 'block';
+  }
+}
+
+function closeBotAccountSettingsModal(){
+  const overlay = document.getElementById('bot-account-modal-overlay');
+  if(overlay) overlay.classList.add('hidden');
+}
+
+function saveBotAccountSettings(e){
+  e.preventDefault();
+  const bot = getAiBotState();
+  bot.name = document.getElementById('bot-setting-name').value.trim() || bot.name;
+  bot.exchange = document.getElementById('bot-setting-exchange').value;
+  
+  if(bot.exchange === 'binance_demo'){
+    bot.exchangeLabel = 'Binance Futures Demo (Testnet)';
+    bot.exchangeStatus = 'API Connected';
+  } else if(bot.exchange === 'binance_live'){
+    bot.exchangeLabel = 'Binance USD-M Live';
+    bot.exchangeStatus = 'Live Trading';
+  } else if(bot.exchange === 'tokocrypto'){
+    bot.exchangeLabel = 'Tokocrypto Spot';
+    bot.exchangeStatus = 'Spot API Ready';
+  } else {
+    bot.exchangeLabel = 'AI Paper Desk (Bebas Risiko)';
+    bot.exchangeStatus = 'Simulasi Terhubung';
+  }
+
+  const apiKeyInput = document.getElementById('bot-setting-apikey');
+  const apiSecInput = document.getElementById('bot-setting-apisecret');
+  if(apiKeyInput) bot.apiKey = apiKeyInput.value.trim();
+  if(apiSecInput) bot.apiSecret = apiSecInput.value.trim();
+
+  bot.balance = parseFloat(document.getElementById('bot-setting-balance').value) || 5000;
+  bot.leverage = parseInt(document.getElementById('bot-setting-leverage').value) || 5;
+  bot.riskPct = parseFloat(document.getElementById('bot-setting-risk').value) || 1.5;
+  bot.minRr = parseFloat(document.getElementById('bot-setting-rr').value) || 2.0;
+
+  saveAiBotState(bot);
+  closeBotAccountSettingsModal();
+  renderAiBotTerminal();
+  triggerFloatingXp(30, '⚙️ Pengaturan Bot Diperbarui');
+}
+
+function resetBotAccountBalance(){
+  if(!confirm('Reset saldo akun bot ini kembali ke $5,000.00 USDT?')) return;
+  const bot = getAiBotState();
+  bot.balance = 5000.00;
+  bot.positions = [];
+  const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  bot.logs.unshift(`[${time}] [RESET] Saldo akun direset ke $5,000.00 USDT.`);
+  saveAiBotState(bot);
+  closeBotAccountSettingsModal();
+  renderAiBotTerminal();
+}
+
+function openBotMultiAccountModal(){
+  const multi = getAiBotMultiAccountState();
+  const accountsList = Object.values(multi.accounts || {});
+  let overlay = document.getElementById('bot-subaccounts-modal-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bot-subaccounts-modal-overlay';
+    overlay.className = 'rpg-modal-overlay';
+    overlay.onclick = (e) => { if(e.target === overlay) closeBotMultiAccountModal(); };
+    document.body.appendChild(overlay);
+  }
+
+  overlay.innerHTML = `
+    <div class="rpg-modal-card" style="max-width:560px;">
+      <div class="rpg-modal-tag">ARMADA AKUN BOT</div>
+      <button class="rpg-modal-close" onclick="closeBotMultiAccountModal()">✕</button>
+      <div style="font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; margin-bottom:4px; color:var(--cyan);">
+        🌐 KELOLA SUB-AKUN BOT
+      </div>
+      <div style="font-size:12px; color:var(--text-dim); margin-bottom:16px;">
+        Pilih atau buat sub-akun bot terpisah untuk memisahkan strategi trading Anda.
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px; max-height:260px; overflow-y:auto;">
+        ${accountsList.map(acc => {
+          const isActive = (acc.id === multi.activeAccountId);
+          return `
+            <div style="background:var(--bg); border:1.5px solid ${isActive ? 'var(--cyan)' : 'var(--border)'}; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <strong style="font-size:13.5px; color:var(--text);">${escapeHtml(acc.name)}</strong>
+                  ${isActive ? '<span class="mono" style="font-size:9.5px; background:rgba(57,197,207,0.15); border:1px solid var(--cyan); color:var(--cyan); padding:1px 5px;">AKTIF</span>' : ''}
+                </div>
+                <div class="mono" style="font-size:11px; color:var(--text-dim); margin-top:2px;">
+                  ${escapeHtml(acc.email)} | ${escapeHtml(acc.exchangeLabel)} | Saldo: <strong style="color:var(--green);">$${acc.balance.toLocaleString('en-US', {maximumFractionDigits:0})}</strong>
+                </div>
+              </div>
+              <div style="display:flex; gap:6px;">
+                ${!isActive ? `
+                  <button class="btn-primary mono" style="font-size:10px; padding:4px 10px;" onclick="switchAiBotAccount('${acc.id}'); closeBotMultiAccountModal();">
+                    Pilih Akun
+                  </button>
+                ` : ''}
+                ${accountsList.length > 1 && !isActive ? `
+                  <button class="btn-danger mono" style="font-size:10px; padding:4px 8px;" onclick="deleteAiBotAccount('${acc.id}')" title="Hapus Akun">
+                    🗑️
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div style="border-top:1px solid var(--border); padding-top:14px;">
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; color:var(--amber); margin-bottom:10px;">
+          ➕ TAMBAH SUB-AKUN BARU
+        </div>
+        <form onsubmit="createNewAiBotAccount(event)">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="field" style="margin-bottom:8px;">
+              <label>Nama Sub-Akun</label>
+              <input type="text" id="new-acc-name" placeholder="contoh: Scalping 1M" required />
+            </div>
+            <div class="field" style="margin-bottom:8px;">
+              <label>Modal Awal (USDT)</label>
+              <input type="number" id="new-acc-balance" value="3000" min="100" required />
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+            <div class="field" style="margin-bottom:0;">
+              <label>Tipe Bursa</label>
+              <select id="new-acc-exchange">
+                <option value="paper">AI Paper Desk</option>
+                <option value="binance_demo">Binance Futures Demo</option>
+                <option value="tokocrypto">Tokocrypto Spot</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label>Profil Strategi</label>
+              <select id="new-acc-profile">
+                <option value="GEN-1 SMC PROTOTYPE">SMC Order Flow</option>
+                <option value="Aggressive Scalper">Aggressive Scalper</option>
+                <option value="Trend Following EMA">Trend Following EMA</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary mono full" style="font-size:11.5px; padding:9px;">
+            ➕ Buat &amp; Aktifkan Sub-Akun Baru
+          </button>
+        </form>
+      </div>
+    </div>
+  `;
+  overlay.classList.remove('hidden');
+}
+
+function closeBotMultiAccountModal(){
+  const overlay = document.getElementById('bot-subaccounts-modal-overlay');
+  if(overlay) overlay.classList.add('hidden');
+}
+
+function switchAiBotAccount(accId){
+  const multi = getAiBotMultiAccountState();
+  if(multi.accounts && multi.accounts[accId]){
+    multi.activeAccountId = accId;
+    saveAiBotMultiAccountState(multi);
+    renderAiBotTerminal();
+    playOrderFilledSound();
+  }
+}
+
+function createNewAiBotAccount(e){
+  e.preventDefault();
+  const name = document.getElementById('new-acc-name').value.trim();
+  const balance = parseFloat(document.getElementById('new-acc-balance').value) || 3000;
+  const exchange = document.getElementById('new-acc-exchange').value;
+  const profile = document.getElementById('new-acc-profile').value;
+  
+  const multi = getAiBotMultiAccountState();
+  const email = getActiveUserEmail();
+  const accId = 'acc_sub_' + Date.now();
+  
+  let label = 'AI Paper Desk';
+  let status = 'Simulasi Terhubung';
+  if(exchange === 'binance_demo'){ label = 'Binance Futures Demo'; status = 'API Ready'; }
+  if(exchange === 'tokocrypto'){ label = 'Tokocrypto Spot'; status = 'Spot API Ready'; }
+
+  multi.accounts[accId] = {
+    id: accId,
+    email: email,
+    name: name,
+    exchange: exchange,
+    exchangeLabel: label,
+    exchangeStatus: status,
+    marketRegime: '1H BEARISH / 4H CHOPPY',
+    balance: balance,
+    initialBalance: balance,
+    isActive: false,
+    generation: 1,
+    fitnessScore: 78.5,
+    totalTrades: 0,
+    winTrades: 0,
+    totalAiPnl: 0.00,
+    strategyProfile: profile,
+    riskPct: 1.5,
+    minRr: 2.0,
+    leverage: 5,
+    genes: { trendWeight: 0.35, rsiWeight: 0.30, volatilityWeight: 0.20, riskAversion: 0.15 },
+    confidenceThreshold: 60,
+    positions: [],
+    logs: [
+      `[INIT] 🤖 Sub-akun '${name}' berhasil dibuat untuk ${email}.`,
+      `[CONFIG] Modal awal $${balance.toLocaleString()} USDT | Strategi: ${profile}.`
+    ]
+  };
+  multi.activeAccountId = accId;
+  saveAiBotMultiAccountState(multi);
+  closeBotMultiAccountModal();
+  renderAiBotTerminal();
+  triggerFloatingXp(40, `➕ Sub-Akun Dibuat: ${name}`);
+}
+
+function deleteAiBotAccount(accId){
+  const multi = getAiBotMultiAccountState();
+  if(!confirm('Hapus sub-akun ini? Data riwayat akun akan dihapus permanen.')) return;
+  delete multi.accounts[accId];
+  if(multi.activeAccountId === accId){
+    multi.activeAccountId = Object.keys(multi.accounts)[0];
+  }
+  saveAiBotMultiAccountState(multi);
+  openBotMultiAccountModal();
+  renderAiBotTerminal();
 }
 
 function renderAiBotTerminal(){
@@ -5920,9 +6553,10 @@ function renderAiBotTerminal(){
   panel.style.removeProperty('--accent');
   document.body.style.removeProperty('--accent');
 
+  const multi = getAiBotMultiAccountState();
   const bot = getAiBotState();
-  const sim = getSimState();
   const winRate = (bot.totalTrades > 0) ? Math.round((bot.winTrades / bot.totalTrades) * 100) : 0;
+  const accountsList = Object.values(multi.accounts || {});
 
   const logsHtml = bot.logs.map(l => {
     let cls = 'bot-log-item';
@@ -5933,109 +6567,147 @@ function renderAiBotTerminal(){
     return `<div class="${cls}">${escapeHtml(l)}</div>`;
   }).join('');
 
+  // Generate Positions HTML dynamically for THIS bot account
+  let positionsHtml = '';
+  if(bot.positions && bot.positions.length > 0){
+    positionsHtml = `
+      <div id="desk-positions-list">
+        ${bot.positions.map(pos => {
+          const pairInfo = SIM_PAIRS[pos.pair] || SIM_PAIRS[pos.symbol] || Object.values(SIM_PAIRS).find(p => p.pair === pos.pair || p.ticker === pos.pair) || { price: pos.entryPrice, precision: 2 };
+          const currentPrice = pairInfo.price;
+          const diffPct = (pos.direction === 'LONG')
+            ? (currentPrice - pos.entryPrice) / pos.entryPrice
+            : (pos.entryPrice - currentPrice) / pos.entryPrice;
+          const roiPct = (diffPct * (pos.leverage || 5)) * 100;
+          const pnlUsdt = pos.amountUsdt * (roiPct / 100);
+          const isProfit = pnlUsdt >= 0;
+          const pnlColor = isProfit ? 'var(--green)' : 'var(--red)';
+          const beTag = pos.breakevenActive ? ' | 🛡️ Breakeven Aktif' : '';
+
+          return `
+            <div class="desk-pos-card">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span class="desk-pos-badge ${pos.direction.toLowerCase()}">${pos.direction} ${pos.direction === 'LONG' ? '🟢' : '🔴'}</span>
+                <div>
+                  <strong class="mono" style="font-size:14px; color:var(--text);">${escapeHtml(pos.symbol || pos.pair)} (${pos.leverage || 5}x)</strong>
+                  <div class="mono" style="font-size:11px; color:var(--text-dim);">
+                    Size: $${pos.amountUsdt.toFixed(0)} USDT | Entry: $${pos.entryPrice.toFixed(4)} | <span id="pos-mark-${pos.id}">Mark: $${currentPrice.toFixed(4)}</span>${beTag}
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                <div class="mono" style="font-size:11.5px;">
+                  <span style="color:var(--red);">🛑 SL: $${pos.slPrice ? pos.slPrice.toFixed(4) : '-'}</span> &nbsp;|&nbsp; 
+                  <span style="color:var(--green);">🎯 TP: $${pos.tpPrice ? pos.tpPrice.toFixed(4) : '-'}</span>
+                </div>
+                <div class="mono" id="pos-pnl-${pos.id}" style="font-size:13px; font-weight:700; color:${pnlColor};">
+                  PnL: ${isProfit ? '+' : ''}$${pnlUsdt.toFixed(2)} (${isProfit ? '+' : ''}${roiPct.toFixed(2)}%)
+                </div>
+                <button class="btn-danger mono" style="font-size:10px; padding:3px 8px;" onclick="closeBotPosition('${pos.id}')" title="Tutup Posisi Sekarang">
+                  ✕ Tutup Posisi
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  } else {
+    positionsHtml = `
+      <div style="padding: 24px 18px; text-align:center; background:var(--bg); border:1.5px dashed var(--border); margin-top:10px;">
+        <div style="font-size:24px; margin-bottom:6px;">📡</div>
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:13.5px; font-weight:700; color:var(--cyan);">
+          BELUM ADA POSISI AKTIF UNTUK ${escapeHtml(bot.email)}
+        </div>
+        <div style="font-size:11.5px; color:var(--text-dim); max-width:520px; margin:4px auto 14px; line-height:1.5;">
+          Radar AI sedang memantau 10 aset kripto likuid (BTC, ETH, SOL, SUI, XRP, dll). Posisi akan otomatis dieksekusi saat terdeteksi setup berprobabilitas tinggi.
+        </div>
+        <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+          <button class="btn-primary mono" style="font-size:11px; padding:6px 14px;" onclick="triggerManualAiBotSignal()">
+            ⚡ Picu Pemindaian &amp; Eksekusi Sekarang
+          </button>
+          <button class="btn-ghost mono" style="font-size:11px; padding:6px 14px;" onclick="toggleAiBotMasterSwitch()">
+            ${bot.isActive ? '⏸️ Jeda Pemindaian' : '🟢 Aktifkan Auto-Trade'}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Account Switcher Options HTML
+  const accountOptionsHtml = accountsList.map(acc => {
+    const isSelected = (acc.id === bot.id);
+    return `<option value="${escapeHtml(acc.id)}" ${isSelected ? 'selected' : ''}>${escapeHtml(acc.name)} ($${acc.balance.toLocaleString('en-US', {maximumFractionDigits:0})})</option>`;
+  }).join('');
+
   panel.innerHTML = `
     <div class="bot-container">
-      <!-- Live Institutional Multi-Exchange Connection Bar -->
+      <!-- Multi-Account Bar & Live Connection Status -->
       <div class="desk-status-bar">
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <div class="desk-tag" style="border-color:var(--cyan); color:var(--cyan);">
-            <i data-lucide="user"></i> <strong>dxmade@gmail.com</strong>
+          <div class="desk-tag" style="border-color:var(--cyan); color:var(--cyan); background:rgba(57,197,207,0.08);">
+            <i data-lucide="user"></i> <strong>${escapeHtml(bot.email)}</strong>
+            <span style="opacity:0.75; font-size:10px;">(${escapeHtml(bot.name)})</span>
           </div>
-          <div class="desk-tag" style="border-color:var(--green); color:var(--green);">
-            <i data-lucide="zap"></i> Binance Futures Demo: <strong>$4,999.96 USDT</strong>
+          <div class="desk-tag" style="border-color:var(--green); color:var(--green); background:rgba(38,230,166,0.08);">
+            <i data-lucide="zap"></i> ${escapeHtml(bot.exchangeLabel)}: <strong>$${bot.balance.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} USDT</strong>
           </div>
           <div class="desk-tag" style="border-color:var(--amber); color:var(--amber);">
-            <i data-lucide="check-circle-2"></i> Tokocrypto: <strong>Spot API Ready</strong>
+            <i data-lucide="cpu"></i> Status: <strong>${escapeHtml(bot.exchangeStatus)}</strong>
+          </div>
+          <div class="desk-tag" style="border-color:var(--purple); color:var(--purple);">
+            <i data-lucide="compass"></i> Rezim Pasar: <strong>${bot.marketRegime || '1H BEARISH / 4H CHOPPY'}</strong>
           </div>
         </div>
-        <div class="desk-tag" style="border-color:var(--purple); color:var(--purple);">
-          <i data-lucide="compass"></i> Rezim Pasar: <strong>1H BEARISH / 4H CHOPPY</strong>
+
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          ${accountsList.length > 1 ? `
+            <select class="field mono" style="padding:4px 8px; font-size:11px; max-width:240px; margin:0;" onchange="switchAiBotAccount(this.value)">
+              ${accountOptionsHtml}
+            </select>
+          ` : ''}
+          <button class="btn-ghost mono" style="font-size:11px; padding:5px 10px;" onclick="openBotAccountSettingsModal()" title="Pengaturan Akun & Bursa">
+            <i data-lucide="settings"></i> Atur Akun
+          </button>
+          <button class="btn-ghost mono" style="font-size:11px; padding:5px 10px;" onclick="openBotMultiAccountModal()" title="Kelola Armada Akun">
+            <i data-lucide="users"></i> Kelola Sub-Akun
+          </button>
         </div>
       </div>
 
-      <!-- Active Institutional Positions Card -->
+      <!-- Active Positions Card -->
       <div class="desk-positions-container">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div>
             <div style="font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px;">
-              <span>📊 POSISI AKTIF BINANCE DEMO (LIVE DESK)</span>
-              <span class="mono" style="font-size:10px; background:rgba(38,230,166,0.15); border:1px solid var(--green); color:var(--green); padding:2px 6px;">2 POSISI BERJALAN</span>
+              <span>📊 POSISI AKTIF (${escapeHtml(bot.exchangeLabel).toUpperCase()})</span>
+              <span class="mono" style="font-size:10px; background:rgba(38,230,166,0.15); border:1px solid var(--green); color:var(--green); padding:2px 6px;">${bot.positions ? bot.positions.length : 0} POSISI BERJALAN</span>
             </div>
             <div style="font-size:11.5px; color:var(--text-dim); margin-top:2px;">
-              Posisi live terkonfirmasi di server Binance Futures Testnet dengan proteksi Stop Loss & Take Profit otomatis.
+              Posisi live terverifikasi untuk akun <strong>${escapeHtml(bot.email)}</strong> dengan proteksi Stop Loss & Take Profit otomatis.
             </div>
           </div>
-          <button class="btn-ghost mono" style="font-size:11px; padding:4px 10px;" onclick="renderAiBotTerminal()">
-            🔄 Refresh Status Posisi
-          </button>
-        </div>
-
-        <div class="desk-pos-card">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span class="desk-pos-badge long">LONG 🟢</span>
-            <div>
-              <strong class="mono" style="font-size:14px; color:var(--text);">SUIUSDT (5x)</strong>
-              <div class="mono" style="font-size:11px; color:var(--text-dim);">Size: 2,988.0 SUI (~$2,173 USD) | Entry: $0.7287 | 🛡️ Breakeven Aktif</div>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-            <div class="mono" style="font-size:11.5px;">
-              <span style="color:var(--red);">🛑 SL: $0.7024</span> &nbsp;|&nbsp; 
-              <span style="color:var(--green);">🎯 TP: $0.7840</span>
-            </div>
-            <div class="mono" style="font-size:13px; font-weight:700; color:var(--green);">
-              PnL: +$30.78 🚀
-            </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn-ghost mono" style="font-size:11px; padding:4px 10px;" onclick="renderAiBotTerminal()">
+              🔄 Refresh Status
+            </button>
+            <button class="btn-primary mono" style="font-size:11px; padding:4px 10px;" onclick="triggerManualAiBotSignal()">
+              ⚡ Test Sinyal AI
+            </button>
           </div>
         </div>
 
-        <div class="desk-pos-card">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span class="desk-pos-badge long">LONG 🟢</span>
-            <div>
-              <strong class="mono" style="font-size:14px; color:var(--text);">XRPUSDT (5x)</strong>
-              <div class="mono" style="font-size:11px; color:var(--text-dim);">Size: 1,852.0 XRP (~$2,493 USD) | Entry: $1.3465</div>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-            <div class="mono" style="font-size:11.5px;">
-              <span style="color:var(--red);">🛑 SL: $1.3090</span> &nbsp;|&nbsp; 
-              <span style="color:var(--green);">🎯 TP: $1.4402</span>
-            </div>
-            <div class="mono" style="font-size:13px; font-weight:700; color:var(--green);">
-              PnL: +$2.85 🟢
-            </div>
-          </div>
-        </div>
-
-        <div class="desk-pos-card">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span class="desk-pos-badge long">LONG 🟢</span>
-            <div>
-              <strong class="mono" style="font-size:14px; color:var(--text);">SOLUSDT (5x)</strong>
-              <div class="mono" style="font-size:11px; color:var(--text-dim);">Size: 1.0 SOL (~$99 USD) | Entry: $99.48</div>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-            <div class="mono" style="font-size:11.5px;">
-              <span style="color:var(--red);">🛑 SL: $97.20</span> &nbsp;|&nbsp; 
-              <span style="color:var(--green);">🎯 TP: $104.50</span>
-            </div>
-            <div class="mono" style="font-size:13px; font-weight:700; color:var(--green);">
-              PnL: +$0.09 🟢
-            </div>
-          </div>
-        </div>
+        ${positionsHtml}
       </div>
 
       <div class="bot-hero-card">
         <div>
           <div class="bot-hero-title">
-            <span>🤖 ORACLE-V1: AUTONOMOUS AI QUANT TRADER</span>
-            <span class="mono" style="font-size:11px; background:rgba(38,230,166,0.15); border:1px solid var(--green); padding:2px 8px; color:var(--green);">GEN-4 ADAPTIVE</span>
+            <span>🤖 ORACLE-V1: ${escapeHtml(bot.name).toUpperCase()}</span>
+            <span class="mono" style="font-size:11px; background:rgba(38,230,166,0.15); border:1px solid var(--green); padding:2px 8px; color:var(--green);">GEN-${bot.generation || 1} ADAPTIVE</span>
           </div>
           <div class="bot-hero-desc">
-            Trading bot otonom kurikulum Akademi Crypto. Otak AI Generasi 4 dilengkapi 3 Sub-Genome Spesialis (Trending R:R 3.0, Ranging R:R 2.0, & Defensive Squeeze) yang berganti otomatis sesuai rezim pasar!
+            Trading bot otonom kurikulum Akademi Crypto untuk akun <strong>${escapeHtml(bot.email)}</strong>. Dilengkapi 3 Sub-Genome Spesialis (Trending R:R 3.0, Ranging R:R 2.0, & Defensive Squeeze) yang berganti otomatis sesuai rezim pasar!
           </div>
         </div>
         <button class="bot-master-toggle-btn ${bot.isActive ? 'active' : 'paused'}" onclick="toggleAiBotMasterSwitch()">
@@ -6045,27 +6717,29 @@ function renderAiBotTerminal(){
 
       <div class="bot-stats-grid">
         <div class="bot-stat-box">
-          <div class="bot-stat-val" style="color:var(--green);">GEN-4</div>
+          <div class="bot-stat-val" style="color:var(--green);">GEN-${bot.generation || 1}</div>
           <div class="bot-stat-lbl">Multi-Regime Brain</div>
         </div>
         <div class="bot-stat-box">
-          <div class="bot-stat-val" style="color:var(--cyan);">3 Engines</div>
-          <div class="bot-stat-lbl">Sub-Genomes Aktif</div>
+          <div class="bot-stat-val" style="color:var(--cyan);">${winRate}%</div>
+          <div class="bot-stat-lbl">Win Rate (${bot.totalTrades || 0} Trades)</div>
         </div>
         <div class="bot-stat-box">
-          <div class="bot-stat-val" style="color:var(--amber);">1:2.5 - 3.0</div>
-          <div class="bot-stat-lbl">Adaptive R:R Filter</div>
+          <div class="bot-stat-val" style="color:${(bot.totalAiPnl || 0) >= 0 ? 'var(--green)' : 'var(--red)'};">
+            ${(bot.totalAiPnl || 0) >= 0 ? '+' : ''}$${(bot.totalAiPnl || 0).toFixed(2)}
+          </div>
+          <div class="bot-stat-lbl">Total Net AI PnL</div>
         </div>
         <div class="bot-stat-box">
-          <div class="bot-stat-val" style="color:var(--purple);">1.5% Max</div>
-          <div class="bot-stat-lbl">Risk Per Trade</div>
+          <div class="bot-stat-val" style="color:var(--purple);">${bot.riskPct || 1.5}% Max</div>
+          <div class="bot-stat-lbl">Risk Per Trade (R:R 1:${(bot.minRr || 2.0).toFixed(1)})</div>
         </div>
       </div>
 
       <div class="bot-layout-grid">
         <div class="bot-terminal-card">
           <div class="bot-terminal-head">
-            <span>🧠 NEURAL REASONING & DECISION STREAM</span>
+            <span>🧠 NEURAL REASONING & DECISION STREAM (${escapeHtml(bot.email)})</span>
             <span class="mono" style="font-size:10px; color:var(--text-dim);">${bot.isActive ? '⚡ Realtime Feed' : '⏸️ Standby'}</span>
           </div>
           <div class="bot-terminal-screen" id="bot-terminal-screen">
@@ -6078,38 +6752,38 @@ function renderAiBotTerminal(){
             <div style="font-family:'Space Grotesk',sans-serif; font-size:13.5px; font-weight:700; color:var(--purple);">🧬 STRATEGY GENOME WEIGHTS</div>
             <button class="btn-ghost mono" style="font-size:9.5px; padding:2px 6px;" onclick="resetAiBotWeights()">Reset</button>
           </div>
-          <div style="font-size:11px; color:var(--text-dim);">Bobot strategi yang terus bermutasi dan belajar dari setiap transaksi profit/loss:</div>
+          <div style="font-size:11px; color:var(--text-dim);">Bobot strategi yang terus bermutasi dan belajar dari setiap transaksi akun ini:</div>
 
           <div class="bot-gene-row">
             <div class="bot-gene-header">
               <span>📈 Trend Following (CRES - EMA Cross)</span>
-              <strong class="mono">${Math.round(bot.genes.trendWeight * 100)}%</strong>
+              <strong class="mono">${Math.round((bot.genes?.trendWeight || 0.35) * 100)}%</strong>
             </div>
-            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${bot.genes.trendWeight * 100}%; background:var(--green);"></div></div>
+            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${(bot.genes?.trendWeight || 0.35) * 100}%; background:var(--green);"></div></div>
           </div>
 
           <div class="bot-gene-row">
             <div class="bot-gene-header">
               <span>🎯 Mean Reversion (ALTEXP - RSI)</span>
-              <strong class="mono">${Math.round(bot.genes.rsiWeight * 100)}%</strong>
+              <strong class="mono">${Math.round((bot.genes?.rsiWeight || 0.30) * 100)}%</strong>
             </div>
-            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${bot.genes.rsiWeight * 100}%; background:var(--amber);"></div></div>
+            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${(bot.genes?.rsiWeight || 0.30) * 100}%; background:var(--amber);"></div></div>
           </div>
 
           <div class="bot-gene-row">
             <div class="bot-gene-header">
               <span>⚡ Volatility Filter (DEFI)</span>
-              <strong class="mono">${Math.round(bot.genes.volatilityWeight * 100)}%</strong>
+              <strong class="mono">${Math.round((bot.genes?.volatilityWeight || 0.20) * 100)}%</strong>
             </div>
-            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${bot.genes.volatilityWeight * 100}%; background:var(--cyan);"></div></div>
+            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${(bot.genes?.volatilityWeight || 0.20) * 100}%; background:var(--cyan);"></div></div>
           </div>
 
           <div class="bot-gene-row">
             <div class="bot-gene-header">
               <span>🛡️ Risk Aversion Factor (FINTRD)</span>
-              <strong class="mono">${Math.round(bot.genes.riskAversion * 100)}%</strong>
+              <strong class="mono">${Math.round((bot.genes?.riskAversion || 0.15) * 100)}%</strong>
             </div>
-            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${bot.genes.riskAversion * 100}%; background:var(--purple);"></div></div>
+            <div class="bot-gene-track"><div class="bot-gene-fill" style="width:${(bot.genes?.riskAversion || 0.15) * 100}%; background:var(--purple);"></div></div>
           </div>
         </div>
       </div>
@@ -6117,7 +6791,7 @@ function renderAiBotTerminal(){
       <div class="bot-backtest-card">
         <div>
           <div style="font-family:'Space Grotesk',sans-serif; font-size:14.5px; font-weight:700; color:var(--amber);">⚡ ACCELERATED SELF-LEARNING BACKTESTER</div>
-          <div style="font-size:12px; color:var(--text-dim); margin-top:2px;">Uji dan latih AI Quant Bot dengan simulasi 100 candlestick historis untuk mempercepat evolusi generasi.</div>
+          <div style="font-size:12px; color:var(--text-dim); margin-top:2px;">Uji dan latih AI Quant Bot dengan simulasi 100 candlestick historis untuk mempercepat evolusi generasi akun ini.</div>
         </div>
         <button class="btn-primary mono" id="btn-run-backtest" onclick="runAiBotBacktest(100)" style="font-size:12px; padding:10px 18px;">
           ⚡ Jalankan Backtest (100 Candle)
