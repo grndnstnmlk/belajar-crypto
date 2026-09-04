@@ -954,6 +954,49 @@
           </div>
         </div>
 
+        <!-- Anti-Overfitting & Luck Trap Audit Section -->
+        <div class="mc-section" style="background:rgba(240, 185, 11, 0.03); border-color:rgba(240, 185, 11, 0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div class="mc-title" style="color:var(--amber);">
+              <span>🛡️ ANTI-OVERFITTING & LUCK TRAP AUDIT (IS 70% vs OOS 30%)</span>
+            </div>
+            <div id="oa-verdict-badge" style="font-size:11px; font-weight:700; padding:4px 10px; border-radius:4px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-dim);">
+              ⚪ MENUNGGU SIMULASI
+            </div>
+          </div>
+
+          <div class="mc-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="mc-box">
+              <div class="mc-label">Walk-Forward Efficiency (WFE)</div>
+              <div class="mc-val mono" id="oa-wfe">-%</div>
+              <div style="font-size:9px; color:var(--text-dim); margin-top:2px;">Target: &ge; 50.0% konsistensi OOS</div>
+            </div>
+            <div class="mc-box">
+              <div class="mc-label">In-Sample (70% Train)</div>
+              <div class="mc-val mono" id="oa-is-stats">- trades | PF: -</div>
+              <div style="font-size:9px; color:var(--text-dim); margin-top:2px;" id="oa-is-exp">Expectancy: -R</div>
+            </div>
+            <div class="mc-box">
+              <div class="mc-label">Out-of-Sample (30% Blind Test)</div>
+              <div class="mc-val mono" id="oa-oos-stats">- trades | PF: -</div>
+              <div style="font-size:9px; color:var(--text-dim); margin-top:2px;" id="oa-oos-exp">Expectancy: -R</div>
+            </div>
+            <div class="mc-box">
+              <div class="mc-label">Deflated Sharpe Ratio (DSR)</div>
+              <div class="mc-val mono" id="oa-dsr">-</div>
+              <div style="font-size:9px; color:var(--text-dim); margin-top:2px;" id="oa-dsr-sub">Benchmark SR*: -</div>
+            </div>
+            <div class="mc-box">
+              <div class="mc-label">Permutation p-Value (White's Check)</div>
+              <div class="mc-val mono" id="oa-p-value">-</div>
+              <div style="font-size:9px; color:var(--text-dim); margin-top:2px;" id="oa-p-val-sub">Target: p &lt; 0.05</div>
+            </div>
+          </div>
+          <div id="oa-desc" style="font-size:11px; color:var(--text-dim); line-height:1.4; padding:8px 12px; background:rgba(0,0,0,0.25); border-radius:4px;">
+            Audit ini memvalidasi apakah performa trading bot berasal dari keunggulan matematis nyata (*true edge*) atau sekadar pencocokan kurva berlebih (*overfitting*).
+          </div>
+        </div>
+
         <!-- Equity Curve Chart -->
         <div>
           <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px;">
@@ -1468,6 +1511,41 @@
       document.getElementById("mc-prob-ruin").style.color = (mc.probability_of_ruin_pct < 1.0) ? "var(--green)" : "var(--red)";
       document.getElementById("mc-max-streak").textContent = (mc.worst_consecutive_losses || 0) + " losses";
       document.getElementById("mc-rec-risk").textContent = (mc.recommended_risk_pct || 1.5) + "% / trade";
+
+      // Anti-Overfitting & Luck Trap Audit
+      if (data.overfitting_audit) {
+        const oa = data.overfitting_audit;
+        const badge = document.getElementById("oa-verdict-badge");
+        badge.textContent = oa.verdict_label || "⚪ UNKNOWN";
+        badge.style.color = oa.verdict_color || "var(--text)";
+        badge.style.borderColor = oa.verdict_color || "var(--border)";
+
+        document.getElementById("oa-wfe").textContent = (oa.walk_forward_efficiency_pct || 0) + "%";
+        document.getElementById("oa-wfe").style.color = (oa.walk_forward_efficiency_pct >= 50.0) ? "var(--green)" : (oa.walk_forward_efficiency_pct >= 35.0 ? "var(--amber)" : "var(--red)");
+
+        if (oa.in_sample) {
+          document.getElementById("oa-is-stats").textContent = `${oa.in_sample.trades_count || 0} trades | PF: ${oa.in_sample.profit_factor || 0}`;
+          document.getElementById("oa-is-exp").textContent = `Expectancy: ${(oa.in_sample.expectancy_r > 0 ? '+' : '')}${oa.in_sample.expectancy_r || 0}R (Win: ${oa.in_sample.win_rate || 0}%)`;
+        }
+
+        if (oa.out_of_sample) {
+          document.getElementById("oa-oos-stats").textContent = `${oa.out_of_sample.trades_count || 0} trades | PF: ${oa.out_of_sample.profit_factor || 0}`;
+          document.getElementById("oa-oos-exp").textContent = `Expectancy: ${(oa.out_of_sample.expectancy_r > 0 ? '+' : '')}${oa.out_of_sample.expectancy_r || 0}R (Win: ${oa.out_of_sample.win_rate || 0}%)`;
+          document.getElementById("oa-oos-stats").style.color = (oa.out_of_sample.profit_factor >= 1.2) ? "var(--green)" : (oa.out_of_sample.profit_factor >= 0.8 ? "var(--amber)" : "var(--red)");
+        }
+
+        if (oa.deflated_sharpe) {
+          document.getElementById("oa-dsr").textContent = (oa.deflated_sharpe.deflated_sharpe_ratio || 0);
+          document.getElementById("oa-dsr-sub").textContent = `Benchmark SR*: ${oa.deflated_sharpe.sr_benchmark || 0}`;
+          document.getElementById("oa-dsr").style.color = (oa.deflated_sharpe.deflated_sharpe_ratio >= 0.8) ? "var(--green)" : "var(--text)";
+        }
+
+        document.getElementById("oa-p-value").textContent = (oa.p_value !== undefined ? oa.p_value : "-");
+        document.getElementById("oa-p-val-sub").textContent = (oa.p_value <= 0.05) ? "🟢 Signifikan (True Edge)" : "🔴 Rentan Kebetulan Acak";
+        document.getElementById("oa-p-value").style.color = (oa.p_value <= 0.05) ? "var(--green)" : "var(--red)";
+
+        document.getElementById("oa-desc").textContent = oa.verdict_desc || "";
+      }
 
       // Equity Curve
       if (equitySeries && data.equity_curve && data.equity_curve.length > 0) {

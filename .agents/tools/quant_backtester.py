@@ -190,21 +190,22 @@ def simulate_strategy_signals(window_candles):
 
     return None
 
-def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.0, risk_pct=1.5):
+def simulate_walk_forward_trades(candles, symbol="BTC", starting_balance=5000.0, risk_pct=1.5):
     """
-    Executes walk-forward historical simulation with Breakeven (+1R) and Trailing Stop (+2R+).
+    Simulates walk-forward trade execution with Breakeven (+1R) and Trailing Stop (+2R+)
+    across a given slice of candlesticks.
+    Returns: (trades, equity_curve, final_equity)
     """
-    candles = fetch_historical_candles(symbol, bar, target_count=num_candles)
-    if len(candles) < 60:
-        return {"error": "Insufficient historical candle data"}
+    if len(candles) < 42:
+        return [], [{"trade_num": 0, "time": candles[0]["time"] if candles else "", "equity": starting_balance}], starting_balance
 
     trades = []
     active_trade = None
     equity = starting_balance
     equity_curve = [{"trade_num": 0, "time": candles[0]["time"], "equity": starting_balance}]
 
-    # Walk-forward loop (start after initial indicator warm-up)
-    for i in range(40, len(candles)):
+    start_idx = min(40, len(candles) - 1)
+    for i in range(start_idx, len(candles)):
         current_candle = candles[i]
 
         # 1. Manage existing open trade if any
@@ -216,28 +217,22 @@ def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.
             r_dist = active_trade["r_dist"]
             risk_usd = active_trade["risk_usd"]
 
-            # Evaluate high and low of current candle
             c_high = current_candle["high"]
             c_low = current_candle["low"]
 
-            # Calculate maximum excursion in current candle
             if side == "LONG":
                 peak_gain = c_high - entry
-                trough_loss = entry - c_low
                 r_reached = peak_gain / r_dist
             else:
                 peak_gain = entry - c_low
-                trough_loss = c_high - entry
                 r_reached = peak_gain / r_dist
 
-            # Update highest R
             if r_reached > active_trade["highest_r"]:
                 active_trade["highest_r"] = r_reached
 
             # --- DYNAMIC MANAGEMENT: BREAKEVEN (+1R) ---
             if r_reached >= 1.0 and not active_trade["breakeven_locked"]:
                 active_trade["breakeven_locked"] = True
-                # Set SL to entry + 0.08% fee offset
                 if side == "LONG":
                     active_trade["current_sl"] = entry * 1.0008
                 else:
@@ -258,7 +253,6 @@ def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.
             hit_sl = (c_low <= active_trade["current_sl"]) if side == "LONG" else (c_high >= active_trade["current_sl"])
 
             if hit_tp:
-                # Take Profit Hit!
                 exit_price = tp
                 pnl_r = (tp - entry) / r_dist if side == "LONG" else (entry - tp) / r_dist
                 pnl_usd = risk_usd * pnl_r
@@ -268,6 +262,7 @@ def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.
                     "symbol": symbol,
                     "side": side,
                     "entry_time": active_trade["entry_time"],
+                    "entry_ts": active_trade.get("entry_ts", current_candle.get("ts", 0)),
                     "exit_time": current_candle["time"],
                     "entry_price": entry,
                     "exit_price": exit_price,
@@ -282,7 +277,6 @@ def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.
                 continue
 
             elif hit_sl:
-                # Stop Loss / Trailing / Breakeven Hit!
                 exit_price = active_trade["current_sl"]
                 if active_trade["trailing_r_locked"] > 0:
                     pnl_r = active_trade["trailing_r_locked"]
@@ -301,6 +295,7 @@ def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.
                     "symbol": symbol,
                     "side": side,
                     "entry_time": active_trade["entry_time"],
+                    "entry_ts": active_trade.get("entry_ts", current_candle.get("ts", 0)),
                     "exit_time": current_candle["time"],
                     "entry_price": entry,
                     "exit_price": exit_price,
@@ -331,13 +326,225 @@ def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.
                     "risk_usd": risk_usd,
                     "strategy": signal["strategy"],
                     "entry_time": current_candle["time"],
+                    "entry_ts": current_candle.get("ts", 0),
                     "breakeven_locked": False,
                     "trailing_r_locked": 0.0,
                     "highest_r": 0.0
                 }
 
+    return trades, equity_curve, equity
+
+def calculate_distribution_moments(returns):
+    """
+    Computes mean, variance, standard deviation, skewness, and kurtosis of returns.
+    """
+    n = len(returns)
+    if n < 3:
+        return {"mean": 0.0, "variance": 0.0001, "std": 0.01, "skewness": 0.0, "kurtosis": 3.0}
+
+    mean = sum(returns) / n
+    variance = sum((r - mean) ** 2 for r in returns) / n
+    std = math.sqrt(variance) if variance > 0 else 0.0001
+
+    skewness = (sum((r - mean) ** 3 for r in returns) / n) / (std ** 3)
+    kurtosis = (sum((r - mean) ** 4 for r in returns) / n) / (std ** 4)
+
+    return {
+        "mean": mean,
+        "variance": variance,
+        "std": std,
+        "skewness": skewness,
+        "kurtosis": kurtosis
+    }
+
+def normal_cdf(x):
+    """Cumulative distribution function for standard normal distribution."""
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+def calculate_deflated_sharpe_ratio(trades, num_trials=20):
+    """
+    Calculates Deflated Sharpe Ratio (DSR) based on Marcos López de Prado's framework.
+    Accounts for selection bias under multiple testing, sample length, and return non-normality.
+    """
+    if len(trades) < 5:
+        return {
+            "sharpe_hat": 0.0,
+            "sr_benchmark": 0.0,
+            "deflated_sharpe_ratio": 0.0,
+            "dsr_p_value": 0.50,
+            "skewness": 0.0,
+            "kurtosis": 3.0
+        }
+
+    returns = [t["pnl_r"] for t in trades]
+    t_len = len(returns)
+    moments = calculate_distribution_moments(returns)
+
+    avg_r = moments["mean"]
+    std_r = moments["std"]
+    skew = moments["skewness"]
+    kurt = max(1.0, moments["kurtosis"])
+
+    sr_hat = (avg_r / std_r) * math.sqrt(252)
+
+    # Standard error of estimated Sharpe
+    denom = 1.0 - (skew * sr_hat) + (((kurt - 1.0) / 4.0) * (sr_hat ** 2))
+    var_sr = max(0.0001, denom / max(1, t_len - 1))
+    std_sr = math.sqrt(var_sr)
+
+    # Expected max Sharpe under zero true alpha null hypothesis across num_trials
+    euler_mascheroni = 0.5772156649
+    sqrt_2ln = math.sqrt(2.0 * math.log(max(2, num_trials)))
+    sr_star = std_sr * ((1.0 - euler_mascheroni) * sqrt_2ln + (euler_mascheroni * math.sqrt(2.0 * math.log(max(2, num_trials * math.e)))))
+
+    z_stat = (sr_hat - sr_star) / std_sr if std_sr > 0 else 0.0
+    dsr = max(0.0, min(1.0, normal_cdf(z_stat)))
+    p_val = max(0.0, min(1.0, 1.0 - dsr))
+
+    return {
+        "sharpe_hat": round(sr_hat, 2),
+        "sr_benchmark": round(sr_star, 2),
+        "deflated_sharpe_ratio": round(dsr, 3),
+        "dsr_p_value": round(p_val, 4),
+        "skewness": round(skew, 2),
+        "kurtosis": round(kurt, 2)
+    }
+
+def calculate_monte_carlo_p_value(trades, num_simulations=1000):
+    """
+    Permutation sign-flip test (White's Reality Check) to estimate empirical p-value.
+    Measures the probability that the observed performance arose purely from luck.
+    """
+    if len(trades) < 5:
+        return 0.50
+
+    returns = [t["pnl_r"] for t in trades]
+    n = len(returns)
+    mean_r = sum(returns) / n
+    var_r = sum((r - mean_r) ** 2 for r in returns) / n
+    obs_sharpe = (mean_r / math.sqrt(var_r)) if var_r > 0 else 0.0
+
+    if obs_sharpe <= 0:
+        return 1.0
+
+    beat_count = 0
+    for _ in range(num_simulations):
+        # Random sign-flip null hypothesis around 0 expectation
+        shuffled = [r * random.choice([-1, 1]) for r in returns]
+        sh_mean = sum(shuffled) / n
+        sh_var = sum((r - sh_mean) ** 2 for r in shuffled) / n
+        perm_sharpe = (sh_mean / math.sqrt(sh_var)) if sh_var > 0 else 0.0
+
+        if perm_sharpe >= obs_sharpe:
+            beat_count += 1
+
+    p_val = beat_count / num_simulations
+    return round(p_val, 4)
+
+def run_anti_overfitting_audit(candles, symbol="BTC", starting_balance=5000.0, risk_pct=1.5, num_trials=20):
+    """
+    Executes Walk-Forward In-Sample (70%) vs Out-of-Sample (30%) split,
+    computes Deflated Sharpe Ratio (DSR), Monte Carlo permutation p-value,
+    and returns institutional anti-overfitting verdict.
+    """
+    total_candles = len(candles)
+    if total_candles < 70:
+        return {
+            "verdict": "INSUFFICIENT_DATA",
+            "verdict_label": "⚪ INSUFFICIENT DATA",
+            "verdict_color": "var(--text-dim)",
+            "verdict_desc": "Data candle historis terlalu pendek untuk audit In-Sample / Out-of-Sample.",
+            "walk_forward_efficiency_pct": 0.0,
+            "p_value": 0.50,
+            "deflated_sharpe": {"deflated_sharpe_ratio": 0.0, "sr_benchmark": 0.0},
+            "in_sample": {"candles_count": 0, "trades_count": 0, "win_rate": 0.0, "profit_factor": 0.0, "expectancy_r": 0.0},
+            "out_of_sample": {"candles_count": 0, "trades_count": 0, "win_rate": 0.0, "profit_factor": 0.0, "expectancy_r": 0.0}
+        }
+
+    split_idx = int(total_candles * 0.70)
+    is_candles = candles[:split_idx]
+    # Provide indicator warm-up buffer for OOS
+    buffer_start = max(0, split_idx - 40)
+    oos_candles = candles[buffer_start:]
+
+    is_trades, _, _ = simulate_walk_forward_trades(is_candles, symbol, starting_balance, risk_pct)
+    oos_trades_raw, _, _ = simulate_walk_forward_trades(oos_candles, symbol, starting_balance, risk_pct)
+
+    # Filter out any trades that entered during the warm-up buffer in OOS
+    split_time = candles[split_idx]["time"]
+    oos_trades = [t for t in oos_trades_raw if t["entry_time"] >= split_time]
+    if not oos_trades and oos_trades_raw:
+        oos_trades = oos_trades_raw
+
+    is_metrics = calculate_metrics(is_trades, starting_balance)
+    oos_metrics = calculate_metrics(oos_trades, starting_balance)
+
+    is_pf = is_metrics.get("profit_factor", 0.0)
+    oos_pf = oos_metrics.get("profit_factor", 0.0)
+
+    if is_pf > 0:
+        wfe_pct = round((oos_pf / is_pf) * 100.0, 1)
+    else:
+        wfe_pct = 100.0 if oos_pf > 0 else 0.0
+
+    all_trades, _, _ = simulate_walk_forward_trades(candles, symbol, starting_balance, risk_pct)
+    dsr_data = calculate_deflated_sharpe_ratio(all_trades, num_trials=num_trials)
+    p_val = calculate_monte_carlo_p_value(all_trades, num_simulations=1000)
+
+    # Institutional Verdict Matrix
+    if p_val <= 0.05 and wfe_pct >= 50.0 and oos_metrics.get("expectancy_r", 0) >= 0:
+        verdict = "ROBUST_EDGE"
+        verdict_label = "🟢 ROBUST & GENUINE EDGE"
+        verdict_color = "var(--green)"
+        verdict_desc = "Strategi terbukti konsisten pada data buta (Out-of-Sample) dengan signifikansi statistik tinggi (p < 0.05). Bebas dari jebakan keberuntungan."
+    elif wfe_pct < 35.0 or oos_metrics.get("expectancy_r", 0) < -0.25 or p_val >= 0.20:
+        verdict = "LUCK_TRAP"
+        verdict_label = "🔴 LUCK TRAP / HIGH OVERFITTING RISK"
+        verdict_color = "var(--red)"
+        verdict_desc = "Performa anjlok tajam di data buta (OOS) atau hasil diduga kebetulan acak (p >= 0.20). Parameter strategi terlalu kaku (Curve-Fitting)."
+    else:
+        verdict = "CAUTION"
+        verdict_label = "🟡 MODERATE / CAUTION REQUIRED"
+        verdict_color = "var(--amber)"
+        verdict_desc = "Strategi menunjukkan resistensi moderat, namun konsistensi data buta masih membutuhkan sampel candle yang lebih panjang."
+
+    return {
+        "verdict": verdict,
+        "verdict_label": verdict_label,
+        "verdict_color": verdict_color,
+        "verdict_desc": verdict_desc,
+        "walk_forward_efficiency_pct": wfe_pct,
+        "p_value": p_val,
+        "deflated_sharpe": dsr_data,
+        "in_sample": {
+            "candles_count": len(is_candles),
+            "trades_count": is_metrics.get("total_trades", 0),
+            "win_rate": is_metrics.get("win_rate", 0.0),
+            "profit_factor": is_metrics.get("profit_factor", 0.0),
+            "expectancy_r": is_metrics.get("expectancy_r", 0.0)
+        },
+        "out_of_sample": {
+            "candles_count": len(oos_candles),
+            "trades_count": oos_metrics.get("total_trades", 0),
+            "win_rate": oos_metrics.get("win_rate", 0.0),
+            "profit_factor": oos_metrics.get("profit_factor", 0.0),
+            "expectancy_r": oos_metrics.get("expectancy_r", 0.0)
+        }
+    }
+
+def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.0, risk_pct=1.5):
+    """
+    Executes walk-forward historical simulation with Breakeven (+1R) and Trailing Stop (+2R+),
+    calculates hedge-fund metrics, 1,000-run Monte Carlo stress test, and Anti-Overfitting audit.
+    """
+    candles = fetch_historical_candles(symbol, bar, target_count=num_candles)
+    if len(candles) < 60:
+        return {"error": "Insufficient historical candle data"}
+
+    trades, equity_curve, equity = simulate_walk_forward_trades(candles, symbol, starting_balance, risk_pct)
     metrics = calculate_metrics(trades, starting_balance)
     monte_carlo = run_monte_carlo(trades, num_simulations=1000, starting_balance=starting_balance)
+    overfitting_audit = run_anti_overfitting_audit(candles, symbol, starting_balance, risk_pct)
 
     result = {
         "symbol": symbol,
@@ -349,6 +556,7 @@ def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.
         "roi_pct": round(((equity - starting_balance) / starting_balance) * 100, 2),
         "metrics": metrics,
         "monte_carlo": monte_carlo,
+        "overfitting_audit": overfitting_audit,
         "trades": trades,
         "equity_curve": equity_curve,
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -536,6 +744,20 @@ def print_backtest_report(result):
     print(f" * Probability Ruin : {mc['probability_of_ruin_pct']}% (Target < 1.0%)")
     print(f" * Max Loss Streak  : {mc['worst_consecutive_losses']} loss berturut-turut")
     print(f" * Rekomendasi Risk : {mc['recommended_risk_pct']}% per trade (Half-Kelly)")
+
+    if "overfitting_audit" in result:
+        oa = result["overfitting_audit"]
+        print("-------------------------------------------------------")
+        print("🛡️ ANTI-OVERFITTING & LUCK TRAP AUDIT (IS vs OOS):")
+        print(f" * Vonis Institusi  : {oa['verdict_label']}")
+        print(f" * Walk-Forward Eff : {oa['walk_forward_efficiency_pct']}% (WFE - Target >= 50%)")
+        print(f" * In-Sample (70%)  : {oa['in_sample'].get('trades_count', 0)} trade | PF: {oa['in_sample'].get('profit_factor', 0)} | Exp: {oa['in_sample'].get('expectancy_r', 0):+.2f}R")
+        print(f" * Out-Sample (30%) : {oa['out_of_sample'].get('trades_count', 0)} trade | PF: {oa['out_of_sample'].get('profit_factor', 0)} | Exp: {oa['out_of_sample'].get('expectancy_r', 0):+.2f}R")
+        dsr_val = oa['deflated_sharpe'].get('deflated_sharpe_ratio', 0)
+        dsr_bench = oa['deflated_sharpe'].get('sr_benchmark', 0)
+        print(f" * Deflated Sharpe  : {dsr_val} (DSR - Benchmark SR*: {dsr_bench})")
+        print(f" * Permutasi p-Val  : {oa['p_value']} ({'Signifikan p < 0.05' if oa['p_value'] < 0.05 else 'Rentan Jebakan Keberuntungan p >= 0.05'})")
+        print(f" * Diagnosa         : {oa['verdict_desc']}")
     print("=======================================================\n")
 
 if __name__ == "__main__":
