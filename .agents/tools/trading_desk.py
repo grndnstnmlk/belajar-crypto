@@ -31,6 +31,7 @@ import market_regime
 import binance_client
 import telegram_notifier
 import trade_manager
+import topdown_confluence
 
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
@@ -375,6 +376,19 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 }
 
         if signal and signal["rr"] >= effective_min_rr:
+            # Check Top-Down Multi-Timeframe Confluence (4H Macro Trend Alignment)
+            is_approved, macro_info, macro_rationale = topdown_confluence.check_topdown_alignment(
+                symbol=sym,
+                proposed_side=signal["side"],
+                setup_name=signal["reason"]
+            )
+            if not is_approved:
+                print(f"   [Macro Guardrail] {macro_rationale}")
+                continue
+
+            signal["reason"] += f" + {macro_rationale}"
+            signal["macro_aligned"] = True
+            print(f"   🎯 [TOP-DOWN CONFLUENCE]: {macro_rationale}")
             candidates.append(signal)
 
     # 3. Decision & Execution Desk
@@ -391,9 +405,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     else:
         # Available slots
         slots_available = max_open_positions - len(active_positions)
-        # Prioritize Elite setups (Tim MSS, Fabio Auction, Patrick Nill 3-Touch) + RS Alignment, then highest R:R
+        # Prioritize Elite setups (Tim MSS, Fabio Auction, Patrick Nill 3-Touch) + Macro Confluence + RS Alignment, then highest R:R
         candidates.sort(key=lambda x: (
             1 if (x.get("is_tim") or x.get("is_fabio") or x.get("is_3touch")) else 0,
+            1 if x.get("macro_aligned") else 0,
             1 if (x.get("is_alpha_leader") or x.get("is_beta_laggard")) else 0,
             x["rr"]
         ), reverse=True)
