@@ -412,13 +412,22 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         return
 
     desk_mode = telegram_notifier.get_desk_mode().upper()
-    print(f"\n * Mode Operasional Trading Desk: {'⚡ FAST SCALPER (5m/15m Protocol)' if desk_mode == 'SCALP' else '🎯 SWING INTRADAY (1H/4H Confluence)'}")
+    if desk_mode not in ["SCALP", "SWING", "HYBRID"]:
+        desk_mode = "HYBRID"
+
+    mode_labels = {
+        "HYBRID": "🤖 HYBRID AUTO (Simultaneous 1H Swing + 5m Fast Scalp)",
+        "SCALP": "⚡ FAST SCALPER ONLY (5m/15m Protocol)",
+        "SWING": "🎯 SWING INTRADAY ONLY (1H/4H Confluence)"
+    }
+    print(f"\n * Mode Operasional Trading Desk: {mode_labels.get(desk_mode, desk_mode)}")
 
     candidates = []
 
-    if desk_mode == "SCALP":
-        print(f"\n[2. FAST SCALPER AGENT — 5m / 15m MICRO-STRUCTURE SCAN]")
-        scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:6])
+    # 2A. Fast Scalper Scan (Runs in HYBRID and SCALP modes)
+    if desk_mode in ["SCALP", "HYBRID"]:
+        print(f"\n[2A. FAST SCALPER ENGINE — 5m / 15m MICRO-STRUCTURE SCAN]")
+        scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:8])
         for s in scalp_setups:
             pair_sym = f"{s['symbol']}USDT"
             if pair_sym in active_symbols:
@@ -438,13 +447,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 "macro_aligned": True,
                 "reason": f"⚡ SCALP [{s['strategy']}]: {s['reason']} (Target: {s['target_duration']})"
             })
-    else:
-        candidates = scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct)
+
+    # 2B. Swing Intraday Scan (Runs in HYBRID and SWING modes)
+    if desk_mode in ["SWING", "HYBRID"]:
+        print(f"\n[2B. SWING INTRADAY ENGINE — 1H / 4H MACRO CONFLUENCE SCAN]")
+        swing_cands = scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct)
+        candidates.extend(swing_cands)
 
     # 3. Decision & Execution Desk
     print("\n[3. EXECUTION DESK DECISION]")
     if not candidates:
-        print("Tidak ada setup baru yang memenuhi konfluensi ketat (FVG / 3-Touch / Fabio Auction / Tim MSS / RS-RW + Min R:R + RSI).")
+        print("Tidak ada setup baru yang memenuhi konfluensi ketat (FVG / 3-Touch / Fabio Auction / Tim MSS / RS-RW / 5m Scalp).")
         print("Desk standby menunggu struktur pasar berikutnya.")
         log_desk_activity({
             "timestamp": timestamp_str,
@@ -455,8 +468,9 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     else:
         # Available slots
         slots_available = max_open_positions - len(active_positions)
-        # Prioritize Elite setups (Tim MSS, Fabio Auction, Patrick Nill 3-Touch) + Macro Confluence + RS Alignment, then highest R:R
+        # Prioritize 5m Scalps (time-sensitive momentum) and Elite Swing setups (Tim MSS, Fabio Auction, Patrick Nill 3-Touch) + Macro Confluence + RS Alignment, then highest R:R
         candidates.sort(key=lambda x: (
+            1 if x.get("is_scalp") else 0,
             1 if (x.get("is_tim") or x.get("is_fabio") or x.get("is_3touch")) else 0,
             1 if x.get("macro_aligned") else 0,
             1 if (x.get("is_alpha_leader") or x.get("is_beta_laggard")) else 0,

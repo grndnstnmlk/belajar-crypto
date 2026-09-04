@@ -1148,11 +1148,16 @@
         pBtn.textContent = isPaused ? "▶️ Lanjutkan Autopilot" : "⏸️ Jeda Autopilot";
 
         // Update trading mode
-        const mode = data.mode || "SWING";
+        const mode = data.mode || "HYBRID";
         const modeBtn = document.getElementById("mode-btn-text");
         const modeBtnEl = document.getElementById("toggle-mode-btn");
         if (modeBtn && modeBtnEl) {
-          if (mode === "SCALP") {
+          if (mode === "HYBRID") {
+            modeBtn.textContent = "🤖 Mode: HYBRID (Auto Scalp + Swing)";
+            modeBtnEl.style.borderColor = "var(--green)";
+            modeBtnEl.style.color = "var(--green)";
+            modeBtnEl.style.background = "rgba(38, 230, 166, 0.12)";
+          } else if (mode === "SCALP") {
             modeBtn.textContent = "⚡ Mode: SCALP (5m)";
             modeBtnEl.style.borderColor = "var(--cyan)";
             modeBtnEl.style.color = "var(--cyan)";
@@ -1425,17 +1430,22 @@
 
     async function toggleTradingMode() {
       const modeBtn = document.getElementById("mode-btn-text");
-      const isCurrentlyScalp = modeBtn && modeBtn.textContent.includes("SCALP");
-      const targetMode = isCurrentlyScalp ? "SWING" : "SCALP";
+      let nextMode = "HYBRID";
+      if (modeBtn) {
+        if (modeBtn.textContent.includes("HYBRID")) nextMode = "SCALP";
+        else if (modeBtn.textContent.includes("SCALP")) nextMode = "SWING";
+        else nextMode = "HYBRID";
+      }
       try {
         const res = await fetch("/api/action/set_mode", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mode: targetMode })
+          body: JSON.stringify({ mode: nextMode })
         });
         const d = await res.json();
         if (d.success) {
-          alert(`Mode berhasil diubah ke: ${d.mode} (${d.mode === 'SCALP' ? '5m Fast Scalping' : '1H Swing Trading'})`);
+          const modeDesc = d.mode === 'HYBRID' ? 'Auto Scalp + Swing (Simultan)' : (d.mode === 'SCALP' ? '5m Fast Scalping' : '1H Swing Trading');
+          alert(`Mode berhasil diubah ke: ${d.mode} (${modeDesc})`);
           updateDashboardFeed();
         } else {
           alert(`Gagal ubah mode: ${JSON.stringify(d)}`);

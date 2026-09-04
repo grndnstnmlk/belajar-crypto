@@ -66,13 +66,13 @@ def load_desk_state():
                 return json.load(f)
         except Exception:
             pass
-    return {"paused": False, "mode": "SWING", "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+    return {"paused": False, "mode": "HYBRID", "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 def save_desk_state(state):
     os.makedirs(DATA_DIR, exist_ok=True)
     state["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if "mode" not in state:
-        state["mode"] = "SWING"
+        state["mode"] = "HYBRID"
     try:
         with open(STATE_FILE, "w", encoding="utf-8") as f:
             json.dump(state, f, indent=2)
@@ -85,11 +85,12 @@ def is_desk_paused():
 
 def get_desk_mode():
     state = load_desk_state()
-    return state.get("mode", "SWING")
+    return state.get("mode", "HYBRID")
 
 MAIN_KEYBOARD = {
     "keyboard": [
         [{"text": "📊 Status Desk"}, {"text": "💰 Cek PnL"}],
+        [{"text": "🤖 Mode Hybrid (Auto)"}],
         [{"text": "⚡ Mode Scalp (5m)"}, {"text": "🎯 Mode Swing (1H)"}],
         [{"text": "⏸️ Jeda Bot"}, {"text": "▶️ Lanjutkan Bot"}],
         [{"text": "🚨 Tutup Semua Posisi"}, {"text": "❓ Panduan Bantuan"}]
@@ -524,6 +525,20 @@ class TelegramCommandListener(threading.Thread):
             save_desk_state(state)
             send_telegram_msg(
                 "▶️ <b>Trading Desk dilanjutkan kembali!</b>\nSiklus pemindaian dan eksekusi autopilot aktif.",
+                chat_id_override=chat_id,
+                reply_markup=MAIN_KEYBOARD
+            )
+
+        elif command in ["/hybrid", "/auto", "🤖 mode hybrid (auto)"]:
+            state = load_desk_state()
+            state["mode"] = "HYBRID"
+            save_desk_state(state)
+            send_telegram_msg(
+                "🤖 <b>MODE HYBRID DUAL-ENGINE AKTIF! (AUTO SWING + SCALP)</b>\n\n"
+                "• <b>Otomatis & Mandiri</b>: Agent aktif memindai peluang <b>1H Swing</b> dan <b>5m Fast Scalping</b> secara bersamaan!\n"
+                "• <b>Prioritas Scalp</b>: Begitu terdeteksi pergerakan kilat 5m (Volume Surge, VWAP 2σ, Sweep FVG), scalp akan otomatis dieksekusi ke slot kosong tanpa perlu disuruh.\n"
+                "• <b>Proteksi Khusus</b>: Trade scalp otomatis memakai Fast Breakeven (+0.7R) dan 45-Minute Time-Stop.\n\n"
+                "<i>Trading Desk kini berburu setup jangka pendek dan menengah secara penuh autopilot.</i>",
                 chat_id_override=chat_id,
                 reply_markup=MAIN_KEYBOARD
             )
