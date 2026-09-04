@@ -92,8 +92,9 @@ MAIN_KEYBOARD = {
         [{"text": "📊 Status Desk"}, {"text": "💰 Cek PnL"}],
         [{"text": "🤖 Mode Hybrid (Auto)"}],
         [{"text": "⚡ Mode Scalp (5m)"}, {"text": "🎯 Mode Swing (1H)"}],
+        [{"text": "📰 Kalender Berita"}, {"text": "🚨 Tutup Semua Posisi"}],
         [{"text": "⏸️ Jeda Bot"}, {"text": "▶️ Lanjutkan Bot"}],
-        [{"text": "🚨 Tutup Semua Posisi"}, {"text": "❓ Panduan Bantuan"}]
+        [{"text": "❓ Panduan Bantuan"}]
     ],
     "resize_keyboard": True,
     "is_persistent": True
@@ -110,6 +111,7 @@ def setup_bot_commands():
     commands = [
         {"command": "status", "description": "📊 Cek saldo & posisi aktif"},
         {"command": "pnl", "description": "💰 Detail profit & loss real-time"},
+        {"command": "news", "description": "📰 Kalender berita makro AS (High-Impact)"},
         {"command": "pause", "description": "⏸️ Jeda eksekusi order autopilot"},
         {"command": "resume", "description": "▶️ Lanjutkan autopilot"},
         {"command": "close", "description": "🔴 Pilih koin untuk ditutup"},
@@ -577,6 +579,14 @@ class TelegramCommandListener(threading.Thread):
                 chat_id_override=chat_id,
                 reply_markup=MAIN_KEYBOARD
             )
+
+        elif command in ["/news", "📰 kalender berita"]:
+            try:
+                import macro_news_shield
+                agenda_msg = macro_news_shield.format_telegram_news_agenda()
+                send_telegram_msg(agenda_msg, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat kalender berita: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
 
         elif command == "/close":
             positions = trading_desk.get_active_positions(self.user_email, self.is_demo)

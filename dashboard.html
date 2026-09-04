@@ -730,6 +730,10 @@
           <span class="metric-val mono amber" id="confluence-target-val">≥ 75%</span>
         </div>
         <div class="metric-item">
+          <span class="metric-label">Macro News Shield</span>
+          <span class="metric-val mono green" id="news-shield-val" title="Perisai volatilitas berita makro AS">🛡️ SAFE</span>
+        </div>
+        <div class="metric-item">
           <span class="metric-label">Clock (WIB)</span>
           <span class="metric-val mono" id="clock-val">00:00:00</span>
         </div>
@@ -1199,6 +1203,17 @@
           const confEl = document.getElementById("confluence-target-val");
           if (confEl) {
             confEl.textContent = `≥ ${data.session.min_threshold}%`;
+          }
+        }
+
+        // Update news shield
+        if (data.news_shield) {
+          const nsEl = document.getElementById("news-shield-val");
+          if (nsEl) {
+            const isBlk = data.news_shield.is_blackout;
+            nsEl.textContent = isBlk ? "🚨 BLACKOUT" : "🛡️ SAFE";
+            nsEl.className = `metric-val mono ${isBlk ? "red" : "green"}`;
+            nsEl.title = `${data.news_shield.reason}\nNext Event: ${data.news_shield.next_event} (${data.news_shield.next_time})`;
           }
         }
 

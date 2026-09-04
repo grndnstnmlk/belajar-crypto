@@ -35,6 +35,7 @@ import telegram_notifier
 import topdown_confluence
 import trade_manager
 import session_filter
+import macro_news_shield
 
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
@@ -91,6 +92,14 @@ def get_dashboard_feed_data():
     feed["is_paused"] = state.get("paused", False)
     feed["mode"] = state.get("mode", "SWING")
     feed["session"] = session_filter.get_current_session_info()
+    is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
+    feed["news_shield"] = {
+        "is_blackout": is_blk,
+        "status": "BLACKOUT_ACTIVE" if is_blk else "SAFE",
+        "reason": blk_reason,
+        "next_event": next_ev.get("title") if next_ev else "None",
+        "next_time": next_ev.get("time_wib_str") if next_ev else "-"
+    }
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return feed
 

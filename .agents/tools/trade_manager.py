@@ -25,6 +25,7 @@ TRADE_META_FILE = os.path.join(DATA_DIR, "active_trades_meta.json")
 sys.path.insert(0, TOOLS_DIR)
 import binance_client
 import telegram_notifier
+import macro_news_shield
 
 def load_trade_metadata():
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -253,7 +254,30 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     pass
 
         # -------------------------------------------------------------
-        # STEP 1: BREAKEVEN AUTO-LOCK (+0.7R Scalp / +1.0R Swing)
+        # STEP 1A: PRE-EMPTIVE HIGH-IMPACT NEWS DEFENSE
+        # -------------------------------------------------------------
+        should_protect, news_ev, mins_left = macro_news_shield.should_preemptively_protect_positions(caution_window_minutes=45)
+        if should_protect and r_multiple >= 0.25 and not t_data.get("breakeven_locked"):
+            be_price = calculate_breakeven_price(sym, side, entry_price)
+            success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
+            if success:
+                t_data["breakeven_locked"] = True
+                t_data["current_sl"] = be_price
+                print(f"🛡️ [PRE-NEWS BREAKEVEN LOCK] {sym}: SL digeser ke BE ${be_price:,.4f} menjelang berita '{news_ev['title']}' ({mins_left}m lagi). Posisi diproteksi dari lonjakan volatilitas!")
+                management_events.append(f"🛡️ {sym} Pre-News BE Protected @ ${be_price:,.4f} ({news_ev['title']})")
+                try:
+                    telegram_notifier.send_telegram_broadcast(
+                        f"🛡️ <b>PRE-NEWS BREAKEVEN LOCK DIAKTIFKAN!</b>\n"
+                        f"💎 <b>Simbol:</b> <code>{sym}</code>\n"
+                        f"📰 <b>Pemicu Berita:</b> <code>{news_ev['title']}</code> (dalam {mins_left} menit)\n"
+                        f"🛑 <b>SL Diamankan ke BE:</b> <code>${be_price:,.4f}</code>\n"
+                        f"🎉 <i>Posisi dikunci bebas risiko sebelum volatilitas berita makro AS meledak!</i>"
+                    )
+                except Exception:
+                    pass
+
+        # -------------------------------------------------------------
+        # STEP 1B: STANDARD BREAKEVEN AUTO-LOCK (+0.7R Scalp / +1.0R Swing)
         # -------------------------------------------------------------
         be_target_r = 0.7 if t_data.get("is_scalp") else 1.0
         if r_multiple >= be_target_r and not t_data.get("breakeven_locked"):

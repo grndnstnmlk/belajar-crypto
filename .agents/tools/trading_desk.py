@@ -34,6 +34,7 @@ import trade_manager
 import topdown_confluence
 import fast_scalper
 import session_filter
+import macro_news_shield
 
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
@@ -79,6 +80,7 @@ def log_desk_activity(entry):
 
 def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, genome):
     sess = session_filter.get_current_session_info()
+    is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
     data = {
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "user_email": user_email or "dxmade@gmail.com",
@@ -88,6 +90,13 @@ def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, ge
         "min_rr": genome.get("parameters", {}).get("min_risk_reward", 2.5),
         "max_risk_pct": genome.get("parameters", {}).get("max_risk_per_trade_pct", 1.5),
         "session": sess,
+        "news_shield": {
+            "is_blackout": is_blk,
+            "status": "BLACKOUT_ACTIVE" if is_blk else "SAFE",
+            "reason": blk_reason,
+            "next_event": next_ev.get("title") if next_ev else "None",
+            "next_time": next_ev.get("time_wib_str") if next_ev else "-"
+        },
         "positions": [
             {
                 "symbol": p["symbol"],
@@ -372,6 +381,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
 
     active_watchlist = symbols if symbols else DEFAULT_WATCHLIST
     session_info = session_filter.get_current_session_info()
+    is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
 
     timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("\n" + "=" * 68)
@@ -381,6 +391,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     print(f"       🕹️ Mode       : {mode_label}")
     print(f"       ⏱️ Sesi Pasar  : {session_info['session_name']}")
     print(f"       🎯 Akurasi Min : Skor Konfluensi >= {session_info['min_threshold']}% (Akurasi Terproteksi)")
+    print(f"       📰 News Shield : {'🔴 BLACKOUT (Order Baru Beku)' if is_blk else '🟢 AMAN (Normal Autopilot)'}")
     print(f"       🌐 Watchlist  : {len(active_watchlist)} Aset ({', '.join(active_watchlist)})")
     print(f"       🧬 Genome     : Gen {genome.get('generation', 1)} (Min R:R >= {min_rr}, Max Risk: {max_risk_pct}%)")
     print("=" * 68)
@@ -422,6 +433,19 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
 
     if len(active_positions) >= max_open_positions:
         print(f"\n[Guardrail Alert] Batas maksimal posisi ({max_open_positions}) tercapai. Melewatkan pembukaan posisi baru untuk menjaga margin.")
+        return
+
+    # 1B. Macro High-Impact News Blackout Guardrail
+    if is_blk:
+        print(f"\n[🚨 MACRO NEWS SHIELD GUARD] {blk_reason}")
+        print("Trading desk membekukan pembukaan order baru demi melindungi modal dari lonjakan volatilitas ekstrim!")
+        log_desk_activity({
+            "timestamp": timestamp_str,
+            "action": "NEWS_BLACKOUT_BLOCKED",
+            "reason": blk_reason,
+            "balance": balance_usd,
+            "positions_count": len(active_positions)
+        })
         return
 
     desk_mode = telegram_notifier.get_desk_mode().upper()
