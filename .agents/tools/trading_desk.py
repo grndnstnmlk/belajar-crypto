@@ -108,6 +108,45 @@ def get_account_balance(user_email=None, is_demo=True):
             return float(b.get("balance", 0))
     return 1000.0
 
+def compute_rs_matrix(symbols):
+    """
+    Trader 4 (Top Prop Trader) Relative Strength vs. Relative Weakness (RS/RW) Matrix.
+    Measures alpha against BTC benchmark to pick Strongest for Longs and Weakest for Shorts.
+    """
+    matrix = {}
+    btc_url = "https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT"
+    btc_res = market_eyes.fetch_json(btc_url)
+    btc_chg = 0.0
+    if btc_res and btc_res.get("data"):
+        d = btc_res["data"][0]
+        o = float(d.get("open24h", 0))
+        c = float(d.get("last", 0))
+        btc_chg = ((c - o) / o * 100.0) if o > 0 else 0.0
+
+    for sym in symbols:
+        url = f"https://www.okx.com/api/v5/market/ticker?instId={sym}-USDT"
+        res = market_eyes.fetch_json(url)
+        if res and res.get("data"):
+            d = res["data"][0]
+            o = float(d.get("open24h", 0))
+            c = float(d.get("last", 0))
+            chg = ((c - o) / o * 100.0) if o > 0 else 0.0
+            rs = round(chg - btc_chg, 2)
+            if rs >= 1.0:
+                tier = "LEADER"
+                badge = "🟢 ALPHA LEADER (Strongest)"
+            elif rs <= -1.0:
+                tier = "LAGGARD"
+                badge = "🔴 BETA LAGGARD (Weakest)"
+            else:
+                tier = "NEUTRAL"
+                badge = "⚪ IN-LINE WITH BTC"
+            matrix[sym] = {"change_24h": round(chg, 2), "rs_score": rs, "tier": tier, "badge": badge}
+        else:
+            matrix[sym] = {"change_24h": 0.0, "rs_score": 0.0, "tier": "NEUTRAL", "badge": "⚪ UNKNOWN"}
+
+    return matrix, btc_chg
+
 def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, symbols=None):
     genome = load_genome()
     params = genome.get("parameters", {})
@@ -148,14 +187,19 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         print(f"\n[Guardrail Alert] Batas maksimal posisi ({max_open_positions}) tercapai. Melewatkan pembukaan posisi baru untuk menjaga margin.")
         return
 
-    # 2. Researcher Agent: Scanning Watchlist
-    print(f"\n[2. MARKET RESEARCHER AGENT — SCANNING WATCHLIST ({len(active_watchlist)} PAIRS)]")
+    # 2. Researcher Agent: Scanning Watchlist & Relative Strength Matrix
+    print(f"\n[2. MARKET RESEARCHER AGENT — RELATIVE STRENGTH & WATCHLIST SCAN]")
+    rs_matrix, btc_chg = compute_rs_matrix(active_watchlist)
+    print(f" * BTC 24h Benchmark Performance: {btc_chg:+.2f}%")
+    for s_name, r_info in sorted(rs_matrix.items(), key=lambda x: x[1]["rs_score"], reverse=True):
+        print(f"   - {s_name:<5}: 24h {r_info['change_24h']:+6.2f}% | RS vs BTC: {r_info['rs_score']:+6.2f}% | {r_info['badge']}")
+
     candidates = []
 
     for sym in active_watchlist:
         pair_sym = f"{sym}USDT"
         if pair_sym in active_symbols:
-            print(f" - {pair_sym}: Sudah ada posisi aktif yang sedang berjalan. Dilewati.")
+            print(f"\n - {pair_sym}: Sudah ada posisi aktif yang sedang berjalan. Dilewati.")
             continue
 
         data = market_eyes.get_market_eyes(sym, bar="1H")
@@ -201,6 +245,11 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         volume_profile = data.get("volume_profile")
         va_setup = volume_profile.get("setup") if volume_profile else None
         liquidity_sweep = data.get("liquidity_sweep")
+        vwap_data = data.get("vwap")
+
+        rs_info = rs_matrix.get(sym, {})
+        is_alpha_leader = rs_info.get("tier") == "LEADER"
+        is_beta_laggard = rs_info.get("tier") == "LAGGARD"
 
         # Rule A: Bullish Setup (Bullish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, or Tim Flossbach MSS)
         has_bullish_fvg = "Bullish FVG" in fvg
@@ -233,9 +282,15 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 sl = round(low_24h * 0.998, 4)
                 reason_tag = "Bullish FVG"
 
+            if is_alpha_leader:
+                reason_tag += f" + ⭐ ALPHA LEADER (RS {rs_info['rs_score']:+,.2f}%)"
+            if vwap_data and "Above VWAP" in vwap_data.get("state", ""):
+                reason_tag += " + VWAP Bullish"
+
             dist_sl = price - sl
             if dist_sl > 0:
-                target_rr = max(effective_min_rr, 3.5 if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep) else effective_min_rr)
+                bonus_rr = 0.5 if is_alpha_leader else 0.0
+                target_rr = max(effective_min_rr, (3.5 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep) else (effective_min_rr + bonus_rr))
                 tp = round(price + (dist_sl * target_rr), 4)
                 rr = (tp - price) / dist_sl
                 signal = {
@@ -249,6 +304,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     "is_3touch": has_bullish_3touch,
                     "is_fabio": has_bullish_auction,
                     "is_tim": has_bullish_sweep,
+                    "is_alpha_leader": is_alpha_leader,
                     "sub_genome": sub_label,
                     "risk_pct": effective_max_risk,
                     "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
@@ -270,9 +326,15 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 sl = round(high_24h * 1.002, 4)
                 reason_tag = "Bearish FVG"
 
+            if is_beta_laggard:
+                reason_tag += f" + ⭐ BETA LAGGARD (RS {rs_info['rs_score']:+,.2f}%)"
+            if vwap_data and "Below VWAP" in vwap_data.get("state", ""):
+                reason_tag += " + VWAP Bearish"
+
             dist_sl = sl - price
             if dist_sl > 0:
-                target_rr = max(effective_min_rr, 3.5 if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep) else effective_min_rr)
+                bonus_rr = 0.5 if is_beta_laggard else 0.0
+                target_rr = max(effective_min_rr, (3.5 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep) else (effective_min_rr + bonus_rr))
                 tp = round(price - (dist_sl * target_rr), 4)
                 rr = (price - tp) / dist_sl
                 signal = {
@@ -286,6 +348,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     "is_3touch": has_bearish_3touch,
                     "is_fabio": has_bearish_auction,
                     "is_tim": has_bearish_sweep,
+                    "is_beta_laggard": is_beta_laggard,
                     "sub_genome": sub_label,
                     "risk_pct": effective_max_risk,
                     "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
@@ -297,7 +360,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     # 3. Decision & Execution Desk
     print("\n[3. EXECUTION DESK DECISION]")
     if not candidates:
-        print("Tidak ada setup baru yang memenuhi konfluensi ketat (FVG / 3-Touch / Fabio Auction / Tim MSS + Min R:R + RSI).")
+        print("Tidak ada setup baru yang memenuhi konfluensi ketat (FVG / 3-Touch / Fabio Auction / Tim MSS / RS-RW + Min R:R + RSI).")
         print("Desk standby menunggu struktur pasar berikutnya.")
         log_desk_activity({
             "timestamp": timestamp_str,
@@ -308,8 +371,12 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     else:
         # Available slots
         slots_available = max_open_positions - len(active_positions)
-        # Prioritize Elite setups (Tim Flossbach MSS, Fabio Valentini Auction, Patrick Nill 3-Touch) first, then highest R:R
-        candidates.sort(key=lambda x: (1 if (x.get("is_tim") or x.get("is_fabio") or x.get("is_3touch")) else 0, x["rr"]), reverse=True)
+        # Prioritize Elite setups (Tim MSS, Fabio Auction, Patrick Nill 3-Touch) + RS Alignment, then highest R:R
+        candidates.sort(key=lambda x: (
+            1 if (x.get("is_tim") or x.get("is_fabio") or x.get("is_3touch")) else 0,
+            1 if (x.get("is_alpha_leader") or x.get("is_beta_laggard")) else 0,
+            x["rr"]
+        ), reverse=True)
         selected = candidates[:slots_available]
 
         print(f"🎯 Ditemukan {len(candidates)} setup potensial. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")

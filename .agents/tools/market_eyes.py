@@ -6,6 +6,7 @@ Fair Value Gaps (FVG), and Perpetual Funding Rates.
 
 import argparse
 import json
+import math
 import sys
 import urllib.request
 import urllib.error
@@ -105,6 +106,67 @@ def detect_three_touch_setup(highs, lows, closes, current_price, tolerance=0.008
         }
 
     return None
+
+def calculate_vwap_and_bands(raw_candles):
+    """
+    Trader 2 (Ex-Hedge Fund Manager) Institutional VWAP & Standard Deviation Bands.
+    Calculates true institutional volume-weighted average price and +/-1σ / +/-2σ volatility bands.
+    """
+    if len(raw_candles) < 15:
+        return None
+
+    cum_vol = 0.0
+    cum_pv = 0.0
+    typical_prices = []
+    volumes = []
+
+    for c in raw_candles:
+        h = float(c[2])
+        l = float(c[3])
+        cl = float(c[4])
+        tp = (h + l + cl) / 3.0
+        vol = float(c[6]) if len(c) > 6 and float(c[6]) > 0 else (float(c[5]) * cl)
+
+        cum_vol += vol
+        cum_pv += tp * vol
+        typical_prices.append(tp)
+        volumes.append(vol)
+
+    if cum_vol <= 0:
+        return None
+
+    vwap = cum_pv / cum_vol
+
+    # Volume-Weighted Standard Deviation
+    sum_sq_diff = 0.0
+    for tp, vol in zip(typical_prices, volumes):
+        sum_sq_diff += vol * ((tp - vwap) ** 2)
+    vw_std = math.sqrt(sum_sq_diff / cum_vol)
+
+    upper_1 = vwap + (1.0 * vw_std)
+    lower_1 = vwap - (1.0 * vw_std)
+    upper_2 = vwap + (2.0 * vw_std)
+    lower_2 = vwap - (2.0 * vw_std)
+
+    current_price = float(raw_candles[-1][4])
+    dist_vwap_pct = ((current_price - vwap) / vwap) * 100.0
+
+    state = "Above VWAP (Bullish Acceptance)" if current_price > vwap else "Below VWAP (Bearish Acceptance)"
+    if current_price >= upper_2:
+        state = "Extreme Overbought (+2σ Volatility Exhaustion)"
+    elif current_price <= lower_2:
+        state = "Extreme Oversold (-2σ Volatility Exhaustion)"
+
+    return {
+        "vwap": round(vwap, 4),
+        "upper_1": round(upper_1, 4),
+        "lower_1": round(lower_1, 4),
+        "upper_2": round(upper_2, 4),
+        "lower_2": round(lower_2, 4),
+        "std": round(vw_std, 4),
+        "dist_pct": round(dist_vwap_pct, 2),
+        "state": state
+    }
 
 def calculate_volume_profile(raw_candles, current_price, num_bins=35):
     """
@@ -366,6 +428,12 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         if liquidity_sweep:
             print(f"Liquidity Sweep  : {liquidity_sweep['label']}")
 
+        # Institutional VWAP & Standard Deviation Bands (Ex-Hedge Fund Manager Strategy)
+        vwap_data = calculate_vwap_and_bands(raw_candles)
+        if vwap_data:
+            print(f"Inst. VWAP       : ${vwap_data['vwap']:,.4f} [{vwap_data['dist_pct']:+,.2f}%] | Bands (±1σ): ${vwap_data['lower_1']:,.4f} - ${vwap_data['upper_1']:,.4f}")
+            print(f"VWAP Bias        : {vwap_data['state']}")
+
     print(f"=======================================================\n")
     return {
         "symbol": inst_id_spot,
@@ -381,6 +449,7 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         "three_touch": three_touch if 'three_touch' in locals() else None,
         "volume_profile": volume_profile if 'volume_profile' in locals() else None,
         "liquidity_sweep": liquidity_sweep if 'liquidity_sweep' in locals() else None,
+        "vwap": vwap_data if 'vwap_data' in locals() else None,
         "funding_rate": funding_rate
     }
 
