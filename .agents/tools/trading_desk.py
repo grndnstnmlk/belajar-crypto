@@ -265,57 +265,63 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             "note": "Scanned watchlist, no qualifying confluences found."
         })
     else:
-        # Pick best R:R setup
+        # Available slots
+        slots_available = max_open_positions - len(active_positions)
         candidates.sort(key=lambda x: x["rr"], reverse=True)
-        best = candidates[0]
-        print(f"🎯 Setup Terpilih: {best['side']} {best['symbol']}")
-        print(f" * Rationale  : {best['reason']}")
-        print(f" * Entry Price: ${best['price']:,.4f}")
-        print(f" * Stop Loss  : ${best['sl']:,.4f}")
-        print(f" * Take Profit: ${best['tp']:,.4f}")
-        print(f" * R:R Ratio  : 1 : {best['rr']:.2f}")
+        selected = candidates[:slots_available]
 
-        # Calculate exact position size for 1.5% max risk
-        risk_budget = balance_usd * (max_risk_pct / 100.0)
-        sl_pct = abs(best["price"] - best["sl"]) / best["price"]
-        pos_size_usd = risk_budget / max(sl_pct, 0.005)
-        # Cap position size to 3x equity max
-        pos_size_usd = min(pos_size_usd, balance_usd * 3.0)
-        raw_qty = pos_size_usd / best["price"]
-        if best["base"] in ["BTC"]:
-            qty = max(0.001, round(raw_qty, 3))
-        elif best["base"] in ["ETH"]:
-            qty = max(0.01, round(raw_qty, 2))
-        elif best["base"] in ["SOL", "BNB", "AVAX", "LINK", "APT"]:
-            qty = max(0.1, round(raw_qty, 1))
-        elif best["base"] in ["DOGE", "XRP", "ADA", "SUI", "NEAR"]:
-            qty = max(1.0, round(raw_qty, 0))
-        else:
-            qty = max(0.1, round(raw_qty, 1))
+        print(f"🎯 Ditemukan {len(candidates)} setup potensial. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")
 
-        print(f" * Position Size Budget: ${pos_size_usd:,.2f} ({qty} {best['base']})")
-        print(f" * Max Risk At SL      : ${risk_budget:,.2f} ({max_risk_pct}% modal)")
+        for idx, best in enumerate(selected, 1):
+            print(f"\n--- [{idx}/{len(selected)}] EKSEKUSI SETUP: {best['side']} {best['symbol']} ---")
+            print(f" * Rationale  : {best['reason']}")
+            print(f" * Entry Price: ${best['price']:,.4f}")
+            print(f" * Stop Loss  : ${best['sl']:,.4f}")
+            print(f" * Take Profit: ${best['tp']:,.4f}")
+            print(f" * R:R Ratio  : 1 : {best['rr']:.2f}")
 
-        # Execute via binance_client
-        print(f"\n[Mengirimkan Order ke Binance Futures...]")
-        binance_client.place_futures_order(
-            symbol=best["symbol"],
-            side=best["side"],
-            quantity=qty,
-            leverage=5,
-            sl=best["sl"],
-            tp=best["tp"],
-            is_demo=is_demo,
-            user_email=user_email
-        )
+            # Calculate exact position size for 1.5% max risk
+            risk_budget = balance_usd * (max_risk_pct / 100.0)
+            sl_pct = abs(best["price"] - best["sl"]) / best["price"]
+            pos_size_usd = risk_budget / max(sl_pct, 0.005)
+            # Cap position size to 3x equity max
+            pos_size_usd = min(pos_size_usd, balance_usd * 3.0)
+            raw_qty = pos_size_usd / best["price"]
+            if best["base"] in ["BTC"]:
+                qty = max(0.001, round(raw_qty, 3))
+            elif best["base"] in ["ETH"]:
+                qty = max(0.01, round(raw_qty, 2))
+            elif best["base"] in ["SOL", "BNB", "AVAX", "LINK", "APT"]:
+                qty = max(0.1, round(raw_qty, 1))
+            elif best["base"] in ["DOGE", "XRP", "ADA", "SUI", "NEAR"]:
+                qty = max(1.0, round(raw_qty, 0))
+            else:
+                qty = max(0.1, round(raw_qty, 1))
 
-        log_desk_activity({
-            "timestamp": timestamp_str,
-            "action": "EXECUTE_TRADE",
-            "trade": best,
-            "quantity": qty,
-            "risk_budget_usd": risk_budget
-        })
+            print(f" * Position Size Budget: ${pos_size_usd:,.2f} ({qty} {best['base']})")
+            print(f" * Max Risk At SL      : ${risk_budget:,.2f} ({max_risk_pct}% modal)")
+
+            # Execute via binance_client
+            print(f"[Mengirimkan Order ke Binance Futures...]")
+            binance_client.place_futures_order(
+                symbol=best["symbol"],
+                side=best["side"],
+                quantity=qty,
+                leverage=5,
+                sl=best["sl"],
+                tp=best["tp"],
+                is_demo=is_demo,
+                user_email=user_email
+            )
+
+            log_desk_activity({
+                "timestamp": timestamp_str,
+                "action": "EXECUTE_TRADE",
+                "trade": best,
+                "quantity": qty,
+                "risk_budget_usd": risk_budget
+            })
+            time.sleep(1)
 
     print("=" * 65 + "\n")
 
@@ -353,15 +359,35 @@ def main():
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 30)")
     run_p.add_argument("--user", type=str, default=None, help="Email akun (misal: dxmade@gmail.com)")
+    run_p.add_argument("--exchange", type=str, default="binance", choices=["binance", "tokocrypto"], help="Bursa target: binance (Futures) atau tokocrypto (Spot)")
     run_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo)")
 
     # Status command
     stat_p = sub.add_parser("status", help="Lihat status trading desk dan ringkasan posisi")
+    stat_p.add_argument("--exchange", type=str, default="binance", choices=["binance", "tokocrypto"], help="Bursa target: binance atau tokocrypto")
     stat_p.add_argument("--user", type=str, default=None, help="Email akun")
     stat_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo)")
 
     args = parser.parse_args()
     is_demo = not getattr(args, "live", False)
+
+    if getattr(args, "exchange", "binance").lower() == "tokocrypto":
+        import tokocrypto_autopilot
+        if args.command == "status":
+            tokocrypto_autopilot.run_autopilot_cycle(args.user, watchlist=[])
+        elif args.command == "run":
+            syms = [s.strip().upper() for s in args.symbols.split(",") if s.strip()] if getattr(args, "symbols", None) else None
+            if args.once:
+                tokocrypto_autopilot.run_autopilot_cycle(args.user, watchlist=syms)
+            else:
+                try:
+                    while True:
+                        tokocrypto_autopilot.run_autopilot_cycle(args.user, watchlist=syms)
+                        print(f"Autopilot Tokocrypto tidur selama {args.interval} menit...")
+                        time.sleep(args.interval * 60)
+                except KeyboardInterrupt:
+                    print("\nAutopilot Tokocrypto dihentikan oleh pengguna.")
+        return
 
     if args.command == "status":
         show_desk_status(args.user, is_demo)

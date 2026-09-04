@@ -72,6 +72,26 @@ def resolve_credentials(user_email=None, is_demo=True):
     proxy = env_vars.get("BINANCE_PROXY")
     return target_user, key, secret, base_url, mode_label, proxy
 
+SERVER_TIME_OFFSETS = {}
+
+def get_server_time_offset(base_url):
+    global SERVER_TIME_OFFSETS
+    if base_url in SERVER_TIME_OFFSETS:
+        return SERVER_TIME_OFFSETS[base_url]
+    try:
+        url = f"{base_url}/fapi/v1/time"
+        req = urllib.request.Request(url, headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=5, context=SSL_CTX) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            st = int(data.get("serverTime", 0))
+            if st:
+                offset = st - int(time.time() * 1000)
+                SERVER_TIME_OFFSETS[base_url] = offset
+                return offset
+    except Exception:
+        pass
+    return 0
+
 def send_signed_request(endpoint, method="GET", params=None, is_demo=True, user_email=None):
     target_user, key, secret, base_url, mode_label, proxy = resolve_credentials(user_email, is_demo)
     if not key or not secret:
@@ -88,8 +108,9 @@ def send_signed_request(endpoint, method="GET", params=None, is_demo=True, user_
     if params is None:
         params = {}
 
-    params["timestamp"] = int(time.time() * 1000)
-    params["recvWindow"] = 10000
+    offset = get_server_time_offset(base_url)
+    params["timestamp"] = int(time.time() * 1000) + offset
+    params["recvWindow"] = 15000
 
     query_str = urllib.parse.urlencode(params)
     signature = hmac.new(secret.encode("utf-8"), query_str.encode("utf-8"), hashlib.sha256).hexdigest()
@@ -212,6 +233,17 @@ def get_positions(user_email=None, is_demo=True):
             print(f"   Floating PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}")
     print("=======================================================\n")
 
+def format_price_precision(symbol, price):
+    sym = symbol.upper()
+    if "BTC" in sym:
+        return f"{price:.1f}"
+    elif any(k in sym for k in ["ETH", "BNB", "SOL", "AVAX", "LINK"]):
+        return f"{price:.2f}"
+    elif any(k in sym for k in ["XRP", "ADA", "DOGE", "SUI", "NEAR"]):
+        return f"{price:.4f}"
+    else:
+        return f"{price:.2f}"
+
 def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is_demo=True, user_email=None):
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
     target_user, _, _, _, mode_label, _ = resolve_credentials(user_email, is_demo)
@@ -247,31 +279,37 @@ def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is
     # 3. Attach Stop Loss via Algo Order API
     opp_side = "SELL" if side_clean == "BUY" else "BUY"
     if sl:
+        sl_str = format_price_precision(sym_clean, sl)
         sl_params = {
             "algoType": "CONDITIONAL",
             "symbol": sym_clean,
             "side": opp_side,
             "type": "STOP_MARKET",
-            "triggerPrice": str(sl),
-            "quantity": str(quantity)
+            "triggerPrice": sl_str,
+            "closePosition": "true"
         }
         sl_res = send_signed_request("/fapi/v1/algoOrder", method="POST", params=sl_params, is_demo=is_demo, user_email=user_email)
         if sl_res and sl_res.get("algoId"):
-            print(f"🛑 Stop Loss dipasang di harga ${sl:,.4f} (Algo ID: {sl_res.get('algoId')})")
+            print(f"🛑 Stop Loss dipasang di harga ${sl_str} (Algo ID: {sl_res.get('algoId')})")
+        else:
+            print(f"⚠️ Respon SL: {sl_res}")
 
-    # 4. Attach Take Profit via Limit Order or Algo Order
+    # 4. Attach Take Profit via Algo Order API
     if tp:
+        tp_str = format_price_precision(sym_clean, tp)
         tp_params = {
+            "algoType": "CONDITIONAL",
             "symbol": sym_clean,
             "side": opp_side,
-            "type": "LIMIT",
-            "timeInForce": "GTC",
-            "price": str(tp),
-            "quantity": str(quantity)
+            "type": "TAKE_PROFIT_MARKET",
+            "triggerPrice": tp_str,
+            "closePosition": "true"
         }
-        tp_res = send_signed_request("/fapi/v1/order", method="POST", params=tp_params, is_demo=is_demo, user_email=user_email)
-        if tp_res and tp_res.get("orderId"):
-            print(f"🎯 Take Profit dipasang di harga ${tp:,.4f} (Order ID: {tp_res.get('orderId')})")
+        tp_res = send_signed_request("/fapi/v1/algoOrder", method="POST", params=tp_params, is_demo=is_demo, user_email=user_email)
+        if tp_res and tp_res.get("algoId"):
+            print(f"🎯 Take Profit dipasang di harga ${tp_str} (Algo ID: {tp_res.get('algoId')})")
+        else:
+            print(f"⚠️ Respon TP: {tp_res}")
 
     print("=======================================================\n")
 

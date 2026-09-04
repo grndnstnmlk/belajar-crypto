@@ -6,7 +6,7 @@ echo ====================================================================
 echo        [ROBOT] AKADEMI CRYPTO - AUTONOMOUS AI TRADING DESK (24/7)
 echo        Akun    : dxmade@gmail.com
 echo        Mode    : Binance Futures Demo (USD-M Testnet)
-echo        Genome  : Generation 3 (Min R:R 1:2.50, Max Risk 1.5%%)
+echo        Genome  : Generation 4 (Min R:R 1:2.50, Max Risk 1.5%%, Multi-Regime Adaptive)
 echo        Watchlist: 10 Aset (BTC, ETH, SOL, BNB, XRP, DOGE, ADA, AVAX, LINK, SUI)
 echo ====================================================================
 echo.

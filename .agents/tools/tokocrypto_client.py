@@ -218,6 +218,24 @@ def place_order(symbol, side, quantity, price=None, order_type="LIMIT", user_ema
     except Exception as e:
         print(f"\n❌ Gagal mengirim order untuk {target_user}: {e}")
 
+def cancel_order(order_id, symbol="SUI/IDR", user_email=None):
+    exchange, target_user = get_exchange(user_email)
+    if not exchange:
+        return
+    sym_clean = symbol.upper().replace("-", "/").replace("_", "/")
+    print(f"\n[MEMBATALKAN ORDER {order_id} ({sym_clean}) - AKUN: {target_user}]...")
+    try:
+        res = exchange.cancel_order(order_id, sym_clean)
+        print("\n=======================================================")
+        print(f"       ✅ ORDER BERHASIL DIBATALKAN [{target_user}]!")
+        print(f"Order ID : {order_id}")
+        print("Saldo Rupiah Anda telah dikembalikan ke status Free (Siap digunakan).")
+        print("=======================================================\n")
+        return True
+    except Exception as e:
+        print(f"\n❌ Gagal membatalkan order: {e}\n")
+        return False
+
 def list_users():
     users, active = get_all_configured_users()
     print("\n=======================================================")
@@ -246,6 +264,12 @@ def main():
     orders_p.add_argument("--symbol", type=str, default="BTC/USDT", help="Pair koin (default: BTC/USDT)")
     orders_p.add_argument("--user", type=str, default=None, help="Email akun")
 
+    # Cancel
+    cancel_p = sub.add_parser("cancel", help="Batalkan order aktif")
+    cancel_p.add_argument("--id", type=str, required=True, help="Order ID yang ingin dibatalkan")
+    cancel_p.add_argument("--symbol", type=str, default="SUI/IDR", help="Pair koin (default: SUI/IDR)")
+    cancel_p.add_argument("--user", type=str, default=None, help="Email akun")
+
     # Ticker (Public)
     t_p = sub.add_parser("ticker", help="Lihat harga pasar live di Tokocrypto")
     t_p.add_argument("--symbol", type=str, default="BTC/USDT", help="Pair koin (contoh: BTC/USDT, SOL/USDT)")
@@ -266,6 +290,8 @@ def main():
         list_users()
     elif args.command == "orders":
         get_open_orders(args.symbol, args.user)
+    elif args.command == "cancel":
+        cancel_order(args.id, args.symbol, args.user)
     elif args.command == "ticker":
         get_ticker(args.symbol)
     elif args.command == "trade":
