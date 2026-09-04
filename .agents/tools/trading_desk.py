@@ -197,24 +197,34 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         print(f"   🧬 Sub-Genome Aktif: {sub_label} | Min R:R: 1:{effective_min_rr:.2f}")
 
         # Confluence Rules
-        # Rule A: Bullish Setup
+        three_touch = data.get("three_touch")
+
+        # Confluence Rules
+        # Rule A: Bullish Setup (Bullish FVG or Patrick Nill Bullish 3-Touch)
         has_bullish_fvg = "Bullish FVG" in fvg
-        is_bullish_trend = ema20 and ema50 and price > ema20
+        has_bullish_3touch = three_touch and three_touch.get("type") == "BULLISH_3_TOUCH"
         rsi_safe_long = rsi < sub_gen.get("rsi_overbought", 70) and rsi > sub_gen.get("rsi_oversold", 30)
 
-        # Rule B: Bearish Setup
+        # Rule B: Bearish Setup (Bearish FVG or Patrick Nill Bearish 3-Touch)
         has_bearish_fvg = "Bearish FVG" in fvg
-        is_bearish_trend = ema20 and ema50 and price < ema20
+        has_bearish_3touch = three_touch and three_touch.get("type") == "BEARISH_3_TOUCH"
         rsi_safe_short = rsi > sub_gen.get("rsi_oversold", 30) and rsi < sub_gen.get("rsi_overbought", 70)
 
         signal = None
-        if has_bullish_fvg and rsi_safe_long:
+        if (has_bullish_fvg or has_bullish_3touch) and rsi_safe_long:
             # Plan Long
-            low_24h = data.get("low_24h") or (price * 0.98)
-            sl = round(low_24h * 0.998, 4)
+            if has_bullish_3touch:
+                sl = round(three_touch["level"] * 0.995, 4)
+                reason_tag = f"🌟 3-TOUCH SUPPORT (${three_touch['level']})"
+            else:
+                low_24h = data.get("low_24h") or (price * 0.98)
+                sl = round(low_24h * 0.998, 4)
+                reason_tag = "Bullish FVG"
+
             dist_sl = price - sl
             if dist_sl > 0:
-                tp = round(price + (dist_sl * effective_min_rr), 4)
+                target_rr = max(effective_min_rr, 3.5 if has_bullish_3touch else effective_min_rr)
+                tp = round(price + (dist_sl * target_rr), 4)
                 rr = (tp - price) / dist_sl
                 signal = {
                     "symbol": pair_sym,
@@ -224,18 +234,26 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     "sl": sl,
                     "tp": tp,
                     "rr": rr,
+                    "is_3touch": has_bullish_3touch,
                     "sub_genome": sub_label,
                     "risk_pct": effective_max_risk,
-                    "reason": f"Bullish FVG + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
+                    "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
                 }
 
-        elif has_bearish_fvg and rsi_safe_short:
+        elif (has_bearish_fvg or has_bearish_3touch) and rsi_safe_short:
             # Plan Short
-            high_24h = data.get("high_24h") or (price * 1.02)
-            sl = round(high_24h * 1.002, 4)
+            if has_bearish_3touch:
+                sl = round(three_touch["level"] * 1.005, 4)
+                reason_tag = f"🌟 3-TOUCH RESISTANCE (${three_touch['level']})"
+            else:
+                high_24h = data.get("high_24h") or (price * 1.02)
+                sl = round(high_24h * 1.002, 4)
+                reason_tag = "Bearish FVG"
+
             dist_sl = sl - price
             if dist_sl > 0:
-                tp = round(price - (dist_sl * effective_min_rr), 4)
+                target_rr = max(effective_min_rr, 3.5 if has_bearish_3touch else effective_min_rr)
+                tp = round(price - (dist_sl * target_rr), 4)
                 rr = (price - tp) / dist_sl
                 signal = {
                     "symbol": pair_sym,
@@ -245,9 +263,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     "sl": sl,
                     "tp": tp,
                     "rr": rr,
+                    "is_3touch": has_bearish_3touch,
                     "sub_genome": sub_label,
                     "risk_pct": effective_max_risk,
-                    "reason": f"Bearish FVG + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
+                    "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
                 }
 
         if signal and signal["rr"] >= effective_min_rr:
@@ -267,7 +286,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     else:
         # Available slots
         slots_available = max_open_positions - len(active_positions)
-        candidates.sort(key=lambda x: x["rr"], reverse=True)
+        # Prioritize Patrick Nill 3-Touch Golden setups first, then highest R:R
+        candidates.sort(key=lambda x: (1 if x.get("is_3touch") else 0, x["rr"]), reverse=True)
         selected = candidates[:slots_available]
 
         print(f"🎯 Ditemukan {len(candidates)} setup potensial. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")

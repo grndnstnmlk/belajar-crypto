@@ -253,22 +253,33 @@ def run_autopilot_cycle(user_email=None, max_positions=3, watchlist=None):
         price = float(data["price"])
         rsi = float(data.get("rsi") or 50.0)
         fvg = data.get("fvg") or ""
+        three_touch = data.get("three_touch")
         low_24h = float(data.get("low_24h") or (price * 0.96))
         high_24h = float(data.get("high_24h") or (price * 1.04))
 
         # Spot Buying Confluence:
-        # 1. RSI oversold or healthy pullback (RSI < 45)
-        # 2. Bullish FVG or near 24h Support (within 35% of low)
+        # 1. Patrick Nill 3-Touch Golden Support Rule
+        # 2. RSI oversold or healthy pullback (RSI < 45)
+        # 3. Bullish FVG or near 24h Support (within 35% of low)
         range_pct = ((price - low_24h) / (high_24h - low_24h)) * 100 if (high_24h > low_24h) else 50.0
         has_fvg = "Bullish FVG" in fvg
-        is_discount = range_pct <= 35.0 or rsi <= 40.0
+        is_3touch = bool(three_touch and three_touch.get("type") == "BULLISH_3_TOUCH")
+        is_discount = is_3touch or range_pct <= 35.0 or rsi <= 40.0
 
         if is_discount:
-            # Conservative Spot Take Profit: +2.8% to +4.5% target
-            tp_pct = 0.035 if "TRENDING" in btc_regime else 0.028
+            # Conservative Spot Take Profit: +2.8% to +4.5% target (higher TP if 3-touch confirmed)
+            tp_pct = 0.045 if is_3touch else (0.035 if "TRENDING" in btc_regime else 0.028)
             tp_price = round(price * (1.0 + tp_pct), 5 if price < 1.0 else 2)
             dist_support = max(price - low_24h, price * 0.015)
             rr = (tp_price - price) / dist_support if dist_support > 0 else 2.0
+
+            reasons = []
+            if is_3touch:
+                reasons.append("🌟 3-TOUCH GOLDEN SUPPORT")
+            reasons.append(f"RSI {rsi:.1f} ({'Oversold' if rsi<=30 else 'Diskon'})")
+            reasons.append(f"{range_pct:.1f}% dr Low")
+            if has_fvg:
+                reasons.append("FVG")
 
             candidates.append({
                 "base": sym,
@@ -276,12 +287,14 @@ def run_autopilot_cycle(user_email=None, max_positions=3, watchlist=None):
                 "price": price,
                 "rsi": rsi,
                 "range_pct": range_pct,
+                "is_3touch": is_3touch,
                 "tp_price": tp_price,
                 "tp_pct": tp_pct * 100.0,
                 "rr": rr,
-                "reason": f"RSI {rsi:.1f} ({'Oversold' if rsi<=30 else 'Diskon'}) + {range_pct:.1f}% dr Low" + (" + FVG" if has_fvg else "")
+                "reason": " + ".join(reasons)
             })
-            print(f"   🟢 [KANDIDAT] {sym:<5} | Harga: ${price:<9.4f} | RSI: {rsi:<4.1f} | Posisi: {range_pct:.1f}% dr Low | Target TP: +{tp_pct*100:.1f}% (${tp_price})")
+            tag = "🌟 [3-TOUCH KANDIDAT]" if is_3touch else "🟢 [KANDIDAT]"
+            print(f"   {tag} {sym:<5} | Harga: ${price:<9.4f} | RSI: {rsi:<4.1f} | Posisi: {range_pct:.1f}% dr Low | Target TP: +{tp_pct*100:.1f}% (${tp_price})")
 
     # 4. Decision & Trade Execution
     print(f"\n[4. KEPUTUSAN EKSEKUSI SPOT TOKOCRYPTO]")
@@ -294,8 +307,8 @@ def run_autopilot_cycle(user_email=None, max_positions=3, watchlist=None):
             "free_usdt": free_usdt
         })
     else:
-        # Pick coin with lowest range_pct / best discount
-        candidates.sort(key=lambda x: x["range_pct"])
+        # Prioritize 3-Touch setups first, then deepest discount
+        candidates.sort(key=lambda x: (not x.get("is_3touch", False), x["range_pct"]))
         best = candidates[0]
 
         print(f"🎯 Koin Terpilih: BELI {best['symbol']}")

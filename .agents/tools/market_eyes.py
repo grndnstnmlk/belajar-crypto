@@ -60,6 +60,52 @@ def calculate_ema(values, period):
         ema = (val * k) + (ema * (1 - k))
     return ema
 
+def detect_three_touch_setup(highs, lows, closes, current_price, tolerance=0.008):
+    """
+    Patrick Nill 12x Robbins Cup Champion '3-Touch' Setup Detector.
+    Identifies when a Support or Resistance level has had 2 prior swing tests
+    and current price is currently executing the 3rd golden touch.
+    """
+    n = len(closes)
+    if n < 15:
+        return None
+
+    swing_lows = []
+    for i in range(2, n - 2):
+        if lows[i] <= lows[i - 1] and lows[i] <= lows[i - 2] and lows[i] <= lows[i + 1] and lows[i] <= lows[i + 2]:
+            swing_lows.append((i, lows[i]))
+
+    swing_highs = []
+    for i in range(2, n - 2):
+        if highs[i] >= highs[i - 1] and highs[i] >= highs[i - 2] and highs[i] >= highs[i + 1] and highs[i] >= highs[i + 2]:
+            swing_highs.append((i, highs[i]))
+
+    # Check Bullish 3-Touch Support
+    sup_touches = [p for p in swing_lows if abs(p[1] - current_price) / current_price <= tolerance and p[0] < n - 2]
+    if len(sup_touches) >= 2:
+        avg_sup = sum(t[1] for t in sup_touches) / len(sup_touches)
+        return {
+            "type": "BULLISH_3_TOUCH",
+            "side": "LONG",
+            "level": round(avg_sup, 4),
+            "touch_count": 3,
+            "label": f"🌟 [PATRICK NILL 3-TOUCH] Golden Support Touch at ${avg_sup:,.4f}"
+        }
+
+    # Check Bearish 3-Touch Resistance
+    res_touches = [p for p in swing_highs if abs(p[1] - current_price) / current_price <= tolerance and p[0] < n - 2]
+    if len(res_touches) >= 2:
+        avg_res = sum(t[1] for t in res_touches) / len(res_touches)
+        return {
+            "type": "BEARISH_3_TOUCH",
+            "side": "SHORT",
+            "level": round(avg_res, 4),
+            "touch_count": 3,
+            "label": f"🌟 [PATRICK NILL 3-TOUCH] Golden Resistance Touch at ${avg_res:,.4f}"
+        }
+
+    return None
+
 def get_market_eyes(symbol="BTC", bar="1H"):
     base = symbol.upper().replace("-USDT", "").replace("USDT", "")
     inst_id_spot = f"{base}-USDT"
@@ -139,6 +185,11 @@ def get_market_eyes(symbol="BTC", bar="1H"):
                 break
         print(f"SMC Pattern      : {fvg}")
 
+        # 3-Touch Detection (Patrick Nill 12x Robbins Cup Champion Rule)
+        three_touch = detect_three_touch_setup(highs, lows, closes, current_price)
+        if three_touch:
+            print(f"Robbins Rule     : {three_touch['label']}")
+
     print(f"=======================================================\n")
     return {
         "symbol": inst_id_spot,
@@ -151,6 +202,7 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         "ema50": ema50 if 'ema50' in locals() else None,
         "bias": bias if 'bias' in locals() else "NEUTRAL",
         "fvg": fvg if 'fvg' in locals() else None,
+        "three_touch": three_touch if 'three_touch' in locals() else None,
         "funding_rate": funding_rate
     }
 
