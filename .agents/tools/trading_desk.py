@@ -30,6 +30,7 @@ import market_eyes
 import market_regime
 import binance_client
 import telegram_notifier
+import trade_manager
 
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
@@ -189,6 +190,18 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         upnl = float(p.get("unRealizedProfit", 0))
         be_tag = " | 🛡️ [PROTEKSI BREAKEVEN AKTIF]" if upnl > 15.0 else ""
         print(f"   -> [{p['symbol']}] {side} | Mark: ${float(p['markPrice']):,.4f} | PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}{be_tag}")
+
+    # Dynamic Trade Management (Breakeven Auto-Lock & Trailing Stop Engine)
+    print(f"\n[🛡️ DYNAMIC POSITION RISK & LIFECYCLE MANAGEMENT]")
+    try:
+        events = trade_manager.audit_and_manage_positions(user_email=user_email, is_demo=is_demo)
+        if events:
+            for ev in events:
+                print(f" * {ev}")
+        else:
+            print(" * Semua posisi aktif dalam pengawasan ketat (Proteksi SL & Trailing up-to-date).")
+    except Exception as e:
+        print(f" * [Peringatan Trade Manager] {e}")
 
     if len(active_positions) >= max_open_positions:
         print(f"\n[Guardrail Alert] Batas maksimal posisi ({max_open_positions}) tercapai. Melewatkan pembukaan posisi baru untuk menjaga margin.")
@@ -435,6 +448,20 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 telegram_notifier.notify_trade_opened(best, qty, risk_budget, is_demo=is_demo)
             except Exception as e:
                 print(f"[Telegram Notifier Warning] Gagal kirim alert Telegram: {e}")
+
+            # Register into Dynamic Trade Manager
+            try:
+                trade_manager.record_trade_entry(
+                    symbol=best["symbol"],
+                    side=best["side"],
+                    entry_price=best["price"],
+                    sl_price=best["sl"],
+                    tp_price=best["tp"],
+                    risk_budget_usd=risk_budget,
+                    quantity=qty
+                )
+            except Exception as e:
+                print(f"[Trade Manager Warning] Gagal simpan metadata trade: {e}")
 
             log_desk_activity({
                 "timestamp": timestamp_str,

@@ -202,6 +202,46 @@ def notify_trade_closed(symbol, pnl_usd, exit_reason="Manual/Target Hit", is_dem
     )
     return send_telegram_msg(msg)
 
+def notify_breakeven_locked(symbol, side, entry_price, be_price, current_pnl, is_demo=True):
+    """
+    Sends notification when a position achieves +1R profit and SL is moved to Breakeven (+fee).
+    """
+    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
+    side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
+    msg = (
+        f"🛡️ <b>BREAKEVEN AUTO-LOCK DIAKTIFKAN!</b>\n"
+        f"<i>Mode: {mode_text}</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code>\n"
+        f"🧭 <b>Posisi:</b> {side_icon}\n"
+        f"💵 <b>Harga Entry:</b> <code>${entry_price:,.4f}</code>\n"
+        f"🛑 <b>Stop Loss Baru (BE):</b> <code>${be_price:,.4f}</code>\n"
+        f"📈 <b>Floating Profit:</b> <code>+${current_pnl:,.2f} USDT (+1.0R+)</code>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🎉 <i>Posisi Anda sekarang 100% BEBAS RISIKO (Free Roll). Modal terproteksi sempurna!</i>"
+    )
+    return send_telegram_msg(msg)
+
+def notify_trailing_stop_stepped(symbol, side, locked_r, new_sl_price, current_pnl, is_demo=True):
+    """
+    Sends notification when Trailing Stop steps up/down to lock in profit.
+    """
+    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
+    side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
+    msg = (
+        f"🎯 <b>TRAILING STOP DIKATROL NAIK!</b>\n"
+        f"<i>Mode: {mode_text}</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code>\n"
+        f"🧭 <b>Posisi:</b> {side_icon}\n"
+        f"🛑 <b>Stop Loss Baru:</b> <code>${new_sl_price:,.4f}</code>\n"
+        f"🔒 <b>Profit Terkunci:</b> <code>Minimal +{locked_r:.1f}R Terjamin</code>\n"
+        f"📈 <b>Floating PnL:</b> <code>+${current_pnl:,.2f} USDT</code>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🚀 <i>Keuntungan diamankan mengikuti arah tren institusional!</i>"
+    )
+    return send_telegram_msg(msg)
+
 def notify_pnl_summary(balance_usd, active_positions, is_demo=True):
     """
     Sends a periodic summary of all open positions and floating PnL.
