@@ -200,23 +200,29 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         three_touch = data.get("three_touch")
         volume_profile = data.get("volume_profile")
         va_setup = volume_profile.get("setup") if volume_profile else None
+        liquidity_sweep = data.get("liquidity_sweep")
 
-        # Rule A: Bullish Setup (Bullish FVG, Patrick Nill 3-Touch, or Fabio Valentini Failed Auction)
+        # Rule A: Bullish Setup (Bullish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, or Tim Flossbach MSS)
         has_bullish_fvg = "Bullish FVG" in fvg
         has_bullish_3touch = bool(three_touch and three_touch.get("type") == "BULLISH_3_TOUCH")
         has_bullish_auction = bool(va_setup and va_setup.get("type") == "BULLISH_FAILED_AUCTION")
+        has_bullish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BULLISH_SWEEP_MSS")
         rsi_safe_long = rsi < sub_gen.get("rsi_overbought", 70) and rsi > sub_gen.get("rsi_oversold", 30)
 
-        # Rule B: Bearish Setup (Bearish FVG, Patrick Nill 3-Touch, or Fabio Valentini Failed Auction)
+        # Rule B: Bearish Setup (Bearish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, or Tim Flossbach MSS)
         has_bearish_fvg = "Bearish FVG" in fvg
         has_bearish_3touch = bool(three_touch and three_touch.get("type") == "BEARISH_3_TOUCH")
         has_bearish_auction = bool(va_setup and va_setup.get("type") == "BEARISH_FAILED_AUCTION")
+        has_bearish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BEARISH_SWEEP_MSS")
         rsi_safe_short = rsi > sub_gen.get("rsi_oversold", 30) and rsi < sub_gen.get("rsi_overbought", 70)
 
         signal = None
-        if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction) and rsi_safe_long:
+        if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep) and rsi_safe_long:
             # Plan Long
-            if has_bullish_auction and va_setup:
+            if has_bullish_sweep and liquidity_sweep:
+                sl = liquidity_sweep["sl"]
+                reason_tag = f"⚡ TIM FLOSSBACH MSS (SSL Sweep ${liquidity_sweep['sweep_level']})"
+            elif has_bullish_auction and va_setup:
                 sl = va_setup["sl"]
                 reason_tag = f"🔥 FABIO AUCTION (VAL ${volume_profile['val']} -> POC ${volume_profile['poc']})"
             elif has_bullish_3touch and three_touch:
@@ -229,7 +235,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
 
             dist_sl = price - sl
             if dist_sl > 0:
-                target_rr = max(effective_min_rr, 3.5 if (has_bullish_3touch or has_bullish_auction) else effective_min_rr)
+                target_rr = max(effective_min_rr, 3.5 if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep) else effective_min_rr)
                 tp = round(price + (dist_sl * target_rr), 4)
                 rr = (tp - price) / dist_sl
                 signal = {
@@ -242,14 +248,18 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     "rr": rr,
                     "is_3touch": has_bullish_3touch,
                     "is_fabio": has_bullish_auction,
+                    "is_tim": has_bullish_sweep,
                     "sub_genome": sub_label,
                     "risk_pct": effective_max_risk,
                     "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
                 }
 
-        elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction) and rsi_safe_short:
+        elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep) and rsi_safe_short:
             # Plan Short
-            if has_bearish_auction and va_setup:
+            if has_bearish_sweep and liquidity_sweep:
+                sl = liquidity_sweep["sl"]
+                reason_tag = f"⚡ TIM FLOSSBACH MSS (BSL Sweep ${liquidity_sweep['sweep_level']})"
+            elif has_bearish_auction and va_setup:
                 sl = va_setup["sl"]
                 reason_tag = f"🔥 FABIO AUCTION (VAH ${volume_profile['vah']} -> POC ${volume_profile['poc']})"
             elif has_bearish_3touch and three_touch:
@@ -262,7 +272,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
 
             dist_sl = sl - price
             if dist_sl > 0:
-                target_rr = max(effective_min_rr, 3.5 if (has_bearish_3touch or has_bearish_auction) else effective_min_rr)
+                target_rr = max(effective_min_rr, 3.5 if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep) else effective_min_rr)
                 tp = round(price - (dist_sl * target_rr), 4)
                 rr = (price - tp) / dist_sl
                 signal = {
@@ -275,6 +285,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     "rr": rr,
                     "is_3touch": has_bearish_3touch,
                     "is_fabio": has_bearish_auction,
+                    "is_tim": has_bearish_sweep,
                     "sub_genome": sub_label,
                     "risk_pct": effective_max_risk,
                     "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
@@ -286,7 +297,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     # 3. Decision & Execution Desk
     print("\n[3. EXECUTION DESK DECISION]")
     if not candidates:
-        print("Tidak ada setup baru yang memenuhi konfluensi ketat (FVG / 3-Touch / Fabio Auction + Min R:R + RSI).")
+        print("Tidak ada setup baru yang memenuhi konfluensi ketat (FVG / 3-Touch / Fabio Auction / Tim MSS + Min R:R + RSI).")
         print("Desk standby menunggu struktur pasar berikutnya.")
         log_desk_activity({
             "timestamp": timestamp_str,
@@ -297,8 +308,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     else:
         # Available slots
         slots_available = max_open_positions - len(active_positions)
-        # Prioritize Elite setups (Fabio Valentini Auction & Patrick Nill 3-Touch) first, then highest R:R
-        candidates.sort(key=lambda x: (1 if (x.get("is_fabio") or x.get("is_3touch")) else 0, x["rr"]), reverse=True)
+        # Prioritize Elite setups (Tim Flossbach MSS, Fabio Valentini Auction, Patrick Nill 3-Touch) first, then highest R:R
+        candidates.sort(key=lambda x: (1 if (x.get("is_tim") or x.get("is_fabio") or x.get("is_3touch")) else 0, x["rr"]), reverse=True)
         selected = candidates[:slots_available]
 
         print(f"🎯 Ditemukan {len(candidates)} setup potensial. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")

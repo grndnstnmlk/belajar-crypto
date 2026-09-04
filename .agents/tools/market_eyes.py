@@ -203,6 +203,70 @@ def calculate_volume_profile(raw_candles, current_price, num_bins=35):
         "setup": setup
     }
 
+def detect_liquidity_sweep_mss(highs, lows, closes, current_price, tolerance=0.005):
+    """
+    Tim Flossbach (IQCapital / FirstClass Trading & Akademi Crypto Module 06)
+    Liquidity Sweep + Market Structure Shift (MSS) Setup Detector.
+    Identifies institutional liquidity sweeps of Buy-Side (BSL) or Sell-Side (SSL)
+    pools followed by an aggressive market structure shift confirmation.
+    """
+    n = len(closes)
+    if n < 20:
+        return None
+
+    # 1. Identify Swing Highs & Swing Lows
+    swing_highs = []
+    swing_lows = []
+    for i in range(2, n - 2):
+        if highs[i] >= highs[i-1] and highs[i] >= highs[i-2] and highs[i] >= highs[i+1] and highs[i] >= highs[i+2]:
+            swing_highs.append((i, highs[i]))
+        if lows[i] <= lows[i-1] and lows[i] <= lows[i-2] and lows[i] <= lows[i+1] and lows[i] <= lows[i+2]:
+            swing_lows.append((i, lows[i]))
+
+    if not swing_highs or not swing_lows:
+        return None
+
+    # Check Bullish Sweep & MSS (SSL Swept)
+    recent_start = max(0, n - 4)
+    for k in range(recent_start, n):
+        prior_lows = [p for p in swing_lows if p[0] < k - 1]
+        for p_idx, p_level in prior_lows:
+            if lows[k] < p_level and closes[k] >= p_level * 0.997:
+                inter_highs = [h[1] for h in swing_highs if h[0] > p_idx and h[0] < k]
+                break_level = max(inter_highs) if inter_highs else closes[p_idx]
+                if current_price >= break_level * 0.999 or max(closes[k:]) > break_level:
+                    sweep_low = lows[k]
+                    opposing_high = max(h[1] for h in swing_highs[-3:]) if swing_highs else current_price * 1.03
+                    return {
+                        "type": "BULLISH_SWEEP_MSS",
+                        "side": "LONG",
+                        "sweep_level": round(sweep_low, 4),
+                        "sl": round(sweep_low * 0.996, 4),
+                        "target": round(opposing_high, 4),
+                        "label": f"⚡ [TIM FLOSSBACH MSS] SSL Swept (${sweep_low:,.4f}) + Bullish MSS Confirmed -> Target ${opposing_high:,.4f}"
+                    }
+
+    # Check Bearish Sweep & MSS (BSL Swept)
+    for k in range(recent_start, n):
+        prior_highs = [p for p in swing_highs if p[0] < k - 1]
+        for p_idx, p_level in prior_highs:
+            if highs[k] > p_level and closes[k] <= p_level * 1.003:
+                inter_lows = [l[1] for l in swing_lows if l[0] > p_idx and l[0] < k]
+                break_level = min(inter_lows) if inter_lows else closes[p_idx]
+                if current_price <= break_level * 1.001 or min(closes[k:]) < break_level:
+                    sweep_high = highs[k]
+                    opposing_low = min(l[1] for l in swing_lows[-3:]) if swing_lows else current_price * 0.97
+                    return {
+                        "type": "BEARISH_SWEEP_MSS",
+                        "side": "SHORT",
+                        "sweep_level": round(sweep_high, 4),
+                        "sl": round(sweep_high * 1.004, 4),
+                        "target": round(opposing_low, 4),
+                        "label": f"⚡ [TIM FLOSSBACH MSS] BSL Swept (${sweep_high:,.4f}) + Bearish MSS Confirmed -> Target ${opposing_low:,.4f}"
+                    }
+
+    return None
+
 def get_market_eyes(symbol="BTC", bar="1H"):
     base = symbol.upper().replace("-USDT", "").replace("USDT", "")
     inst_id_spot = f"{base}-USDT"
@@ -297,6 +361,11 @@ def get_market_eyes(symbol="BTC", bar="1H"):
                 pos = "Above VAH (Premium Excursion)" if current_price > volume_profile['vah'] else "Below VAL (Discount Excursion)" if current_price < volume_profile['val'] else "Inside Value Area (Fair Balance)"
                 print(f"Auction State    : {pos}")
 
+        # Liquidity Sweep & Market Structure Shift (Tim Flossbach Strategy)
+        liquidity_sweep = detect_liquidity_sweep_mss(highs, lows, closes, current_price)
+        if liquidity_sweep:
+            print(f"Liquidity Sweep  : {liquidity_sweep['label']}")
+
     print(f"=======================================================\n")
     return {
         "symbol": inst_id_spot,
@@ -311,6 +380,7 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         "fvg": fvg if 'fvg' in locals() else None,
         "three_touch": three_touch if 'three_touch' in locals() else None,
         "volume_profile": volume_profile if 'volume_profile' in locals() else None,
+        "liquidity_sweep": liquidity_sweep if 'liquidity_sweep' in locals() else None,
         "funding_rate": funding_rate
     }
 
