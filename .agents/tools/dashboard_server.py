@@ -10,6 +10,7 @@ import os
 import socketserver
 import ssl
 import sys
+import time
 import urllib.parse
 import urllib.request
 from datetime import datetime
@@ -45,7 +46,15 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36"
 }
 
-def get_dashboard_feed_data():
+_feed_cache = None
+_last_feed_fetch_time = 0
+
+def get_dashboard_feed_data(force_refresh=False):
+    global _feed_cache, _last_feed_fetch_time
+    now = time.time()
+    if not force_refresh and _feed_cache is not None and (now - _last_feed_fetch_time) < 2.5:
+        return _feed_cache
+
     feed_path = os.path.join(DATA_DIR, "dashboard_feed.json")
     feed = {}
     if os.path.exists(feed_path):
@@ -101,6 +110,9 @@ def get_dashboard_feed_data():
         "next_time": next_ev.get("time_wib_str") if next_ev else "-"
     }
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    _feed_cache = feed
+    _last_feed_fetch_time = now
     return feed
 
 def get_chart_data(symbol="BTC", bar="1H"):
@@ -367,11 +379,14 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(404)
         self.end_headers()
 
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
 def run_server(port=PORT):
     os.chdir(ROOT_DIR)
-    socketserver.TCPServer.allow_reuse_address = True
     try:
-        with socketserver.TCPServer(("", port), MissionControlHandler) as httpd:
+        with ThreadedTCPServer(("", port), MissionControlHandler) as httpd:
             print("=" * 65)
             print(f"       🖥️  MISSION CONTROL DASHBOARD SERVER ONLINE")
             print(f"       🌐  URL: http://localhost:{port}")
