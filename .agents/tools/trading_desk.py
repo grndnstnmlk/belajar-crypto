@@ -32,6 +32,7 @@ import binance_client
 import telegram_notifier
 import trade_manager
 import topdown_confluence
+import fast_scalper
 
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
@@ -150,65 +151,10 @@ def compute_rs_matrix(symbols):
 
     return matrix, btc_chg
 
-def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, symbols=None):
-    genome = load_genome()
-    params = genome.get("parameters", {})
-    min_rr = params.get("min_risk_reward", 2.0)
-    max_risk_pct = params.get("max_risk_per_trade_pct", 1.5)
-    target_user, _, _, _, mode_label, _ = binance_client.resolve_credentials(user_email, is_demo)
-
-    active_watchlist = symbols if symbols else DEFAULT_WATCHLIST
-
-    timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print("\n" + "=" * 68)
-    print(f"       🤖 AUTONOMOUS AI TRADING DESK — CYCLE RUN")
-    print(f"       📅 Waktu      : {timestamp_str}")
-    print(f"       👤 Akun       : {target_user}")
-    print(f"       🕹️ Mode       : {mode_label}")
-    print(f"       🌐 Watchlist  : {len(active_watchlist)} Aset ({', '.join(active_watchlist)})")
-    print(f"       🧬 Genome     : Gen {genome.get('generation', 1)} (Min R:R >= {min_rr}, Max Risk: {max_risk_pct}%)")
-    print("=" * 68)
-
-    # 1. Check Account Equity & Active Positions Guardrail
-    balance_usd = get_account_balance(user_email, is_demo)
-    active_positions = get_active_positions(user_email, is_demo)
-    active_symbols = [p["symbol"] for p in active_positions]
-
-    # Check if desk execution is paused via Telegram remote control
-    if telegram_notifier.is_desk_paused():
-        print(f"\n[Telegram Remote Guard] ⏸️ Trading Desk sedang DIJEDA via Telegram (/pause). Melewatkan pembukaan order baru.")
-        export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
-        return
-
-    print(f"\n[1. RISK OFFICER AUDIT]")
-    print(f" * Saldo Dompet Futures : ${balance_usd:,.2f} USDT")
-    print(f" * Posisi Aktif Saat Ini: {len(active_positions)} / {max_open_positions} max")
-    export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
-
-    for p in active_positions:
-        amt = float(p["positionAmt"])
-        side = "LONG 🟢" if amt > 0 else "SHORT 🔴"
-        upnl = float(p.get("unRealizedProfit", 0))
-        be_tag = " | 🛡️ [PROTEKSI BREAKEVEN AKTIF]" if upnl > 15.0 else ""
-        print(f"   -> [{p['symbol']}] {side} | Mark: ${float(p['markPrice']):,.4f} | PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}{be_tag}")
-
-    # Dynamic Trade Management (Breakeven Auto-Lock & Trailing Stop Engine)
-    print(f"\n[🛡️ DYNAMIC POSITION RISK & LIFECYCLE MANAGEMENT]")
-    try:
-        events = trade_manager.audit_and_manage_positions(user_email=user_email, is_demo=is_demo)
-        if events:
-            for ev in events:
-                print(f" * {ev}")
-        else:
-            print(" * Semua posisi aktif dalam pengawasan ketat (Proteksi SL & Trailing up-to-date).")
-    except Exception as e:
-        print(f" * [Peringatan Trade Manager] {e}")
-
-    if len(active_positions) >= max_open_positions:
-        print(f"\n[Guardrail Alert] Batas maksimal posisi ({max_open_positions}) tercapai. Melewatkan pembukaan posisi baru untuk menjaga margin.")
-        return
-
-    # 2. Researcher Agent: Scanning Watchlist & Relative Strength Matrix
+def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct):
+    """
+    Scans 1H / 4H swing setups using 4 championship strategies & top-down macro confluence.
+    """
     print(f"\n[2. MARKET RESEARCHER AGENT — RELATIVE STRENGTH & WATCHLIST SCAN]")
     rs_matrix, btc_chg = compute_rs_matrix(active_watchlist)
     print(f" * BTC 24h Benchmark Performance: {btc_chg:+.2f}%")
@@ -391,6 +337,96 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             print(f"   🎯 [TOP-DOWN CONFLUENCE]: {macro_rationale}")
             candidates.append(signal)
 
+    return candidates
+
+def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, symbols=None):
+    genome = load_genome()
+    params = genome.get("parameters", {})
+    min_rr = params.get("min_risk_reward", 2.0)
+    max_risk_pct = params.get("max_risk_per_trade_pct", 1.5)
+    target_user, _, _, _, mode_label, _ = binance_client.resolve_credentials(user_email, is_demo)
+
+    active_watchlist = symbols if symbols else DEFAULT_WATCHLIST
+
+    timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print("\n" + "=" * 68)
+    print(f"       🤖 AUTONOMOUS AI TRADING DESK — CYCLE RUN")
+    print(f"       📅 Waktu      : {timestamp_str}")
+    print(f"       👤 Akun       : {target_user}")
+    print(f"       🕹️ Mode       : {mode_label}")
+    print(f"       🌐 Watchlist  : {len(active_watchlist)} Aset ({', '.join(active_watchlist)})")
+    print(f"       🧬 Genome     : Gen {genome.get('generation', 1)} (Min R:R >= {min_rr}, Max Risk: {max_risk_pct}%)")
+    print("=" * 68)
+
+    # 1. Check Account Equity & Active Positions Guardrail
+    balance_usd = get_account_balance(user_email, is_demo)
+    active_positions = get_active_positions(user_email, is_demo)
+    active_symbols = [p["symbol"] for p in active_positions]
+
+    # Check if desk execution is paused via Telegram remote control
+    if telegram_notifier.is_desk_paused():
+        print(f"\n[Telegram Remote Guard] ⏸️ Trading Desk sedang DIJEDA via Telegram (/pause). Melewatkan pembukaan order baru.")
+        export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
+        return
+
+    print(f"\n[1. RISK OFFICER AUDIT]")
+    print(f" * Saldo Dompet Futures : ${balance_usd:,.2f} USDT")
+    print(f" * Posisi Aktif Saat Ini: {len(active_positions)} / {max_open_positions} max")
+    export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
+
+    for p in active_positions:
+        amt = float(p["positionAmt"])
+        side = "LONG 🟢" if amt > 0 else "SHORT 🔴"
+        upnl = float(p.get("unRealizedProfit", 0))
+        be_tag = " | 🛡️ [PROTEKSI BREAKEVEN AKTIF]" if upnl > 15.0 else ""
+        print(f"   -> [{p['symbol']}] {side} | Mark: ${float(p['markPrice']):,.4f} | PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}{be_tag}")
+
+    # Dynamic Trade Management (Breakeven Auto-Lock & Trailing Stop Engine)
+    print(f"\n[🛡️ DYNAMIC POSITION RISK & LIFECYCLE MANAGEMENT]")
+    try:
+        events = trade_manager.audit_and_manage_positions(user_email=user_email, is_demo=is_demo)
+        if events:
+            for ev in events:
+                print(f" * {ev}")
+        else:
+            print(" * Semua posisi aktif dalam pengawasan ketat (Proteksi SL & Trailing up-to-date).")
+    except Exception as e:
+        print(f" * [Peringatan Trade Manager] {e}")
+
+    if len(active_positions) >= max_open_positions:
+        print(f"\n[Guardrail Alert] Batas maksimal posisi ({max_open_positions}) tercapai. Melewatkan pembukaan posisi baru untuk menjaga margin.")
+        return
+
+    desk_mode = telegram_notifier.get_desk_mode().upper()
+    print(f"\n * Mode Operasional Trading Desk: {'⚡ FAST SCALPER (5m/15m Protocol)' if desk_mode == 'SCALP' else '🎯 SWING INTRADAY (1H/4H Confluence)'}")
+
+    candidates = []
+
+    if desk_mode == "SCALP":
+        print(f"\n[2. FAST SCALPER AGENT — 5m / 15m MICRO-STRUCTURE SCAN]")
+        scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:6])
+        for s in scalp_setups:
+            pair_sym = f"{s['symbol']}USDT"
+            if pair_sym in active_symbols:
+                print(f" - {pair_sym}: Sudah ada posisi aktif yang berjalan. Dilewati.")
+                continue
+            print(f" ⚡ [SCALP SIGNAL] {s['symbol']} | {s['side']} | {s['strategy']} | R:R 1:{s['rr_ratio']:.2f}")
+            candidates.append({
+                "symbol": pair_sym,
+                "base": s["symbol"],
+                "side": s["side"],
+                "price": s["entry"],
+                "sl": s["sl"],
+                "tp": s["tp"],
+                "rr": s["rr_ratio"],
+                "risk_pct": 1.2,
+                "is_scalp": True,
+                "macro_aligned": True,
+                "reason": f"⚡ SCALP [{s['strategy']}]: {s['reason']} (Target: {s['target_duration']})"
+            })
+    else:
+        candidates = scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct)
+
     # 3. Decision & Execution Desk
     print("\n[3. EXECUTION DESK DECISION]")
     if not candidates:
@@ -473,7 +509,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     sl_price=best["sl"],
                     tp_price=best["tp"],
                     risk_budget_usd=risk_budget,
-                    quantity=qty
+                    quantity=qty,
+                    is_scalp=best.get("is_scalp", False)
                 )
             except Exception as e:
                 print(f"[Trade Manager Warning] Gagal simpan metadata trade: {e}")

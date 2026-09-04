@@ -66,11 +66,13 @@ def load_desk_state():
                 return json.load(f)
         except Exception:
             pass
-    return {"paused": False, "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+    return {"paused": False, "mode": "SWING", "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 def save_desk_state(state):
     os.makedirs(DATA_DIR, exist_ok=True)
     state["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if "mode" not in state:
+        state["mode"] = "SWING"
     try:
         with open(STATE_FILE, "w", encoding="utf-8") as f:
             json.dump(state, f, indent=2)
@@ -81,9 +83,14 @@ def is_desk_paused():
     state = load_desk_state()
     return state.get("paused", False)
 
+def get_desk_mode():
+    state = load_desk_state()
+    return state.get("mode", "SWING")
+
 MAIN_KEYBOARD = {
     "keyboard": [
         [{"text": "📊 Status Desk"}, {"text": "💰 Cek PnL"}],
+        [{"text": "⚡ Mode Scalp (5m)"}, {"text": "🎯 Mode Swing (1H)"}],
         [{"text": "⏸️ Jeda Bot"}, {"text": "▶️ Lanjutkan Bot"}],
         [{"text": "🚨 Tutup Semua Posisi"}, {"text": "❓ Panduan Bantuan"}]
     ],
@@ -517,6 +524,36 @@ class TelegramCommandListener(threading.Thread):
             save_desk_state(state)
             send_telegram_msg(
                 "▶️ <b>Trading Desk dilanjutkan kembali!</b>\nSiklus pemindaian dan eksekusi autopilot aktif.",
+                chat_id_override=chat_id,
+                reply_markup=MAIN_KEYBOARD
+            )
+
+        elif command in ["/scalp", "⚡ mode scalp (5m)"]:
+            state = load_desk_state()
+            state["mode"] = "SCALP"
+            save_desk_state(state)
+            send_telegram_msg(
+                "⚡ <b>MODE FAST SCALPER AKTIF! (5m / 15m)</b>\n\n"
+                "• Timeframe: <b>5m Micro-Structure</b>\n"
+                "• Setup: <b>Liquidity Sweep, VWAP 2σ, Volume Surge</b>\n"
+                "• Target Durasi: <b>15 - 45 Menit</b>\n"
+                "• Breakeven Kilat: <b>+0.7R (Free Roll)</b>\n"
+                "• Time-Stop: <b>Maksimal 45 Menit</b> (tutup otomatis jika stagnan)\n\n"
+                "<i>Agent akan memindai setup kilat setiap 1-3 menit.</i>",
+                chat_id_override=chat_id,
+                reply_markup=MAIN_KEYBOARD
+            )
+
+        elif command in ["/swing", "🎯 mode swing (1h)"]:
+            state = load_desk_state()
+            state["mode"] = "SWING"
+            save_desk_state(state)
+            send_telegram_msg(
+                "🎯 <b>MODE SWING INTRADAY AKTIF! (1H / 4H)</b>\n\n"
+                "• Timeframe: <b>1H & 4H Macro Confluence</b>\n"
+                "• Setup: <b>3-Touch, Failed Auction, MSS, VWAP Bands</b>\n"
+                "• Breakeven: <b>+1.0R</b>\n"
+                "• Trailing Stop: <b>+2.0R+</b>",
                 chat_id_override=chat_id,
                 reply_markup=MAIN_KEYBOARD
             )

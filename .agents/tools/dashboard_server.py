@@ -88,6 +88,7 @@ def get_dashboard_feed_data():
         pass
 
     feed["is_paused"] = state.get("paused", False)
+    feed["mode"] = state.get("mode", "SWING")
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return feed
 
@@ -334,6 +335,21 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "is_paused": new_paused}).encode("utf-8"))
+            return
+
+        elif path == "/api/action/set_mode":
+            state = telegram_notifier.load_desk_state()
+            requested_mode = payload.get("mode")
+            if requested_mode in ["SCALP", "SWING"]:
+                new_mode = requested_mode
+            else:
+                new_mode = "SCALP" if state.get("mode", "SWING") == "SWING" else "SWING"
+            state["mode"] = new_mode
+            telegram_notifier.save_desk_state(state)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "mode": new_mode}).encode("utf-8"))
             return
 
         self.send_response(404)

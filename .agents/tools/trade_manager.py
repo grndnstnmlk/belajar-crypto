@@ -44,9 +44,10 @@ def save_trade_metadata(meta):
     except Exception as e:
         print(f"[Trade Manager] Error saving metadata: {e}")
 
-def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity):
+def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity, is_scalp=False):
     """
     Registers a newly opened trade to begin dynamic lifecycle tracking.
+    Supports is_scalp flag for accelerated Breakeven (+0.7R) and Time-Stop.
     """
     meta = load_trade_metadata()
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
@@ -65,6 +66,7 @@ def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budge
         "risk_budget_usd": float(risk_budget_usd),
         "quantity": float(quantity),
         "opened_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "is_scalp": is_scalp,
         "breakeven_locked": False,
         "trailing_r_locked": 0.0,
         "highest_r_reached": 0.0
@@ -211,9 +213,50 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
             t_data["highest_r_reached"] = round(r_multiple, 2)
 
         # -------------------------------------------------------------
-        # STEP 1: BREAKEVEN AUTO-LOCK (+1.0R Threshold)
+        # STEP 0: TIME-STOP CHECK FOR SCALP TRADES (Max 45 Menit)
         # -------------------------------------------------------------
-        if r_multiple >= 1.0 and not t_data.get("breakeven_locked"):
+        if t_data.get("is_scalp"):
+            opened_at = t_data.get("opened_at", "")
+            if opened_at:
+                try:
+                    fmt = "%Y-%m-%d %H:%M:%S" if len(opened_at) > 16 else "%Y-%m-%d %H:%M"
+                    op_dt = datetime.strptime(opened_at, fmt)
+                    elapsed_min = (datetime.now() - op_dt).total_seconds() / 60.0
+                    if elapsed_min >= 45.0 and r_multiple < 0.5:
+                        close_side = "SELL" if amt > 0 else "BUY"
+                        binance_client.send_signed_request(
+                            "/fapi/v1/order",
+                            method="POST",
+                            params={
+                                "symbol": sym,
+                                "side": close_side,
+                                "type": "MARKET",
+                                "quantity": abs(amt),
+                                "reduceOnly": "true"
+                            },
+                            is_demo=is_demo,
+                            user_email=user_email
+                        )
+                        print(f"⏱️ [SCALP TIME-STOP] {sym}: Ditutup otomatis setelah {int(elapsed_min)} menit (Stagnan).")
+                        try:
+                            telegram_notifier.send_telegram_broadcast(
+                                f"⏱️ *SCALP TIME-STOP EXECUTED* ⏱️\n"
+                                f"Aset: *{sym}*\n"
+                                f"Durasi Aktif: *{int(elapsed_min)} menit* (Batas: 45m)\n"
+                                f"PnL: *${upnl:+,.2f} USDT*\n"
+                                f"Posisi ditutup otomatis demi menjaga perputaran modal kilat."
+                            )
+                        except Exception:
+                            pass
+                        continue
+                except Exception:
+                    pass
+
+        # -------------------------------------------------------------
+        # STEP 1: BREAKEVEN AUTO-LOCK (+0.7R Scalp / +1.0R Swing)
+        # -------------------------------------------------------------
+        be_target_r = 0.7 if t_data.get("is_scalp") else 1.0
+        if r_multiple >= be_target_r and not t_data.get("breakeven_locked"):
             be_price = calculate_breakeven_price(sym, side, entry_price)
             success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
             if success:
