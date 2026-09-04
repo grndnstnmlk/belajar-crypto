@@ -206,10 +206,83 @@ def evolve_agent():
         })
         save_json(GENOME_FILE, genome)
         print(f"\n✅ Mutation successfully saved! Agent upgraded to Generation {new_gen}.")
+        try:
+            import telegram_notifier
+            telegram_notifier.send_telegram_broadcast(
+                f"🧬 <b>AGENT QUANT GENOME AUTO-EVOLVED!</b>\n"
+                f"━━━━━━━━━━━━━━━━━━\n"
+                f"📈 <b>Generasi Baru:</b> <code>Gen {new_gen}</code>\n"
+                f"⚡ <b>Tindakan:</b> <code>{action_desc}</code>\n"
+                f"💡 <b>Hipotesis AI:</b> <i>{hypothesis}</i>\n"
+                f"🎯 <b>Min R:R Baru:</b> <code>1 : {genome['parameters']['min_risk_reward']}</code>\n"
+                f"🛡️ <b>Max Risk/Trade:</b> <code>{genome['parameters']['max_risk_per_trade_pct']}% modal</code>\n"
+                f"📊 <b>Snapshot:</b> {stats['win_rate']:.1f}% Win Rate | PF: {stats['profit_factor']:.2f}\n"
+                f"━━━━━━━━━━━━━━━━━━\n"
+                f"🤖 <i>Parameter trading otomatis disesuaikan secara mandiri demi menjaga akurasi maksimal!</i>"
+            )
+        except Exception as e:
+            print(f"[Telegram Notifier Warning] Failed to send evolve alert: {e}")
     else:
         print("\n[OK] Current strategy parameters are stable and within target bounds. No mutation required.")
 
     print("=======================================================\n")
+    return mutated, current_gen if not mutated else new_gen
+
+def record_closed_trade_and_check_evolution(trade_entry):
+    """
+    Appends newly closed live/demo trade and triggers autonomous evolutionary mutation
+    every 3 closed trades.
+    """
+    portfolio = load_json(PORTFOLIO_FILE, {"cash_balance": 10000, "positions": [], "trade_history": []})
+    history = portfolio.get("trade_history", [])
+    history.append(trade_entry)
+    portfolio["trade_history"] = history
+    save_json(PORTFOLIO_FILE, portfolio)
+    print(f"🧬 [Autonomous Evolution Tracker] Recorded closed trade {trade_entry.get('symbol')} (PnL: ${trade_entry.get('pnl_usd', 0):+,.2f})")
+
+    # Auto evolve check every 3 trades
+    if len(history) >= 3 and len(history) % 3 == 0:
+        print(f"🧬 [Autonomous Reflection Trigger] Threshold reached ({len(history)} trades). Running loss autopsy & genetic mutation...")
+        evolve_agent()
+
+def format_telegram_genome_status():
+    genome = load_json(GENOME_FILE, get_default_genome())
+    stats = analyze_performance()
+
+    gen = genome.get("generation", 1)
+    fitness = genome.get("fitness_score", 85.0)
+    params = genome.get("parameters", {})
+    min_rr = params.get("min_risk_reward", 2.0)
+    max_risk = params.get("max_risk_per_trade_pct", 1.5)
+
+    lines = [
+        f"🧬 <b>STATUS QUANT GENOME (GENERASI {gen})</b>",
+        f"<i>Kecerdasan Evolusi Mandiri Akademi Crypto</i>",
+        f"━━━━━━━━━━━━━━━━━━",
+        f"🏆 <b>Fitness Score:</b> <code>{fitness}/100.0</code>",
+        f"⚖️ <b>Min R:R Filter:</b> <code>1 : {min_rr}</code>",
+        f"🛡️ <b>Max Risk/Trade:</b> <code>{max_risk}% modal</code>",
+        f"⚡ <b>Max Funding Rate:</b> <code>{params.get('max_funding_rate_threshold', 0.02)}%</code>",
+        f"━━━━━━━━━━━━━━━━━━"
+    ]
+
+    if stats:
+        lines.append(f"📊 <b>Performa Historis:</b>")
+        lines.append(f"• Total Trade: <code>{stats['total_trades']}</code>")
+        lines.append(f"• Win Rate: <code>{stats['win_rate']:.1f}%</code>")
+        lines.append(f"• Profit Factor: <code>{stats['profit_factor']:.2f}</code>")
+        lines.append(f"• Net PnL: <code>{'+' if stats['net_pnl']>=0 else ''}${stats['net_pnl']:,.2f}</code>\n")
+
+    mutations = genome.get("mutation_history", [])
+    if mutations:
+        last = mutations[-1]
+        lines.append(f"🔬 <b>Mutasi Terakhir (Gen {last.get('generation')}):</b>")
+        lines.append(f"• Tindakan: <code>{last.get('action')}</code>")
+        lines.append(f"• Hipotesis: <i>{last.get('hypothesis')}</i>")
+
+    lines.append("\n━━━━━━━━━━━━━━━━━━")
+    lines.append("<i>💡 Agent otomatis memutasi dirinya setiap 3 trade untuk terus menyempurnakan akurasi.</i>")
+    return "\n".join(lines)
 
 def show_genome_status():
     genome = load_json(GENOME_FILE, get_default_genome())

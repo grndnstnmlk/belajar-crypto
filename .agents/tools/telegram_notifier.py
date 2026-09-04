@@ -90,6 +90,7 @@ def get_desk_mode():
 MAIN_KEYBOARD = {
     "keyboard": [
         [{"text": "📊 Status Desk"}, {"text": "💰 Cek PnL"}],
+        [{"text": "📈 Minta Chart BTC"}, {"text": "🧬 Status Genome"}],
         [{"text": "🤖 Mode Hybrid (Auto)"}],
         [{"text": "⚡ Mode Scalp (5m)"}, {"text": "🎯 Mode Swing (1H)"}],
         [{"text": "📰 Kalender Berita"}, {"text": "🚨 Tutup Semua Posisi"}],
@@ -111,6 +112,9 @@ def setup_bot_commands():
     commands = [
         {"command": "status", "description": "📊 Cek saldo & posisi aktif"},
         {"command": "pnl", "description": "💰 Detail profit & loss real-time"},
+        {"command": "chart", "description": "📈 Visual snapshot chart candlestick (cth: /chart BTC)"},
+        {"command": "genome", "description": "🧬 Status AI Quant Genome & evolusi"},
+        {"command": "evolve", "description": "⚡ Jalankan autopsi & mutasi genetika sekarang"},
         {"command": "news", "description": "📰 Kalender berita makro AS (High-Impact)"},
         {"command": "pause", "description": "⏸️ Jeda eksekusi order autopilot"},
         {"command": "resume", "description": "▶️ Lanjutkan autopilot"},
@@ -158,9 +162,12 @@ def send_telegram_msg(text, parse_mode="HTML", chat_id_override=None, reply_mark
         print(f"[Telegram Notifier] Failed to send message: {e}")
         return None
 
+# Alias for broadcast
+send_telegram_broadcast = send_telegram_msg
+
 def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
     """
-    Sends rich notification when a new position is opened on Binance Futures.
+    Sends rich notification with visual candlestick chart when a new position is opened on Binance Futures.
     """
     symbol = trade.get("symbol", "UNKNOWN")
     side = trade.get("side", "BUY")
@@ -195,6 +202,27 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
         f"━━━━━━━━━━━━━━━━━━\n"
         f"<i>Gunakan /status atau /pnl untuk memantau dari HP.</i>"
     )
+
+    # 1. Attempt to generate and send visual Candlestick Chart Snapshot
+    try:
+        import chart_snapshot
+        tf = "5m" if ("SCALP" in reason.upper() or "5M" in reason.upper()) else "1H"
+        chart_file = chart_snapshot.generate_trade_chart(
+            symbol=symbol,
+            side=side,
+            entry_price=price,
+            sl_price=sl,
+            tp_price=tp,
+            timeframe=tf,
+            strategy_name=reason[:40]
+        )
+        if chart_file and os.path.exists(chart_file):
+            photo_res = chart_snapshot.send_telegram_photo(chart_file, caption=msg)
+            if photo_res and photo_res.get("ok"):
+                return photo_res
+    except Exception as e:
+        print(f"[Telegram Notifier Warning] Chart snapshot dispatch fallback to text: {e}")
+
     return send_telegram_msg(msg)
 
 def notify_trade_closed(symbol, pnl_usd, exit_reason="Manual/Target Hit", is_demo=True):
@@ -393,6 +421,12 @@ class TelegramCommandListener(threading.Thread):
                             "📊 Status": "/status",
                             "💰 Cek PnL": "/pnl",
                             "💰 PnL": "/pnl",
+                            "📈 Minta Chart BTC": "/chart BTC",
+                            "🧬 Status Genome": "/genome",
+                            "🤖 Mode Hybrid (Auto)": "/hybrid",
+                            "⚡ Mode Scalp (5m)": "/scalp",
+                            "🎯 Mode Swing (1H)": "/swing",
+                            "📰 Kalender Berita": "/news",
                             "⏸️ Jeda Bot": "/pause",
                             "⏸️ Pause": "/pause",
                             "▶️ Lanjutkan Bot": "/resume",
@@ -446,6 +480,10 @@ class TelegramCommandListener(threading.Thread):
             self._handle_command("/status", sender_chat_id)
         elif data == "refresh_pnl":
             self._handle_command("/pnl", sender_chat_id)
+        elif data == "force_evolve":
+            self._handle_command("/evolve", sender_chat_id)
+        elif data == "refresh_genome":
+            self._handle_command("/genome", sender_chat_id)
 
     def _handle_command(self, cmd_text, chat_id):
         # Lazy import sibling tools to avoid circular dependencies
@@ -462,6 +500,10 @@ class TelegramCommandListener(threading.Thread):
                 f"Gunakan tombol di bawah atau ketik perintah:\n"
                 f"• <code>/status</code> : Cek saldo akun, status autopilot, & posisi aktif\n"
                 f"• <code>/pnl</code> : Rincian floating PnL setiap koin\n"
+                f"• <code>/chart [koin] [tf]</code> : Snapshot visual candlestick chart (cth: <code>/chart btc</code>, <code>/chart sol 5m</code>)\n"
+                f"• <code>/genome</code> : Status AI Quant Genome & performa mutasi\n"
+                f"• <code>/evolve</code> : Jalankan autopsi performa & mutasi mandiri sekarang\n"
+                f"• <code>/news</code> : Kalender berita makro ekonomi AS (High-Impact)\n"
                 f"• <code>/pause</code> : Jeda eksekusi order autopilot baru\n"
                 f"• <code>/resume</code> : Lanjutkan kembali autopilot\n"
                 f"• <code>/close</code> : Pilih koin untuk ditutup via tombol interaktif\n"
@@ -579,6 +621,64 @@ class TelegramCommandListener(threading.Thread):
                 chat_id_override=chat_id,
                 reply_markup=MAIN_KEYBOARD
             )
+
+        elif command in ["/chart", "📈 minta chart btc"]:
+            raw_sym = parts[1].upper() if len(parts) > 1 else "BTC"
+            sym_clean = raw_sym.replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
+            tf = parts[2].lower() if len(parts) > 2 else "1H"
+            send_telegram_msg(f"🎨 Merender candlestick snapshot untuk <b>{sym_clean}/USDT</b> ({tf.upper()})...", chat_id_override=chat_id)
+            try:
+                import chart_snapshot
+                candles = chart_snapshot.fetch_candles_for_snapshot(sym_clean, bar=tf, limit=45)
+                cur_price = candles[-1]["close"] if candles else 0.0
+                chart_file = chart_snapshot.generate_trade_chart(
+                    symbol=sym_clean,
+                    side="BUY",
+                    entry_price=cur_price,
+                    sl_price=cur_price * 0.985,
+                    tp_price=cur_price * 1.035,
+                    timeframe=tf,
+                    strategy_name=f"Market Snapshot ({sym_clean})"
+                )
+                if chart_file and os.path.exists(chart_file):
+                    caption = (
+                        f"📊 <b>CANDLESTICK CHART SNAPSHOT: {sym_clean}/USDT</b>\n"
+                        f"🕒 Timeframe: <code>{tf.upper()}</code> | Harga Terakhir: <code>${cur_price:,.4f}</code>\n"
+                        f"📈 VWAP & R:R Projection (Akademi Crypto Mission Control)\n"
+                        f"━━━━━━━━━━━━━━━━━━\n"
+                        f"<i>Tips: Ketik <code>/chart eth 5m</code> atau <code>/chart sol 1h</code> untuk koin & tf lain.</i>"
+                    )
+                    res = chart_snapshot.send_telegram_photo(chart_file, caption=caption, chat_id=chat_id)
+                    if not (res and res.get("ok")):
+                        send_telegram_msg("⚠️ Gagal mengirim foto chart ke Telegram.", chat_id_override=chat_id)
+                else:
+                    send_telegram_msg("⚠️ Gagal membuat file gambar chart.", chat_id_override=chat_id)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Error saat membuat chart: {e}", chat_id_override=chat_id)
+
+        elif command in ["/genome", "🧬 status genome"]:
+            try:
+                import self_improve
+                status_text = self_improve.format_telegram_genome_status()
+                inline_kb = [
+                    [{"text": "⚡ Paksa Mutasi & Autopsi Sekarang", "callback_data": "force_evolve"}],
+                    [{"text": "🔄 Refresh Genome", "callback_data": "refresh_genome"}]
+                ]
+                send_telegram_msg(status_text, chat_id_override=chat_id, reply_markup={"inline_keyboard": inline_kb})
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat status genome: {e}", chat_id_override=chat_id)
+
+        elif command == "/evolve":
+            send_telegram_msg("🧬 Menjalankan autopsi performa & evolusi algoritma genetika...", chat_id_override=chat_id)
+            try:
+                import self_improve
+                mutated, gen = self_improve.evolve_agent()
+                if mutated:
+                    send_telegram_msg(f"✅ <b>Evolusi Berhasil!</b>\nAgent ditingkatkan ke <b>Generasi {gen}</b> dengan penyesuaian parameter.", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+                else:
+                    send_telegram_msg(f"ℹ️ <b>Genome Stabil (Gen {gen})</b>\nParameter saat ini sudah optimal dan memenuhi target fitness.", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Error saat evolusi: {e}", chat_id_override=chat_id)
 
         elif command in ["/news", "📰 kalender berita"]:
             try:

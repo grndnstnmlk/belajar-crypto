@@ -155,8 +155,28 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     exit_reason="Position Exited / Target or SL Filled",
                     is_demo=is_demo
                 )
-            except Exception:
-                pass
+                # Autonomous Genetic Evolution Trigger
+                import self_improve
+                is_be = t_info.get("breakeven_locked", False)
+                high_r = t_info.get("highest_r_reached", 0.0)
+                risk_b = float(t_info.get("risk_budget_usd", 20.0))
+                pnl_approx = (risk_b * (high_r - 0.5)) if is_be and high_r >= 1.5 else (0.0 if is_be else -risk_b)
+                exit_rsn = "HIT_TP" if high_r >= 2.0 else ("BREAKEVEN" if is_be else "HIT_SL")
+
+                self_improve.record_closed_trade_and_check_evolution({
+                    "id": f"BINANCE-{sym}-{int(time.time())}",
+                    "symbol": sym,
+                    "side": t_info.get("side", "BUY"),
+                    "entry_price": float(t_info.get("entry_price", 0)),
+                    "exit_price": float(t_info.get("current_sl", 0)),
+                    "amount_usd": risk_b * 5.0,
+                    "pnl_usd": round(pnl_approx, 2),
+                    "pnl_pct": round((pnl_approx / (risk_b * 5.0)) * 100, 2) if risk_b > 0 else 0.0,
+                    "reason": exit_rsn,
+                    "closed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                })
+            except Exception as ex:
+                print(f"[Trade Manager] Error recording closed trade for evolution: {ex}")
 
     for sym in closed_syms:
         meta.pop(sym, None)
