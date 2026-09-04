@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Akademi Crypto — Visual Mission Control</title>
+  <meta name="description" content="Autonomous Binance Futures Trading Desk Visual Mission Control with TradingView Lightweight Charts, VWAP Bands, Volume Profile, and Top-Down Confluence.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- TradingView Lightweight Charts CDN -->
+  <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    :root {
+      --bg: #0A0E13;
+      --bg-raised: #10161D;
+      --bg-card: #151D26;
+      --bg-hover: #1C2633;
+      --border: #1E2936;
+      --border-bright: #2C3C4F;
+      --text: #E7ECF1;
+      --text-dim: #7C8896;
+      --text-faint: #4B5663;
+      --green: #26E6A6;
+      --green-dim: rgba(38, 230, 166, 0.12);
+      --red: #F6465D;
+      --red-dim: rgba(246, 70, 93, 0.12);
+      --amber: #F0B90B;
+      --amber-dim: rgba(240, 185, 11, 0.12);
+      --blue: #58A6FF;
+      --blue-dim: rgba(88, 166, 255, 0.12);
+      --cyan: #39C5CF;
+      --cyan-dim: rgba(57, 197, 207, 0.12);
+      --purple: #B084F5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+    .display { font-family: 'Space Grotesk', sans-serif; }
+
+    /* Main Container */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Top Navigation / Status Header */
+    header {
+      height: 54px;
+      background: var(--bg-raised);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--amber);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-mode {
+      background: var(--amber-dim);
+      color: var(--amber);
+      border: 1px solid rgba(240, 185, 11, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-pills {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .metric-label {
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-val {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .metric-val.green { color: var(--green); }
+    .metric-val.red { color: var(--red); }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-bright);
+    }
+
+    .btn.btn-danger {
+      background: var(--red-dim);
+      color: var(--red);
+      border-color: rgba(246, 70, 93, 0.3);
+    }
+    .btn.btn-danger:hover {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn.btn-amber {
+      background: var(--amber-dim);
+      color: var(--amber);
+      border-color: rgba(240, 185, 11, 0.3);
+    }
+
+    /* Main Workspace 3-Column Split */
+    .workspace {
+      display: grid;
+      grid-template-columns: 240px 1fr 320px;
+      flex: 1;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* Column 1: Watchlist Panel */
+    .panel-watchlist {
+      background: var(--bg-raised);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .watchlist-scroll {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .watch-item {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(30, 41, 54, 0.5);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.1s ease;
+    }
+
+    .watch-item:hover {
+      background: var(--bg-card);
+    }
+
+    .watch-item.active {
+      background: rgba(38, 230, 166, 0.08);
+      border-left: 3px solid var(--green);
+    }
+
+    .watch-symbol {
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .watch-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .rs-badge {
+      font-size: 9px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .rs-badge.leader { background: var(--green-dim); color: var(--green); }
+    .rs-badge.laggard { background: var(--red-dim); color: var(--red); }
+    .rs-badge.neutral { background: var(--bg-hover); color: var(--text-dim); }
+
+    .pos-indicator {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .pos-indicator.short { background: var(--red); }
+
+    /* Column 2: Chart Main Stage */
+    .panel-chart {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .chart-toolbar {
+      height: 48px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-raised);
+    }
+
+    .symbol-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .symbol-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .symbol-price {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .toolbar-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .timeframe-group {
+      display: flex;
+      background: var(--bg-card);
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .tf-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .tf-btn:hover { color: var(--text); }
+    .tf-btn.active {
+      background: var(--amber);
+      color: #000;
+    }
+
+    #chart-container {
+      flex: 1;
+      width: 100%;
+      position: relative;
+    }
+
+    .chart-footer-metrics {
+      height: 72px;
+      background: var(--bg-raised);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 8px 16px;
+      gap: 12px;
+    }
+
+    .footer-metric-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-right: 1px solid rgba(30, 41, 54, 0.6);
+      padding-right: 12px;
+    }
+    .footer-metric-box:last-child { border-right: none; }
+
+    .fmb-label {
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .fmb-val {
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Column 3: Positions & Control Hub */
+    .panel-positions {
+      background: var(--bg-raised);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .positions-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .position-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.15s ease;
+    }
+
+    .position-card:hover {
+      border-color: var(--border-bright);
+    }
+
+    .pos-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pos-side-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .pos-side-tag.long { background: var(--green-dim); color: var(--green); }
+    .pos-side-tag.short { background: var(--red-dim); color: var(--red); }
+
+    .pos-pnl {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .pos-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      font-size: 11px;
+    }
+
+    .pc-label { color: var(--text-dim); font-size: 10px; }
+    .pc-val { font-weight: 600; }
+
+    .pos-be-badge {
+      background: rgba(38, 230, 166, 0.1);
+      color: var(--green);
+      border: 1px dashed rgba(38, 230, 166, 0.4);
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pos-card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .pos-card-actions .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 5px 8px;
+    }
+
+    /* Risk Genome Stats Footer on Right Panel */
+    .genome-footer {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      background: rgba(10, 14, 19, 0.6);
+      font-size: 10px;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+
+    /* Legend Overlay on Chart */
+    .chart-legend {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      z-index: 10;
+      background: rgba(16, 22, 29, 0.85);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 10px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend-line { width: 12px; height: 2px; border-radius: 1px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Top Header Navigation -->
+    <header>
+      <div class="brand-section">
+        <div class="brand-logo display">
+          <span style="color:var(--text);">AKADEMI</span>CRYPTO
+        </div>
+        <div class="badge-mode">FUTURES MISSION CONTROL</div>
+        <div class="live-dot" title="Koneksi Real-time Aktif"></div>
+      </div>
+
+      <!-- Live Metric Counter -->
+      <div class="metric-pills">
+        <div class="metric-item">
+          <span class="metric-label">Total Equity Balance</span>
+          <span class="metric-val mono" id="equity-val">$5,354.79 USDT</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Floating PnL (Open)</span>
+          <span class="metric-val mono green" id="floating-pnl-val">+$0.00 USDT</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Active Positions</span>
+          <span class="metric-val mono" id="pos-count-val">0 / 3 max</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Clock (WIB)</span>
+          <span class="metric-val mono" id="clock-val">00:00:00</span>
+        </div>
+      </div>
+
+      <!-- Action Hub -->
+      <div class="header-actions">
+        <a href="akademi-crypto.html" target="_blank" class="btn" style="text-decoration:none; color:var(--text); border-color:var(--border-bright);">
+          🎓 Modul Akademi
+        </a>
+        <button class="btn btn-amber" id="toggle-pause-btn" onclick="togglePause()">
+          <span id="pause-btn-text">⏸️ Jeda Autopilot</span>
+        </button>
+        <button class="btn btn-danger" onclick="closeAllPositions()">
+          🚨 Close All
+        </button>
+      </div>
+    </header>
+
+    <!-- 3-Column Workspace -->
+    <div class="workspace">
+      <!-- Left Column: Watchlist -->
+      <div class="panel-watchlist">
+        <div class="panel-header">
+          <span>Top 10 Watchlist</span>
+          <span class="mono" style="font-size:10px;">RS Radar</span>
+        </div>
+        <div class="watchlist-scroll" id="watchlist-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Center Column: TradingView Chart Stage -->
+      <div class="panel-chart">
+        <div class="chart-toolbar">
+          <div class="symbol-info">
+            <span class="symbol-title display" id="active-sym-title">BTC/USDT</span>
+            <span class="symbol-price mono" id="active-sym-price">$0.00</span>
+            <span class="rs-badge leader" id="active-sym-rs">LEADER</span>
+          </div>
+
+          <div class="toolbar-tools">
+            <div class="timeframe-group">
+              <button class="tf-btn" onclick="switchBar('15m')">15m</button>
+              <button class="tf-btn active" onclick="switchBar('1H')">1H</button>
+              <button class="tf-btn" onclick="switchBar('4H')">4H</button>
+            </div>
+            <button class="btn" onclick="refreshChartData()">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <!-- Chart Container with Legend -->
+        <div id="chart-container">
+          <div class="chart-legend">
+            <div class="legend-item">
+              <div class="legend-line" style="background:var(--cyan);"></div>
+              <span>Inst. VWAP</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-line" style="background:var(--blue); border-top:1px dashed var(--blue);"></div>
+              <span>±1σ Bands</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-line" style="background:var(--amber);"></div>
+              <span>POC Level</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Macro & Profile Metrics -->
+        <div class="chart-footer-metrics">
+          <div class="footer-metric-box">
+            <span class="fmb-label">🎯 4H Top-Down Macro</span>
+            <span class="fmb-val" id="macro-regime-val" style="color:var(--green);">Loading...</span>
+          </div>
+          <div class="footer-metric-box">
+            <span class="fmb-label">📊 Volume Profile (POC)</span>
+            <span class="fmb-val mono" id="poc-val">POC: $0.00</span>
+          </div>
+          <div class="footer-metric-box">
+            <span class="fmb-label">⚖️ Value Area Range (70%)</span>
+            <span class="fmb-val mono" id="va-range-val">VAL: $0 | VAH: $0</span>
+          </div>
+          <div class="footer-metric-box">
+            <span class="fmb-label">🌊 Institutional VWAP</span>
+            <span class="fmb-val mono" id="vwap-status-val">Loading...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Active Positions & Control Hub -->
+      <div class="panel-positions">
+        <div class="panel-header">
+          <span>Active Positions</span>
+          <span class="mono" id="pos-header-count">3 Open</span>
+        </div>
+
+        <div class="positions-scroll" id="positions-list">
+          <div style="color:var(--text-dim); text-align:center; padding:30px 10px;">
+            Memuat posisi aktif dari Binance...
+          </div>
+        </div>
+
+        <!-- Genome Settings Footer -->
+        <div class="genome-footer">
+          <div><b>🧬 Genetic Risk Guardrails:</b> Gen 4</div>
+          <div>• Min Risk:Reward : <b>1 : 2.50</b></div>
+          <div>• Max Risk / Trade: <b>1.5% modal</b></div>
+          <div>• Proteksi: <b>Breakeven at 1R + Trailing Stop</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentSymbol = "ETH";
+    let currentBar = "1H";
+    let chart = null;
+    let candleSeries = null;
+    let vwapLine = null;
+    let upperBandLine = null;
+    let lowerBandLine = null;
+    let pocPriceLine = null;
+    let entryPriceLine = null;
+    let slPriceLine = null;
+    let tpPriceLine = null;
+
+    const DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"];
+
+    // Initialize Chart
+    function initChart() {
+      const container = document.getElementById("chart-container");
+      chart = LightweightCharts.createChart(container, {
+        layout: {
+          background: { color: "#0A0E13" },
+          textColor: "#7C8896",
+          fontFamily: "'Inter', sans-serif"
+        },
+        grid: {
+          vertLines: { color: "rgba(30, 41, 54, 0.4)" },
+          horzLines: { color: "rgba(30, 41, 54, 0.4)" }
+        },
+        crosshair: {
+          mode: LightweightCharts.CrosshairMode.Normal,
+          vertLine: { color: "rgba(88, 166, 255, 0.5)", width: 1, style: 2 },
+          horzLine: { color: "rgba(88, 166, 255, 0.5)", width: 1, style: 2 }
+        },
+        rightPriceScale: {
+          borderColor: "#1E2936",
+          scaleMargins: { top: 0.1, bottom: 0.15 }
+        },
+        timeScale: {
+          borderColor: "#1E2936",
+          timeVisible: true,
+          secondsVisible: false
+        }
+      });
+
+      // Series
+      candleSeries = chart.addCandlestickSeries({
+        upColor: "#26E6A6",
+        downColor: "#F6465D",
+        borderUpColor: "#26E6A6",
+        borderDownColor: "#F6465D",
+        wickUpColor: "#26E6A6",
+        wickDownColor: "#F6465D"
+      });
+
+      vwapLine = chart.addLineSeries({
+        color: "#39C5CF",
+        lineWidth: 2,
+        title: "VWAP"
+      });
+
+      upperBandLine = chart.addLineSeries({
+        color: "#58A6FF",
+        lineWidth: 1,
+        lineStyle: 2,
+        title: "+1σ Band"
+      });
+
+      lowerBandLine = chart.addLineSeries({
+        color: "#58A6FF",
+        lineWidth: 1,
+        lineStyle: 2,
+        title: "-1σ Band"
+      });
+
+      window.addEventListener("resize", () => {
+        chart.applyOptions({
+          width: container.clientWidth,
+          height: container.clientHeight
+        });
+      });
+    }
+
+    // Digital Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("clock-val").textContent = now.toLocaleTimeString("id-ID");
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Fetch and update dashboard feed (Balance, positions, pause state)
+    async function updateDashboardFeed() {
+      try {
+        const res = await fetch("/api/feed");
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Update balance
+        if (data.balance_usd) {
+          document.getElementById("equity-val").textContent = `$${data.balance_usd.toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2})} USDT`;
+        }
+
+        // Update pause status
+        const isPaused = data.is_paused;
+        const pBtn = document.getElementById("pause-btn-text");
+        pBtn.textContent = isPaused ? "▶️ Lanjutkan Autopilot" : "⏸️ Jeda Autopilot";
+
+        // Update positions
+        const positions = data.positions || [];
+        const totalPnl = positions.reduce((acc, p) => acc + (p.pnl_usd || 0), 0);
+        const pnlEl = document.getElementById("floating-pnl-val");
+        pnlEl.textContent = `${totalPnl >= 0 ? "+" : ""}$${totalPnl.toFixed(2)} USDT`;
+        pnlEl.className = `metric-val mono ${totalPnl >= 0 ? "green" : "red"}`;
+
+        document.getElementById("pos-count-val").textContent = `${positions.length} / 3 max`;
+        document.getElementById("pos-header-count").textContent = `${positions.length} Open`;
+
+        renderPositionsList(positions);
+        renderWatchlist(positions);
+        updateActivePositionChartLines(positions);
+      } catch (e) {
+        console.error("Feed poll error:", e);
+      }
+    }
+
+    // Render Positions on Right Panel
+    function renderPositionsList(positions) {
+      const container = document.getElementById("positions-list");
+      if (!positions || positions.length === 0) {
+        container.innerHTML = `
+          <div style="color:var(--text-dim); text-align:center; padding:40px 10px;">
+            <div style="font-size:24px; margin-bottom:8px;">🏖️</div>
+            <div>Tidak ada posisi aktif yang sedang terbuka.</div>
+            <div style="font-size:11px; margin-top:4px; color:var(--text-faint);">Desk siap mendeteksi setup baru.</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = positions.map(p => {
+        const isLong = p.side === "LONG";
+        const pnlSign = p.pnl_usd >= 0 ? "+" : "";
+        const pnlClass = p.pnl_usd >= 0 ? "green" : "red";
+        const sym = p.symbol.replace("USDT", "");
+
+        return `
+          <div class="position-card" onclick="selectSymbol('${sym}')">
+            <div class="pos-card-head">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="pos-side-tag ${isLong ? 'long' : 'short'}">${p.side} ${p.leverage}x</span>
+                <span style="font-weight:700; font-size:13px;">${p.symbol}</span>
+              </div>
+              <span class="pos-pnl mono ${pnlClass}">${pnlSign}$${p.pnl_usd.toFixed(2)}</span>
+            </div>
+
+            <div class="pos-card-grid">
+              <div>
+                <div class="pc-label">Entry Price</div>
+                <div class="pc-val mono">$${p.entry_price.toLocaleString("en-US", {minimumFractionDigits:4})}</div>
+              </div>
+              <div>
+                <div class="pc-label">Mark Price</div>
+                <div class="pc-val mono">$${p.mark_price.toLocaleString("en-US", {minimumFractionDigits:4})}</div>
+              </div>
+              <div>
+                <div class="pc-label">Position Size</div>
+                <div class="pc-val mono">${p.quantity} ${sym}</div>
+              </div>
+              <div>
+                <div class="pc-label">Stop Loss</div>
+                <div class="pc-val mono" style="color:var(--red);">${p.sl ? '$' + p.sl.toFixed(4) : 'Trailing Active'}</div>
+              </div>
+            </div>
+
+            ${p.breakeven_locked ? `
+              <div class="pos-be-badge">
+                🛡️ BREAKEVEN PROTECTED (Free Roll)
+              </div>
+            ` : ''}
+
+            <div class="pos-card-actions">
+              <button class="btn btn-danger" onclick="event.stopPropagation(); closeSinglePosition('${p.symbol}')">
+                Tutup di Market
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Render Watchlist
+    function renderWatchlist(activePositions) {
+      const container = document.getElementById("watchlist-list");
+      const activeSyms = (activePositions || []).map(p => p.symbol.replace("USDT", ""));
+
+      container.innerHTML = DEFAULT_WATCHLIST.map(sym => {
+        const isActive = sym === currentSymbol;
+        const hasPos = activeSyms.includes(sym);
+
+        return `
+          <div class="watch-item ${isActive ? 'active' : ''}" onclick="selectSymbol('${sym}')">
+            <div class="watch-symbol">
+              ${hasPos ? '<span class="pos-indicator" title="Posisi Terbuka"></span>' : ''}
+              <span>${sym}</span>
+            </div>
+            <div class="watch-meta">
+              <span class="rs-badge ${sym === 'BTC' ? 'neutral' : sym === 'ETH' || sym === 'SOL' ? 'leader' : 'laggard'}">
+                ${sym === 'BTC' ? 'BENCHMARK' : sym === 'ETH' || sym === 'SOL' ? 'ALPHA' : 'BETA'}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Draw Active Position Lines on Chart
+    function updateActivePositionChartLines(positions) {
+      // Clear existing lines
+      if (entryPriceLine) { candleSeries.removePriceLine(entryPriceLine); entryPriceLine = null; }
+      if (slPriceLine) { candleSeries.removePriceLine(slPriceLine); slPriceLine = null; }
+      if (tpPriceLine) { candleSeries.removePriceLine(tpPriceLine); tpPriceLine = null; }
+
+      const activePos = (positions || []).find(p => p.symbol.replace("USDT", "") === currentSymbol);
+      if (!activePos) return;
+
+      if (activePos.entry_price) {
+        entryPriceLine = candleSeries.createPriceLine({
+          price: activePos.entry_price,
+          color: "#E7ECF1",
+          lineWidth: 1,
+          lineStyle: 1,
+          axisLabelVisible: true,
+          title: `ENTRY (${activePos.side})`
+        });
+      }
+
+      if (activePos.sl) {
+        slPriceLine = candleSeries.createPriceLine({
+          price: activePos.sl,
+          color: "#F6465D",
+          lineWidth: 2,
+          lineStyle: 0,
+          axisLabelVisible: true,
+          title: activePos.breakeven_locked ? "BREAKEVEN SL" : "STOP LOSS"
+        });
+      }
+    }
+
+    // Load Chart Data
+    async function loadChartData() {
+      try {
+        const res = await fetch(`/api/klines?symbol=${currentSymbol}&bar=${currentBar}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.candles && data.candles.length > 0) {
+          candleSeries.setData(data.candles);
+          if (data.vwap) vwapLine.setData(data.vwap);
+          if (data.upper_band) upperBandLine.setData(data.upper_band);
+          if (data.lower_band) lowerBandLine.setData(data.lower_band);
+
+          // Update header price
+          const lastCandle = data.candles[data.candles.length - 1];
+          document.getElementById("active-sym-title").textContent = `${currentSymbol}/USDT`;
+          document.getElementById("active-sym-price").textContent = `$${lastCandle.close.toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 4})}`;
+
+          // Update Volume Profile Line
+          if (pocPriceLine) { candleSeries.removePriceLine(pocPriceLine); pocPriceLine = null; }
+          if (data.volume_profile && data.volume_profile.poc) {
+            pocPriceLine = candleSeries.createPriceLine({
+              price: data.volume_profile.poc,
+              color: "#F0B90B",
+              lineWidth: 1,
+              lineStyle: 2,
+              axisLabelVisible: true,
+              title: "POC"
+            });
+            document.getElementById("poc-val").textContent = `POC: $${data.volume_profile.poc.toFixed(2)}`;
+            document.getElementById("va-range-val").textContent = `VAL: $${data.volume_profile.val?.toFixed(2) || '-'} | VAH: $${data.volume_profile.vah?.toFixed(2) || '-'}`;
+          }
+
+          // Update 4H Macro Footer
+          if (data.macro) {
+            const m = data.macro;
+            const macroEl = document.getElementById("macro-regime-val");
+            macroEl.textContent = m.bias_label || m.regime;
+            macroEl.style.color = m.regime === "BULLISH" ? "var(--green)" : m.regime === "BEARISH" ? "var(--red)" : "var(--amber)";
+
+            document.getElementById("vwap-status-val").textContent = `4H VWAP: $${m.vwap ? m.vwap.toFixed(2) : '-'} (${lastCandle.close >= (m.vwap || 0) ? 'Bullish Above' : 'Bearish Below'})`;
+          }
+
+          chart.timeScale().fitContent();
+        }
+      } catch (e) {
+        console.error("Load chart error:", e);
+      }
+    }
+
+    function selectSymbol(sym) {
+      currentSymbol = sym;
+      document.querySelectorAll(".watch-item").forEach(el => el.classList.remove("active"));
+      loadChartData();
+      updateDashboardFeed();
+    }
+
+    function switchBar(bar) {
+      currentBar = bar;
+      document.querySelectorAll(".tf-btn").forEach(el => el.classList.remove("active"));
+      event.target.classList.add("active");
+      loadChartData();
+    }
+
+    function refreshChartData() {
+      loadChartData();
+      updateDashboardFeed();
+    }
+
+    // Actions
+    async function closeSinglePosition(symbol) {
+      if (!confirm(`Konfirmasi: Tutup posisi ${symbol} sekarang di harga market?`)) return;
+      try {
+        const res = await fetch("/api/action/close", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ symbol })
+        });
+        const d = await res.json();
+        if (d.success) {
+          alert(`Posisi ${symbol} berhasil ditutup!`);
+          updateDashboardFeed();
+        } else {
+          alert(`Gagal: ${JSON.stringify(d)}`);
+        }
+      } catch (e) {
+        alert("Error: " + e);
+      }
+    }
+
+    async function closeAllPositions() {
+      if (!confirm("⚠️ PERINGATAN DARURAT: Tutup SELURUH posisi aktif ke USDT sekarang?")) return;
+      try {
+        const res = await fetch("/api/action/closeall", { method: "POST" });
+        const d = await res.json();
+        if (d.success) {
+          alert(`Semua posisi (${d.closed_count}) berhasil dilikuidasi.`);
+          updateDashboardFeed();
+        }
+      } catch (e) {
+        alert("Error: " + e);
+      }
+    }
+
+    async function togglePause() {
+      try {
+        const res = await fetch("/api/action/toggle_pause", { method: "POST" });
+        const d = await res.json();
+        if (d.success) {
+          alert(d.is_paused ? "Trading Desk dijeda." : "Trading Desk dilanjutkan kembali.");
+          updateDashboardFeed();
+        }
+      } catch (e) {
+        alert("Error: " + e);
+      }
+    }
+
+    // Boot
+    window.addEventListener("DOMContentLoaded", () => {
+      initChart();
+      loadChartData();
+      updateDashboardFeed();
+      // Poll every 4 seconds for fresh data
+      setInterval(updateDashboardFeed, 4000);
+    });
+  </script>
+</body>
+</html>
