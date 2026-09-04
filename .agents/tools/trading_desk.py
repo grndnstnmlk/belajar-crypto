@@ -103,14 +103,28 @@ def get_active_positions(user_email=None, is_demo=True):
         return []
     return [p for p in res if float(p.get("positionAmt", 0)) != 0]
 
+def get_account_financials(user_email=None, is_demo=True):
+    """
+    Mengambil total ekuitas (margin balance) dan margin bebas yang tersedia (availableBalance).
+    """
+    res = binance_client.send_signed_request("/fapi/v2/account", method="GET", is_demo=is_demo, user_email=user_email)
+    if res and isinstance(res, dict) and "totalMarginBalance" in res:
+        equity = float(res.get("totalMarginBalance", 0) or res.get("totalWalletBalance", 0) or 0)
+        available = float(res.get("availableBalance", 0) or 0)
+        return equity, available
+
+    res_bal = binance_client.send_signed_request("/fapi/v2/balance", method="GET", is_demo=is_demo, user_email=user_email)
+    if res_bal and isinstance(res_bal, list):
+        for b in res_bal:
+            if b.get("asset") == "USDT":
+                eq = float(b.get("balance", 0))
+                avail = float(b.get("availableBalance", 0) or b.get("withdrawAvailable", 0) or (eq * 0.5))
+                return eq, avail
+    return 1000.0, 500.0
+
 def get_account_balance(user_email=None, is_demo=True):
-    res = binance_client.send_signed_request("/fapi/v2/balance", method="GET", is_demo=is_demo, user_email=user_email)
-    if not res:
-        return 1000.0  # Fallback assumption
-    for b in res:
-        if b.get("asset") == "USDT":
-            return float(b.get("balance", 0))
-    return 1000.0
+    equity, _ = get_account_financials(user_email, is_demo)
+    return equity
 
 def compute_rs_matrix(symbols):
     """
@@ -358,8 +372,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     print(f"       🧬 Genome     : Gen {genome.get('generation', 1)} (Min R:R >= {min_rr}, Max Risk: {max_risk_pct}%)")
     print("=" * 68)
 
-    # 1. Check Account Equity & Active Positions Guardrail
-    balance_usd = get_account_balance(user_email, is_demo)
+    # 1. Check Account Equity, Available Margin & Active Positions Guardrail
+    balance_usd, available_usd = get_account_financials(user_email, is_demo)
     active_positions = get_active_positions(user_email, is_demo)
     active_symbols = [p["symbol"] for p in active_positions]
 
@@ -370,7 +384,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         return
 
     print(f"\n[1. RISK OFFICER AUDIT]")
-    print(f" * Saldo Dompet Futures : ${balance_usd:,.2f} USDT")
+    print(f" * Saldo Dompet Futures : ${balance_usd:,.2f} USDT (Margin Bebas Tersedia: ${available_usd:,.2f} USDT)")
     print(f" * Posisi Aktif Saat Ini: {len(active_positions)} / {max_open_positions} max")
     export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
 
@@ -460,12 +474,27 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             print(f" * Take Profit: ${best['tp']:,.4f}")
             print(f" * R:R Ratio  : 1 : {best['rr']:.2f}")
 
-            # Calculate exact position size for 1.5% max risk
+            # Calculate exact position size with Dynamic Margin & Risk Guardrail
             risk_budget = balance_usd * (max_risk_pct / 100.0)
             sl_pct = abs(best["price"] - best["sl"]) / best["price"]
             pos_size_usd = risk_budget / max(sl_pct, 0.005)
-            # Cap position size to 3x equity max
-            pos_size_usd = min(pos_size_usd, balance_usd * 3.0)
+
+            # Cap 1: Max 2.5x equity
+            pos_size_usd = min(pos_size_usd, balance_usd * 2.5)
+
+            # Cap 2: Alokasi proporsional per slot (agar tidak memonopoli seluruh margin)
+            per_slot_notional = (balance_usd / max_open_positions) * 5.0
+            pos_size_usd = min(pos_size_usd, per_slot_notional)
+
+            # Cap 3: Available Free Margin Guardrail (gunakan maks 75% dari margin bebas tersisa)
+            max_notional_from_avail = available_usd * 0.75 * 5.0
+            pos_size_usd = min(pos_size_usd, max_notional_from_avail)
+
+            margin_required = pos_size_usd / 5.0
+            if margin_required < 2.0 or available_usd < 10.0:
+                print(f" ⚠️ [Margin Guardrail] Sisa margin tersedia (${available_usd:,.2f}) tidak cukup untuk membuka posisi {best['symbol']} (Dibutuhkan: ${margin_required:,.2f}). Melewatkan eksekusi.")
+                continue
+
             raw_qty = pos_size_usd / best["price"]
             if best["base"] in ["BTC"]:
                 qty = max(0.001, round(raw_qty, 3))
@@ -478,12 +507,12 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             else:
                 qty = max(0.1, round(raw_qty, 1))
 
-            print(f" * Position Size Budget: ${pos_size_usd:,.2f} ({qty} {best['base']})")
+            print(f" * Position Size Budget: ${pos_size_usd:,.2f} ({qty} {best['base']}) | Margin Diperlukan: ${margin_required:,.2f} USDT")
             print(f" * Max Risk At SL      : ${risk_budget:,.2f} ({max_risk_pct}% modal)")
 
             # Execute via binance_client
             print(f"[Mengirimkan Order ke Binance Futures...]")
-            binance_client.place_futures_order(
+            order_res = binance_client.place_futures_order(
                 symbol=best["symbol"],
                 side=best["side"],
                 quantity=qty,
@@ -493,6 +522,13 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 is_demo=is_demo,
                 user_email=user_email
             )
+
+            if not order_res or not order_res.get("orderId"):
+                print(f"⚠️ Eksekusi {best['symbol']} gagal di bursa Binance. Melewatkan alert Telegram dan pendaftaran trade manager.")
+                continue
+
+            # Update available_usd for subsequent order in the same cycle
+            available_usd = max(0.0, available_usd - margin_required)
 
             # Send Instant Telegram Push Notification
             try:

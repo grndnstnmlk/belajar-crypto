@@ -312,6 +312,7 @@ def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is
             print(f"⚠️ Respon TP: {tp_res}")
 
     print("=======================================================\n")
+    return res
 
 def get_open_orders(symbol=None, is_demo=True, user_email=None):
     target_user, _, _, _, mode_label, _ = resolve_credentials(user_email, is_demo)
