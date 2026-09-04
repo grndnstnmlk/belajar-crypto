@@ -244,6 +244,23 @@ def format_price_precision(symbol, price):
     else:
         return f"{price:.2f}"
 
+def cancel_existing_algo_orders_for_symbol(symbol, is_demo=True, user_email=None):
+    """
+    Cancels any existing open conditional / algo orders for the symbol
+    to prevent Binance Error -4130 (An open stop or take profit order with GTE and closePosition is existing).
+    """
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    try:
+        open_algos = send_signed_request("/fapi/v1/openAlgoOrders", method="GET", is_demo=is_demo, user_email=user_email)
+        if open_algos and isinstance(open_algos, list):
+            for o in open_algos:
+                if o.get("symbol") == sym_clean:
+                    algo_id = o.get("algoId")
+                    if algo_id:
+                        send_signed_request("/fapi/v1/algoOrder", method="DELETE", params={"algoId": algo_id}, is_demo=is_demo, user_email=user_email)
+    except Exception:
+        pass
+
 def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is_demo=True, user_email=None):
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
     target_user, _, _, _, mode_label, _ = resolve_credentials(user_email, is_demo)
@@ -270,11 +287,15 @@ def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is
     res = send_signed_request("/fapi/v1/order", method="POST", params=order_params, is_demo=is_demo, user_email=user_email)
     if not res or not res.get("orderId"):
         print(f"❌ Gagal mengeksekusi order utama: {res}")
-        return
+        return None
 
     order_id = res.get("orderId")
     avg_price = float(res.get("avgPrice", 0) or res.get("price", 0) or 0)
     print(f"\n✅ ORDER UTAMA TERISI! Order ID: {order_id} @ ${avg_price:,.4f}")
+
+    # Cancel any previous conflicting algo orders for this symbol before placing fresh SL/TP
+    if sl or tp:
+        cancel_existing_algo_orders_for_symbol(sym_clean, is_demo=is_demo, user_email=user_email)
 
     # 3. Attach Stop Loss via Algo Order API
     opp_side = "SELL" if side_clean == "BUY" else "BUY"

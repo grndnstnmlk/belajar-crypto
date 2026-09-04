@@ -474,6 +474,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             print(f" * Take Profit: ${best['tp']:,.4f}")
             print(f" * R:R Ratio  : 1 : {best['rr']:.2f}")
 
+            # Refresh live available free margin directly from exchange before sizing
+            _, live_avail = get_account_financials(user_email, is_demo)
+            available_usd = min(available_usd, live_avail)
+
             # Calculate exact position size with Dynamic Margin & Risk Guardrail
             risk_budget = balance_usd * (max_risk_pct / 100.0)
             sl_pct = abs(best["price"] - best["sl"]) / best["price"]
