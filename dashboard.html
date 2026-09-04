@@ -722,6 +722,14 @@
           <span class="metric-val mono" id="pos-count-val">0 / 3 max</span>
         </div>
         <div class="metric-item">
+          <span class="metric-label">Institutional Session</span>
+          <span class="metric-val mono cyan" id="session-val">Loading...</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Akurasi Minimum</span>
+          <span class="metric-val mono amber" id="confluence-target-val">≥ 75%</span>
+        </div>
+        <div class="metric-item">
           <span class="metric-label">Clock (WIB)</span>
           <span class="metric-val mono" id="clock-val">00:00:00</span>
         </div>
@@ -1179,6 +1187,20 @@
 
         document.getElementById("pos-count-val").textContent = `${positions.length} / 3 max`;
         document.getElementById("pos-header-count").textContent = `${positions.length} Open`;
+
+        // Update session & confluence threshold
+        if (data.session) {
+          const sessEl = document.getElementById("session-val");
+          if (sessEl) {
+            sessEl.textContent = data.session.session_name.split('(')[0].trim();
+            sessEl.title = `${data.session.rationale} | Ambang Batas: ${data.session.min_threshold}%`;
+            sessEl.className = `metric-val mono ${data.session.high_liquidity ? "green" : (data.session.is_dead_zone ? "red" : "cyan")}`;
+          }
+          const confEl = document.getElementById("confluence-target-val");
+          if (confEl) {
+            confEl.textContent = `≥ ${data.session.min_threshold}%`;
+          }
+        }
 
         renderPositionsList(positions);
         renderWatchlist(positions);

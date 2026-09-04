@@ -33,6 +33,7 @@ import telegram_notifier
 import trade_manager
 import topdown_confluence
 import fast_scalper
+import session_filter
 
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
@@ -51,7 +52,14 @@ def load_genome():
             "max_risk_per_trade_pct": 1.5,
             "rsi_overbought": 70,
             "rsi_oversold": 30,
-            "require_fvg_confluence": True
+            "require_fvg_confluence": True,
+            "max_funding_rate_threshold": 0.02,
+            "weights": {
+                "trend_weight": 0.35,
+                "rsi_weight": 0.30,
+                "volatility_weight": 0.20,
+                "risk_aversion": 0.15
+            }
         }
     }
 
@@ -70,6 +78,7 @@ def log_desk_activity(entry):
         json.dump(history, f, indent=2, ensure_ascii=False)
 
 def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, genome):
+    sess = session_filter.get_current_session_info()
     data = {
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "user_email": user_email or "dxmade@gmail.com",
@@ -78,6 +87,7 @@ def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, ge
         "generation": genome.get("generation", 3),
         "min_rr": genome.get("parameters", {}).get("min_risk_reward", 2.5),
         "max_risk_pct": genome.get("parameters", {}).get("max_risk_per_trade_pct", 1.5),
+        "session": sess,
         "positions": [
             {
                 "symbol": p["symbol"],
@@ -361,6 +371,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     target_user, _, _, _, mode_label, _ = binance_client.resolve_credentials(user_email, is_demo)
 
     active_watchlist = symbols if symbols else DEFAULT_WATCHLIST
+    session_info = session_filter.get_current_session_info()
 
     timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("\n" + "=" * 68)
@@ -368,6 +379,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     print(f"       📅 Waktu      : {timestamp_str}")
     print(f"       👤 Akun       : {target_user}")
     print(f"       🕹️ Mode       : {mode_label}")
+    print(f"       ⏱️ Sesi Pasar  : {session_info['session_name']}")
+    print(f"       🎯 Akurasi Min : Skor Konfluensi >= {session_info['min_threshold']}% (Akurasi Terproteksi)")
     print(f"       🌐 Watchlist  : {len(active_watchlist)} Aset ({', '.join(active_watchlist)})")
     print(f"       🧬 Genome     : Gen {genome.get('generation', 1)} (Min R:R >= {min_rr}, Max Risk: {max_risk_pct}%)")
     print("=" * 68)
@@ -455,33 +468,43 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         candidates.extend(swing_cands)
 
     # 3. Decision & Execution Desk
-    print("\n[3. EXECUTION DESK DECISION]")
-    if not candidates:
-        print("Tidak ada setup baru yang memenuhi konfluensi ketat (FVG / 3-Touch / Fabio Auction / Tim MSS / RS-RW / 5m Scalp).")
-        print("Desk standby menunggu struktur pasar berikutnya.")
+    print("\n[3. INSTITUTIONAL ACCURACY & CONFLUENCE AUDIT]")
+    admissible_candidates = []
+    for cand in candidates:
+        is_ok, audit_msg, score_data = session_filter.audit_candidate_confluence(cand, session_info)
+        cand["confluence_score"] = score_data["score"]
+        cand["confluence_grade"] = score_data["grade"]
+        if is_ok:
+            print(f"  {audit_msg}")
+            admissible_candidates.append(cand)
+        else:
+            print(f"  {audit_msg}")
+
+    if not admissible_candidates:
+        print("\nTidak ada setup yang lolos ambang batas konfluensi ketat.")
+        print(f"Desk standby demi menjaga akurasi ({session_info['session_name']} | Syarat Min: {session_info['min_threshold']}%).")
         log_desk_activity({
             "timestamp": timestamp_str,
-            "action": "STANDBY_NO_CONFLUENCE",
+            "action": "STANDBY_LOW_CONFLUENCE",
             "balance": balance_usd,
             "positions_count": len(active_positions)
         })
     else:
         # Available slots
         slots_available = max_open_positions - len(active_positions)
-        # Prioritize 5m Scalps (time-sensitive momentum) and Elite Swing setups (Tim MSS, Fabio Auction, Patrick Nill 3-Touch) + Macro Confluence + RS Alignment, then highest R:R
-        candidates.sort(key=lambda x: (
+        # Prioritize highest Confluence Score, then time-sensitive momentum scalps, then R:R
+        admissible_candidates.sort(key=lambda x: (
+            x.get("confluence_score", 0),
             1 if x.get("is_scalp") else 0,
-            1 if (x.get("is_tim") or x.get("is_fabio") or x.get("is_3touch")) else 0,
-            1 if x.get("macro_aligned") else 0,
-            1 if (x.get("is_alpha_leader") or x.get("is_beta_laggard")) else 0,
             x["rr"]
         ), reverse=True)
-        selected = candidates[:slots_available]
+        selected = admissible_candidates[:slots_available]
 
-        print(f"🎯 Ditemukan {len(candidates)} setup potensial. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")
+        print(f"\n🎯 Ditemukan {len(admissible_candidates)} setup lolos uji akurasi. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")
 
         for idx, best in enumerate(selected, 1):
             print(f"\n--- [{idx}/{len(selected)}] EKSEKUSI SETUP: {best['side']} {best['symbol']} ---")
+            print(f" * Konfluensi : {best['confluence_score']}% [{best['confluence_grade']}]")
             print(f" * Rationale  : {best['reason']}")
             print(f" * Entry Price: ${best['price']:,.4f}")
             print(f" * Stop Loss  : ${best['sl']:,.4f}")
@@ -613,6 +636,7 @@ def main():
     run_p.add_argument("--once", action="store_true", help="Jalankan 1 siklus lalu selesai")
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 30)")
+    run_p.add_argument("--max-positions", type=int, default=3, help="Batas maksimal posisi aktif bersamaan (default: 3)")
     run_p.add_argument("--user", type=str, default=None, help="Email akun (misal: dxmade@gmail.com)")
     run_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo Testnet)")
 
@@ -628,16 +652,17 @@ def main():
         show_desk_status(args.user, is_demo)
     elif args.command == "run":
         syms = [s.strip().upper() for s in args.symbols.split(",") if s.strip()] if getattr(args, "symbols", None) else None
+        max_pos = getattr(args, "max_positions", 3)
         if args.once:
-            run_trading_desk_cycle(args.user, is_demo, symbols=syms)
+            run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms)
         else:
             w_str = ", ".join(syms) if syms else ", ".join(DEFAULT_WATCHLIST)
-            print(f"Memulai Autonomous Trading Desk Daemon (Watchlist: {w_str} | Interval: {args.interval} menit)... Tekan Ctrl+C untuk berhenti.")
+            print(f"Memulai Autonomous Trading Desk Daemon (Watchlist: {w_str} | Interval: {args.interval} menit | Max Positions: {max_pos})... Tekan Ctrl+C untuk berhenti.")
             # Start background Telegram interactive remote control listener thread
             telegram_notifier.start_command_listener(args.user, is_demo=is_demo)
             try:
                 while True:
-                    run_trading_desk_cycle(args.user, is_demo, symbols=syms)
+                    run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms)
                     print(f"Desk tidur sejenak selama {args.interval} menit...")
                     time.sleep(args.interval * 60)
             except KeyboardInterrupt:

@@ -34,6 +34,7 @@ import quant_backtester
 import telegram_notifier
 import topdown_confluence
 import trade_manager
+import session_filter
 
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
@@ -89,6 +90,7 @@ def get_dashboard_feed_data():
 
     feed["is_paused"] = state.get("paused", False)
     feed["mode"] = state.get("mode", "SWING")
+    feed["session"] = session_filter.get_current_session_info()
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return feed
 

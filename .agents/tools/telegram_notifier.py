@@ -171,12 +171,17 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
     mode_text = "🟡 DEMO TRADING (Testnet)" if is_demo else "🔴 LIVE TRADING (Real Money)"
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    conf_score = trade.get("confluence_score")
+    conf_grade = trade.get("confluence_grade")
+    conf_line = f"⭐ <b>Konfluensi/Akurasi:</b> <code>{conf_score}% [{conf_grade}]</code>\n" if conf_score else ""
+
     msg = (
         f"🚀 <b>EKSEKUSI ORDER BINANCE FUTURES</b>\n"
         f"<i>Mode: {mode_text}</i>\n"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"💎 <b>Simbol:</b> <code>{symbol}</code>\n"
         f"🧭 <b>Arah:</b> <b>{side_icon} (5x Leverage)</b>\n"
+        f"{conf_line}"
         f"🎯 <b>Strategi:</b> {reason}\n"
         f"💵 <b>Entry Price:</b> <code>${price:,.4f}</code>\n"
         f"🛑 <b>Stop Loss:</b> <code>${sl:,.4f}</code>\n"
