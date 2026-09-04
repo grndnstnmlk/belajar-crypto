@@ -1,0 +1,442 @@
+"""
+Telegram Real-Time Alert & Two-Way Remote Control Notifier
+Bridges Autonomous Binance Trading Desk with Telegram Bot API.
+Provides instant trade notifications, PnL summaries, and remote command listener.
+"""
+
+import html
+import json
+import os
+import re
+import ssl
+import sys
+import threading
+import time
+import urllib.parse
+import urllib.request
+from datetime import datetime
+
+# Ensure UTF-8 output on Windows console
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+TOOLS_DIR = os.path.dirname(__file__)
+DATA_DIR = os.path.join(os.path.dirname(TOOLS_DIR), "data")
+STATE_FILE = os.path.join(DATA_DIR, "desk_state.json")
+ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
+
+# SSL Context to prevent Windows regional certificate verification blocks
+SSL_CTX = ssl.create_default_context()
+SSL_CTX.check_hostname = False
+SSL_CTX.verify_mode = ssl.CERT_NONE
+
+HEADERS = {
+    "User-Agent": "TelegramTradingDeskBot/1.0",
+    "Content-Type": "application/x-www-form-urlencoded"
+}
+
+def parse_env_file():
+    env_vars = {}
+    if os.path.exists(ENV_FILE):
+        try:
+            with open(ENV_FILE, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        env_vars[k.strip()] = v.strip().strip('"').strip("'")
+        except Exception:
+            pass
+    return env_vars
+
+def get_telegram_config():
+    env = parse_env_file()
+    token = env.get("TELEGRAM_BOT_TOKEN", "").strip()
+    chat_id = env.get("TELEGRAM_CHAT_ID", "").strip()
+    return token, chat_id
+
+def load_desk_state():
+    os.makedirs(DATA_DIR, exist_ok=True)
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"paused": False, "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+def save_desk_state(state):
+    os.makedirs(DATA_DIR, exist_ok=True)
+    state["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(state, f, indent=2)
+    except Exception as e:
+        print(f"[Telegram Notifier] Error saving desk state: {e}")
+
+def is_desk_paused():
+    state = load_desk_state()
+    return state.get("paused", False)
+
+def send_telegram_msg(text, parse_mode="HTML", chat_id_override=None):
+    """
+    Sends a message via Telegram Bot API.
+    Returns dict response or None on failure.
+    """
+    token, default_chat_id = get_telegram_config()
+    target_chat = chat_id_override or default_chat_id
+
+    if not token or not target_chat:
+        # Graceful fallback: silently skip or log if unconfigured
+        return None
+
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = {
+        "chat_id": target_chat,
+        "text": text,
+        "disable_web_page_preview": "true"
+    }
+    if parse_mode:
+        payload["parse_mode"] = parse_mode
+
+    try:
+        data = urllib.parse.urlencode(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data, headers=HEADERS, method="POST")
+        with urllib.request.urlopen(req, timeout=10, context=SSL_CTX) as response:
+            res_body = response.read().decode("utf-8")
+            return json.loads(res_body)
+    except Exception as e:
+        print(f"[Telegram Notifier] Failed to send message: {e}")
+        return None
+
+def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
+    """
+    Sends rich notification when a new position is opened on Binance Futures.
+    """
+    symbol = trade.get("symbol", "UNKNOWN")
+    side = trade.get("side", "BUY")
+    side_icon = "🟢 LONG" if side.upper() == "BUY" else "🔴 SHORT"
+    price = float(trade.get("price", 0))
+    sl = float(trade.get("sl", 0))
+    tp = float(trade.get("tp", 0))
+    rr = float(trade.get("rr", 0))
+    reason = html.escape(trade.get("reason", "Multi-Agent Consensus"))
+    mode_text = "🟡 DEMO TRADING (Testnet)" if is_demo else "🔴 LIVE TRADING (Real Money)"
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    msg = (
+        f"🚀 <b>EKSEKUSI ORDER BINANCE FUTURES</b>\n"
+        f"<i>Mode: {mode_text}</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code>\n"
+        f"🧭 <b>Arah:</b> <b>{side_icon} (5x Leverage)</b>\n"
+        f"🎯 <b>Strategi:</b> {reason}\n"
+        f"💵 <b>Entry Price:</b> <code>${price:,.4f}</code>\n"
+        f"🛑 <b>Stop Loss:</b> <code>${sl:,.4f}</code>\n"
+        f"🎯 <b>Take Profit:</b> <code>${tp:,.4f}</code>\n"
+        f"⚖️ <b>Risk:Reward:</b> <code>1 : {rr:.2f}</code>\n"
+        f"📦 <b>Ukuran Posisi:</b> <code>{quantity} {trade.get('base', '')}</code>\n"
+        f"🛡️ <b>Risk Budget:</b> <code>${risk_budget_usd:,.2f}</code>\n"
+        f"🕒 <b>Waktu:</b> {timestamp}\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"<i>Gunakan /status atau /pnl untuk memantau dari HP.</i>"
+    )
+    return send_telegram_msg(msg)
+
+def notify_trade_closed(symbol, pnl_usd, exit_reason="Manual/Target Hit", is_demo=True):
+    """
+    Sends rich notification when a position is closed.
+    """
+    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
+    pnl_icon = "🟢 PROFIT" if pnl_usd >= 0 else "🔴 LOSS"
+    pnl_sign = "+" if pnl_usd >= 0 else ""
+
+    msg = (
+        f"🏁 <b>POSISI DITUTUP - BINANCE FUTURES</b>\n"
+        f"<i>Mode: {mode_text}</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code>\n"
+        f"📊 <b>Hasil:</b> <b>{pnl_icon}</b>\n"
+        f"💵 <b>Realisasi PnL:</b> <code>{pnl_sign}${pnl_usd:,.2f} USDT</code>\n"
+        f"📌 <b>Alasan:</b> {html.escape(exit_reason)}\n"
+        f"🕒 <b>Waktu:</b> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+    )
+    return send_telegram_msg(msg)
+
+def notify_pnl_summary(balance_usd, active_positions, is_demo=True):
+    """
+    Sends a periodic summary of all open positions and floating PnL.
+    """
+    mode_text = "🟡 DEMO (Testnet)" if is_demo else "🔴 LIVE"
+    total_upnl = sum(float(p.get("unRealizedProfit", 0)) for p in active_positions)
+    upnl_sign = "+" if total_upnl >= 0 else ""
+
+    lines = [
+        f"📊 <b>RINGKASAN PORTOFOLIO TRADING DESK</b>",
+        f"<i>Mode: {mode_text}</i>",
+        f"━━━━━━━━━━━━━━━━━━",
+        f"💰 <b>Total Balance:</b> <code>${balance_usd:,.2f} USDT</code>",
+        f"📈 <b>Floating PnL:</b> <code>{upnl_sign}${total_upnl:,.2f} USDT</code>",
+        f"📂 <b>Posisi Terbuka:</b> <code>{len(active_positions)} posisi</code>\n"
+    ]
+
+    if active_positions:
+        for p in active_positions:
+            amt = float(p.get("positionAmt", 0))
+            side_badge = "🟢 LONG" if amt > 0 else "🔴 SHORT"
+            upnl = float(p.get("unRealizedProfit", 0))
+            p_sign = "+" if upnl >= 0 else ""
+            lines.append(
+                f"• <b>{p['symbol']}</b> {side_badge}\n"
+                f"  Entry: <code>${float(p.get('entryPrice', 0)):,.4f}</code> | "
+                f"PnL: <code>{p_sign}${upnl:,.2f}</code>"
+            )
+    else:
+        lines.append("<i>Tidak ada posisi terbuka saat ini.</i>")
+
+    lines.append(f"\n🕒 <i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
+    return send_telegram_msg("\n".join(lines))
+
+class TelegramCommandListener(threading.Thread):
+    """
+    Background daemon thread that listens for incoming Telegram commands via getUpdates long-polling.
+    """
+    def __init__(self, user_email=None, is_demo=True):
+        super().__init__(daemon=True)
+        self.user_email = user_email
+        self.is_demo = is_demo
+        self.running = True
+        self.offset = 0
+
+    def run(self):
+        token, auth_chat_id = get_telegram_config()
+        if not token or not auth_chat_id:
+            print("[Telegram Listener] Token atau Chat ID belum dikonfigurasi di .env. Remote control pasif.")
+            return
+
+        print(f"[Telegram Listener] ✅ Aktif mendengarkan perintah dari Chat ID: {auth_chat_id}")
+        send_telegram_msg("🤖 <b>Trading Desk Remote Control Online</b>\nKirim /help untuk melihat menu perintah.")
+
+        while self.running:
+            try:
+                updates = self._fetch_updates(token)
+                if updates and updates.get("ok"):
+                    for item in updates.get("result", []):
+                        self.offset = item["update_id"] + 1
+                        msg = item.get("message")
+                        if not msg:
+                            continue
+
+                        sender_chat_id = str(msg.get("chat", {}).get("id", ""))
+                        text = msg.get("text", "").strip()
+
+                        # Security Check: Reject commands from unauthorized users
+                        if sender_chat_id != auth_chat_id:
+                            print(f"[Telegram Listener] ⚠️ Perintah diabaikan dari chat_id tidak dikenal: {sender_chat_id}")
+                            continue
+
+                        if text.startswith("/"):
+                            self._handle_command(text, sender_chat_id)
+            except Exception as e:
+                time.sleep(5)
+
+            time.sleep(1)
+
+    def _fetch_updates(self, token):
+        url = f"https://api.telegram.org/bot{token}/getUpdates?offset={self.offset}&timeout=10"
+        try:
+            req = urllib.request.Request(url, headers=HEADERS, method="GET")
+            with urllib.request.urlopen(req, timeout=15, context=SSL_CTX) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except Exception:
+            return None
+
+    def _handle_command(self, cmd_text, chat_id):
+        # Lazy import sibling tools to avoid circular dependencies
+        import binance_client
+        import trading_desk
+
+        parts = cmd_text.split()
+        command = parts[0].lower().split("@")[0]
+
+        if command in ["/start", "/help"]:
+            reply = (
+                f"🤖 <b>AKADEMI CRYPTO - TRADING DESK COMMAND CENTER</b>\n"
+                f"━━━━━━━━━━━━━━━━━━\n"
+                f"Perintah yang tersedia:\n"
+                f"• <code>/status</code> : Cek saldo akun, status autopilot, & posisi aktif\n"
+                f"• <code>/pnl</code> : Rincian floating PnL setiap koin\n"
+                f"• <code>/pause</code> : Jeda eksekusi order autopilot baru\n"
+                f"• <code>/resume</code> : Lanjutkan kembali autopilot\n"
+                f"• <code>/close &lt;SYMBOL&gt;</code> : Tutup posisi koin tertentu (contoh: <code>/close ETH</code>)\n"
+                f"• <code>/closeall</code> : ⚠️ Tutup seluruh posisi aktif secara instan\n"
+                f"• <code>/help</code> : Panduan menu ini\n"
+            )
+            send_telegram_msg(reply, chat_id_override=chat_id)
+
+        elif command == "/status":
+            bal = trading_desk.get_account_balance(self.user_email, self.is_demo)
+            positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
+            paused = is_desk_paused()
+            genome = trading_desk.load_genome()
+            status_tag = "⏸️ <b>DIJEDA (PAUSED)</b>" if paused else "▶️ <b>BERJALAN (ACTIVE)</b>"
+
+            reply = (
+                f"🖥️ <b>STATUS TRADING DESK</b>\n"
+                f"━━━━━━━━━━━━━━━━━━\n"
+                f"Status Autopilot: {status_tag}\n"
+                f"Mode Akun: {'🟡 DEMO (Testnet)' if self.is_demo else '🔴 LIVE'}\n"
+                f"Saldo Equity: <code>${bal:,.2f} USDT</code>\n"
+                f"Posisi Terbuka: <code>{len(positions)} posisi</code>\n"
+                f"Genetic Rule: Gen {genome.get('generation', 1)} (Min R:R 1:{genome.get('parameters', {}).get('min_risk_reward', 2.0)})\n"
+                f"Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5)}%\n"
+            )
+            send_telegram_msg(reply, chat_id_override=chat_id)
+
+        elif command == "/pnl":
+            bal = trading_desk.get_account_balance(self.user_email, self.is_demo)
+            positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
+            notify_pnl_summary(bal, positions, is_demo=self.is_demo)
+
+        elif command == "/pause":
+            state = load_desk_state()
+            state["paused"] = True
+            save_desk_state(state)
+            send_telegram_msg("⏸️ <b>Trading Desk berhasil dijeda!</b>\nTidak ada order baru yang akan dibuka sampai Anda mengirim <code>/resume</code>.", chat_id_override=chat_id)
+
+        elif command == "/resume":
+            state = load_desk_state()
+            state["paused"] = False
+            save_desk_state(state)
+            send_telegram_msg("▶️ <b>Trading Desk dilanjutkan kembali!</b>\nSiklus pemindaian dan eksekusi autopilot aktif.", chat_id_override=chat_id)
+
+        elif command == "/close":
+            if len(parts) < 2:
+                send_telegram_msg("❌ Format salah. Gunakan: <code>/close &lt;SYMBOL&gt;</code> (contoh: <code>/close ETH</code> atau <code>/close ETHUSDT</code>)", chat_id_override=chat_id)
+                return
+
+            raw_sym = parts[1].upper()
+            target_sym = raw_sym if raw_sym.endswith("USDT") else f"{raw_sym}USDT"
+            positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
+            match = next((p for p in positions if p["symbol"] == target_sym), None)
+
+            if not match:
+                send_telegram_msg(f"⚠️ Posisi terbuka untuk <code>{target_sym}</code> tidak ditemukan.", chat_id_override=chat_id)
+                return
+
+            amt = float(match.get("positionAmt", 0))
+            close_side = "SELL" if amt > 0 else "BUY"
+            qty = abs(amt)
+
+            send_telegram_msg(f"⏳ Menutup posisi <code>{target_sym}</code> ({qty} lots)...", chat_id_override=chat_id)
+            res = binance_client.send_signed_request(
+                "/fapi/v1/order",
+                method="POST",
+                params={
+                    "symbol": target_sym,
+                    "side": close_side,
+                    "type": "MARKET",
+                    "quantity": qty,
+                    "reduceOnly": "true"
+                },
+                is_demo=self.is_demo,
+                user_email=self.user_email
+            )
+            if res and res.get("orderId"):
+                upnl = float(match.get("unRealizedProfit", 0))
+                send_telegram_msg(f"✅ Posisi <code>{target_sym}</code> berhasil ditutup di market!\nEstimasi PnL: <code>{'+' if upnl>=0 else ''}${upnl:,.2f} USDT</code>", chat_id_override=chat_id)
+            else:
+                send_telegram_msg(f"❌ Gagal menutup posisi <code>{target_sym}</code>: {res}", chat_id_override=chat_id)
+
+        elif command == "/closeall":
+            positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
+            if not positions:
+                send_telegram_msg("ℹ️ Tidak ada posisi terbuka yang perlu ditutup.", chat_id_override=chat_id)
+                return
+
+            send_telegram_msg(f"🚨 <b>Menutup seluruh ({len(positions)}) posisi terbuka...</b>", chat_id_override=chat_id)
+            for p in positions:
+                sym = p["symbol"]
+                amt = float(p.get("positionAmt", 0))
+                close_side = "SELL" if amt > 0 else "BUY"
+                qty = abs(amt)
+                binance_client.send_signed_request(
+                    "/fapi/v1/order",
+                    method="POST",
+                    params={
+                        "symbol": sym,
+                        "side": close_side,
+                        "type": "MARKET",
+                        "quantity": qty,
+                        "reduceOnly": "true"
+                    },
+                    is_demo=self.is_demo,
+                    user_email=self.user_email
+                )
+                time.sleep(0.5)
+
+            send_telegram_msg("✅ <b>Semua posisi berhasil dilikuidasi ke USDT.</b>", chat_id_override=chat_id)
+
+        else:
+            send_telegram_msg("❓ Perintah tidak dikenal. Ketik <code>/help</code> untuk daftar perintah.", chat_id_override=chat_id)
+
+_listener_instance = None
+
+def start_command_listener(user_email=None, is_demo=True):
+    """
+    Starts the Telegram command listener daemon thread if configured.
+    """
+    global _listener_instance
+    token, chat_id = get_telegram_config()
+    if not token or not chat_id:
+        return None
+
+    if _listener_instance is None or not _listener_instance.is_alive():
+        _listener_instance = TelegramCommandListener(user_email=user_email, is_demo=is_demo)
+        _listener_instance.start()
+    return _listener_instance
+
+def print_setup_instructions():
+    print("""
+=======================================================
+   📱 PANDUAN PENGATURAN TELEGRAM BOT NOTIFIER
+=======================================================
+1. Buat bot baru di Telegram:
+   - Buka Telegram, cari @BotFather
+   - Kirim pesan: /newbot
+   - Beri nama dan username untuk bot Anda
+   - Salin BOT TOKEN yang diberikan (contoh: 123456789:ABCdefGHI...)
+
+2. Dapatkan Chat ID Telegram Anda:
+   - Buka Telegram, cari @userinfobot
+   - Tekan Start, bot akan membalas dengan ID Anda (contoh: 987654321)
+   - Buka chat dengan bot yang baru Anda buat di langkah 1, klik Start!
+
+3. Masukkan ke file .env Anda:
+   TELEGRAM_BOT_TOKEN=123456789:ABCdefGHI...
+   TELEGRAM_CHAT_ID=987654321
+
+4. Tes koneksi bot:
+   python .agents/tools/telegram_notifier.py test "Halo dari Trading Desk!"
+=======================================================
+""")
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "test":
+        test_msg = sys.argv[2] if len(sys.argv) > 2 else "🔔 Tes Notifikasi Trading Desk Akademi Crypto!"
+        token, chat_id = get_telegram_config()
+        if not token or not chat_id:
+            print("[PERINGATAN] TELEGRAM_BOT_TOKEN atau TELEGRAM_CHAT_ID belum diisi di .env!")
+            print_setup_instructions()
+        else:
+            print(f"Mengirim pesan uji coba ke Chat ID {chat_id}...")
+            res = send_telegram_msg(f"<b>{test_msg}</b>\n<i>Waktu: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
+            if res and res.get("ok"):
+                print("✅ Pesan berhasil terkirim ke Telegram!")
+            else:
+                print(f"❌ Gagal mengirim pesan: {res}")
+    else:
+        print_setup_instructions()

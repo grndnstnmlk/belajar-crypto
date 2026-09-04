@@ -29,6 +29,7 @@ sys.path.insert(0, TOOLS_DIR)
 import market_eyes
 import market_regime
 import binance_client
+import telegram_notifier
 
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
@@ -170,6 +171,12 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     balance_usd = get_account_balance(user_email, is_demo)
     active_positions = get_active_positions(user_email, is_demo)
     active_symbols = [p["symbol"] for p in active_positions]
+
+    # Check if desk execution is paused via Telegram remote control
+    if telegram_notifier.is_desk_paused():
+        print(f"\n[Telegram Remote Guard] ⏸️ Trading Desk sedang DIJEDA via Telegram (/pause). Melewatkan pembukaan order baru.")
+        export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
+        return
 
     print(f"\n[1. RISK OFFICER AUDIT]")
     print(f" * Saldo Dompet Futures : ${balance_usd:,.2f} USDT")
@@ -423,6 +430,12 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 user_email=user_email
             )
 
+            # Send Instant Telegram Push Notification
+            try:
+                telegram_notifier.notify_trade_opened(best, qty, risk_budget, is_demo=is_demo)
+            except Exception as e:
+                print(f"[Telegram Notifier Warning] Gagal kirim alert Telegram: {e}")
+
             log_desk_activity({
                 "timestamp": timestamp_str,
                 "action": "EXECUTE_TRADE",
@@ -487,6 +500,8 @@ def main():
         else:
             w_str = ", ".join(syms) if syms else ", ".join(DEFAULT_WATCHLIST)
             print(f"Memulai Autonomous Trading Desk Daemon (Watchlist: {w_str} | Interval: {args.interval} menit)... Tekan Ctrl+C untuk berhenti.")
+            # Start background Telegram interactive remote control listener thread
+            telegram_notifier.start_command_listener(args.user, is_demo=is_demo)
             try:
                 while True:
                     run_trading_desk_cycle(args.user, is_demo, symbols=syms)
