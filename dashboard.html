@@ -504,6 +504,195 @@
       gap: 5px;
     }
     .legend-line { width: 12px; height: 2px; border-radius: 1px; }
+
+    /* Quant Modal & Engine Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(4, 7, 11, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      width: 95vw;
+      max-width: 1200px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    }
+    .modal-header {
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filter-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .select-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      outline: none;
+      font-family: inherit;
+    }
+    .select-input:focus {
+      border-color: var(--cyan);
+    }
+    .quant-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kpi-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-val {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .mc-section {
+      background: rgba(57, 197, 207, 0.04);
+      border: 1px solid rgba(57, 197, 207, 0.25);
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .mc-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+    }
+    .mc-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 5px;
+    }
+    .mc-label {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+    .mc-val {
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .chart-container-equity {
+      height: 260px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      position: relative;
+    }
+    .trades-table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    .trades-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    .trades-table th {
+      background: var(--bg);
+      padding: 8px 12px;
+      text-align: left;
+      color: var(--text-dim);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      font-size: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .trades-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(30, 41, 54, 0.5);
+    }
+    .trades-table tr:hover {
+      background: var(--bg-hover);
+    }
   </style>
 </head>
 <body>
@@ -540,6 +729,9 @@
 
       <!-- Action Hub -->
       <div class="header-actions">
+        <button class="btn" style="border-color:var(--cyan); color:var(--cyan); background:rgba(57, 197, 207, 0.1);" onclick="openBacktestModal()">
+          🔬 Quant Backtest
+        </button>
         <a href="akademi-crypto.html" target="_blank" class="btn" style="text-decoration:none; color:var(--text); border-color:var(--border-bright);">
           🎓 Modul Akademi
         </a>
@@ -642,6 +834,160 @@
           <div>• Min Risk:Reward : <b>1 : 2.50</b></div>
           <div>• Max Risk / Trade: <b>1.5% modal</b></div>
           <div>• Proteksi: <b>Breakeven at 1R + Trailing Stop</b></div>
+        </div>
+      </div>
+  </div>
+
+  <!-- Quant Backtest & Monte Carlo Simulator Modal -->
+  <div class="modal-overlay" id="backtest-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🔬 QUANTITATIVE BACKTESTER & MONTE CARLO AUDIT</span>
+          <span class="badge-mode" style="background:rgba(57,197,207,0.15); color:var(--cyan); border-color:var(--cyan);">Hedge-Fund Grade</span>
+        </div>
+        <button class="btn" style="padding:4px 8px; font-size:14px;" onclick="closeBacktestModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Control Bar -->
+        <div class="filter-bar">
+          <div class="filter-group">
+            <span class="filter-label">Asset:</span>
+            <select id="bt-symbol" class="select-input">
+              <option value="BTC" selected>BTC/USDT</option>
+              <option value="ETH">ETH/USDT</option>
+              <option value="SOL">SOL/USDT</option>
+              <option value="BNB">BNB/USDT</option>
+              <option value="XRP">XRP/USDT</option>
+              <option value="DOGE">DOGE/USDT</option>
+              <option value="ADA">ADA/USDT</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <span class="filter-label">Timeframe:</span>
+            <select id="bt-bar" class="select-input">
+              <option value="1H" selected>1H (Intraday Swing)</option>
+              <option value="4H">4H (Macro Trend)</option>
+              <option value="15m">15m (Scalp Setup)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <span class="filter-label">Historical Depth:</span>
+            <select id="bt-candles" class="select-input">
+              <option value="300">300 Candles (~12 Hari 1H)</option>
+              <option value="500" selected>500 Candles (~20 Hari 1H)</option>
+              <option value="800">800 Candles (~33 Hari 1H)</option>
+              <option value="1200">1,200 Candles (~50 Hari 1H)</option>
+            </select>
+          </div>
+
+          <button class="btn" id="run-bt-btn" style="background:var(--cyan); color:#000; font-weight:700; border:none; margin-left:auto;" onclick="runQuantBacktest()">
+            🚀 Jalankan Quant Simulation
+          </button>
+        </div>
+
+        <!-- KPI Metrics Grid -->
+        <div class="quant-kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-label">Total Trades</span>
+            <span class="kpi-val mono" id="bt-total-trades">-</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Win Rate</span>
+            <span class="kpi-val mono green" id="bt-win-rate">-%</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Win + BE Rate</span>
+            <span class="kpi-val mono green" id="bt-win-be-rate">-%</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Profit Factor</span>
+            <span class="kpi-val mono" id="bt-profit-factor">-</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Expectancy (R)</span>
+            <span class="kpi-val mono" id="bt-expectancy">-R</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Max Drawdown</span>
+            <span class="kpi-val mono red" id="bt-max-dd">-%</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Sharpe Ratio</span>
+            <span class="kpi-val mono" id="bt-sharpe">-</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Sortino Ratio</span>
+            <span class="kpi-val mono" id="bt-sortino">-</span>
+          </div>
+        </div>
+
+        <!-- Monte Carlo Stress Test Section -->
+        <div class="mc-section">
+          <div class="mc-title">
+            <span>🎲 MONTE CARLO STRESS TEST (1,000 Permutasi Acak / Bootstrap Reshuffle)</span>
+          </div>
+          <div class="mc-grid">
+            <div class="mc-box">
+              <div class="mc-label">Worst-Case Drawdown (95% CI)</div>
+              <div class="mc-val mono red" id="mc-worst-dd">-%</div>
+            </div>
+            <div class="mc-box">
+              <div class="mc-label">Extreme Drawdown (99% CI)</div>
+              <div class="mc-val mono red" id="mc-extreme-dd">-%</div>
+            </div>
+            <div class="mc-box">
+              <div class="mc-label">Probability of Ruin (&lt;50% DD)</div>
+              <div class="mc-val mono" id="mc-prob-ruin">-%</div>
+            </div>
+            <div class="mc-box">
+              <div class="mc-label">Max Consecutive Losses</div>
+              <div class="mc-val mono red" id="mc-max-streak">- trades</div>
+            </div>
+            <div class="mc-box">
+              <div class="mc-label">Half-Kelly Recommended Risk</div>
+              <div class="mc-val mono green" id="mc-rec-risk">-% per trade</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Equity Curve Chart -->
+        <div>
+          <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px;">
+            📈 Cumulative Equity Curve (Walk-Forward Portfolio Balance in USDT)
+          </div>
+          <div id="bt-equity-chart" class="chart-container-equity"></div>
+        </div>
+
+        <!-- Trades Log -->
+        <div>
+          <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px;">
+            📋 Executed Trade History & Exit Reasons
+          </div>
+          <div class="trades-table-container">
+            <table class="trades-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Symbol</th>
+                  <th>Side</th>
+                  <th>Entry Price</th>
+                  <th>Exit Price</th>
+                  <th>PnL (USD)</th>
+                  <th>PnL (R)</th>
+                  <th>Exit Reason</th>
+                  <th>Strategy</th>
+                  <th>Portfolio Equity</th>
+                </tr>
+              </thead>
+              <tbody id="bt-trades-tbody">
+                <tr><td colspan="10" style="text-align:center; color:var(--text-dim); padding:20px;">Klik 'Jalankan Quant Simulation' untuk memulai backtest.</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -1011,6 +1357,157 @@
       } catch (e) {
         alert("Error: " + e);
       }
+    }
+
+    // Quant Backtester State & Functions
+    let equityChart = null;
+    let equitySeries = null;
+
+    function openBacktestModal() {
+      document.getElementById("backtest-modal").classList.add("active");
+      if (!equityChart) {
+        initEquityChart();
+      }
+    }
+
+    function closeBacktestModal() {
+      document.getElementById("backtest-modal").classList.remove("active");
+    }
+
+    function initEquityChart() {
+      const container = document.getElementById("bt-equity-chart");
+      if (!container || equityChart) return;
+
+      equityChart = LightweightCharts.createChart(container, {
+        layout: {
+          background: { color: "#151D26" },
+          textColor: "#7C8896",
+          fontSize: 11
+        },
+        grid: {
+          vertLines: { color: "#1E2936" },
+          horzLines: { color: "#1E2936" }
+        },
+        timeScale: {
+          borderColor: "#1E2936",
+          timeVisible: true,
+          secondsVisible: false
+        },
+        rightPriceScale: {
+          borderColor: "#1E2936"
+        }
+      });
+
+      equitySeries = equityChart.addAreaSeries({
+        topColor: "rgba(57, 197, 207, 0.4)",
+        bottomColor: "rgba(57, 197, 207, 0.0)",
+        lineColor: "#39C5CF",
+        lineWidth: 2
+      });
+
+      window.addEventListener("resize", () => {
+        if (equityChart && container) {
+          equityChart.applyOptions({
+            width: container.clientWidth,
+            height: container.clientHeight
+          });
+        }
+      });
+    }
+
+    async function runQuantBacktest() {
+      const btn = document.getElementById("run-bt-btn");
+      const sym = document.getElementById("bt-symbol").value;
+      const bar = document.getElementById("bt-bar").value;
+      const candles = document.getElementById("bt-candles").value;
+
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Mensimulasikan Data...";
+
+      try {
+        const res = await fetch(`/api/backtest?symbol=${sym}&bar=${bar}&candles=${candles}`);
+        if (!res.ok) throw new Error("Gagal memanggil API Backtest");
+        const data = await res.json();
+
+        if (data.error) {
+          alert("Backtest Error: " + data.error);
+          return;
+        }
+
+        renderBacktestResults(data);
+      } catch (e) {
+        alert("Error: " + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "🚀 Jalankan Quant Simulation";
+      }
+    }
+
+    function renderBacktestResults(data) {
+      const m = data.metrics || {};
+      const mc = data.monte_carlo || {};
+
+      document.getElementById("bt-total-trades").textContent = m.total_trades || 0;
+      document.getElementById("bt-win-rate").textContent = (m.win_rate || 0) + "%";
+      document.getElementById("bt-win-be-rate").textContent = (m.win_plus_be_rate || 0) + "%";
+      document.getElementById("bt-profit-factor").textContent = m.profit_factor || 0;
+      document.getElementById("bt-expectancy").textContent = ((m.expectancy_r > 0) ? "+" : "") + (m.expectancy_r || 0) + "R";
+      document.getElementById("bt-max-dd").textContent = (m.max_drawdown_pct || 0) + "%";
+      document.getElementById("bt-sharpe").textContent = m.sharpe_ratio || 0;
+      document.getElementById("bt-sortino").textContent = m.sortino_ratio || 0;
+
+      // Color coding
+      document.getElementById("bt-profit-factor").style.color = (m.profit_factor >= 1.5) ? "var(--green)" : (m.profit_factor >= 1.0 ? "var(--amber)" : "var(--red)");
+      document.getElementById("bt-expectancy").style.color = (m.expectancy_r >= 0.2) ? "var(--green)" : (m.expectancy_r >= 0 ? "var(--amber)" : "var(--red)");
+      document.getElementById("bt-sharpe").style.color = (m.sharpe_ratio >= 1.0) ? "var(--green)" : "var(--text)";
+
+      // Monte Carlo
+      document.getElementById("mc-worst-dd").textContent = (mc.worst_case_drawdown_pct || 0) + "%";
+      document.getElementById("mc-extreme-dd").textContent = (mc.extreme_99th_drawdown_pct || 0) + "%";
+      document.getElementById("mc-prob-ruin").textContent = (mc.probability_of_ruin_pct || 0) + "%";
+      document.getElementById("mc-prob-ruin").style.color = (mc.probability_of_ruin_pct < 1.0) ? "var(--green)" : "var(--red)";
+      document.getElementById("mc-max-streak").textContent = (mc.worst_consecutive_losses || 0) + " losses";
+      document.getElementById("mc-rec-risk").textContent = (mc.recommended_risk_pct || 1.5) + "% / trade";
+
+      // Equity Curve
+      if (equitySeries && data.equity_curve && data.equity_curve.length > 0) {
+        const formatted = [];
+        let lastT = 0;
+        data.equity_curve.forEach(pt => {
+          let t = pt.time;
+          if (t <= lastT) t = lastT + 60;
+          lastT = t;
+          formatted.push({ time: t, value: pt.equity });
+        });
+        equitySeries.setData(formatted);
+        equityChart.timeScale().fitContent();
+      }
+
+      // Trades Table
+      const tbody = document.getElementById("bt-trades-tbody");
+      if (!data.trades || data.trades.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-dim); padding:20px;">Tidak ada setup yang terpicu dalam rentang candle ini.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.trades.map(t => {
+        const pnlClass = t.pnl_usd > 0 ? "green" : t.pnl_usd < 0 ? "red" : "";
+        const sideClass = t.side === "LONG" ? "pos-side-tag long" : "pos-side-tag short";
+        return `
+          <tr>
+            <td class="mono">${t.trade_num}</td>
+            <td style="font-weight:600;">${t.symbol}</td>
+            <td><span class="${sideClass}">${t.side}</span></td>
+            <td class="mono">$${t.entry_price.toLocaleString()}</td>
+            <td class="mono">$${t.exit_price.toLocaleString()}</td>
+            <td class="mono ${pnlClass}">${t.pnl_usd > 0 ? '+' : ''}$${t.pnl_usd.toFixed(2)}</td>
+            <td class="mono ${pnlClass}">${t.pnl_r > 0 ? '+' : ''}${t.pnl_r.toFixed(2)}R</td>
+            <td><span style="font-size:10px; font-weight:600; padding:2px 6px; border-radius:3px; background:rgba(255,255,255,0.06);">${t.exit_reason}</span></td>
+            <td style="color:var(--text-dim);">${t.strategy}</td>
+            <td class="mono" style="font-weight:600;">$${t.equity.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+          </tr>
+        `;
+      }).reverse().join("");
     }
 
     // Boot

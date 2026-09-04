@@ -30,6 +30,7 @@ DASHBOARD_HTML_PATH = os.path.join(ROOT_DIR, "dashboard.html")
 sys.path.insert(0, TOOLS_DIR)
 import binance_client
 import market_eyes
+import quant_backtester
 import telegram_notifier
 import topdown_confluence
 import trade_manager
@@ -230,6 +231,20 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             sym = params.get("symbol", ["BTC"])[0]
             bar = params.get("bar", ["1H"])[0]
             data = get_chart_data(sym, bar)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/backtest":
+            sym = params.get("symbol", ["BTC"])[0]
+            bar = params.get("bar", ["1H"])[0]
+            try:
+                candles = int(params.get("candles", [500])[0])
+            except ValueError:
+                candles = 500
+            data = quant_backtester.run_backtest(sym, bar=bar, num_candles=candles)
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
