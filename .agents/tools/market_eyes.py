@@ -68,7 +68,7 @@ def detect_three_touch_setup(highs, lows, closes, current_price, tolerance=0.008
     and current price is currently executing the 3rd golden touch.
     """
     n = len(closes)
-    if n < 15:
+    if n < 15 or current_price <= 0:
         return None
 
     swing_lows = []
@@ -174,7 +174,7 @@ def calculate_volume_profile(raw_candles, current_price, num_bins=35):
     Calculates POC (Point of Control), VAH (Value Area High), VAL (Value Area Low - 70% Volume),
     and detects Failed Auction / Trapped Traders setups.
     """
-    if len(raw_candles) < 15:
+    if len(raw_candles) < 15 or current_price <= 0:
         return None
 
     highs = [float(c[2]) for c in raw_candles]
@@ -273,7 +273,7 @@ def detect_liquidity_sweep_mss(highs, lows, closes, current_price, tolerance=0.0
     pools followed by an aggressive market structure shift confirmation.
     """
     n = len(closes)
-    if n < 20:
+    if n < 20 or current_price <= 0:
         return None
 
     # 1. Identify Swing Highs & Swing Lows
