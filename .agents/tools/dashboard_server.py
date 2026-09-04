@@ -242,10 +242,11 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             sym = params.get("symbol", ["BTC"])[0]
             bar = params.get("bar", ["1H"])[0]
             try:
-                candles = int(params.get("candles", [500])[0])
+                candles = int(params.get("candles", params.get("limit", [500]))[0])
             except ValueError:
                 candles = 500
             data = quant_backtester.run_backtest(sym, bar=bar, num_candles=candles)
+            data.setdefault("success", True)
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
