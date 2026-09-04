@@ -379,35 +379,15 @@ def main():
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 30)")
     run_p.add_argument("--user", type=str, default=None, help="Email akun (misal: dxmade@gmail.com)")
-    run_p.add_argument("--exchange", type=str, default="binance", choices=["binance", "tokocrypto"], help="Bursa target: binance (Futures) atau tokocrypto (Spot)")
-    run_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo)")
+    run_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo Testnet)")
 
     # Status command
     stat_p = sub.add_parser("status", help="Lihat status trading desk dan ringkasan posisi")
-    stat_p.add_argument("--exchange", type=str, default="binance", choices=["binance", "tokocrypto"], help="Bursa target: binance atau tokocrypto")
     stat_p.add_argument("--user", type=str, default=None, help="Email akun")
-    stat_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo)")
+    stat_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo Testnet)")
 
     args = parser.parse_args()
     is_demo = not getattr(args, "live", False)
-
-    if getattr(args, "exchange", "binance").lower() == "tokocrypto":
-        import tokocrypto_autopilot
-        if args.command == "status":
-            tokocrypto_autopilot.run_autopilot_cycle(args.user, watchlist=[])
-        elif args.command == "run":
-            syms = [s.strip().upper() for s in args.symbols.split(",") if s.strip()] if getattr(args, "symbols", None) else None
-            if args.once:
-                tokocrypto_autopilot.run_autopilot_cycle(args.user, watchlist=syms)
-            else:
-                try:
-                    while True:
-                        tokocrypto_autopilot.run_autopilot_cycle(args.user, watchlist=syms)
-                        print(f"Autopilot Tokocrypto tidur selama {args.interval} menit...")
-                        time.sleep(args.interval * 60)
-                except KeyboardInterrupt:
-                    print("\nAutopilot Tokocrypto dihentikan oleh pengguna.")
-        return
 
     if args.command == "status":
         show_desk_status(args.user, is_demo)
