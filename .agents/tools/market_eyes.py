@@ -106,6 +106,103 @@ def detect_three_touch_setup(highs, lows, closes, current_price, tolerance=0.008
 
     return None
 
+def calculate_volume_profile(raw_candles, current_price, num_bins=35):
+    """
+    Auction Market Theory & Volume Profile (Fabio Valentini / Akademi Crypto Module 04-05).
+    Calculates POC (Point of Control), VAH (Value Area High), VAL (Value Area Low - 70% Volume),
+    and detects Failed Auction / Trapped Traders setups.
+    """
+    if len(raw_candles) < 15:
+        return None
+
+    highs = [float(c[2]) for c in raw_candles]
+    lows = [float(c[3]) for c in raw_candles]
+    min_p = min(lows)
+    max_p = max(highs)
+
+    if max_p <= min_p:
+        return None
+
+    bin_width = (max_p - min_p) / num_bins
+    bins = [0.0] * num_bins
+
+    for c in raw_candles:
+        h = float(c[2])
+        l = float(c[3])
+        vol = float(c[6]) if len(c) > 6 and float(c[6]) > 0 else (float(c[5]) * float(c[4]))
+        start_idx = max(0, min(num_bins - 1, int((l - min_p) / bin_width)))
+        end_idx = max(0, min(num_bins - 1, int((h - min_p) / bin_width)))
+        span = max(1, end_idx - start_idx + 1)
+        for b in range(start_idx, end_idx + 1):
+            bins[b] += vol / span
+
+    total_vol = sum(bins)
+    if total_vol <= 0:
+        return None
+
+    # Point of Control (POC)
+    poc_idx = max(range(num_bins), key=lambda i: bins[i])
+    poc_price = min_p + (poc_idx + 0.5) * bin_width
+
+    # Value Area (70% Volume distribution)
+    target_vol = total_vol * 0.70
+    accumulated_vol = bins[poc_idx]
+    included_indices = {poc_idx}
+    up_idx = poc_idx + 1
+    down_idx = poc_idx - 1
+
+    while accumulated_vol < target_vol and (up_idx < num_bins or down_idx >= 0):
+        up_vol = bins[up_idx] if up_idx < num_bins else -1
+        down_vol = bins[down_idx] if down_idx >= 0 else -1
+
+        if up_vol >= down_vol and up_idx < num_bins:
+            accumulated_vol += up_vol
+            included_indices.add(up_idx)
+            up_idx += 1
+        elif down_idx >= 0:
+            accumulated_vol += down_vol
+            included_indices.add(down_idx)
+            down_idx -= 1
+        else:
+            break
+
+    val_idx = min(included_indices)
+    vah_idx = max(included_indices)
+    val_price = min_p + val_idx * bin_width
+    vah_price = min_p + (vah_idx + 1) * bin_width
+
+    # Fabio Valentini Failed Auction & Trapped Traders Check
+    recent_candles = raw_candles[-4:]
+    recent_low = min(float(c[3]) for c in recent_candles)
+    recent_high = max(float(c[2]) for c in recent_candles)
+
+    setup = None
+    if recent_low < val_price and current_price >= val_price and current_price < poc_price * 1.01:
+        setup = {
+            "type": "BULLISH_FAILED_AUCTION",
+            "side": "LONG",
+            "sl": round(recent_low * 0.997, 4),
+            "tp1": round(poc_price, 4),
+            "tp2": round(vah_price, 4),
+            "label": f"🔥 [FABIO VALENTINI AUCTION] Trapped Sellers below VAL -> Reclaimed VAL (${val_price:,.4f}) -> Target POC (${poc_price:,.4f})"
+        }
+    elif recent_high > vah_price and current_price <= vah_price and current_price > poc_price * 0.99:
+        setup = {
+            "type": "BEARISH_FAILED_AUCTION",
+            "side": "SHORT",
+            "sl": round(recent_high * 1.003, 4),
+            "tp1": round(poc_price, 4),
+            "tp2": round(val_price, 4),
+            "label": f"🔥 [FABIO VALENTINI AUCTION] Trapped Buyers above VAH -> Rejected VAH (${vah_price:,.4f}) -> Target POC (${poc_price:,.4f})"
+        }
+
+    return {
+        "poc": round(poc_price, 4),
+        "vah": round(vah_price, 4),
+        "val": round(val_price, 4),
+        "setup": setup
+    }
+
 def get_market_eyes(symbol="BTC", bar="1H"):
     base = symbol.upper().replace("-USDT", "").replace("USDT", "")
     inst_id_spot = f"{base}-USDT"
@@ -190,6 +287,16 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         if three_touch:
             print(f"Robbins Rule     : {three_touch['label']}")
 
+        # Volume Profile & Auction Market Theory (Fabio Valentini Strategy)
+        volume_profile = calculate_volume_profile(raw_candles, current_price)
+        if volume_profile:
+            print(f"Volume Profile   : VAH: ${volume_profile['vah']:,.4f} | POC: ${volume_profile['poc']:,.4f} | VAL: ${volume_profile['val']:,.4f}")
+            if volume_profile.get("setup"):
+                print(f"Auction Trigger  : {volume_profile['setup']['label']}")
+            else:
+                pos = "Above VAH (Premium Excursion)" if current_price > volume_profile['vah'] else "Below VAL (Discount Excursion)" if current_price < volume_profile['val'] else "Inside Value Area (Fair Balance)"
+                print(f"Auction State    : {pos}")
+
     print(f"=======================================================\n")
     return {
         "symbol": inst_id_spot,
@@ -203,6 +310,7 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         "bias": bias if 'bias' in locals() else "NEUTRAL",
         "fvg": fvg if 'fvg' in locals() else None,
         "three_touch": three_touch if 'three_touch' in locals() else None,
+        "volume_profile": volume_profile if 'volume_profile' in locals() else None,
         "funding_rate": funding_rate
     }
 
