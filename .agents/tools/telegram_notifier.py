@@ -66,13 +66,13 @@ def load_desk_state():
                 return json.load(f)
         except Exception:
             pass
-    return {"paused": False, "mode": "HYBRID", "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+    return {"paused": False, "mode": "SWING", "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 def save_desk_state(state):
     os.makedirs(DATA_DIR, exist_ok=True)
     state["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if "mode" not in state:
-        state["mode"] = "HYBRID"
+        state["mode"] = "SWING"
     try:
         with open(STATE_FILE, "w", encoding="utf-8") as f:
             json.dump(state, f, indent=2)
@@ -85,14 +85,14 @@ def is_desk_paused():
 
 def get_desk_mode():
     state = load_desk_state()
-    return state.get("mode", "HYBRID")
+    return state.get("mode", "SWING")
 
 MAIN_KEYBOARD = {
     "keyboard": [
         [{"text": "📊 Status Desk"}, {"text": "💰 Cek PnL"}],
         [{"text": "📈 Minta Chart BTC"}, {"text": "🧬 Status Genome"}],
-        [{"text": "🤖 Mode Hybrid (Auto)"}],
-        [{"text": "⚡ Mode Scalp (5m)"}, {"text": "🎯 Mode Swing (1H)"}],
+        [{"text": "🎯 Mode Swing (Profit Besar)"}],
+        [{"text": "🤖 Mode Hybrid (Auto)"}, {"text": "⚡ Mode Scalp (5m)"}],
         [{"text": "📰 Kalender Berita"}, {"text": "🚨 Tutup Semua Posisi"}],
         [{"text": "⏸️ Jeda Bot"}, {"text": "▶️ Lanjutkan Bot"}],
         [{"text": "❓ Panduan Bantuan"}]
@@ -225,24 +225,58 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
 
     return send_telegram_msg(msg)
 
-def notify_trade_closed(symbol, pnl_usd, exit_reason="Manual/Target Hit", is_demo=True):
+def notify_trade_closed(symbol, pnl_usd, exit_reason="Manual/Target Hit", is_demo=True,
+                        net_pnl_usd=None, commission_usd=0.0, entry_price=0.0, exit_price=0.0,
+                        qty=0.0, side="BUY", close_time=None):
     """
-    Sends rich notification when a position is closed.
+    Sends rich, verified notification when a position is closed on Binance Futures.
+    Includes exact Realized PnL, Net PnL after commission, Entry/Exit prices, and ROI %.
     """
-    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
-    pnl_icon = "🟢 PROFIT" if pnl_usd >= 0 else "🔴 LOSS"
-    pnl_sign = "+" if pnl_usd >= 0 else ""
+    mode_text = "🟡 DEMO (Futures Testnet)" if is_demo else "🔴 LIVE (Real Money)"
+    side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
 
-    msg = (
-        f"🏁 <b>POSISI DITUTUP - BINANCE FUTURES</b>\n"
-        f"<i>Mode: {mode_text}</i>\n"
-        f"━━━━━━━━━━━━━━━━━━\n"
-        f"💎 <b>Simbol:</b> <code>{symbol}</code>\n"
-        f"📊 <b>Hasil:</b> <b>{pnl_icon}</b>\n"
-        f"💵 <b>Realisasi PnL:</b> <code>{pnl_sign}${pnl_usd:,.2f} USDT</code>\n"
-        f"📌 <b>Alasan:</b> {html.escape(exit_reason)}\n"
-        f"🕒 <b>Waktu:</b> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-    )
+    if pnl_usd > 0.005:
+        pnl_icon = "🟢 PROFIT"
+    elif pnl_usd < -0.005:
+        pnl_icon = "🔴 LOSS"
+    else:
+        pnl_icon = "⚪ BREAKEVEN"
+
+    pnl_sign = "+" if pnl_usd >= 0 else ""
+    net_val = net_pnl_usd if net_pnl_usd is not None else (pnl_usd - commission_usd)
+    net_sign = "+" if net_val >= 0 else ""
+    time_str = close_time or datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    lines = [
+        f"🏁 <b>POSISI DITUTUP - BINANCE FUTURES</b>",
+        f"<i>Mode: {mode_text}</i>",
+        f"━━━━━━━━━━━━━━━━━━",
+        f"💎 <b>Simbol:</b> <code>{symbol}</code> ({side_icon})",
+        f"📊 <b>Hasil Akhir:</b> <b>{pnl_icon}</b>",
+        f"💵 <b>Realisasi PnL (Gross):</b> <code>{pnl_sign}${pnl_usd:,.2f} USDT</code>"
+    ]
+
+    if commission_usd > 0:
+        lines.append(f"💸 <b>Biaya Fee Trading:</b> <code>-${commission_usd:,.2f} USDT</code>")
+        lines.append(f"💰 <b>Net Realisasi PnL:</b> <code>{net_sign}${net_val:,.2f} USDT</code>")
+
+    if entry_price > 0 and exit_price > 0:
+        lines.append(f"📈 <b>Harga Entry:</b> <code>${entry_price:,.4f}</code>")
+        lines.append(f"📉 <b>Harga Exit:</b> <code>${exit_price:,.4f}</code>")
+        if side.upper() in ["BUY", "LONG"]:
+            pct_move = ((exit_price - entry_price) / entry_price) * 100.0
+        else:
+            pct_move = ((entry_price - exit_price) / entry_price) * 100.0
+        lines.append(f"🎯 <b>Pergerakan Harga:</b> <code>{'+' if pct_move>=0 else ''}{pct_move:.2f}%</code>")
+
+    if qty > 0:
+        lines.append(f"📦 <b>Kuantitas Posisi:</b> <code>{qty:,.4f} {symbol.replace('USDT', '')}</code>")
+
+    lines.append(f"📌 <b>Alasan Keluar:</b> {html.escape(str(exit_reason))}")
+    lines.append(f"🕒 <b>Waktu Eksekusi:</b> <code>{time_str}</code>")
+    lines.append(f"━━━━━━━━━━━━━━━━━━")
+
+    msg = "\n".join(lines)
     return send_telegram_msg(msg)
 
 def notify_breakeven_locked(symbol, side, entry_price, be_price, current_pnl, is_demo=True):
@@ -516,6 +550,7 @@ class TelegramCommandListener(threading.Thread):
             bal = trading_desk.get_account_balance(self.user_email, self.is_demo)
             positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
             paused = is_desk_paused()
+            mode = get_desk_mode()
             genome = trading_desk.load_genome()
             status_tag = "⏸️ <b>DIJEDA (PAUSED)</b>" if paused else "▶️ <b>BERJALAN (ACTIVE)</b>"
 
@@ -523,10 +558,11 @@ class TelegramCommandListener(threading.Thread):
                 f"🖥️ <b>STATUS TRADING DESK</b>\n"
                 f"━━━━━━━━━━━━━━━━━━\n"
                 f"Status Autopilot: {status_tag}\n"
+                f"Mode Operasi: <b>🎯 {mode} (Big-Profit Swing Focus)</b>\n"
                 f"Mode Akun: {'🟡 DEMO (Testnet)' if self.is_demo else '🔴 LIVE'}\n"
                 f"Saldo Equity: <code>${bal:,.2f} USDT</code>\n"
                 f"Posisi Terbuka: <code>{len(positions)} posisi</code>\n"
-                f"Genetic Rule: Gen {genome.get('generation', 1)} (Min R:R 1:{genome.get('parameters', {}).get('min_risk_reward', 2.0)})\n"
+                f"Genetic Rule: Gen {genome.get('generation', 5)} (Min R:R 1:{genome.get('parameters', {}).get('min_risk_reward', 3.0)})\n"
                 f"Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5)}%\n"
             )
 
@@ -608,16 +644,20 @@ class TelegramCommandListener(threading.Thread):
                 reply_markup=MAIN_KEYBOARD
             )
 
-        elif command in ["/swing", "🎯 mode swing (1h)"]:
+        elif command in ["/swing", "🎯 mode swing (1h)", "🎯 mode swing (profit besar)"]:
             state = load_desk_state()
             state["mode"] = "SWING"
             save_desk_state(state)
             send_telegram_msg(
-                "🎯 <b>MODE SWING INTRADAY AKTIF! (1H / 4H)</b>\n\n"
-                "• Timeframe: <b>1H & 4H Macro Confluence</b>\n"
-                "• Setup: <b>3-Touch, Failed Auction, MSS, VWAP Bands</b>\n"
-                "• Breakeven: <b>+1.0R</b>\n"
-                "• Trailing Stop: <b>+2.0R+</b>",
+                "🎯 <b>MODE SWING PROFIT BESAR AKTIF! (1H / 4H)</b>\n\n"
+                "• <b>Fokus</b>: Menangkap tren besar (Big-Profit Wave) dengan ekspektansi matematis maksimal!\n"
+                "• <b>Timeframe</b>: 1H & 4H Macro Confluence (SMC, Wyckoff, FVG, Volume Profile)\n"
+                "• <b>Target R:R</b>: <b>1:3.00 – 1:5.00+</b> (High Reward/Risk Ratio)\n"
+                "• <b>Breakeven</b>: <b>+1.0R</b> (Terkunci bebas risiko jika sudah untung)\n"
+                "• <b>Trailing Stop Dinamis</b>: <b>+2.0R, +3.0R, +4.0R+</b> (Mengunci floating profit besar)\n"
+                "• <b>Time Stop</b>: <b>Nonaktif</b> (Trade swing diberikan ruang bernapas penuh tanpa batas 45 menit)\n"
+                "• <b>Status Scalper</b>: 5m Micro Scalper dinonaktifkan sementara.\n\n"
+                "<i>Trading Desk kini beroperasi secara disiplin menangkap ekspansi tren institusional!</i>",
                 chat_id_override=chat_id,
                 reply_markup=MAIN_KEYBOARD
             )

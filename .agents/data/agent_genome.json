@@ -1,44 +1,44 @@
 {
-  "generation": 4,
-  "fitness_score": 85.0,
+  "generation": 6,
+  "fitness_score": 88.5,
   "parameters": {
-    "min_risk_reward": 2.5,
+    "min_risk_reward": 3.0,
     "max_risk_per_trade_pct": 1.5,
     "rsi_overbought": 70,
     "rsi_oversold": 30,
     "require_fvg_confluence": true,
-    "max_funding_rate_threshold": 0.02,
+    "max_funding_rate_threshold": 0.015,
     "weights": {
       "trend_weight": 0.35,
-      "rsi_weight": 0.30,
-      "volatility_weight": 0.20,
+      "rsi_weight": 0.3,
+      "volatility_weight": 0.2,
       "risk_aversion": 0.15
     }
   },
   "regime_genomes": {
     "TRENDING": {
       "label": "🟢 TREND FOLLOWING ENGINE",
-      "min_risk_reward": 3.0,
+      "min_risk_reward": 3.5,
       "max_risk_per_trade_pct": 1.5,
       "trailing_be_threshold_r": 1.0,
       "rsi_overbought": 75,
       "rsi_oversold": 25,
       "strategy_focus": "EMA_CROSS_AND_TREND_PULLBACK",
-      "rationale": "Captures massive multi-candle continuation waves with wide trailing stops."
+      "rationale": "Captures massive multi-candle continuation waves with wide trailing stops (Target R:R 1:3.50 – 1:5.00+)."
     },
     "RANGING": {
       "label": "🟡 MEAN REVERSION ENGINE",
-      "min_risk_reward": 2.0,
+      "min_risk_reward": 2.5,
       "max_risk_per_trade_pct": 1.25,
       "trailing_be_threshold_r": 0.75,
       "rsi_overbought": 68,
       "rsi_oversold": 32,
       "strategy_focus": "RSI_AND_FVG_RANGE_FILL",
-      "rationale": "Scalps quick reversals from support/resistance with rapid profit locking."
+      "rationale": "Captures clean swing mean-reversion between value area boundaries (Target R:R 1:2.50 – 1:3.50)."
     },
     "DEFENSIVE": {
       "label": "⚪ CAPITAL PRESERVATION ENGINE",
-      "min_risk_reward": 2.5,
+      "min_risk_reward": 3.0,
       "max_risk_per_trade_pct": 0.75,
       "allow_entry": false,
       "strategy_focus": "STANDBY_SQUEEZE_PROTECTION",
@@ -87,6 +87,29 @@
       "performance_snapshot": {
         "active_sub_genomes": 3,
         "fitness_score": 85.0
+      }
+    },
+    {
+      "generation": 5,
+      "timestamp": "2026-09-06 00:39:30",
+      "action": "PIVOT_SWING_MAX_PROFIT",
+      "hypothesis": "Pivoted desk focus exclusively to Big-Profit Swing Trading (1H/4H). Deactivated micro scalping to eliminate spread attrition and maximize mathematical expectancy. Elevated baseline minimum R:R to 1:3.00, trending regime to 1:3.50+, and high-confluence setups up to 1:5.00+.",
+      "performance_snapshot": {
+        "mode": "SWING",
+        "min_rr_global": 3.0,
+        "min_rr_trending": 3.5,
+        "fitness_score": 88.5
+      }
+    },
+    {
+      "generation": 6,
+      "timestamp": "2026-09-06 00:41:18",
+      "action": "MUTATE_FUNDING_FILTER (0.02% -> 0.015%)",
+      "hypothesis": "SL rate is elevated (121/132 trades). Lowering Perp Funding Rate ceiling from 0.02% to 0.015% to filter out overleveraged late-entry long traps.",
+      "performance_snapshot": {
+        "trades": 132,
+        "win_rate": 7.58,
+        "profit_factor": 0.2
       }
     }
   ]

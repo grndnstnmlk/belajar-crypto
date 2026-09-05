@@ -81,13 +81,15 @@ def log_desk_activity(entry):
 def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, genome):
     sess = session_filter.get_current_session_info()
     is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
+    desk_mode = telegram_notifier.get_desk_mode().upper()
     data = {
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "user_email": user_email or "dxmade@gmail.com",
         "is_demo": is_demo,
         "balance_usd": balance_usd,
-        "generation": genome.get("generation", 3),
-        "min_rr": genome.get("parameters", {}).get("min_risk_reward", 2.5),
+        "desk_mode": desk_mode,
+        "generation": genome.get("generation", 5),
+        "min_rr": genome.get("parameters", {}).get("min_risk_reward", 3.0),
         "max_risk_pct": genome.get("parameters", {}).get("max_risk_per_trade_pct", 1.5),
         "session": sess,
         "news_shield": {
@@ -290,7 +292,7 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
             dist_sl = price - sl
             if dist_sl > 0:
                 bonus_rr = 0.5 if is_alpha_leader else 0.0
-                target_rr = max(effective_min_rr, (3.5 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep) else (effective_min_rr + bonus_rr))
+                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep) else (effective_min_rr + bonus_rr))
                 tp = round(price + (dist_sl * target_rr), 4)
                 rr = (tp - price) / dist_sl
                 signal = {
@@ -334,7 +336,7 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
             dist_sl = sl - price
             if dist_sl > 0:
                 bonus_rr = 0.5 if is_beta_laggard else 0.0
-                target_rr = max(effective_min_rr, (3.5 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep) else (effective_min_rr + bonus_rr))
+                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep) else (effective_min_rr + bonus_rr))
                 tp = round(price - (dist_sl * target_rr), 4)
                 rr = (price - tp) / dist_sl
                 signal = {
@@ -516,10 +518,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     else:
         # Available slots
         slots_available = max_open_positions - len(active_positions)
-        # Prioritize highest Confluence Score, then time-sensitive momentum scalps, then R:R
+        # Prioritize highest Confluence Score, then Big-Profit Swing setups over scalps, then highest R:R
         admissible_candidates.sort(key=lambda x: (
             x.get("confluence_score", 0),
-            1 if x.get("is_scalp") else 0,
+            0 if x.get("is_scalp") else 1,
             x["rr"]
         ), reverse=True)
         selected = admissible_candidates[:slots_available]
@@ -646,8 +648,10 @@ def show_desk_status(user_email=None, is_demo=True):
         print(f" * [{p['symbol']}] {side} | Entry: ${float(p['entryPrice']):,.4f} | Mark: ${float(p['markPrice']):,.4f} | PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}")
 
     print("-------------------------------------------------------")
+    desk_mode = telegram_notifier.get_desk_mode().upper()
+    print(f"Desk Operational Mode: 🎯 {desk_mode} (Big-Profit Swing Focus, 1H/4H Macro Confluence)")
     print(f"Desk Genetic Rules   : Generation {genome.get('generation', 1)}")
-    print(f" * Min R:R Filter    : 1 : {genome.get('parameters', {}).get('min_risk_reward', 2.0)}")
+    print(f" * Min R:R Filter    : 1 : {genome.get('parameters', {}).get('min_risk_reward', 3.0)}")
     print(f" * Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5)}%")
     print("=======================================================\n")
 
@@ -658,6 +662,7 @@ def main():
     # Run command
     run_p = sub.add_parser("run", help="Jalankan siklus pemindaian dan eksekusi trading desk")
     run_p.add_argument("--once", action="store_true", help="Jalankan 1 siklus lalu selesai")
+    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID"], default=None, help="Set mode operasional desk (SWING, SCALP, HYBRID)")
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 30)")
     run_p.add_argument("--max-positions", type=int, default=3, help="Batas maksimal posisi aktif bersamaan (default: 3)")
@@ -675,6 +680,12 @@ def main():
     if args.command == "status":
         show_desk_status(args.user, is_demo)
     elif args.command == "run":
+        if getattr(args, "mode", None):
+            state = telegram_notifier.load_desk_state()
+            state["mode"] = args.mode.upper()
+            telegram_notifier.save_desk_state(state)
+            print(f"🎯 Mode Operasional Desk diset ke: {state['mode']}")
+
         syms = [s.strip().upper() for s in args.symbols.split(",") if s.strip()] if getattr(args, "symbols", None) else None
         max_pos = getattr(args, "max_positions", 3)
         if args.once:
