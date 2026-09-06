@@ -92,9 +92,9 @@ MAIN_KEYBOARD = {
         [{"text": "📊 Status Desk"}, {"text": "💰 Cek PnL"}],
         [{"text": "📖 Jurnal & Analytics"}, {"text": "🛡️ Directional Heat"}],
         [{"text": "🧭 Market Compass"}, {"text": "🏛️ SMC Trailing"}],
-        [{"text": "🏛️ Coinbase Premium"}, {"text": "📈 Minta Chart BTC"}],
-        [{"text": "🌊 Sentimen Coinalyze"}, {"text": "🧬 Status Genome"}],
-        [{"text": "🎯 Mode Swing (Profit Besar)"}],
+        [{"text": "🧲 Depth & Liquidity"}, {"text": "🏛️ Coinbase Premium"}],
+        [{"text": "🌊 Sentimen Coinalyze"}, {"text": "📈 Minta Chart BTC"}],
+        [{"text": "🧬 Status Genome"}, {"text": "🎯 Mode Swing (Profit Besar)"}],
         [{"text": "🤖 Mode Hybrid (Auto)"}, {"text": "⚡ Mode Scalp (5m)"}],
         [{"text": "📰 Kalender Berita"}, {"text": "🚨 Tutup Semua Posisi"}],
         [{"text": "⏸️ Jeda Bot"}, {"text": "▶️ Lanjutkan Bot"}],
@@ -120,6 +120,8 @@ def setup_bot_commands():
         {"command": "analytics", "description": "📊 Win Rate, Profit Factor & Ekspektansi Matematika"},
         {"command": "heat", "description": "🛡️ Directional Heat & Korelasi Portofolio"},
         {"command": "compass", "description": "🧭 BTC.D & USDT.D Market Flow Compass (Akademi Crypto)"},
+        {"command": "heatmap", "description": "🧲 Order Book Depth & Magnet Likuidasi (/heatmap BTC)"},
+        {"command": "depth", "description": "📊 DOM Imbalance Ratio & Order Book Wall"},
         {"command": "chart", "description": "📈 Visual snapshot chart candlestick (cth: /chart BTC)"},
         {"command": "coinalyze", "description": "🌊 Sentimen Open Interest, Likuidasi & L/S Ratio"},
         {"command": "coinbase", "description": "🏛️ Coinbase Premium Index (Arus Wall Street vs Ritel)"},
@@ -541,6 +543,10 @@ class TelegramCommandListener(threading.Thread):
                             "🧭 Market Compass": "/compass",
                             "🧭 Compass": "/compass",
                             "🧭 Dominance": "/compass",
+                            "🧲 Depth & Liquidity": "/heatmap BTC",
+                            "🧲 Liquidity": "/heatmap BTC",
+                            "🧲 Heatmap": "/heatmap BTC",
+                            "🧲 Depth": "/heatmap BTC",
                             "📈 Minta Chart BTC": "/chart BTC",
                             "🌊 Sentimen Coinalyze": "/coinalyze BTC",
                             "🌊 Sentimen Pasar": "/coinalyze BTC",
@@ -614,6 +620,11 @@ class TelegramCommandListener(threading.Thread):
             self._handle_command("/heat", sender_chat_id)
         elif data == "refresh_compass":
             self._handle_command("/compass", sender_chat_id)
+        elif data.startswith("depth_"):
+            sym = data.replace("depth_", "")
+            self._handle_command(f"/heatmap {sym}", sender_chat_id)
+        elif data == "refresh_depth":
+            self._handle_command("/heatmap BTC", sender_chat_id)
         elif data == "refresh_journal":
             self._handle_command("/journal", sender_chat_id)
         elif data.startswith("journal_"):
@@ -646,6 +657,7 @@ class TelegramCommandListener(threading.Thread):
                 f"• <code>/analytics</code> : 📊 Analisis kuantitatif Win Rate, Profit Factor & Payoff Ratio\n"
                 f"• <code>/heat</code> : 🛡️ Directional Heat & Batas Korelasi Portofolio (Akademi Crypto Module 03)\n"
                 f"• <code>/compass</code> : 🧭 BTC.D & USDT.D Market Flow Compass (Akademi Crypto Module 01)\n"
+                f"• <code>/heatmap [koin]</code> : 🧲 Liquidity Heatmap & Order Book Depth Imbalance (cth: <code>/heatmap btc</code>, <code>/depth sol</code>)\n"
                 f"• <code>/chart [koin] [tf]</code> : Snapshot visual candlestick chart (cth: <code>/chart btc</code>, <code>/chart sol 5m</code>)\n"
                 f"• <code>/coinalyze [koin]</code> : Sentimen Open Interest, Likuidasi 4H, & L/S Ratio (cth: <code>/coinalyze btc</code>, <code>/coinalyze doge</code>)\n"
                 f"• <code>/coinbase</code> : Coinbase Premium Index (Arus Wall Street vs Ritel global - cth: <code>/coinbase</code>, <code>/coinbase eth</code>)\n"
@@ -723,6 +735,9 @@ class TelegramCommandListener(threading.Thread):
             inline_kb.append([
                 {"text": "🛡️ Cek Heat", "callback_data": "refresh_heat"},
                 {"text": "🧭 Compass", "callback_data": "refresh_compass"},
+                {"text": "🧲 Liquidity", "callback_data": "depth_BTC"}
+            ])
+            inline_kb.append([
                 {"text": "💰 PnL", "callback_data": "refresh_pnl"}
             ])
             if positions:
@@ -916,6 +931,28 @@ class TelegramCommandListener(threading.Thread):
                 send_telegram_msg(report_msg, chat_id_override=chat_id)
             except Exception as e:
                 send_telegram_msg(f"⚠️ Gagal memuat data Coinbase Premium: {e}", chat_id_override=chat_id)
+
+        elif command in ["/heatmap", "/depth", "/orderbook", "/liquidity", "🧲 depth & liquidity"]:
+            raw_sym = parts[1].upper() if len(parts) > 1 else "BTC"
+            sym_clean = raw_sym.replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
+            try:
+                import liquidity_heatmap
+                report_msg = liquidity_heatmap.format_telegram_liquidity_report(sym_clean)
+                inline_kb = [
+                    [
+                        {"text": "🪙 BTC", "callback_data": "depth_BTC"},
+                        {"text": "⚡ ETH", "callback_data": "depth_ETH"},
+                        {"text": "🔗 LINK", "callback_data": "depth_LINK"},
+                        {"text": "☀️ SOL", "callback_data": "depth_SOL"}
+                    ],
+                    [
+                        {"text": f"🔄 Refresh {sym_clean}", "callback_data": f"depth_{sym_clean}"},
+                        {"text": "📊 Status Desk", "callback_data": "refresh_status"}
+                    ]
+                ]
+                send_telegram_msg(report_msg, chat_id_override=chat_id, reply_markup={"inline_keyboard": inline_kb})
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat Liquidity Heatmap untuk {sym_clean}: {e}", chat_id_override=chat_id)
 
         elif command in ["/genome", "🧬 status genome"]:
             try:

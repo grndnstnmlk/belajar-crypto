@@ -1159,6 +1159,79 @@
               </div>
             </div>
           </div>
+
+          <!-- Order Book Depth Imbalance (DOM +/- 2.0%) -->
+          <div class="intel-card">
+            <div class="intel-card-header">
+              <div class="intel-card-title">
+                <span>🧲 DOM Depth Imbalance (Binance & OKX Books)</span>
+              </div>
+              <span class="pill-badge mint" id="dom-regime-pill">BID_DOMINANT</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <!-- Dual Color Depth Gauge Track -->
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px;">
+                  <span>Kedalaman Book (±2.0%)</span>
+                  <span class="mono" id="dom-ratio-label">Ratio: 1.00x</span>
+                </div>
+                <div class="heat-bar-track" style="height:10px;">
+                  <div class="heat-bar-long" id="dom-bids-fill" style="width:50%;" title="Bids Volume"></div>
+                  <div class="heat-bar-short" id="dom-asks-fill" style="width:50%;" title="Asks Volume"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--color-text-dim);">
+                  <span id="dom-bids-usd" class="mono" style="color:var(--color-mint);">$0.0M (50%)</span>
+                  <span>Order Book Spread</span>
+                  <span id="dom-asks-usd" class="mono" style="color:var(--color-tangerine);">$0.0M (50%)</span>
+                </div>
+              </div>
+
+              <!-- Top Walls Card -->
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Tembok Bid Terbesar (Support)</span>
+                  <div class="mono" id="dom-bid-wall" style="font-size:13px; font-weight:700; color:var(--color-mint); margin-top:4px;">-</div>
+                </div>
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Tembok Ask Terbesar (Resist)</span>
+                  <div class="mono" id="dom-ask-wall" style="font-size:13px; font-weight:700; color:var(--color-tangerine); margin-top:4px;">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Liquidity Clusters (Magnet Likuidasi Institusional) -->
+          <div class="intel-card">
+            <div class="intel-card-header">
+              <div class="intel-card-title">
+                <span>🎯 Liquidity Magnet Clusters (BSL & SSL)</span>
+              </div>
+              <span class="pill-badge blue" id="magnet-dominant-pill">MAGNET PULL</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="overflow-x:auto;">
+                <table style="width:100%; font-size:11px; border-collapse:collapse; text-align:left;">
+                  <thead>
+                    <tr style="border-bottom:1px solid var(--color-ash); color:var(--color-text-dim);">
+                      <th style="padding:6px 8px;">Tipe</th>
+                      <th style="padding:6px 8px;">Harga Cluster</th>
+                      <th style="padding:6px 8px;">Jarak %</th>
+                      <th style="padding:6px 8px;">Pool Likuiditas</th>
+                      <th style="padding:6px 8px;">Daya Tarik</th>
+                    </tr>
+                  </thead>
+                  <tbody id="magnet-clusters-tbody">
+                    <tr><td colspan="5" style="text-align:center; padding:15px; color:var(--color-text-dim);">Memuat kluster likuidasi...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px; font-size:11px; color:var(--color-text-dim); line-height:1.4;">
+                🧲 <b>Prinsip Akademi Crypto:</b> Pasar bergerak seperti magnet mencari kolam likuiditas (BSL/SSL). Order Book wall dan leverage stop hunts menciptakan gaya gravitasi harga sebelum reversal.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1654,6 +1727,73 @@
           const d = data.derivatives;
           if (d.ls_ratio) document.getElementById('deriv-ls-ratio').innerText = `${d.ls_ratio} : 1.0`;
           if (d.liquidations_4h_usd) document.getElementById('deriv-liq-val').innerText = `$${(d.liquidations_4h_usd / 1e6).toFixed(1)}M`;
+        }
+
+        // 5. Liquidity & Order Book Depth Imbalance
+        if (data.liquidity) {
+          const l = data.liquidity;
+          const imb = l.depth_imbalance;
+          if (imb) {
+            const r = Number(imb.imbalance_ratio || 1.0);
+            document.getElementById('dom-ratio-label').innerText = `Ratio: ${r.toFixed(2)}x`;
+            const bidsPct = Number(imb.bids_pct || 50.0);
+            const asksPct = Number(imb.asks_pct || 50.0);
+            document.getElementById('dom-bids-fill').style.width = `${bidsPct}%`;
+            document.getElementById('dom-asks-fill').style.width = `${asksPct}%`;
+            document.getElementById('dom-bids-usd').innerText = `$${(Number(imb.bids_usd || 0)/1e6).toFixed(2)}M (${bidsPct.toFixed(1)}%)`;
+            document.getElementById('dom-asks-usd').innerText = `$${(Number(imb.asks_usd || 0)/1e6).toFixed(2)}M (${asksPct.toFixed(1)}%)`;
+
+            const regPill = document.getElementById('dom-regime-pill');
+            if (regPill) {
+              regPill.innerText = imb.regime || 'NEUTRAL';
+              if (imb.regime.includes('BID') || imb.regime.includes('BULLISH')) {
+                regPill.className = 'pill-badge mint';
+              } else if (imb.regime.includes('ASK') || imb.regime.includes('BEARISH')) {
+                regPill.className = 'pill-badge tangerine';
+              } else {
+                regPill.className = 'pill-badge ash';
+              }
+            }
+
+            if (imb.biggest_bid_wall) {
+              document.getElementById('dom-bid-wall').innerText = `$${Number(imb.biggest_bid_wall.price).toLocaleString()} ($${(Number(imb.biggest_bid_wall.vol_usd)/1000).toFixed(0)}k)`;
+            }
+            if (imb.biggest_ask_wall) {
+              document.getElementById('dom-ask-wall').innerText = `$${Number(imb.biggest_ask_wall.price).toLocaleString()} ($${(Number(imb.biggest_ask_wall.vol_usd)/1000).toFixed(0)}k)`;
+            }
+          }
+
+          // Clusters Table
+          const clusters = l.liquidity_clusters;
+          const domMag = l.dominant_magnet;
+          const magPill = document.getElementById('magnet-dominant-pill');
+          if (magPill && domMag) {
+            const pullSide = domMag.side === 'BSL' ? 'BSL UP' : 'SSL DOWN';
+            magPill.innerText = `🧲 ${pullSide} PULL @ $${Number(domMag.target_price).toLocaleString()} (${domMag.distance_pct >= 0 ? '+' : ''}${domMag.distance_pct}%)`;
+            magPill.className = domMag.side === 'BSL' ? 'pill-badge mint' : 'pill-badge tangerine';
+          }
+
+          const cTbody = document.getElementById('magnet-clusters-tbody');
+          if (cTbody && clusters && clusters.length > 0) {
+            cTbody.innerHTML = clusters.slice(0, 5).map(c => {
+              const isBsl = c.type === 'BSL';
+              const sideBadge = isBsl
+                ? `<span class="pill-badge tangerine" style="font-size:9px; padding:2px 6px;">BSL (Short Liq)</span>`
+                : `<span class="pill-badge mint" style="font-size:9px; padding:2px 6px;">SSL (Long Liq)</span>`;
+              const distColor = c.distance_pct >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
+              const magIcon = c.is_dominant ? '🧲 <b>PULL</b>' : '•';
+
+              return `
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+                  <td style="padding:6px 8px;">${sideBadge}</td>
+                  <td class="mono" style="padding:6px 8px; font-weight:600;">$${Number(c.price).toLocaleString()}</td>
+                  <td class="mono" style="padding:6px 8px; color:${distColor};">${c.distance_pct >= 0 ? '+' : ''}${Number(c.distance_pct).toFixed(2)}%</td>
+                  <td class="mono" style="padding:6px 8px; color:var(--color-text-dim);">$${(Number(c.estimated_pool_usd)/1e6).toFixed(2)}M</td>
+                  <td style="padding:6px 8px; color:var(--color-electric-blue); font-size:10px;">${magIcon}</td>
+                </tr>
+              `;
+            }).join('');
+          }
         }
       } catch (e) {
         console.error("Error loading intelligence:", e);

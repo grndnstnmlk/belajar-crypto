@@ -253,6 +253,50 @@ def calculate_confluence_score(setup, session_info=None):
         pass
     total_score += dom_pts
 
+    # 8. Order Book Depth Imbalance & Liquidity Magnet Alignment (+/- 8 pts)
+    depth_pts = 0
+    try:
+        import liquidity_heatmap
+        sym_base = setup.get("base", "BTC")
+        depth_data = liquidity_heatmap.get_liquidity_intelligence(sym_base)
+        imb = depth_data.get("imbalance", {})
+        ratio = imb.get("imbalance_ratio", 1.0)
+        side = setup.get("side", "LONG").upper()
+
+        if side in ["BUY", "LONG"]:
+            if ratio >= 1.5:
+                depth_pts += 5
+                breakdown["Order Book Depth"] = f"+5 pts (Heavy Bid Support: {ratio:.2f}x Bids vs Asks)"
+            elif ratio <= 0.6:
+                depth_pts -= 8
+                breakdown["Order Book Depth"] = f"-8 pts (Heavy Overhead Supply: {ratio:.2f}x Bids vs Asks)"
+
+            ask_wall = imb.get("biggest_ask_wall", {})
+            if ask_wall and ask_wall.get("distance_pct", 99) < 0.5 and ask_wall.get("usd", 0) > 200_000:
+                depth_pts -= 5
+                breakdown["Overhead Ask Wall"] = f"-5 pts (Sell wall directly overhead @ ${ask_wall['price']:,.2f})"
+
+            magnet = depth_data.get("clusters", {}).get("dominant_magnet")
+            if magnet and magnet.get("type") == "BSL" and magnet.get("distance_pct", 0) > 0.4:
+                depth_pts += 3
+                breakdown["Liquidity Magnet"] = f"+3 pts (BSL Magnet Pull @ ${magnet['price']:,.2f})"
+
+        elif side in ["SELL", "SHORT"]:
+            if ratio <= 0.65:
+                depth_pts += 5
+                breakdown["Order Book Depth"] = f"+5 pts (Heavy Overhead Supply: {ratio:.2f}x Bids vs Asks)"
+            elif ratio >= 1.5:
+                depth_pts -= 8
+                breakdown["Order Book Depth"] = f"-8 pts (Thick Bid Wall Below: {ratio:.2f}x Bids vs Asks)"
+
+            magnet = depth_data.get("clusters", {}).get("dominant_magnet")
+            if magnet and magnet.get("type") == "SSL" and magnet.get("distance_pct", 0) < -0.4:
+                depth_pts += 3
+                breakdown["Liquidity Magnet"] = f"+3 pts (SSL Magnet Pull @ ${magnet['price']:,.2f})"
+    except Exception:
+        pass
+    total_score += depth_pts
+
     total_score = min(100, max(0, total_score))
 
     # Grade Classification

@@ -43,6 +43,7 @@ import portfolio_guard
 import coinbase_premium
 import coinglass_derivatives
 import trade_journal
+import liquidity_heatmap
 
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
@@ -191,11 +192,17 @@ def get_market_intelligence_data():
     except Exception as e:
         derivs = {"error": str(e)}
 
+    try:
+        liq = liquidity_heatmap.get_liquidity_intelligence("BTC")
+    except Exception as e:
+        liq = {"error": str(e)}
+
     return {
         "compass": compass,
         "heat": heat,
         "coinbase_premium": cb_prem,
         "derivatives": derivs,
+        "liquidity": liq,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
@@ -393,6 +400,18 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == "/api/journal":
             data = get_journal_data()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/liquidity_depth":
+            sym = params.get("symbol", ["BTC"])[0]
+            try:
+                data = liquidity_heatmap.get_liquidity_intelligence(sym)
+            except Exception as e:
+                data = {"error": str(e)}
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
