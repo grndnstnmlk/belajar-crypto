@@ -47,10 +47,11 @@ def save_trade_metadata(meta):
     except Exception as e:
         print(f"[Trade Manager] Error saving metadata: {e}")
 
-def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity, is_scalp=False):
+def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity, is_scalp=False, ai_thesis=None, ai_confidence=None):
     """
     Registers a newly opened trade to begin dynamic lifecycle tracking.
     Supports is_scalp flag for accelerated Breakeven (+0.7R) and Time-Stop.
+    Stores AI Senior Quant Officer thesis and confidence for dashboard and autopsy.
     """
     meta = load_trade_metadata()
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
@@ -75,7 +76,9 @@ def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budge
         "highest_r_reached": 0.0,
         "tp1_taken": False,
         "tp1_pnl_usd": 0.0,
-        "capital_shield_locked": False
+        "capital_shield_locked": False,
+        "ai_thesis": ai_thesis,
+        "ai_confidence": ai_confidence
     }
     save_trade_metadata(meta)
 

@@ -44,6 +44,7 @@ import coinbase_premium
 import coinglass_derivatives
 import trade_journal
 import liquidity_heatmap
+import ai_risk_officer
 
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
@@ -126,6 +127,8 @@ def get_dashboard_feed_data(force_refresh=False):
                     "candidate_smc_sl": smc_sl if has_smc else None,
                     "has_candidate_smc": has_smc,
                     "sweep_buffer_pct": round(market_structure.get_asset_sweep_buffer(sym) * 100.0, 1),
+                    "ai_thesis": t_meta.get("ai_thesis"),
+                    "ai_confidence": t_meta.get("ai_confidence"),
                     "opened_at": t_meta.get("opened_at", "")
                 })
             feed["positions"] = pos_list
@@ -531,6 +534,35 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(res).encode("utf-8"))
+            return
+
+        elif path == "/api/ai/ask":
+            query = payload.get("query", "")
+            if not query:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"error": "Query parameter missing"}')
+                return
+
+            try:
+                feed = get_dashboard_feed_data()
+                ctx = {
+                    "balance_usd": feed.get("balance_usd", 5000.0),
+                    "positions": feed.get("positions", []),
+                    "mode": feed.get("mode", "SWING"),
+                    "news_shield": feed.get("news_shield", {})
+                }
+                ans = ai_risk_officer.answer_trader_query(query, ctx)
+                creds = ai_risk_officer.get_ai_credentials()
+                res = {"success": True, "answer": ans, "provider": creds.get("provider")}
+            except Exception as e:
+                res = {"success": False, "error": str(e)}
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
             return
 
         elif path == "/api/action/closeall":

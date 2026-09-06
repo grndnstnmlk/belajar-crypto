@@ -942,6 +942,10 @@
           🔬 Backtest
         </button>
 
+        <button class="btn" onclick="openAiModal()" title="Konsultasi Tanya Jawab AI Senior Quant Officer" style="border-color:rgba(59,130,246,0.5); color:var(--color-electric-blue);">
+          🤖 Tanya AI
+        </button>
+
         <button class="btn" id="pause-btn" onclick="togglePause()">
           ⏸️ Jeda
         </button>
@@ -1331,6 +1335,40 @@
     </div>
   </div>
 
+  <!-- AI Senior Quant Officer Co-Pilot Modal -->
+  <div class="modal-overlay" id="ai-modal">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:14px; font-weight:700; color:var(--color-text);">🤖 AI Senior Quant Officer Co-Pilot</span>
+          <span class="pill-badge blue" id="ai-provider-badge">ACTIVE</span>
+        </div>
+        <button class="btn" onclick="closeAiModal()">✕ Tutup</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span style="font-size:12px; color:var(--color-text-dim);">Ajukan pertanyaan seputar analisis pasar, risiko, atau portofolio:</span>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="ai-query-input" class="btn" style="flex:1; text-align:left; padding:8px 12px; font-size:12px;" placeholder="Contoh: Kenapa kamu buka posisi LINK? Atau bagaimana kondisi BTC hari ini?" onkeydown="if(event.key==='Enter') sendAiQuery()">
+            <button class="btn btn-primary" onclick="sendAiQuery()" id="btn-send-ai">Kirim</button>
+          </div>
+        </div>
+
+        <!-- Quick Chips -->
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn" style="font-size:10px; padding:4px 8px;" onclick="setAiQuery('Bagaimana analisa pasar dan sentimen likuiditas saat ini?')">🧭 Analisa Pasar Hari Ini</button>
+          <button class="btn" style="font-size:10px; padding:4px 8px;" onclick="setAiQuery('Evaluasi seluruh posisi terbuka dan risiko portofolio saat ini')">🛡️ Evaluasi Posisi Berjalan</button>
+          <button class="btn" style="font-size:10px; padding:4px 8px;" onclick="setAiQuery('Apakah aman membuka posisi sebelum rilis berita makro?')">📰 Cek Berita & Blackout</button>
+        </div>
+
+        <!-- AI Output Box -->
+        <div id="ai-response-box" style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:16px; min-height:160px; font-size:12.5px; line-height:1.6; color:var(--color-text);">
+          Ketik pertanyaan Anda di atas atau klik salah satu tombol cepat untuk mendapatkan pandangan kuantitatif dari AI Senior Quant Officer.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Dashboard Client Logic -->
   <script>
     let activeSymbol = "BTC";
@@ -1650,6 +1688,16 @@
               </div>
             </div>
 
+            ${p.ai_thesis ? `
+            <div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.2); border-radius:var(--radius-btn); padding:8px 10px; font-size:11px; color:var(--color-text-dim); line-height:1.4;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+                <span style="color:var(--color-electric-blue); font-weight:700;">🤖 AI Officer Thesis:</span>
+                <span class="pill-badge blue" style="font-size:8.5px; padding:1px 5px;">${p.ai_confidence ? p.ai_confidence + '% CONF' : 'VERIFIED'}</span>
+              </div>
+              <i>"${p.ai_thesis}"</i>
+            </div>
+            ` : ''}
+
             <div class="pos-card-actions">
               ${!p.tp1_taken ? `<button class="btn" onclick="partialClosePosition('${p.symbol}')" style="border-color:rgba(59,130,246,0.5); color:var(--color-electric-blue);" title="Kunci Cuan 50% & Jadikan Sisa Posisi Bebas Risiko (Runner)">🎯 TP 50%</button>` : `<span class="pill-badge mint" style="font-size:9.5px; padding:4px 8px;">🎯 50% CASH LOCKED</span>`}
               ${!p.breakeven_locked ? `<button class="btn" onclick="lockBreakeven('${p.symbol}')" title="Kunci Stop Loss ke Titik Impas">🛡️ Lock BE</button>` : ''}
@@ -1956,6 +2004,60 @@
 
     function openBacktestModal() { document.getElementById('backtest-modal').classList.add('active'); }
     function closeBacktestModal() { document.getElementById('backtest-modal').classList.remove('active'); }
+
+    function openAiModal() {
+      document.getElementById('ai-modal').classList.add('active');
+      document.getElementById('ai-query-input').focus();
+    }
+    function closeAiModal() {
+      document.getElementById('ai-modal').classList.remove('active');
+    }
+    function setAiQuery(q) {
+      document.getElementById('ai-query-input').value = q;
+      sendAiQuery();
+    }
+    async function sendAiQuery() {
+      const input = document.getElementById('ai-query-input');
+      const query = input.value.trim();
+      if (!query) return;
+
+      const box = document.getElementById('ai-response-box');
+      const sendBtn = document.getElementById('btn-send-ai');
+      const badge = document.getElementById('ai-provider-badge');
+
+      box.innerHTML = '⏳ <i>AI Senior Quant Officer sedang berpikir & menganalisa metrik pasar...</i>';
+      sendBtn.disabled = true;
+      sendBtn.innerText = 'Memproses...';
+
+      try {
+        const res = await fetch('/api/ai/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+        const data = await res.json();
+        if (data.success) {
+          box.innerHTML = `
+            <div style="margin-bottom:8px; font-weight:600; color:var(--color-text);">
+              💬 Pertanyaan: "${query}"
+            </div>
+            <div style="line-height:1.6; color:var(--color-text);">
+              ${data.answer.replace(/\n/g, '<br>')}
+            </div>
+          `;
+          if (badge && data.provider) {
+            badge.innerText = data.provider.toUpperCase();
+          }
+        } else {
+          box.innerHTML = `⚠️ <span style="color:var(--color-tangerine);">${data.error || 'Gagal memproses permintaan.'}</span>`;
+        }
+      } catch (e) {
+        box.innerHTML = `⚠️ <span style="color:var(--color-tangerine);">Error koneksi: ${e.message}</span>`;
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerText = 'Kirim';
+      }
+    }
 
     async function runQuantBacktest() {
       const sym = document.getElementById('bt-symbol').value;

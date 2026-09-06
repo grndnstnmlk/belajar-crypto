@@ -94,7 +94,8 @@ MAIN_KEYBOARD = {
         [{"text": "🧭 Market Compass"}, {"text": "🏛️ SMC Trailing"}],
         [{"text": "🧲 Depth & Liquidity"}, {"text": "🏛️ Coinbase Premium"}],
         [{"text": "🌊 Sentimen Coinalyze"}, {"text": "📈 Minta Chart BTC"}],
-        [{"text": "🧬 Status Genome"}, {"text": "🎯 Mode Swing (Profit Besar)"}],
+        [{"text": "🧬 Status Genome"}, {"text": "🤖 Tanya AI Officer"}],
+        [{"text": "🎯 Mode Swing (Profit Besar)"}],
         [{"text": "🤖 Mode Hybrid (Auto)"}, {"text": "⚡ Mode Scalp (5m)"}],
         [{"text": "📰 Kalender Berita"}, {"text": "🚨 Tutup Semua Posisi"}],
         [{"text": "⏸️ Jeda Bot"}, {"text": "▶️ Lanjutkan Bot"}],
@@ -115,6 +116,7 @@ def setup_bot_commands():
     commands = [
         {"command": "status", "description": "📊 Cek saldo & posisi aktif"},
         {"command": "pnl", "description": "💰 Detail profit & loss real-time"},
+        {"command": "ask", "description": "🤖 Konsultasi & tanya AI Quant Officer"},
         {"command": "trailing", "description": "🏛️ SMC Structural Trailing Stop & Swing Pivot (Module 02)"},
         {"command": "journal", "description": "📖 Jurnal Trading & Performance Scorecard (Module 03)"},
         {"command": "analytics", "description": "📊 Win Rate, Profit Factor & Ekspektansi Matematika"},
@@ -196,6 +198,14 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
     conf_grade = trade.get("confluence_grade")
     conf_line = f"⭐ <b>Konfluensi/Akurasi:</b> <code>{conf_score}% [{conf_grade}]</code>\n" if conf_score else ""
 
+    ai_audit = trade.get("ai_audit")
+    ai_line = ""
+    if ai_audit:
+        dec = ai_audit.get("decision", "APPROVED")
+        conf = ai_audit.get("confidence", 85)
+        thesis = html.escape(ai_audit.get("thesis", ""))
+        ai_line = f"🤖 <b>AI Officer Review:</b> <code>{dec} ({conf}%)</code>\n   <i>\"{thesis}\"</i>\n"
+
     msg = (
         f"🚀 <b>EKSEKUSI ORDER BINANCE FUTURES</b>\n"
         f"<i>Mode: {mode_text}</i>\n"
@@ -203,6 +213,7 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
         f"💎 <b>Simbol:</b> <code>{symbol}</code>\n"
         f"🧭 <b>Arah:</b> <b>{side_icon} (5x Leverage)</b>\n"
         f"{conf_line}"
+        f"{ai_line}"
         f"🎯 <b>Strategi:</b> {reason}\n"
         f"💵 <b>Entry Price:</b> <code>${price:,.4f}</code>\n"
         f"🛑 <b>Stop Loss:</b> <code>${sl:,.4f}</code>\n"
@@ -235,6 +246,31 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
     except Exception as e:
         print(f"[Telegram Notifier Warning] Chart snapshot dispatch fallback to text: {e}")
 
+    return send_telegram_msg(msg)
+
+def notify_ai_officer_veto(trade, ai_audit):
+    """
+    Sends notification when AI Senior Quant Officer vetoes an otherwise technically valid trade setup.
+    """
+    sym = trade.get("symbol", "UNKNOWN")
+    side = trade.get("side", "BUY")
+    side_icon = "🟢 LONG" if side.upper() == "BUY" else "🔴 SHORT"
+    conf = ai_audit.get("confidence", 90)
+    thesis = html.escape(ai_audit.get("thesis", "Hidden structural risk detected"))
+    risks = "\n".join([f"• <i>{html.escape(r)}</i>" for r in ai_audit.get("key_risks", [])])
+    provider = ai_audit.get("provider", "AI Senior Quant Officer")
+
+    msg = (
+        f"🛡️ <b>AI QUANT OFFICER — SETUP DIVETO!</b>\n"
+        f"<i>Reviewer: {html.escape(provider)}</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{sym}</code> ({side_icon})\n"
+        f"🛑 <b>Keputusan AI:</b> <code>VETO ({conf}% Confidence)</code>\n"
+        f"📝 <b>Alasan Veto:</b>\n{thesis}\n\n"
+        f"⚠️ <b>Faktor Risiko Utama:</b>\n{risks}\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💡 <i>Modal terlindungi! Autopilot membatalkan eksekusi order ini untuk mencegah potensi jebakan manipulasi wick/dump.</i>"
+    )
     return send_telegram_msg(msg)
 
 def notify_trade_closed(symbol, pnl_usd, exit_reason="Manual/Target Hit", is_demo=True,
@@ -566,6 +602,9 @@ class TelegramCommandListener(threading.Thread):
                             "▶️ Resume": "/resume",
                             "🚨 Tutup Semua Posisi": "/closeall",
                             "🚨 Close All": "/closeall",
+                            "🤖 Tanya AI Officer": "/ask",
+                            "🤖 Tanya AI": "/ask",
+                            "🤖 AI Officer": "/ask",
                             "❓ Panduan Bantuan": "/help",
                             "❓ Bantuan": "/help"
                         }
@@ -652,6 +691,7 @@ class TelegramCommandListener(threading.Thread):
                 f"Gunakan tombol di bawah atau ketik perintah:\n"
                 f"• <code>/status</code> : Cek saldo akun, status autopilot, & posisi aktif\n"
                 f"• <code>/pnl</code> : Rincian floating PnL setiap koin\n"
+                f"• <code>/ask [pertanyaan]</code> : 🤖 Tanya & konsultasi dengan AI Quant Officer (cth: <code>/ask analisa btc hari ini</code>)\n"
                 f"• <code>/trailing</code> : 🏛️ SMC Structural Trailing Stop & Swing Pivot (Akademi Crypto Module 02)\n"
                 f"• <code>/journal [all|24h|7d]</code> : 📖 Jurnal Trading & Performance Scorecard (Akademi Crypto Module 03)\n"
                 f"• <code>/analytics</code> : 📊 Analisis kuantitatif Win Rate, Profit Factor & Payoff Ratio\n"
@@ -671,6 +711,52 @@ class TelegramCommandListener(threading.Thread):
                 f"• <code>/help</code> : Panduan menu ini\n"
             )
             send_telegram_msg(reply, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+
+        elif command in ["/ask", "/ai", "/officer", "🤖 tanya ai officer"]:
+            if len(parts) < 2:
+                send_telegram_msg(
+                    "🤖 <b>AI SENIOR QUANT OFFICER READY</b>\n"
+                    "Silakan ajukan pertanyaan pasar, evaluasi portofolio, atau analisa koin!\n\n"
+                    "<b>Contoh penggunaan:</b>\n"
+                    "• <code>/ask kenapa kamu buka posisi LINK?</code>\n"
+                    "• <code>/ask bagaimana kondisi Bitcoin dan sentimen saat ini?</code>\n"
+                    "• <code>/ask apakah aman trading sebelum rilis berita malam ini?</code>",
+                    chat_id_override=chat_id,
+                    reply_markup=MAIN_KEYBOARD
+                )
+                return
+
+            query = " ".join(parts[1:])
+            send_telegram_msg("🤔 <i>AI Senior Quant Officer sedang menganalisis data pasar & portofolio...</i>", chat_id_override=chat_id)
+            try:
+                import ai_risk_officer
+                bal = trading_desk.get_account_balance(self.user_email, self.is_demo)
+                positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
+                mode = get_desk_mode()
+                ctx = {
+                    "balance_usd": bal,
+                    "positions": positions,
+                    "mode": mode
+                }
+                try:
+                    import macro_news_shield
+                    is_blk, blk_r, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
+                    ctx["news_shield"] = {"is_blackout": is_blk, "status": "BLACKOUT" if is_blk else "SAFE", "reason": blk_r}
+                except Exception:
+                    pass
+
+                answer = ai_risk_officer.answer_trader_query(query, ctx)
+                reply = (
+                    f"🤖 <b>AI QUANT OFFICER BRIEFING</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━\n"
+                    f"❓ <i>\"{html.escape(query)}\"</i>\n\n"
+                    f"{answer}\n"
+                    f"━━━━━━━━━━━━━━━━━━\n"
+                    f"💡 <i>Akademi Crypto AI Co-Pilot</i>"
+                )
+                send_telegram_msg(reply, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal mendapatkan jawaban AI: {e}", chat_id_override=chat_id)
 
         elif command == "/status":
             bal = trading_desk.get_account_balance(self.user_email, self.is_demo)

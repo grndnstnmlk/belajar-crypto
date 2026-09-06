@@ -651,6 +651,52 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             print(f" * Take Profit: ${best['tp']:,.4f}")
             print(f" * R:R Ratio  : 1 : {best['rr']:.2f}")
 
+            # 4. AI Senior Quant Risk Officer Pre-Trade Sanity Audit
+            ai_audit = None
+            try:
+                import ai_risk_officer
+                ai_ctx = {
+                    "news_shield": {"is_blackout": is_blk, "reason": blk_reason},
+                    "heat": {
+                        "long_count": len([p for p in active_positions if float(p.get("positionAmt", 0)) > 0]),
+                        "short_count": len([p for p in active_positions if float(p.get("positionAmt", 0)) < 0])
+                    }
+                }
+                try:
+                    import dominance_compass
+                    ai_ctx["compass"] = dominance_compass.get_dominance_compass()
+                except Exception:
+                    pass
+                try:
+                    import liquidity_heatmap
+                    ai_ctx["depth"] = liquidity_heatmap.calculate_depth_imbalance(best["symbol"])
+                except Exception:
+                    pass
+                try:
+                    import coinbase_premium
+                    ai_ctx["coinbase_premium"] = coinbase_premium.get_coinbase_premium(best.get("base", "BTC"))
+                except Exception:
+                    pass
+
+                ai_audit = ai_risk_officer.audit_trade_setup(best, ai_ctx)
+                best["ai_audit"] = ai_audit
+                print(f" * 🤖 AI Officer: {ai_audit['decision']} ({ai_audit['confidence']}%) via {ai_audit.get('provider', 'AI')}")
+                print(f"   Thesis     : {ai_audit['thesis']}")
+
+                if ai_audit["decision"] == "VETO":
+                    print(f" 🚨 [AI OFFICER VETO] Setup {best['symbol']} diveto oleh AI: {ai_audit['thesis']}")
+                    try:
+                        telegram_notifier.notify_ai_officer_veto(best, ai_audit)
+                    except Exception:
+                        pass
+                    continue
+                elif ai_audit["decision"] == "ADJUST_RISK":
+                    scale = float(ai_audit.get("suggested_risk_scale", 0.7))
+                    effective_risk_pct = max(0.5, effective_risk_pct * scale)
+                    print(f" ⚠️ [AI RISK ADJUST] Risiko disesuaikan oleh AI ke {scale*100:.0f}% ({effective_risk_pct:.2f}% modal)")
+            except Exception as e:
+                print(f" * [AI Officer Note] Heuristic bypass: {e}")
+
             # Refresh live available free margin directly from exchange before sizing
             _, live_avail = get_account_financials(user_email, is_demo)
             available_usd = min(available_usd, live_avail)
@@ -733,7 +779,9 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     tp_price=best["tp"],
                     risk_budget_usd=risk_budget,
                     quantity=qty,
-                    is_scalp=best.get("is_scalp", False)
+                    is_scalp=best.get("is_scalp", False),
+                    ai_thesis=ai_audit.get("thesis") if ai_audit else None,
+                    ai_confidence=ai_audit.get("confidence") if ai_audit else None
                 )
             except Exception as e:
                 print(f"[Trade Manager Warning] Gagal simpan metadata trade: {e}")
