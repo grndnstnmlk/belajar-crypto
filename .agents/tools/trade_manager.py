@@ -27,6 +27,7 @@ import binance_client
 import telegram_notifier
 import macro_news_shield
 import market_structure
+import trade_journal
 
 def load_trade_metadata():
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -153,6 +154,127 @@ def update_binance_stop_loss(symbol, side, new_sl_price, is_demo=True, user_emai
     if res and res.get("algoId"):
         return True, res.get("algoId")
     return False, res
+
+def execute_manual_partial_tp(symbol, user_email=None, is_demo=True):
+    """
+    Manually triggers Scale-Out TP1:
+    - Liquidates 50% of the active position via a Market Order with reduceOnly=true.
+    - Locks the remaining 50% lot (Runner) to Breakeven (+ commission offset).
+    - Records the realized profit into the Trade Journal ledger.
+    - Updates trade metadata (tp1_taken=True, is_runner=True).
+    - Dispatches instant rich Telegram broadcast.
+    """
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    positions = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=is_demo, user_email=user_email)
+    if not positions:
+        return {"success": False, "error": "Gagal mengambil posisi aktif dari Binance"}
+
+    target_pos = next((p for p in positions if p.get("symbol") == sym_clean and float(p.get("positionAmt", 0)) != 0), None)
+    if not target_pos:
+        return {"success": False, "error": f"Tidak ada posisi aktif yang terbuka untuk {sym_clean}"}
+
+    amt = float(target_pos.get("positionAmt", 0))
+    entry_p = float(target_pos.get("entryPrice", 0))
+    mark_p = float(target_pos.get("markPrice", 0))
+    side = "BUY" if amt > 0 else "SELL"
+    close_side = "SELL" if side == "BUY" else "BUY"
+
+    current_amt = abs(amt)
+    half_qty_str = binance_client.format_qty_precision(sym_clean, current_amt * 0.5)
+    half_qty = float(half_qty_str)
+
+    if half_qty <= 0 or half_qty >= current_amt:
+        return {"success": False, "error": f"Ukuran posisi ({current_amt}) terlalu kecil untuk dipecah 50%"}
+
+    # 1. Execute market close for half qty
+    order_res = binance_client.send_signed_request(
+        "/fapi/v1/order",
+        method="POST",
+        params={
+            "symbol": sym_clean,
+            "side": close_side,
+            "type": "MARKET",
+            "quantity": half_qty_str,
+            "reduceOnly": "true"
+        },
+        is_demo=is_demo,
+        user_email=user_email
+    )
+    if not order_res or not order_res.get("orderId"):
+        return {"success": False, "error": f"Order parsial ditolak Binance: {order_res}"}
+
+    # 2. Estimate Realized PnL
+    if side == "BUY":
+        est_pnl = (mark_p - entry_p) * half_qty
+    else:
+        est_pnl = (entry_p - mark_p) * half_qty
+
+    # 3. Cancel obsolete full TP orders & Lock Breakeven
+    be_price = calculate_breakeven_price(sym_clean, side, entry_p)
+    update_binance_stop_loss(sym_clean, side, be_price, is_demo=is_demo, user_email=user_email)
+
+    # 4. Update metadata
+    meta = load_trade_metadata()
+    t_data = meta.get(sym_clean, {})
+    remaining_qty = round(current_amt - half_qty, 4)
+    r_dist = max(float(t_data.get("r_distance", entry_p * 0.015)), 0.0001)
+    gain_per_coin = (mark_p - entry_p) if side == "BUY" else (entry_p - mark_p)
+    r_mult = round(gain_per_coin / r_dist, 2)
+
+    t_data["tp1_taken"] = True
+    t_data["tp1_pnl_usd"] = round(est_pnl, 2)
+    t_data["is_runner"] = True
+    t_data["breakeven_locked"] = True
+    t_data["current_sl"] = be_price
+    t_data["quantity"] = remaining_qty
+    meta[sym_clean] = t_data
+    save_trade_metadata(meta)
+
+    # 5. Record to trade journal ledger
+    try:
+        trade_journal.record_closed_trade({
+            "id": f"SCALEOUT-{sym_clean}-{int(time.time())}",
+            "symbol": sym_clean,
+            "side": side,
+            "entry_price": entry_p,
+            "exit_price": mark_p,
+            "quantity": half_qty,
+            "pnl_usd": round(est_pnl, 2),
+            "commission_usd": 0.0,
+            "net_pnl_usd": round(est_pnl, 2),
+            "r_multiple": r_mult,
+            "exit_reason": f"🎯 Scale-Out TP1 (50% Liquidated @ {r_mult:+.2f}R)",
+            "closed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "source": "SCALE_OUT_MANUAL"
+        })
+    except Exception as j_err:
+        print(f"[Scale-Out] Gagal simpan ke journal: {j_err}")
+
+    # 6. Dispatch Telegram broadcast
+    try:
+        telegram_notifier.notify_partial_tp_taken(
+            symbol=sym_clean,
+            side=side,
+            mark_price=mark_p,
+            closed_qty=half_qty,
+            pnl_usd=est_pnl,
+            remaining_qty=remaining_qty,
+            be_price=be_price,
+            r_multiple=r_mult,
+            is_demo=is_demo
+        )
+    except Exception as tg_err:
+        print(f"[Scale-Out] Gagal kirim notif Telegram: {tg_err}")
+
+    return {
+        "success": True,
+        "symbol": sym_clean,
+        "closed_qty": half_qty,
+        "remaining_qty": remaining_qty,
+        "est_pnl_usd": round(est_pnl, 2),
+        "be_price": be_price,
+        "r_multiple": r_mult
+    }
 
 def fetch_closed_trade_details(symbol, is_demo=True, user_email=None, opened_at=None, position_side="BUY"):
     """
@@ -588,17 +710,19 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     print(f"[Telegram Warning] Gagal kirim notif Capital Shield: {e}")
 
         # -------------------------------------------------------------
-        # STEP 1C: PARTIAL TAKE PROFIT 1 (TP1 SCALE-OUT 50% AT +1.0R / +1.05R)
-        # Realizes 50% cash profit into wallet & locks remaining 50% at Breakeven!
+        # STEP 1C: PARTIAL TAKE PROFIT 1 (SCALE-OUT 50% @ +2.0R + RUNNER 50% SMC TRAILING)
+        # Realizes 50% cash profit into wallet & locks remaining 50% (Runner) at Breakeven!
+        # Synthesized from Akademi Crypto Module 03 (Money Management)
         # -------------------------------------------------------------
-        tp1_target_r = 0.80 if t_data.get("is_scalp") else 1.05
+        tp1_target_r = 1.20 if t_data.get("is_scalp") else 2.00
         if r_multiple >= tp1_target_r and not t_data.get("tp1_taken", False):
             current_amt = abs(amt)
-            half_qty = format_qty_precision(sym, current_amt * 0.5)
+            half_qty_str = binance_client.format_qty_precision(sym, current_amt * 0.5)
+            half_qty = float(half_qty_str)
 
             if half_qty > 0 and half_qty < current_amt:
                 close_side = "SELL" if side == "BUY" else "BUY"
-                print(f"🎯 [PARTIAL TAKE PROFIT 1] {sym}: Capai +{r_multiple:.2f}R! Menjual 50% lot ({half_qty} dari {current_amt})...")
+                print(f"🎯 [SCALE-OUT TP1] {sym}: Capai +{r_multiple:.2f}R! Menjual 50% lot ({half_qty} dari {current_amt})...")
                 order_res = binance_client.send_signed_request(
                     "/fapi/v1/order",
                     method="POST",
@@ -606,7 +730,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                         "symbol": sym,
                         "side": close_side,
                         "type": "MARKET",
-                        "quantity": half_qty,
+                        "quantity": half_qty_str,
                         "reduceOnly": "true"
                     },
                     is_demo=is_demo,
@@ -618,19 +742,50 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     else:
                         est_tp1_pnl = (entry_price - mark_price) * half_qty
 
-                    # Move remaining runner SL to Breakeven
+                    # Cancel obsolete full TP algo order so runner can trail freely
+                    try:
+                        binance_client.cancel_existing_algo_orders_for_symbol(
+                            symbol=sym,
+                            is_demo=is_demo,
+                            user_email=user_email
+                        )
+                    except Exception:
+                        pass
+
+                    # Move remaining runner SL to Breakeven (+ commission offset)
                     be_price = calculate_breakeven_price(sym, side, entry_price)
                     update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
 
                     remaining_qty = round(current_amt - half_qty, 4)
                     t_data["tp1_taken"] = True
                     t_data["tp1_pnl_usd"] = round(est_tp1_pnl, 2)
+                    t_data["is_runner"] = True
                     t_data["breakeven_locked"] = True
                     t_data["current_sl"] = be_price
                     t_data["quantity"] = remaining_qty
 
-                    print(f"✅ [TP1 SECURED & RUNNER PROTECTED] {sym}: +${est_tp1_pnl:,.2f} USDT cair di dompet! Sisa {remaining_qty} lot dikunci BE @ ${be_price:,.4f}.")
+                    print(f"✅ [TP1 SECURED & RUNNER PROTECTED] {sym}: +${est_tp1_pnl:,.2f} USDT cair di dompet! Sisa {remaining_qty} lot dikunci BE @ ${be_price:,.4f} dipandu SMC Trailing.")
                     management_events.append(f"🎯 {sym} TP1 (+${est_tp1_pnl:,.2f}) & Runner BE @ ${be_price:,.4f}")
+
+                    # Record to trade journal ledger
+                    try:
+                        trade_journal.record_closed_trade({
+                            "id": f"SCALEOUT-{sym}-{int(time.time())}",
+                            "symbol": sym,
+                            "side": side,
+                            "entry_price": entry_price,
+                            "exit_price": mark_price,
+                            "quantity": half_qty,
+                            "pnl_usd": round(est_tp1_pnl, 2),
+                            "commission_usd": 0.0,
+                            "net_pnl_usd": round(est_tp1_pnl, 2),
+                            "r_multiple": round(r_multiple, 2),
+                            "exit_reason": f"🎯 Scale-Out TP1 (50% Locked @ +{r_multiple:.2f}R)",
+                            "closed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "source": "SCALE_OUT_ENGINE"
+                        })
+                    except Exception as j_err:
+                        print(f"[Scale-Out] Error logging to journal: {j_err}")
 
                     try:
                         telegram_notifier.notify_partial_tp_taken(

@@ -1545,7 +1545,10 @@
                 <span>${p.symbol}</span>
                 <span class="pill-badge ${isLong ? 'mint' : 'tangerine'}" style="font-size:10px; padding:2px 8px;">${p.side} ${p.leverage}x</span>
               </div>
-              ${beBadge}
+              <div style="display:flex; gap:4px; align-items:center;">
+                ${p.tp1_taken ? `<span class="pill-badge mint" style="font-size:9px; padding:2px 6px;">🎯 RUNNER ACTIVE</span>` : ''}
+                ${beBadge}
+              </div>
             </div>
 
             <div class="pos-pnl-row">
@@ -1575,6 +1578,7 @@
             </div>
 
             <div class="pos-card-actions">
+              ${!p.tp1_taken ? `<button class="btn" onclick="partialClosePosition('${p.symbol}')" style="border-color:rgba(59,130,246,0.5); color:var(--color-electric-blue);" title="Kunci Cuan 50% & Jadikan Sisa Posisi Bebas Risiko (Runner)">🎯 TP 50%</button>` : `<span class="pill-badge mint" style="font-size:9.5px; padding:4px 8px;">🎯 50% CASH LOCKED</span>`}
               ${!p.breakeven_locked ? `<button class="btn" onclick="lockBreakeven('${p.symbol}')" title="Kunci Stop Loss ke Titik Impas">🛡️ Lock BE</button>` : ''}
               <button class="btn btn-danger" onclick="closeSinglePosition('${p.symbol}')">🔴 Tutup</button>
             </div>
@@ -1717,6 +1721,27 @@
           fetchDashboardFeed();
         } else {
           showToast(`⚠️ Gagal mengunci BE ${symbol}: ${d.error || 'Unknown error'}`);
+        }
+      } catch (e) {
+        showToast(`⚠️ Error: ${e.message}`);
+      }
+    }
+
+    async function partialClosePosition(symbol) {
+      if (!confirm(`Konfirmasi Scale-Out: Amankan 50% profit ${symbol} ke saldo dompet sekarang?\\nSisa 50% lot akan otomatis dikunci ke Breakeven & dituntun SMC Trailing.`)) return;
+      try {
+        const res = await fetch('/api/action/partial_tp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ symbol })
+        });
+        const d = await res.json();
+        if (d.success) {
+          const sign = d.est_pnl_usd >= 0 ? '+' : '';
+          showToast(`🎯 Scale-Out 50% ${symbol} Berhasil! (${sign}$${d.est_pnl_usd} USDT cair | Sisa ${d.remaining_qty} lot dikunci BE @ $${d.be_price})`);
+          fetchDashboardFeed();
+        } else {
+          showToast(`⚠️ Gagal scale-out ${symbol}: ${d.error || 'Unknown error'}`);
         }
       } catch (e) {
         showToast(`⚠️ Error: ${e.message}`);

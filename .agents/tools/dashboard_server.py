@@ -116,6 +116,8 @@ def get_dashboard_feed_data(force_refresh=False):
                     "breakeven_locked": t_meta.get("breakeven_locked", False),
                     "capital_shield_locked": t_meta.get("capital_shield_locked", False),
                     "tp1_taken": t_meta.get("tp1_taken", False),
+                    "tp1_pnl_usd": t_meta.get("tp1_pnl_usd", 0.0),
+                    "is_runner": t_meta.get("is_runner", False),
                     "trailing_r": t_meta.get("trailing_r_locked", 0.0),
                     "sl": t_meta.get("current_sl"),
                     "tp": t_meta.get("tp"),
@@ -494,6 +496,22 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({"success": success, "be_price": be_p}).encode("utf-8"))
+            return
+
+        elif path == "/api/action/partial_tp":
+            sym = payload.get("symbol")
+            if not sym:
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"success": false, "error": "Missing symbol"}')
+                return
+
+            res = trade_manager.execute_manual_partial_tp(sym, is_demo=True)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(res).encode("utf-8"))
             return
 
         elif path == "/api/action/closeall":

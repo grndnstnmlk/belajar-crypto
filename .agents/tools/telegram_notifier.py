@@ -311,24 +311,26 @@ def notify_breakeven_locked(symbol, side, entry_price, be_price, current_pnl, is
 
 def notify_partial_tp_taken(symbol, side, mark_price, closed_qty, pnl_usd, remaining_qty, be_price, r_multiple=1.0, is_demo=True):
     """
-    Sends notification when Partial Take Profit (TP1 Scale-out) is triggered.
+    Sends rich notification when Partial Take Profit (TP1 Scale-out @ +2.0R) is triggered.
+    Synthesized from Akademi Crypto Module 03 (Money Management).
     """
     mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
     side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
     msg = (
-        f"🎯 <b>PARTIAL TAKE PROFIT 1 (TP1) TERCAPAI!</b>\n"
-        f"<i>Mode: {mode_text}</i>\n"
+        f"🎯 <b>SCALE-OUT TP1 SECURED (50% LIQUIDATED @ +{r_multiple:.2f}R)!</b>\n"
+        f"<i>Mode: {mode_text} | Akademi Crypto Module 03</i>\n"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"💎 <b>Simbol:</b> <code>{symbol}</code> ({side_icon})\n"
-        f"📈 <b>Capaian Target:</b> <code>+{r_multiple:.2f}R</code>\n"
-        f"💵 <b>Harga Eksekusi TP1:</b> <code>${mark_price:,.4f}</code>\n"
+        f"📈 <b>Capaian Target R:R:</b> <code>+{r_multiple:.2f}R</code>\n"
+        f"💵 <b>Harga Eksekusi:</b> <code>${mark_price:,.4f}</code>\n"
         f"📦 <b>Posisi Dicairkan (50%):</b> <code>{closed_qty} lot</code>\n"
-        f"💰 <b>Profit Tunai Masuk:</b> <b>+${pnl_usd:,.2f} USDT</b>\n"
+        f"💰 <b>Cuan Riil Masuk Dompet:</b> <b>+${pnl_usd:,.2f} USDT</b>\n"
         f"━━━━━━━━━━━━━━━━━━\n"
-        f"🛡️ <b>STATUS SISA POSISI (FREE RUNNER):</b>\n"
+        f"🛡️ <b>STATUS RUNNER (SISA 50% POSISI):</b>\n"
         f"• Sisa Lot Berjalan: <code>{remaining_qty} lot</code>\n"
         f"• Stop Loss Terkunci (BE): <code>${be_price:,.4f}</code>\n"
-        f"🎉 <i>Keuntungan separuh sudah diamankan ke dompet! Sisa trade kini 100% BEBAS RISIKO mengejar ekspansi tren (R:R 1:3 - 1:5+).</i>"
+        f"• Mesin Pemandu: <b>SMC Structural Trailing Stop</b>\n"
+        f"🎉 <i>Keuntungan separuh sudah diamankan! Sisa trade kini 100% BEBAS RISIKO (Risk-Free) mengejar tren mega-rally (1:4 hingga 1:8+)!</i>"
     )
     return send_telegram_msg(msg)
 
@@ -599,6 +601,9 @@ class TelegramCommandListener(threading.Thread):
         if data.startswith("close_"):
             sym = data.replace("close_", "")
             self._handle_command(f"/close {sym}", sender_chat_id)
+        elif data.startswith("scaleout_"):
+            sym = data.replace("scaleout_", "")
+            self._handle_command(f"/scaleout {sym}", sender_chat_id)
         elif data == "closeall":
             self._handle_command("/closeall", sender_chat_id)
         elif data == "refresh_status":
@@ -699,16 +704,15 @@ class TelegramCommandListener(threading.Thread):
 
             # Build Inline Action Buttons
             inline_kb = []
-            pos_buttons = []
+            # Add position close & scale-out buttons
             for p in positions:
                 sym = p["symbol"]
                 upnl = float(p.get("unRealizedProfit", 0))
                 p_sign = "+" if upnl >= 0 else ""
-                pos_buttons.append({"text": f"🔴 Tutup {sym} ({p_sign}${upnl:.2f})", "callback_data": f"close_{sym}"})
-
-            # Add position close buttons (1 per row for easy tapping on mobile)
-            for btn in pos_buttons:
-                inline_kb.append([btn])
+                inline_kb.append([
+                    {"text": f"🔴 Tutup {sym} ({p_sign}${upnl:.2f})", "callback_data": f"close_{sym}"},
+                    {"text": f"🎯 TP 50% {sym}", "callback_data": f"scaleout_{sym}"}
+                ])
 
             # Utility buttons
             inline_kb.append([
@@ -995,6 +999,36 @@ class TelegramCommandListener(threading.Thread):
                 )
             else:
                 send_telegram_msg(f"❌ Gagal menutup posisi <code>{target_sym}</code>: {res}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+
+        elif command in ["/scaleout", "/tp50", "/partialtp"]:
+            import trade_manager
+            positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
+            if len(parts) < 2:
+                if not positions:
+                    send_telegram_msg("ℹ️ Tidak ada posisi terbuka untuk di-scale out.", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+                    return
+
+                inline_kb = [
+                    [{"text": f"🎯 Scale-Out 50% {p['symbol']} ({'+' if float(p.get('unRealizedProfit', 0))>=0 else ''}${float(p.get('unRealizedProfit', 0)):.2f})", "callback_data": f"scaleout_{p['symbol']}"}]
+                    for p in positions
+                ]
+                send_telegram_msg("👇 <b>Pilih posisi yang ingin Anda ambil profit 50% (Scale-Out):</b>\n<i>Sisa 50% posisi akan dikunci ke Breakeven & dituntun SMC Trailing.</i>", chat_id_override=chat_id, reply_markup={"inline_keyboard": inline_kb})
+                return
+
+            raw_sym = parts[1].upper()
+            target_sym = raw_sym if raw_sym.endswith("USDT") else f"{raw_sym}USDT"
+            send_telegram_msg(f"⏳ Mengeksekusi Scale-Out 50% untuk <code>{target_sym}</code>...", chat_id_override=chat_id)
+            res = trade_manager.execute_manual_partial_tp(target_sym, user_email=self.user_email, is_demo=self.is_demo)
+            if res.get("success"):
+                send_telegram_msg(
+                    f"✅ <b>SCALE-OUT 50% BERHASIL!</b>\n"
+                    f"💎 <code>{target_sym}</code>: {res['closed_qty']} lot dicairkan (+${res['est_pnl_usd']:,.2f} USDT)\n"
+                    f"🛡️ Sisa {res['remaining_qty']} lot dikunci ke BE @ ${res['be_price']:,.4f} sebagai <b>Free Runner</b>!",
+                    chat_id_override=chat_id,
+                    reply_markup=MAIN_KEYBOARD
+                )
+            else:
+                send_telegram_msg(f"⚠️ Gagal scale-out: {res.get('error')}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
 
         elif command == "/closeall":
             positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
