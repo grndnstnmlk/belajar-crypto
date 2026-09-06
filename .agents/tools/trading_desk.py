@@ -64,6 +64,23 @@ def load_genome():
         }
     }
 
+def get_asset_sweep_buffer(symbol):
+    """
+    Module 03 & Smart Money Concepts Anti-Liquidity-Hunt Buffer.
+    Major coins (BTC/ETH/BNB) have deeper orderbooks -> 0.8% - 1.0% buffer.
+    High-beta Altcoins (DOGE, ADA, AVAX, SUI, LINK, SOL, XRP) experience 0.8% - 1.2% liquidity sweep wicks.
+    A 1.4% - 1.6% buffer protects positions from premature stop hunts before true expansion.
+    """
+    sym = symbol.upper()
+    if "BTC" in sym:
+        return 0.008  # 0.8%
+    elif "ETH" in sym or "BNB" in sym:
+        return 0.010  # 1.0%
+    elif any(k in sym for k in ["SOL", "LINK", "AVAX"]):
+        return 0.013  # 1.3%
+    else:  # High beta / meme / sensitive: DOGE, ADA, SUI, XRP
+        return 0.016  # 1.6% (absorbs stop hunt wicks)
+
 def log_desk_activity(entry):
     os.makedirs(DATA_DIR, exist_ok=True)
     history = []
@@ -112,6 +129,18 @@ def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, ge
             for p in active_positions
         ]
     }
+    try:
+        import dominance_compass
+        comp = dominance_compass.get_dominance_compass()
+        data["dominance_compass"] = {
+            "regime": comp["regime_code"],
+            "title": comp["regime_title"],
+            "btc_d": comp["btc_d"],
+            "usdt_d": comp["usdt_d"],
+            "usdt_status": comp["usdt_status"]
+        }
+    except Exception:
+        pass
     try:
         with open(DASHBOARD_FEED_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
@@ -253,6 +282,27 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
         is_alpha_leader = rs_info.get("tier") == "LEADER"
         is_beta_laggard = rs_info.get("tier") == "LAGGARD"
 
+        # 4. CoinGlass & Institutional Derivatives Order Flow Audit
+        deriv_intel = None
+        try:
+            import coinglass_derivatives
+            deriv_intel = coinglass_derivatives.get_derivatives_intelligence(sym)
+            oi_info = f"OI: {deriv_intel['open_interest_formatted']} (1H: {deriv_intel['oi_change_1h_pct']:+.2f}%) | L/S: {deriv_intel['long_short_ratio']:.2f}"
+            print(f"   📊 Derivatives Flow : {oi_info} -> {deriv_intel['regime']}")
+        except Exception:
+            deriv_intel = None
+
+        # 5. Coinbase US Institutional Premium Index Check (Macro Spot Flow for BTC, ETH, SOL)
+        cb_intel = None
+        if sym in ["BTC", "ETH", "SOL"]:
+            try:
+                import coinbase_premium
+                cb_intel = coinbase_premium.get_coinbase_premium(sym)
+                cb_sign = "+" if cb_intel["premium_pct"] >= 0 else ""
+                print(f"   🏛️ Coinbase Premium : {cb_sign}{cb_intel['premium_pct']:+.4f}% (${cb_intel['premium_usd']:+,.2f}) -> {cb_intel['regime']}")
+            except Exception:
+                cb_intel = None
+
         # Rule A: Bullish Setup (Bullish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, or Tim Flossbach MSS)
         has_bullish_fvg = "Bullish FVG" in fvg
         has_bullish_3touch = bool(three_touch and three_touch.get("type") == "BULLISH_3_TOUCH")
@@ -269,19 +319,30 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
 
         signal = None
         if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep) and rsi_safe_long:
-            # Plan Long
+            # Derivatives Crowd Shield: Skip Long if retail is dangerously overleveraged (e.g. L/S > 3.0)
+            if deriv_intel and deriv_intel.get("bias") == "BEARISH_SQUEEZE_RISK":
+                print(f"   🚨 [Derivatives Squeeze Shield] {sym} di-skip untuk LONG: Retail overleveraged ({deriv_intel['long_short_ratio']:.2f}x L/S). Rawan Liquidity Hunt / Long Squeeze!")
+                continue
+
+            # Coinbase US Discount Shield: Skip Long if US institutions are heavily dumping spot (< -0.040%)
+            if cb_intel and cb_intel.get("is_us_dump"):
+                print(f"   🚨 [Coinbase US Discount Shield] {sym} di-skip untuk LONG: Institusi AS sedang jualan spot (Diskon {cb_intel['premium_pct']:+.4f}%). Rawan Bull Trap!")
+                continue
+            # Plan Long with Dynamic Anti-Liquidity-Hunt SL Buffer
+            sweep_buf = get_asset_sweep_buffer(sym)
             if has_bullish_sweep and liquidity_sweep:
-                sl = liquidity_sweep["sl"]
+                sl = round(liquidity_sweep["sweep_level"] * (1.0 - sweep_buf), 4)
                 reason_tag = f"⚡ TIM FLOSSBACH MSS (SSL Sweep ${liquidity_sweep['sweep_level']})"
             elif has_bullish_auction and va_setup:
-                sl = va_setup["sl"]
+                base_low = min(volume_profile.get("val", price), price * 0.985)
+                sl = round(base_low * (1.0 - sweep_buf), 4)
                 reason_tag = f"🔥 FABIO AUCTION (VAL ${volume_profile['val']} -> POC ${volume_profile['poc']})"
             elif has_bullish_3touch and three_touch:
-                sl = round(three_touch["level"] * 0.995, 4)
+                sl = round(three_touch["level"] * (1.0 - sweep_buf), 4)
                 reason_tag = f"🌟 3-TOUCH SUPPORT (${three_touch['level']})"
             else:
                 low_24h = data.get("low_24h") or (price * 0.98)
-                sl = round(low_24h * 0.998, 4)
+                sl = round(low_24h * (1.0 - sweep_buf), 4)
                 reason_tag = "Bullish FVG"
 
             if is_alpha_leader:
@@ -313,19 +374,30 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                 }
 
         elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep) and rsi_safe_short:
-            # Plan Short
+            # Derivatives Crowd Shield: Skip Short if retail is crowded short (<0.75 L/S), high risk of short squeeze pump!
+            if deriv_intel and deriv_intel.get("bias") == "BULLISH_SQUEEZE":
+                print(f"   🚨 [Derivatives Squeeze Shield] {sym} di-skip untuk SHORT: Retail overleveraged Short ({deriv_intel['long_short_ratio']:.2f}x L/S). Rawan Short Squeeze pump!")
+                continue
+
+            # Coinbase US Inflow Shield: Skip Short if US institutions are aggressively buying spot (> +0.035%)
+            if cb_intel and cb_intel.get("is_us_inflow") and cb_intel.get("premium_pct", 0) >= 0.035:
+                print(f"   🚨 [Coinbase US Inflow Shield] {sym} di-skip untuk SHORT: Institusi AS sedang memborong spot ({cb_intel['premium_pct']:+.4f}%). Rawan dilibas tren!")
+                continue
+            # Plan Short with Dynamic Anti-Liquidity-Hunt SL Buffer
+            sweep_buf = get_asset_sweep_buffer(sym)
             if has_bearish_sweep and liquidity_sweep:
-                sl = liquidity_sweep["sl"]
+                sl = round(liquidity_sweep["sweep_level"] * (1.0 + sweep_buf), 4)
                 reason_tag = f"⚡ TIM FLOSSBACH MSS (BSL Sweep ${liquidity_sweep['sweep_level']})"
             elif has_bearish_auction and va_setup:
-                sl = va_setup["sl"]
+                base_high = max(volume_profile.get("vah", price), price * 1.015)
+                sl = round(base_high * (1.0 + sweep_buf), 4)
                 reason_tag = f"🔥 FABIO AUCTION (VAH ${volume_profile['vah']} -> POC ${volume_profile['poc']})"
             elif has_bearish_3touch and three_touch:
-                sl = round(three_touch["level"] * 1.005, 4)
+                sl = round(three_touch["level"] * (1.0 + sweep_buf), 4)
                 reason_tag = f"🌟 3-TOUCH RESISTANCE (${three_touch['level']})"
             else:
                 high_24h = data.get("high_24h") or (price * 1.02)
-                sl = round(high_24h * 1.002, 4)
+                sl = round(high_24h * (1.0 + sweep_buf), 4)
                 reason_tag = "Bearish FVG"
 
             if is_beta_laggard:
@@ -412,6 +484,25 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     print(f"\n[1. RISK OFFICER AUDIT]")
     print(f" * Saldo Dompet Futures : ${balance_usd:,.2f} USDT (Margin Bebas Tersedia: ${available_usd:,.2f} USDT)")
     print(f" * Posisi Aktif Saat Ini: {len(active_positions)} / {max_open_positions} max")
+
+    # 1A. Portfolio Correlation & Directional Heat Audit (Akademi Crypto Module 03)
+    try:
+        import portfolio_guard
+        port_audit = portfolio_guard.audit_portfolio_heat(active_positions, balance_usd)
+        print(f" * Directional Heat     : {port_audit['long_count']}/{port_audit['max_same_direction']} Longs | {port_audit['short_count']}/{port_audit['max_same_direction']} Shorts -> {port_audit['heat_status']}")
+    except Exception as e:
+        port_audit = None
+        print(f" * [Portfolio Guard Warning] {e}")
+
+    # 1B. BTC.D & USDT.D Market Flow Compass Audit (Akademi Crypto Module 01)
+    try:
+        import dominance_compass
+        comp_info = dominance_compass.get_dominance_compass()
+        print(f" * Macro Flow Compass   : BTC.D {comp_info['btc_d']:.2f}% | USDT.D {comp_info['usdt_d']:.2f}% ({comp_info['usdt_bias']}) -> {comp_info['regime_title']}")
+    except Exception as e:
+        comp_info = None
+        print(f" * [Dominance Compass Warning] {e}")
+
     export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
 
     for p in active_positions:
@@ -529,6 +620,29 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         print(f"\n🎯 Ditemukan {len(admissible_candidates)} setup lolos uji akurasi. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")
 
         for idx, best in enumerate(selected, 1):
+            # Check Portfolio Correlation & Directional Heat Guard
+            try:
+                import portfolio_guard
+                is_port_ok, port_msg = portfolio_guard.filter_candidate_by_correlation(best, active_positions)
+                if not is_port_ok:
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP ---")
+                    print(f"  {port_msg}")
+                    continue
+                effective_risk_pct = portfolio_guard.get_scaled_risk_pct(best["side"], active_positions, max_risk_pct)
+            except Exception:
+                effective_risk_pct = max_risk_pct
+
+            # Check BTC.D & USDT.D Dominance Compass Guardrail (Akademi Crypto Module 01)
+            try:
+                import dominance_compass
+                is_dom_ok, dom_msg, _ = dominance_compass.filter_candidate_by_dominance(best)
+                if not is_dom_ok:
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP ---")
+                    print(f"  {dom_msg}")
+                    continue
+            except Exception:
+                pass
+
             print(f"\n--- [{idx}/{len(selected)}] EKSEKUSI SETUP: {best['side']} {best['symbol']} ---")
             print(f" * Konfluensi : {best['confluence_score']}% [{best['confluence_grade']}]")
             print(f" * Rationale  : {best['reason']}")
@@ -541,8 +655,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             _, live_avail = get_account_financials(user_email, is_demo)
             available_usd = min(available_usd, live_avail)
 
-            # Calculate exact position size with Dynamic Margin & Risk Guardrail
-            risk_budget = balance_usd * (max_risk_pct / 100.0)
+            # Calculate exact position size with Dynamic Margin & Scaled Risk Guardrail
+            risk_budget = balance_usd * (effective_risk_pct / 100.0)
             sl_pct = abs(best["price"] - best["sl"]) / best["price"]
             pos_size_usd = risk_budget / max(sl_pct, 0.005)
 
@@ -594,8 +708,14 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 print(f"⚠️ Eksekusi {best['symbol']} gagal di bursa Binance. Melewatkan alert Telegram dan pendaftaran trade manager.")
                 continue
 
-            # Update available_usd for subsequent order in the same cycle
+            # Update available_usd and active_positions for subsequent orders in the same cycle
             available_usd = max(0.0, available_usd - margin_required)
+            active_positions.append({
+                "symbol": best["symbol"],
+                "positionAmt": qty if best["side"].upper() in ["BUY", "LONG"] else -qty,
+                "entryPrice": best["price"],
+                "markPrice": best["price"]
+            })
 
             # Send Instant Telegram Push Notification
             try:

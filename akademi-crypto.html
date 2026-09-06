@@ -6,6 +6,17 @@
 <title>Akademi Crypto — Learning Terminal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Motion (https://motion.dev) ESM CDN -->
+<script type="module">
+  try {
+    import * as MotionLib from "https://cdn.jsdelivr.net/npm/motion@latest/+esm";
+    window.Motion = MotionLib;
+    window.dispatchEvent(new CustomEvent("motion:ready"));
+  } catch (err) {
+    console.warn("Motion CDN import error:", err);
+  }
+</script>
+
 <style>
   :root{
     --bg: #0A0E13;
@@ -35,6 +46,18 @@
     font-family:'Inter',sans-serif;
     -webkit-font-smoothing:antialiased;
     min-height:100vh;
+  }
+  #reading-progress-bar, #scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--green), var(--cyan), var(--amber));
+    z-index: 99999;
+    transform-origin: left;
+    transform: scaleX(0);
+    will-change: transform;
   }
   ::selection{ background: var(--green-dim); color: var(--green); }
   .mono{ font-family:'IBM Plex Mono',monospace; }
@@ -127,10 +150,6 @@
     animation: brandPulse 3s ease-in-out infinite;
   }
   @keyframes brandPulse{ 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.5; transform:scale(1.35); } }
-  #scroll-progress{
-    position:fixed; top:0; left:0; height:3px; width:0%;
-    background:var(--accent, var(--green)); z-index:2000;
-  }
   .brand-text p{ font-size:11.5px; color:var(--text-dim); margin-top:2px; letter-spacing:0.3px; }
   .header-right{ display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
   .header-stat{ display:flex; align-items:center; gap:10px; }
@@ -7586,13 +7605,45 @@ function closeRpgProfileModal(){
   if(modal) modal.classList.add('hidden');
 }
 
-function updateScrollProgress(){
+function initMotionScrollProgress(){
   const main = document.getElementById('main-panel');
-  const bar = document.getElementById('scroll-progress');
-  const max = main.scrollHeight - main.clientHeight;
-  bar.style.width = (max > 0 ? (main.scrollTop / max) * 100 : 0) + '%';
+  const bar = document.getElementById('scroll-progress') || document.getElementById('reading-progress-bar');
+  if(!main || !bar) return;
+
+  if(window.Motion && window.Motion.scroll && window.Motion.animate){
+    try {
+      window.Motion.scroll(
+        window.Motion.animate(bar, { scaleX: [0, 1] }, { ease: 'linear' }),
+        { container: main }
+      );
+      return;
+    } catch(e) {
+      console.warn("Motion.scroll error:", e);
+    }
+  }
+
+  // Native hardware-accelerated fallback
+  main.addEventListener('scroll', ()=>{
+    const max = main.scrollHeight - main.clientHeight;
+    const progress = max > 0 ? (main.scrollTop / max) : 0;
+    bar.style.transform = `scaleX(${progress})`;
+  });
 }
-document.getElementById('main-panel').addEventListener('scroll', updateScrollProgress);
+
+function triggerCardReveals(){
+  if(window.Motion && window.Motion.animate){
+    try {
+      const cards = document.querySelectorAll('#main-panel .resource, #main-panel .quest-card, #main-panel .badge-card, #main-panel .rpg-stat-box');
+      if(cards.length > 0){
+        window.Motion.animate(cards, { opacity: [0, 1], y: [12, 0] }, {
+          delay: window.Motion.stagger ? window.Motion.stagger(0.02) : 0,
+          duration: 0.3,
+          easing: [0.16, 1, 0.3, 1]
+        });
+      }
+    } catch(e){}
+  }
+}
 
 function animateCount(el, from, to, total, duration){
   if(statAnimFrame) cancelAnimationFrame(statAnimFrame);
@@ -8068,6 +8119,7 @@ function render(){
   renderSidebar();
   renderMain();
   refreshLucideIcons();
+  triggerCardReveals();
 }
 
 function findResource(id){
@@ -8282,6 +8334,8 @@ function toggleModalDone(e){
 document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeVideoModal(); });
 
 init();
+initMotionScrollProgress();
+window.addEventListener("motion:ready", initMotionScrollProgress);
 </script>
 </body>
 </html>

@@ -26,6 +26,7 @@ sys.path.insert(0, TOOLS_DIR)
 import binance_client
 import telegram_notifier
 import macro_news_shield
+import market_structure
 
 def load_trade_metadata():
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -70,9 +71,26 @@ def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budge
         "is_scalp": is_scalp,
         "breakeven_locked": False,
         "trailing_r_locked": 0.0,
-        "highest_r_reached": 0.0
+        "highest_r_reached": 0.0,
+        "tp1_taken": False,
+        "tp1_pnl_usd": 0.0,
+        "capital_shield_locked": False
     }
     save_trade_metadata(meta)
+
+def format_qty_precision(symbol, qty_val):
+    """Formats lot size based on symbol tick constraints."""
+    sym = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
+    if sym in ["BTC"]:
+        return max(0.001, round(qty_val, 3))
+    elif sym in ["ETH"]:
+        return max(0.01, round(qty_val, 2))
+    elif sym in ["SOL", "BNB", "AVAX", "LINK", "APT"]:
+        return max(0.1, round(qty_val, 1))
+    elif sym in ["DOGE", "XRP", "ADA", "SUI", "NEAR"]:
+        return max(1.0, round(qty_val, 0))
+    else:
+        return max(0.1, round(qty_val, 1))
 
 def calculate_breakeven_price(symbol, side, entry_price, fee_offset_pct=0.0008):
     """
@@ -95,12 +113,21 @@ def update_binance_stop_loss(symbol, side, new_sl_price, is_demo=True, user_emai
     opp_side = "SELL" if side.upper() in ["BUY", "LONG"] else "BUY"
     sl_str = binance_client.format_price_precision(sym_clean, new_sl_price)
 
-    # 1. Cancel previous open orders on this symbol to prevent conflicting SLs
+    # 1. Cancel previous open regular orders and algo orders on this symbol to prevent conflicting SLs (-4130)
     try:
         binance_client.send_signed_request(
             "/fapi/v1/allOpenOrders",
             method="DELETE",
             params={"symbol": sym_clean},
+            is_demo=is_demo,
+            user_email=user_email
+        )
+    except Exception:
+        pass
+
+    try:
+        binance_client.cancel_existing_algo_orders_for_symbol(
+            symbol=sym_clean,
             is_demo=is_demo,
             user_email=user_email
         )
@@ -315,34 +342,48 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     order_type = "MARKET"
                     close_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+                tp1_taken = t_info.get("tp1_taken", False)
+                tp1_cash = float(t_info.get("tp1_pnl_usd", 0.0))
+
+                # Total trade net accounting (Runner realized + TP1 already realized)
+                total_realized_trade = realized_pnl + (tp1_cash if tp1_taken else 0.0)
+                total_net_trade = net_pnl + (tp1_cash if tp1_taken else 0.0)
+
                 # Formulate intelligent exit reason
                 if order_type in ["TAKE_PROFIT", "TAKE_PROFIT_MARKET"] or (tp_p > 0 and ((side == "BUY" and exit_price >= tp_p * 0.998) or (side == "SELL" and exit_price <= tp_p * 1.002))):
-                    exit_reason = f"🎯 Take Profit Target Hit (+${realized_pnl:,.2f} USDT)"
+                    exit_reason = f"🎯 Full Take Profit Hit (+${total_realized_trade:,.2f} USDT)"
+                elif is_be and tp1_taken:
+                    if trailing_r > 0:
+                        exit_reason = f"🎯 Trailing Runner Locked (+{trailing_r:.1f}R | Total Profit: +${total_realized_trade:,.2f} USDT)"
+                    else:
+                        exit_reason = f"🛡️ Free Runner Exited at BE (Total Profit: +${total_realized_trade:,.2f} USDT via TP1)"
                 elif order_type in ["STOP_MARKET", "STOP"]:
                     if is_be and trailing_r > 0:
-                        exit_reason = f"🎯 Trailing Stop Locked (+{trailing_r:.1f}R | +${realized_pnl:,.2f} USDT)"
+                        exit_reason = f"🎯 Trailing Stop Locked (+{trailing_r:.1f}R | +${total_realized_trade:,.2f} USDT)"
                     elif is_be:
                         exit_reason = "🛡️ Breakeven Auto-Lock Filled (Free Roll Protected)"
+                    elif t_info.get("capital_shield_locked"):
+                        exit_reason = f"🛡️ Capital Shield Triggered (-${abs(total_realized_trade):,.2f} USDT | 80% Saved)"
                     else:
-                        exit_reason = f"🛑 Stop Loss Filled (-${abs(realized_pnl):,.2f} USDT)"
+                        exit_reason = f"🛑 Stop Loss Filled (-${abs(total_realized_trade):,.2f} USDT)"
                 elif is_be and abs(realized_pnl) < 1.0:
-                    exit_reason = "🛡️ Breakeven Exit (+0.0R Protected)"
-                elif realized_pnl > 0:
-                    exit_reason = f"🟢 Profit Locked (+${realized_pnl:,.2f} USDT)"
-                elif realized_pnl < 0:
-                    exit_reason = f"🔴 Stop Loss Hit / Position Exited (-${abs(realized_pnl):,.2f} USDT)"
+                    exit_reason = f"🛡️ Breakeven Exit ({f'+${tp1_cash:,.2f} via TP1' if tp1_taken else '+0.0R Protected'})"
+                elif total_realized_trade > 0:
+                    exit_reason = f"🟢 Profit Locked (+${total_realized_trade:,.2f} USDT)"
+                elif total_realized_trade < 0:
+                    exit_reason = f"🔴 Stop Loss Hit / Position Exited (-${abs(total_realized_trade):,.2f} USDT)"
                 else:
                     exit_reason = "⚪ Position Exited at Breakeven"
 
-                print(f"🏁 [CLOSED POSITION AUDIT] {sym} closed: Realized PnL: {realized_pnl:+.2f} USDT (Net: {net_pnl:+.2f}) | Reason: {exit_reason}")
+                print(f"🏁 [CLOSED POSITION AUDIT] {sym} closed: Realized PnL: {total_realized_trade:+.2f} USDT (Net: {total_net_trade:+.2f}) | Reason: {exit_reason}")
 
                 # Notify Telegram of closed position with 100% verified accounting data
                 telegram_notifier.notify_trade_closed(
                     symbol=sym,
-                    pnl_usd=realized_pnl,
+                    pnl_usd=total_realized_trade,
                     exit_reason=exit_reason,
                     is_demo=is_demo,
-                    net_pnl_usd=net_pnl,
+                    net_pnl_usd=total_net_trade,
                     commission_usd=commission,
                     entry_price=entry_p,
                     exit_price=exit_price,
@@ -368,6 +409,31 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     "reason": exit_reason,
                     "closed_at": close_time or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 })
+
+                # Automated Trade Journal Logging (Akademi Crypto Module 03)
+                try:
+                    import trade_journal
+                    trade_journal.record_closed_trade({
+                        "id": f"BINANCE-{sym}-{int(time.time())}",
+                        "symbol": sym,
+                        "side": side,
+                        "entry_price": entry_p,
+                        "exit_price": exit_price,
+                        "quantity": qty,
+                        "amount_usd": round(pos_amount_usd, 2),
+                        "pnl_usd": round(realized_pnl, 2),
+                        "commission_usd": commission,
+                        "net_pnl_usd": round(total_net_trade, 2),
+                        "r_multiple": round(total_realized_trade / max(risk_b, 1.0), 2),
+                        "highest_r_reached": t_info.get("highest_r_reached", 0.0),
+                        "tp1_taken": tp1_taken,
+                        "tp1_cash_usd": tp1_cash,
+                        "exit_reason": exit_reason,
+                        "closed_at": close_time or datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "source": "AUTONOMOUS_TRADE_MANAGER"
+                    })
+                except Exception as j_err:
+                    print(f"[Trade Manager] Error recording to Trade Journal: {j_err}")
             except Exception as ex:
                 print(f"[Trade Manager] Error recording closed trade for evolution: {ex}")
 
@@ -408,7 +474,10 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                 "opened_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "breakeven_locked": False,
                 "trailing_r_locked": 0.0,
-                "highest_r_reached": 0.0
+                "highest_r_reached": 0.0,
+                "tp1_taken": False,
+                "tp1_pnl_usd": 0.0,
+                "capital_shield_locked": False
             }
 
         t_data = meta[sym]
@@ -490,9 +559,98 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     pass
 
         # -------------------------------------------------------------
-        # STEP 1B: STANDARD BREAKEVEN AUTO-LOCK (+0.7R Scalp / +1.0R Swing)
+        # STEP 1B: CAPITAL PRESERVATION SHIELD (+0.70R -> SL to -0.20R)
+        # Prevents healthy winners (+0.7R+) from turning into full 100% losses!
         # -------------------------------------------------------------
-        be_target_r = 0.7 if t_data.get("is_scalp") else 1.0
+        if r_multiple >= 0.70 and not t_data.get("capital_shield_locked") and not t_data.get("breakeven_locked") and not t_data.get("tp1_taken"):
+            if side == "BUY":
+                shield_sl = entry_price - (r_dist * 0.20)
+            else:
+                shield_sl = entry_price + (r_dist * 0.20)
+
+            formatted_shield_sl = float(binance_client.format_price_precision(sym, shield_sl))
+            success, _ = update_binance_stop_loss(sym, side, formatted_shield_sl, is_demo=is_demo, user_email=user_email)
+            if success:
+                t_data["capital_shield_locked"] = True
+                t_data["current_sl"] = formatted_shield_sl
+                print(f"🛡️ [CAPITAL PRESERVATION SHIELD] {sym}: SL dinaikkan agresif ke ${formatted_shield_sl:,.4f} (-0.2R | Puncak +{r_multiple:.2f}R). Potensi kerugian dipotong 80%!")
+                management_events.append(f"🛡️ {sym} Capital Shield @ ${formatted_shield_sl:,.4f} (+{r_multiple:.2f}R)")
+                try:
+                    telegram_notifier.notify_capital_shield_activated(
+                        symbol=sym,
+                        side=side,
+                        mark_price=mark_price,
+                        new_sl_price=formatted_shield_sl,
+                        r_multiple=r_multiple,
+                        is_demo=is_demo
+                    )
+                except Exception as e:
+                    print(f"[Telegram Warning] Gagal kirim notif Capital Shield: {e}")
+
+        # -------------------------------------------------------------
+        # STEP 1C: PARTIAL TAKE PROFIT 1 (TP1 SCALE-OUT 50% AT +1.0R / +1.05R)
+        # Realizes 50% cash profit into wallet & locks remaining 50% at Breakeven!
+        # -------------------------------------------------------------
+        tp1_target_r = 0.80 if t_data.get("is_scalp") else 1.05
+        if r_multiple >= tp1_target_r and not t_data.get("tp1_taken", False):
+            current_amt = abs(amt)
+            half_qty = format_qty_precision(sym, current_amt * 0.5)
+
+            if half_qty > 0 and half_qty < current_amt:
+                close_side = "SELL" if side == "BUY" else "BUY"
+                print(f"🎯 [PARTIAL TAKE PROFIT 1] {sym}: Capai +{r_multiple:.2f}R! Menjual 50% lot ({half_qty} dari {current_amt})...")
+                order_res = binance_client.send_signed_request(
+                    "/fapi/v1/order",
+                    method="POST",
+                    params={
+                        "symbol": sym,
+                        "side": close_side,
+                        "type": "MARKET",
+                        "quantity": half_qty,
+                        "reduceOnly": "true"
+                    },
+                    is_demo=is_demo,
+                    user_email=user_email
+                )
+                if order_res and order_res.get("orderId"):
+                    if side == "BUY":
+                        est_tp1_pnl = (mark_price - entry_price) * half_qty
+                    else:
+                        est_tp1_pnl = (entry_price - mark_price) * half_qty
+
+                    # Move remaining runner SL to Breakeven
+                    be_price = calculate_breakeven_price(sym, side, entry_price)
+                    update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
+
+                    remaining_qty = round(current_amt - half_qty, 4)
+                    t_data["tp1_taken"] = True
+                    t_data["tp1_pnl_usd"] = round(est_tp1_pnl, 2)
+                    t_data["breakeven_locked"] = True
+                    t_data["current_sl"] = be_price
+                    t_data["quantity"] = remaining_qty
+
+                    print(f"✅ [TP1 SECURED & RUNNER PROTECTED] {sym}: +${est_tp1_pnl:,.2f} USDT cair di dompet! Sisa {remaining_qty} lot dikunci BE @ ${be_price:,.4f}.")
+                    management_events.append(f"🎯 {sym} TP1 (+${est_tp1_pnl:,.2f}) & Runner BE @ ${be_price:,.4f}")
+
+                    try:
+                        telegram_notifier.notify_partial_tp_taken(
+                            symbol=sym,
+                            side=side,
+                            mark_price=mark_price,
+                            closed_qty=half_qty,
+                            pnl_usd=est_tp1_pnl,
+                            remaining_qty=remaining_qty,
+                            be_price=be_price,
+                            r_multiple=r_multiple,
+                            is_demo=is_demo
+                        )
+                    except Exception as ex:
+                        print(f"[Telegram Warning] Gagal kirim notif TP1: {ex}")
+
+        # -------------------------------------------------------------
+        # STEP 1D: STANDARD BREAKEVEN AUTO-LOCK (+1.3R Swing Fallback)
+        # -------------------------------------------------------------
+        be_target_r = 0.8 if t_data.get("is_scalp") else 1.3
         if r_multiple >= be_target_r and not t_data.get("breakeven_locked"):
             be_price = calculate_breakeven_price(sym, side, entry_price)
             success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
@@ -514,7 +672,67 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     print(f"[Telegram Warning] Gagal kirim notifikasi BE: {e}")
 
         # -------------------------------------------------------------
-        # STEP 2: DYNAMIC TRAILING STOP (+2.0R+ Threshold)
+        # STEP 2A: SMC STRUCTURAL TRAILING STOP (Akademi Crypto Module 02)
+        # Trails behind confirmed Protected Higher Lows (Long) or Lower Highs (Short)
+        # with asset-specific anti-liquidity sweep buffers and strict one-way ratchet.
+        # -------------------------------------------------------------
+        if r_multiple >= 0.25 or t_data.get("breakeven_locked") or t_data.get("tp1_taken"):
+            try:
+                has_struct_stop, struct_sl, struct_label = market_structure.get_protected_structural_stop(
+                    symbol=sym,
+                    side=side,
+                    entry_price=entry_price,
+                    current_sl=t_data.get("current_sl"),
+                    bar="15m"
+                )
+                if has_struct_stop and struct_sl:
+                    formatted_struct_sl = float(binance_client.format_price_precision(sym, struct_sl))
+                    cur_sl_val = float(t_data.get("current_sl", 0.0) or 0.0)
+
+                    is_ratchet_valid = False
+                    if side == "BUY":
+                        # Must ratchet UPWARD and remain safely below current mark price
+                        if (cur_sl_val <= 0 or formatted_struct_sl > cur_sl_val * 1.0005) and formatted_struct_sl < (mark_price * 0.996):
+                            is_ratchet_valid = True
+                    else:
+                        # Must ratchet DOWNWARD and remain safely above current mark price
+                        if (cur_sl_val <= 0 or formatted_struct_sl < cur_sl_val * 0.9995) and formatted_struct_sl > (mark_price * 1.004):
+                            is_ratchet_valid = True
+
+                    if is_ratchet_valid:
+                        success, _ = update_binance_stop_loss(sym, side, formatted_struct_sl, is_demo=is_demo, user_email=user_email)
+                        if success:
+                            t_data["current_sl"] = formatted_struct_sl
+                            t_data["structural_level"] = struct_label
+                            t_data["last_struct_update"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                            # If structural stop is at or beyond breakeven, lock breakeven state
+                            if side == "BUY" and formatted_struct_sl >= entry_price:
+                                t_data["breakeven_locked"] = True
+                            elif side == "SELL" and formatted_struct_sl <= entry_price:
+                                t_data["breakeven_locked"] = True
+
+                            print(f"🏛️ [SMC STRUCTURAL TRAILING] {sym}: SL dikatrol ke ${formatted_struct_sl:,.4f} mengikuti {struct_label} (PnL: {upnl:+,.2f} USDT | {r_multiple:+.2f}R)")
+                            management_events.append(f"🏛️ {sym} SMC Trailing @ ${formatted_struct_sl:,.4f} ({struct_label})")
+                            try:
+                                telegram_notifier.notify_structural_trailing_updated(
+                                    symbol=sym,
+                                    side=side,
+                                    mark_price=mark_price,
+                                    new_sl_price=formatted_struct_sl,
+                                    structure_label=struct_label,
+                                    r_multiple=r_multiple,
+                                    current_pnl=upnl,
+                                    is_demo=is_demo
+                                )
+                            except Exception as e:
+                                print(f"[Telegram Warning] Gagal kirim notifikasi SMC Trailing: {e}")
+            except Exception as smc_err:
+                print(f"[Trade Manager] Error calculating SMC Structural Trailing for {sym}: {smc_err}")
+
+        # -------------------------------------------------------------
+        # STEP 2B: FIXED R-MULTIPLE TRAILING STEP (+2.0R+ Floor Fallback)
+        # Complementary ratchet: If fixed R-step guarantees a higher/tighter stop, ratchet further.
         # -------------------------------------------------------------
         if r_multiple >= 2.0:
             target_locked_r = float(math.floor(r_multiple) - 1.0)
@@ -525,23 +743,32 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     new_sl = entry_price - (r_dist * target_locked_r)
 
                 formatted_sl = float(binance_client.format_price_precision(sym, new_sl))
-                success, _ = update_binance_stop_loss(sym, side, formatted_sl, is_demo=is_demo, user_email=user_email)
-                if success:
-                    t_data["trailing_r_locked"] = target_locked_r
-                    t_data["current_sl"] = formatted_sl
-                    print(f"🎯 [TRAILING STOP] {sym}: SL dikatrol naik ke ${formatted_sl:,.4f} (Kunci +{target_locked_r:.1f}R Terjamin | Floating +${upnl:,.2f})")
-                    management_events.append(f"🎯 {sym} Trailing SL Locked @ ${formatted_sl:,.4f} (+{target_locked_r:.1f}R)")
-                    try:
-                        telegram_notifier.notify_trailing_stop_stepped(
-                            symbol=sym,
-                            side=side,
-                            locked_r=target_locked_r,
-                            new_sl_price=formatted_sl,
-                            current_pnl=upnl,
-                            is_demo=is_demo
-                        )
-                    except Exception as e:
-                        print(f"[Telegram Warning] Gagal kirim notifikasi Trailing: {e}")
+                cur_sl_val = float(t_data.get("current_sl", 0.0) or 0.0)
+
+                should_update_fixed = False
+                if side == "BUY" and (cur_sl_val <= 0 or formatted_sl > cur_sl_val * 1.0005):
+                    should_update_fixed = True
+                elif side == "SELL" and (cur_sl_val <= 0 or formatted_sl < cur_sl_val * 0.9995):
+                    should_update_fixed = True
+
+                if should_update_fixed:
+                    success, _ = update_binance_stop_loss(sym, side, formatted_sl, is_demo=is_demo, user_email=user_email)
+                    if success:
+                        t_data["trailing_r_locked"] = target_locked_r
+                        t_data["current_sl"] = formatted_sl
+                        print(f"🎯 [TRAILING STOP R-STEP] {sym}: SL dikatrol naik ke ${formatted_sl:,.4f} (Kunci +{target_locked_r:.1f}R Terjamin | Floating +${upnl:,.2f})")
+                        management_events.append(f"🎯 {sym} Trailing SL Locked @ ${formatted_sl:,.4f} (+{target_locked_r:.1f}R)")
+                        try:
+                            telegram_notifier.notify_trailing_stop_stepped(
+                                symbol=sym,
+                                side=side,
+                                locked_r=target_locked_r,
+                                new_sl_price=formatted_sl,
+                                current_pnl=upnl,
+                                is_demo=is_demo
+                            )
+                        except Exception as e:
+                            print(f"[Telegram Warning] Gagal kirim notifikasi Trailing: {e}")
 
     save_trade_metadata(meta)
     return management_events

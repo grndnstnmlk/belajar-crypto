@@ -10,12 +10,17 @@ Generates high-resolution, dark-mode TradingView-style chart snapshots with:
 import json
 import math
 import os
+import re
 import ssl
 import sys
 import time
 import urllib.request
 import uuid
+import warnings
 from datetime import datetime
+
+# Suppress Matplotlib font missing glyph user warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
 
 # Headless backend for Matplotlib
 import matplotlib
@@ -82,6 +87,18 @@ def compute_vwap(candles):
         cum_vol += v
         vwap_values.append(cum_pv / cum_vol if cum_vol > 0 else typical_price)
     return vwap_values
+
+def sanitize_chart_text(text):
+    """
+    Strips emojis and non-ASCII characters that lack glyphs in Matplotlib default fonts (DejaVu Sans)
+    to eliminate missing glyph UserWarnings and prevent ugly tofu/box artifacts on the chart.
+    """
+    if not text:
+        return ""
+    # Strip any characters outside standard printable ASCII
+    cleaned = re.sub(r"[^\x20-\x7E]", "", str(text))
+    # Normalize multiple whitespaces
+    return re.sub(r"\s+", " ", cleaned).strip()
 
 def generate_trade_chart(symbol, side, entry_price, sl_price, tp_price, timeframe="1H", strategy_name="AI Quantitative Confluence"):
     """
@@ -211,11 +228,13 @@ def generate_trade_chart(symbol, side, entry_price, sl_price, tp_price, timefram
     reward_dist = abs(tp_price - entry_price) if (tp_price and tp_price > 0) else 1.0
     rr_ratio = (reward_dist / r_dist) if r_dist > 0 else 2.5
 
+    clean_strategy = sanitize_chart_text(strategy_name) or "AI Quantitative Confluence"
     title_text = f"{pair_display} ({timeframe}) - {side_tag} (R:R 1:{rr_ratio:.2f})"
-    ax.set_title(title_text, color=TEXT_COLOR, fontsize=13, fontweight="bold", pad=12, loc="left")
+    clean_title = sanitize_chart_text(title_text)
+    ax.set_title(clean_title, color=TEXT_COLOR, fontsize=13, fontweight="bold", pad=12, loc="left")
 
     # Subtitle / Strategy Tag
-    ax.text(0.0, 1.02, f"Strategy: {strategy_name} | Powered by Akademi Crypto AI Desk",
+    ax.text(0.0, 1.02, f"Strategy: {clean_strategy} | Powered by Akademi Crypto AI Desk",
             transform=ax.transAxes, color=DIM_TEXT, fontsize=8.5, verticalalignment="bottom")
 
     # Brand Watermark in bottom right

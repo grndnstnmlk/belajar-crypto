@@ -244,6 +244,19 @@ def format_price_precision(symbol, price):
     else:
         return f"{price:.2f}"
 
+def format_qty_precision(symbol, qty):
+    sym = symbol.upper()
+    if "BTC" in sym:
+        return f"{float(qty):.3f}"
+    elif "ETH" in sym:
+        return f"{float(qty):.3f}"
+    elif any(k in sym for k in ["SOL", "BNB", "AVAX", "LINK"]):
+        return f"{float(qty):.2f}"
+    elif any(k in sym for k in ["XRP", "ADA", "DOGE", "SUI", "NEAR"]):
+        return f"{float(qty):.1f}"
+    else:
+        return f"{float(qty):.2f}"
+
 def cancel_existing_algo_orders_for_symbol(symbol, is_demo=True, user_email=None):
     """
     Cancels any existing open conditional / algo orders for the symbol

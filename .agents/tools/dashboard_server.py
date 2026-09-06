@@ -37,6 +37,12 @@ import topdown_confluence
 import trade_manager
 import session_filter
 import macro_news_shield
+import market_structure
+import dominance_compass
+import portfolio_guard
+import coinbase_premium
+import coinglass_derivatives
+import trade_journal
 
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
@@ -79,22 +85,54 @@ def get_dashboard_feed_data(force_refresh=False):
         pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=True)
         if pos:
             active = [p for p in pos if float(p.get("positionAmt", 0)) != 0]
-            feed["positions"] = [
-                {
-                    "symbol": p["symbol"],
-                    "side": "LONG" if float(p.get("positionAmt", 0)) > 0 else "SHORT",
-                    "quantity": abs(float(p.get("positionAmt", 0))),
-                    "entry_price": float(p.get("entryPrice", 0)),
-                    "mark_price": float(p.get("markPrice", 0)),
-                    "pnl_usd": float(p.get("unRealizedProfit", 0)),
+            pos_list = []
+            for p in active:
+                sym = p["symbol"]
+                amt = float(p.get("positionAmt", 0))
+                side = "LONG" if amt > 0 else "SHORT"
+                entry_p = float(p.get("entryPrice", 0))
+                mark_p = float(p.get("markPrice", 0))
+                upnl = float(p.get("unRealizedProfit", 0))
+                t_meta = meta.get(sym, {})
+                r_dist = max(float(t_meta.get("r_distance", entry_p * 0.015)), 0.0001)
+                gain = (mark_p - entry_p) if side == "LONG" else (entry_p - mark_p)
+                r_mult = round(gain / r_dist, 2)
+
+                # Get candidate SMC structural stop
+                has_smc, smc_sl, smc_label = market_structure.get_protected_structural_stop(
+                    sym, "BUY" if side == "LONG" else "SELL", entry_p, t_meta.get("current_sl"), bar="15m"
+                )
+
+                pos_list.append({
+                    "symbol": sym,
+                    "side": side,
+                    "quantity": abs(amt),
+                    "entry_price": entry_p,
+                    "mark_price": mark_p,
+                    "pnl_usd": upnl,
+                    "r_multiple": r_mult,
+                    "highest_r": t_meta.get("highest_r_reached", 0.0),
                     "leverage": int(p.get("leverage", 5)),
-                    "breakeven_locked": meta.get(p["symbol"], {}).get("breakeven_locked", False),
-                    "trailing_r": meta.get(p["symbol"], {}).get("trailing_r_locked", 0.0),
-                    "sl": meta.get(p["symbol"], {}).get("current_sl"),
-                    "tp": meta.get(p["symbol"], {}).get("tp")
-                }
-                for p in active
-            ]
+                    "breakeven_locked": t_meta.get("breakeven_locked", False),
+                    "capital_shield_locked": t_meta.get("capital_shield_locked", False),
+                    "tp1_taken": t_meta.get("tp1_taken", False),
+                    "trailing_r": t_meta.get("trailing_r_locked", 0.0),
+                    "sl": t_meta.get("current_sl"),
+                    "tp": t_meta.get("tp"),
+                    "structural_level": t_meta.get("structural_level") or smc_label,
+                    "candidate_smc_sl": smc_sl if has_smc else None,
+                    "has_candidate_smc": has_smc,
+                    "sweep_buffer_pct": round(market_structure.get_asset_sweep_buffer(sym) * 100.0, 1),
+                    "opened_at": t_meta.get("opened_at", "")
+                })
+            feed["positions"] = pos_list
+
+            # Directional heat overview
+            bal_val = feed.get("balance_usd", 5000.0)
+            try:
+                feed["heat"] = portfolio_guard.audit_portfolio_heat(active, bal_val)
+            except Exception:
+                pass
     except Exception:
         pass
 
@@ -114,6 +152,73 @@ def get_dashboard_feed_data(force_refresh=False):
     _feed_cache = feed
     _last_feed_fetch_time = now
     return feed
+
+def get_market_intelligence_data():
+    """
+    Aggregates live market intelligence:
+    - 2D Compass (BTC.D, USDT.D, Quadrant)
+    - Directional Heat (Long/Short ratio, cap)
+    - Coinbase Premium Index (Wall St vs Retail)
+    - Coinalyze / Coinglass Derivatives
+    """
+    try:
+        compass = dominance_compass.get_dominance_compass()
+    except Exception as e:
+        compass = {"error": str(e)}
+
+    try:
+        balance = 5000.0
+        bal_res = binance_client.send_signed_request("/fapi/v2/balance", method="GET", is_demo=True)
+        if bal_res:
+            for b in bal_res:
+                if b.get("asset") == "USDT":
+                    balance = float(b.get("balance", 5000.0))
+        pos_res = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=True)
+        active_pos = [p for p in (pos_res or []) if float(p.get("positionAmt", 0)) != 0]
+        heat = portfolio_guard.audit_portfolio_heat(active_pos, balance)
+    except Exception as e:
+        heat = {"error": str(e)}
+
+    try:
+        cb_prem = coinbase_premium.get_coinbase_premium_index("BTC")
+    except Exception as e:
+        cb_prem = {"error": str(e)}
+
+    try:
+        derivs = coinglass_derivatives.get_coinglass_sentiment_summary("BTC")
+    except Exception as e:
+        derivs = {"error": str(e)}
+
+    return {
+        "compass": compass,
+        "heat": heat,
+        "coinbase_premium": cb_prem,
+        "derivatives": derivs,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+def get_journal_data():
+    """
+    Aggregates quantitative trade journal data (Akademi Crypto Module 03):
+    - Scorecard (Win Rate, Profit Factor, Expectancy, Payoff Ratio, Max Drawdown)
+    - Closed Trades Ledger
+    """
+    try:
+        metrics = trade_journal.calculate_journal_metrics("all")
+    except Exception as e:
+        metrics = {"error": str(e)}
+
+    try:
+        raw_ledger = trade_journal.load_journal()
+        ledger = list(reversed(raw_ledger))
+    except Exception as e:
+        ledger = []
+
+    return {
+        "metrics": metrics,
+        "ledger": ledger,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
 
 def get_chart_data(symbol="BTC", bar="1H"):
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
@@ -222,7 +327,7 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_OPTIONS(self):
-        self.send_response(200)
+        self.send_response(204)
         self.end_headers()
 
     def do_GET(self):
@@ -230,7 +335,7 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
         path = parsed.path
         params = urllib.parse.parse_qs(parsed.query)
 
-        if path in ["/", "/index.html", "/dashboard"]:
+        if path == "/" or path == "/dashboard" or path == "/index.html":
             if os.path.exists(DASHBOARD_HTML_PATH):
                 self.send_response(200)
                 self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -270,6 +375,22 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 candles = 500
             data = quant_backtester.run_backtest(sym, bar=bar, num_candles=candles)
             data.setdefault("success", True)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/market_intelligence":
+            data = get_market_intelligence_data()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/journal":
+            data = get_journal_data()
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
@@ -325,6 +446,54 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "result": res}).encode("utf-8"))
+            return
+
+        elif path == "/api/action/lock_be":
+            sym = payload.get("symbol")
+            if not sym:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b'{"error": "Missing symbol"}')
+                return
+
+            target_sym = sym.upper() if sym.upper().endswith("USDT") else f"{sym.upper()}USDT"
+            pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=True)
+            match = next((p for p in (pos or []) if p["symbol"] == target_sym and float(p.get("positionAmt", 0)) != 0), None)
+
+            if not match:
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b'{"error": "Position not found"}')
+                return
+
+            amt = float(match.get("positionAmt", 0))
+            side = "BUY" if amt > 0 else "SELL"
+            entry_p = float(match.get("entryPrice", 0))
+            be_p = trade_manager.calculate_breakeven_price(target_sym, side, entry_p)
+            success, algo_res = trade_manager.update_binance_stop_loss(target_sym, side, be_p, is_demo=True)
+
+            if success:
+                meta = trade_manager.load_trade_metadata()
+                if target_sym in meta:
+                    meta[target_sym]["breakeven_locked"] = True
+                    meta[target_sym]["current_sl"] = be_p
+                    trade_manager.save_trade_metadata(meta)
+                try:
+                    telegram_notifier.notify_breakeven_locked(
+                        symbol=target_sym,
+                        side=side,
+                        entry_price=entry_p,
+                        be_price=be_p,
+                        current_pnl=float(match.get("unRealizedProfit", 0)),
+                        is_demo=True
+                    )
+                except Exception:
+                    pass
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": success, "be_price": be_p}).encode("utf-8"))
             return
 
         elif path == "/api/action/closeall":

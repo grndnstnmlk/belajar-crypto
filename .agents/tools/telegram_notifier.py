@@ -90,7 +90,10 @@ def get_desk_mode():
 MAIN_KEYBOARD = {
     "keyboard": [
         [{"text": "📊 Status Desk"}, {"text": "💰 Cek PnL"}],
-        [{"text": "📈 Minta Chart BTC"}, {"text": "🧬 Status Genome"}],
+        [{"text": "📖 Jurnal & Analytics"}, {"text": "🛡️ Directional Heat"}],
+        [{"text": "🧭 Market Compass"}, {"text": "🏛️ SMC Trailing"}],
+        [{"text": "🏛️ Coinbase Premium"}, {"text": "📈 Minta Chart BTC"}],
+        [{"text": "🌊 Sentimen Coinalyze"}, {"text": "🧬 Status Genome"}],
         [{"text": "🎯 Mode Swing (Profit Besar)"}],
         [{"text": "🤖 Mode Hybrid (Auto)"}, {"text": "⚡ Mode Scalp (5m)"}],
         [{"text": "📰 Kalender Berita"}, {"text": "🚨 Tutup Semua Posisi"}],
@@ -112,7 +115,14 @@ def setup_bot_commands():
     commands = [
         {"command": "status", "description": "📊 Cek saldo & posisi aktif"},
         {"command": "pnl", "description": "💰 Detail profit & loss real-time"},
+        {"command": "trailing", "description": "🏛️ SMC Structural Trailing Stop & Swing Pivot (Module 02)"},
+        {"command": "journal", "description": "📖 Jurnal Trading & Performance Scorecard (Module 03)"},
+        {"command": "analytics", "description": "📊 Win Rate, Profit Factor & Ekspektansi Matematika"},
+        {"command": "heat", "description": "🛡️ Directional Heat & Korelasi Portofolio"},
+        {"command": "compass", "description": "🧭 BTC.D & USDT.D Market Flow Compass (Akademi Crypto)"},
         {"command": "chart", "description": "📈 Visual snapshot chart candlestick (cth: /chart BTC)"},
+        {"command": "coinalyze", "description": "🌊 Sentimen Open Interest, Likuidasi & L/S Ratio"},
+        {"command": "coinbase", "description": "🏛️ Coinbase Premium Index (Arus Wall Street vs Ritel)"},
         {"command": "genome", "description": "🧬 Status AI Quant Genome & evolusi"},
         {"command": "evolve", "description": "⚡ Jalankan autopsi & mutasi genetika sekarang"},
         {"command": "news", "description": "📰 Kalender berita makro AS (High-Impact)"},
@@ -299,6 +309,47 @@ def notify_breakeven_locked(symbol, side, entry_price, be_price, current_pnl, is
     )
     return send_telegram_msg(msg)
 
+def notify_partial_tp_taken(symbol, side, mark_price, closed_qty, pnl_usd, remaining_qty, be_price, r_multiple=1.0, is_demo=True):
+    """
+    Sends notification when Partial Take Profit (TP1 Scale-out) is triggered.
+    """
+    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
+    side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
+    msg = (
+        f"🎯 <b>PARTIAL TAKE PROFIT 1 (TP1) TERCAPAI!</b>\n"
+        f"<i>Mode: {mode_text}</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code> ({side_icon})\n"
+        f"📈 <b>Capaian Target:</b> <code>+{r_multiple:.2f}R</code>\n"
+        f"💵 <b>Harga Eksekusi TP1:</b> <code>${mark_price:,.4f}</code>\n"
+        f"📦 <b>Posisi Dicairkan (50%):</b> <code>{closed_qty} lot</code>\n"
+        f"💰 <b>Profit Tunai Masuk:</b> <b>+${pnl_usd:,.2f} USDT</b>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🛡️ <b>STATUS SISA POSISI (FREE RUNNER):</b>\n"
+        f"• Sisa Lot Berjalan: <code>{remaining_qty} lot</code>\n"
+        f"• Stop Loss Terkunci (BE): <code>${be_price:,.4f}</code>\n"
+        f"🎉 <i>Keuntungan separuh sudah diamankan ke dompet! Sisa trade kini 100% BEBAS RISIKO mengejar ekspansi tren (R:R 1:3 - 1:5+).</i>"
+    )
+    return send_telegram_msg(msg)
+
+def notify_capital_shield_activated(symbol, side, mark_price, new_sl_price, r_multiple=0.7, is_demo=True):
+    """
+    Sends notification when Capital Preservation Shield tightens SL to -0.2R after reaching +0.7R.
+    """
+    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
+    side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
+    msg = (
+        f"🛡️ <b>CAPITAL PRESERVATION SHIELD AKTIF!</b>\n"
+        f"<i>Mode: {mode_text}</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code> ({side_icon})\n"
+        f"📈 <b>Floating Profit:</b> <code>+{r_multiple:.2f}R</code> (Harga: <code>${mark_price:,.4f}</code>)\n"
+        f"🛑 <b>SL Dinaikkan Agresif ke:</b> <code>${new_sl_price:,.4f} (-0.2R Buffer)</code>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💡 <i>Trade sudah hijau. Stop Loss dinaikkan untuk memotong potensi kerugian hingga 80% jika pasar tiba-tiba berbalik arah!</i>"
+    )
+    return send_telegram_msg(msg)
+
 def notify_trailing_stop_stepped(symbol, side, locked_r, new_sl_price, current_pnl, is_demo=True):
     """
     Sends notification when Trailing Stop steps up/down to lock in profit.
@@ -316,6 +367,29 @@ def notify_trailing_stop_stepped(symbol, side, locked_r, new_sl_price, current_p
         f"📈 <b>Floating PnL:</b> <code>+${current_pnl:,.2f} USDT</code>\n"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"🚀 <i>Keuntungan diamankan mengikuti arah tren institusional!</i>"
+    )
+    return send_telegram_msg(msg)
+
+def notify_structural_trailing_updated(symbol, side, mark_price, new_sl_price, structure_label, r_multiple=0.0, current_pnl=0.0, is_demo=True):
+    """
+    Sends notification when SMC Structural Trailing Stop engine updates SL behind confirmed
+    Higher Lows (Long) or Lower Highs (Short) following Market Structure Breaks (BOS/CHOCH).
+    """
+    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
+    side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
+    r_str = f"+{r_multiple:.2f}R" if r_multiple >= 0 else f"{r_multiple:.2f}R"
+    pnl_sign = "+" if current_pnl >= 0 else ""
+    msg = (
+        f"🏛️ <b>SMC STRUCTURAL TRAILING STOP DIKATROL!</b>\n"
+        f"<i>Mode: {mode_text} | Akademi Crypto Module 02</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code> ({side_icon})\n"
+        f"🧭 <b>Struktur Terkonfirmasi:</b> <b>{html.escape(structure_label)}</b>\n"
+        f"💵 <b>Harga Pasar:</b> <code>${mark_price:,.4f}</code>\n"
+        f"🛑 <b>Stop Loss Baru (Structural):</b> <code>${new_sl_price:,.4f}</code>\n"
+        f"🔒 <b>Floating Performance:</b> <code>{r_str} ({pnl_sign}${current_pnl:,.2f} USDT)</code>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🛡️ <i>SL dipindah secara otomatis ke bawah Protected Swing Pivot dengan anti-sweep liquidity hunt buffer. Modal & profit terlindungi dari manipulasi wick!</i>"
     )
     return send_telegram_msg(msg)
 
@@ -455,7 +529,24 @@ class TelegramCommandListener(threading.Thread):
                             "📊 Status": "/status",
                             "💰 Cek PnL": "/pnl",
                             "💰 PnL": "/pnl",
+                            "📖 Jurnal & Analytics": "/journal",
+                            "📖 Jurnal": "/journal",
+                            "📊 Jurnal": "/journal",
+                            "📊 Analytics": "/journal",
+                            "🛡️ Directional Heat": "/heat",
+                            "🛡️ Heat": "/heat",
+                            "🛡️ Korelasi": "/heat",
+                            "🧭 Market Compass": "/compass",
+                            "🧭 Compass": "/compass",
+                            "🧭 Dominance": "/compass",
                             "📈 Minta Chart BTC": "/chart BTC",
+                            "🌊 Sentimen Coinalyze": "/coinalyze BTC",
+                            "🌊 Sentimen Pasar": "/coinalyze BTC",
+                            "🏛️ SMC Trailing": "/trailing",
+                            "🏛️ Trailing": "/trailing",
+                            "🏛️ SMC": "/trailing",
+                            "🏛️ Coinbase Premium": "/coinbase",
+                            "🏛️ Coinbase": "/coinbase",
                             "🧬 Status Genome": "/genome",
                             "🤖 Mode Hybrid (Auto)": "/hybrid",
                             "⚡ Mode Scalp (5m)": "/scalp",
@@ -512,6 +603,17 @@ class TelegramCommandListener(threading.Thread):
             self._handle_command("/closeall", sender_chat_id)
         elif data == "refresh_status":
             self._handle_command("/status", sender_chat_id)
+        elif data == "refresh_trailing":
+            self._handle_command("/trailing", sender_chat_id)
+        elif data == "refresh_heat":
+            self._handle_command("/heat", sender_chat_id)
+        elif data == "refresh_compass":
+            self._handle_command("/compass", sender_chat_id)
+        elif data == "refresh_journal":
+            self._handle_command("/journal", sender_chat_id)
+        elif data.startswith("journal_"):
+            tf_arg = data.replace("journal_", "")
+            self._handle_command(f"/journal {tf_arg}", sender_chat_id)
         elif data == "refresh_pnl":
             self._handle_command("/pnl", sender_chat_id)
         elif data == "force_evolve":
@@ -534,7 +636,14 @@ class TelegramCommandListener(threading.Thread):
                 f"Gunakan tombol di bawah atau ketik perintah:\n"
                 f"• <code>/status</code> : Cek saldo akun, status autopilot, & posisi aktif\n"
                 f"• <code>/pnl</code> : Rincian floating PnL setiap koin\n"
+                f"• <code>/trailing</code> : 🏛️ SMC Structural Trailing Stop & Swing Pivot (Akademi Crypto Module 02)\n"
+                f"• <code>/journal [all|24h|7d]</code> : 📖 Jurnal Trading & Performance Scorecard (Akademi Crypto Module 03)\n"
+                f"• <code>/analytics</code> : 📊 Analisis kuantitatif Win Rate, Profit Factor & Payoff Ratio\n"
+                f"• <code>/heat</code> : 🛡️ Directional Heat & Batas Korelasi Portofolio (Akademi Crypto Module 03)\n"
+                f"• <code>/compass</code> : 🧭 BTC.D & USDT.D Market Flow Compass (Akademi Crypto Module 01)\n"
                 f"• <code>/chart [koin] [tf]</code> : Snapshot visual candlestick chart (cth: <code>/chart btc</code>, <code>/chart sol 5m</code>)\n"
+                f"• <code>/coinalyze [koin]</code> : Sentimen Open Interest, Likuidasi 4H, & L/S Ratio (cth: <code>/coinalyze btc</code>, <code>/coinalyze doge</code>)\n"
+                f"• <code>/coinbase</code> : Coinbase Premium Index (Arus Wall Street vs Ritel global - cth: <code>/coinbase</code>, <code>/coinbase eth</code>)\n"
                 f"• <code>/genome</code> : Status AI Quant Genome & performa mutasi\n"
                 f"• <code>/evolve</code> : Jalankan autopsi performa & mutasi mandiri sekarang\n"
                 f"• <code>/news</code> : Kalender berita makro ekonomi AS (High-Impact)\n"
@@ -554,6 +663,26 @@ class TelegramCommandListener(threading.Thread):
             genome = trading_desk.load_genome()
             status_tag = "⏸️ <b>DIJEDA (PAUSED)</b>" if paused else "▶️ <b>BERJALAN (ACTIVE)</b>"
 
+            heat_info = ""
+            try:
+                import portfolio_guard
+                audit = portfolio_guard.audit_portfolio_heat(positions, bal)
+                heat_info = (
+                    f"Directional Heat: <code>{audit['long_count']}/{audit['max_same_direction']} Longs | "
+                    f"{audit['short_count']}/{audit['max_same_direction']} Shorts</code>\n"
+                    f"Status Risiko: <b>{audit['heat_status']}</b>\n"
+                )
+            except Exception:
+                pass
+
+            comp_info = ""
+            try:
+                import dominance_compass
+                c_data = dominance_compass.get_dominance_compass()
+                comp_info = f"Market Compass: <b>{c_data['regime_code']}</b> (BTC.D {c_data['btc_d']}%, USDT.D {c_data['usdt_d']}%)\n"
+            except Exception:
+                pass
+
             reply = (
                 f"🖥️ <b>STATUS TRADING DESK</b>\n"
                 f"━━━━━━━━━━━━━━━━━━\n"
@@ -562,6 +691,8 @@ class TelegramCommandListener(threading.Thread):
                 f"Mode Akun: {'🟡 DEMO (Testnet)' if self.is_demo else '🔴 LIVE'}\n"
                 f"Saldo Equity: <code>${bal:,.2f} USDT</code>\n"
                 f"Posisi Terbuka: <code>{len(positions)} posisi</code>\n"
+                f"{heat_info}"
+                f"{comp_info}"
                 f"Genetic Rule: Gen {genome.get('generation', 5)} (Min R:R 1:{genome.get('parameters', {}).get('min_risk_reward', 3.0)})\n"
                 f"Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5)}%\n"
             )
@@ -581,13 +712,79 @@ class TelegramCommandListener(threading.Thread):
 
             # Utility buttons
             inline_kb.append([
-                {"text": "🔄 Refresh Status", "callback_data": "refresh_status"},
-                {"text": "💰 Cek PnL", "callback_data": "refresh_pnl"}
+                {"text": "🔄 Refresh", "callback_data": "refresh_status"},
+                {"text": "🏛️ SMC Trailing", "callback_data": "refresh_trailing"},
+                {"text": "📖 Jurnal", "callback_data": "refresh_journal"}
+            ])
+            inline_kb.append([
+                {"text": "🛡️ Cek Heat", "callback_data": "refresh_heat"},
+                {"text": "🧭 Compass", "callback_data": "refresh_compass"},
+                {"text": "💰 PnL", "callback_data": "refresh_pnl"}
             ])
             if positions:
                 inline_kb.append([{"text": "🚨 Tutup Seluruh Posisi", "callback_data": "closeall"}])
 
             send_telegram_msg(reply, chat_id_override=chat_id, reply_markup={"inline_keyboard": inline_kb})
+
+        elif command in ["/journal", "/analytics", "/scorecard", "/jurnal"]:
+            tf = parts[1].lower() if len(parts) > 1 else "all"
+            try:
+                import trade_journal
+                report_msg = trade_journal.format_telegram_journal(tf)
+                inline_kb = [
+                    [
+                        {"text": "📅 24 Jam", "callback_data": "journal_24h"},
+                        {"text": "📈 7 Hari", "callback_data": "journal_7d"},
+                        {"text": "🏆 Semua (All)", "callback_data": "journal_all"}
+                    ],
+                    [
+                        {"text": "🔄 Refresh", "callback_data": f"journal_{tf}"},
+                        {"text": "📊 Status Desk", "callback_data": "refresh_status"}
+                    ]
+                ]
+                send_telegram_msg(report_msg, chat_id_override=chat_id, reply_markup={"inline_keyboard": inline_kb})
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat Jurnal Trading: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+
+        elif command in ["/heat", "/correlation", "/korelasi"]:
+            try:
+                import portfolio_guard
+                positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
+                bal = trading_desk.get_account_balance(self.user_email, self.is_demo)
+                heat_msg = portfolio_guard.format_telegram_portfolio_heat(positions, bal)
+                send_telegram_msg(heat_msg, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat Directional Heat: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+
+        elif command in ["/compass", "/dominance", "/btcd", "/usdtd", "/kompas"]:
+            try:
+                import dominance_compass
+                comp = dominance_compass.get_dominance_compass()
+                report_msg = dominance_compass.format_telegram_compass(comp)
+                send_telegram_msg(report_msg, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat Market Compass: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+
+        elif command in ["/trailing", "/smc", "/structure"]:
+            try:
+                import market_structure
+                import trade_manager
+                positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
+                meta = trade_manager.load_trade_metadata()
+                trailing_msg = market_structure.format_telegram_market_structure(positions, meta)
+                inline_kb = [
+                    [
+                        {"text": "🔄 Refresh", "callback_data": "refresh_trailing"},
+                        {"text": "📊 Status Desk", "callback_data": "refresh_status"}
+                    ],
+                    [
+                        {"text": "📖 Jurnal", "callback_data": "refresh_journal"},
+                        {"text": "🛡️ Directional Heat", "callback_data": "refresh_heat"}
+                    ]
+                ]
+                send_telegram_msg(trailing_msg, chat_id_override=chat_id, reply_markup={"inline_keyboard": inline_kb})
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat SMC Structural Trailing: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
 
         elif command == "/pnl":
             bal = trading_desk.get_account_balance(self.user_email, self.is_demo)
@@ -695,6 +892,26 @@ class TelegramCommandListener(threading.Thread):
                     send_telegram_msg("⚠️ Gagal membuat file gambar chart.", chat_id_override=chat_id)
             except Exception as e:
                 send_telegram_msg(f"⚠️ Error saat membuat chart: {e}", chat_id_override=chat_id)
+
+        elif command in ["/coinglass", "/coinalyze", "/oi", "/sentiment"]:
+            raw_sym = parts[1].upper() if len(parts) > 1 else "BTC"
+            sym_clean = raw_sym.replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
+            try:
+                import coinglass_derivatives
+                d_intel = coinglass_derivatives.get_derivatives_intelligence(sym_clean)
+                report_msg = coinglass_derivatives.format_telegram_report(d_intel)
+                send_telegram_msg(report_msg, chat_id_override=chat_id)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat data CoinGlass untuk {sym_clean}: {e}", chat_id_override=chat_id)
+
+        elif command in ["/coinbase", "/premium", "🏛️ coinbase premium"]:
+            sym_arg = parts[1].upper() if len(parts) > 1 else "ALL"
+            try:
+                import coinbase_premium
+                report_msg = coinbase_premium.format_telegram_report(sym_arg)
+                send_telegram_msg(report_msg, chat_id_override=chat_id)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat data Coinbase Premium: {e}", chat_id_override=chat_id)
 
         elif command in ["/genome", "🧬 status genome"]:
             try:

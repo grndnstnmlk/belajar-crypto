@@ -60,35 +60,35 @@ def get_current_session_info(dt=None):
         session_name = "🇺🇸 NEW YORK KILL ZONE (Peak Institutional Liquidity)"
         session_code = "NY_KZ"
         bonus_score = 15
-        min_threshold = 75
+        min_threshold = 80
         rationale = "High volume institutional participation during US cash market overlap. Optimal for trend continuation & breakouts."
         high_liquidity = True
     elif is_london_kz:
         session_name = "🇬🇧 LONDON KILL ZONE (European Expansion Window)"
         session_code = "LONDON_KZ"
         bonus_score = 12
-        min_threshold = 75
+        min_threshold = 80
         rationale = "High volatility and institutional liquidity injection. Ideal for trend establishment and sweep-reversals."
         high_liquidity = True
     elif is_asian:
         session_name = "🇯🇵 ASIAN ACCUMULATION SESSION"
         session_code = "ASIA"
         bonus_score = 5
-        min_threshold = 78
+        min_threshold = 83
         rationale = "Range-bound consolidation & liquidity engineering. Standard filter required."
         high_liquidity = False
     elif is_dead_zone:
         session_name = "⚠️ LOW-LIQUIDITY DEAD ZONE (Late NY / Asia Pre-Market)"
         session_code = "DEAD_ZONE"
         bonus_score = 0
-        min_threshold = 85  # Much stricter filter during low-liquidity hours
+        min_threshold = 88  # Much stricter filter during low-liquidity hours
         rationale = "Thin order books, wider spreads, and high fakeout wick risk. Only pristine Grade-A+ setups permitted."
         high_liquidity = False
     else:
         session_name = "🌐 INTER-SESSION DRIFT (Transition Window)"
         session_code = "TRANSITION"
         bonus_score = 8
-        min_threshold = 76
+        min_threshold = 82
         rationale = "Moderate volume between major sessions. Solid confluence required."
         high_liquidity = False
 
@@ -191,6 +191,67 @@ def calculate_confluence_score(setup, session_info=None):
     session_pts = session_info.get("bonus_score", 0)
     breakdown["Session Liquidity"] = f"+{session_pts} pts ({session_info['session_code']})"
     total_score += session_pts
+
+    # 6. Coinbase US Institutional Premium Flow (+/- 8 pts)
+    cb_pts = 0
+    try:
+        import coinbase_premium
+        sym_base = setup.get("base", "BTC")
+        if sym_base in ["BTC", "ETH", "SOL"]:
+            cb_data = coinbase_premium.get_coinbase_premium(sym_base)
+            side = setup.get("side", "LONG").upper()
+            if side in ["BUY", "LONG"]:
+                if cb_data.get("is_us_inflow"):
+                    cb_pts = cb_data.get("confluence_bonus", 4)
+                    breakdown["Coinbase US Flow"] = f"+{cb_pts} pts (US Spot Buying {cb_data['premium_pct']:+.3f}%)"
+                elif cb_data.get("is_us_dump"):
+                    cb_pts = cb_data.get("confluence_bonus", -8)
+                    breakdown["Coinbase US Flow"] = f"{cb_pts} pts (US Spot Discount {cb_data['premium_pct']:+.3f}%)"
+            elif side in ["SELL", "SHORT"]:
+                if cb_data.get("is_us_dump"):
+                    cb_pts = abs(cb_data.get("confluence_bonus", -8))
+                    breakdown["Coinbase US Flow"] = f"+{cb_pts} pts (US Selling Aligns with Short {cb_data['premium_pct']:+.3f}%)"
+                elif cb_data.get("is_us_inflow"):
+                    cb_pts = -abs(cb_data.get("confluence_bonus", 4))
+                    breakdown["Coinbase US Flow"] = f"{cb_pts} pts (Counter-Trend to US Buying {cb_data['premium_pct']:+.3f}%)"
+    except Exception:
+        pass
+    total_score += cb_pts
+
+    # 7. BTC.D & USDT.D Market Compass Alignment (+/- 6 pts)
+    dom_pts = 0
+    try:
+        import dominance_compass
+        comp = dominance_compass.get_dominance_compass()
+        side = setup.get("side", "LONG").upper()
+        sym_base = setup.get("base", "BTC")
+        is_alt = sym_base not in ["BTC"]
+
+        if side in ["BUY", "LONG"]:
+            if is_alt:
+                if comp["regime_code"] == "ALTSEASON_BOOM":
+                    dom_pts = 6
+                    breakdown["Market Compass (BTC.D)"] = "+6 pts (Altseason Boom Kuadran 2)"
+                elif comp["regime_code"] in ["ALTCOIN_BLOODBATH", "BTC_VAMPIRE"]:
+                    dom_pts = -8
+                    breakdown["Market Compass (BTC.D)"] = f"-8 pts ({comp['regime_code']} - Macro Alt Bleed)"
+                elif comp.get("usdt_bias") == "RISK_OFF":
+                    dom_pts = -4
+                    breakdown["Market Compass (USDT.D)"] = "-4 pts (USDT.D Risk-Off Inflow)"
+            else:
+                if comp["regime_code"] == "BTC_VAMPIRE":
+                    dom_pts = 6
+                    breakdown["Market Compass (BTC.D)"] = "+6 pts (BTC Vampire Dominance Inflow)"
+                elif comp.get("usdt_bias") == "RISK_OFF":
+                    dom_pts = -4
+                    breakdown["Market Compass (USDT.D)"] = "-4 pts (USDT.D Risk-Off)"
+        elif side in ["SELL", "SHORT"]:
+            if is_alt and comp["regime_code"] in ["ALTCOIN_BLOODBATH", "CAPITAL_FLIGHT"]:
+                dom_pts = 6
+                breakdown["Market Compass (BTC.D)"] = "+6 pts (Alt Short Aligns with Market Bleed)"
+    except Exception:
+        pass
+    total_score += dom_pts
 
     total_score = min(100, max(0, total_score))
 
