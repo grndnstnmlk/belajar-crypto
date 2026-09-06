@@ -81,9 +81,10 @@ def get_ai_credentials():
 
     return {"provider": "fallback_quant", "key": None}
 
-def call_llm(prompt, system_prompt=None, temperature=0.2):
+def call_llm(prompt, system_prompt=None, temperature=0.2, response_json=False):
     """
     Calls configured LLM provider or gracefully returns None to trigger heuristic engine.
+    Supports response_json=True for structured JSON output.
     """
     creds = get_ai_credentials()
     provider = creds.get("provider")
@@ -94,21 +95,31 @@ def call_llm(prompt, system_prompt=None, temperature=0.2):
 
     # 1. Google Gemini API Call
     if provider == "gemini":
-        models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+        models_to_try = [
+            "gemini-flash-latest",
+            "gemini-3.6-flash",
+            "gemini-3.5-flash",
+            "gemini-flash-lite-latest",
+            "gemini-3.7-flash"
+        ]
         for m in models_to_try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={key}"
             full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
+            gen_config = {
+                "temperature": temperature,
+                "maxOutputTokens": 1024
+            }
+            if response_json:
+                gen_config["responseMimeType"] = "application/json"
+
             body = {
                 "contents": [{"parts": [{"text": full_prompt}]}],
-                "generationConfig": {
-                    "temperature": temperature,
-                    "maxOutputTokens": 1024
-                }
+                "generationConfig": gen_config
             }
             try:
                 data = json.dumps(body).encode("utf-8")
                 req = urllib.request.Request(url, data=data, headers=HEADERS, method="POST")
-                with urllib.request.urlopen(req, timeout=12, context=SSL_CTX) as response:
+                with urllib.request.urlopen(req, timeout=18, context=SSL_CTX) as response:
                     res_json = json.loads(response.read().decode("utf-8"))
                     candidates = res_json.get("candidates", [])
                     if candidates:
@@ -135,16 +146,19 @@ def call_llm(prompt, system_prompt=None, temperature=0.2):
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        body = {
+        payload = {
             "model": model_name,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": 1024
         }
+        if response_json:
+            payload["response_format"] = {"type": "json_object"}
+
         try:
-            data = json.dumps(body).encode("utf-8")
+            data = json.dumps(payload).encode("utf-8")
             req = urllib.request.Request(endpoint, data=data, headers=headers, method="POST")
-            with urllib.request.urlopen(req, timeout=12, context=SSL_CTX) as response:
+            with urllib.request.urlopen(req, timeout=18, context=SSL_CTX) as response:
                 res_json = json.loads(response.read().decode("utf-8"))
                 choices = res_json.get("choices", [])
                 if choices:
@@ -162,7 +176,12 @@ def heuristic_quant_audit(setup, market_context=None):
     ctx = market_context or {}
     sym = setup.get("symbol", "UNKNOWN")
     side = setup.get("side", "BUY").upper()
-    rr = float(setup.get("rr", 0.0))
+    entry_p = float(setup.get("entry_price", setup.get("entry", setup.get("price", 0.0))))
+    sl_p = float(setup.get("sl", setup.get("stop_loss", 0.0)))
+    tp_p = float(setup.get("tp", setup.get("take_profit", 0.0)))
+    rr = float(setup.get("rr", setup.get("risk_reward", 0.0)))
+    if rr <= 0.0 and abs(entry_p - sl_p) > 0:
+        rr = round(abs(tp_p - entry_p) / abs(entry_p - sl_p), 2)
 
     # Context extraction
     heat = ctx.get("heat", {})
@@ -260,10 +279,12 @@ def audit_trade_setup(setup, market_context=None):
     ctx = market_context or {}
     sym = setup.get("symbol", "UNKNOWN")
     side = setup.get("side", "BUY")
-    entry_p = setup.get("entry_price", setup.get("price", 0.0))
-    sl_p = setup.get("sl", 0.0)
-    tp_p = setup.get("tp", 0.0)
-    rr = setup.get("rr", 0.0)
+    entry_p = float(setup.get("entry_price", setup.get("entry", setup.get("price", 0.0))))
+    sl_p = float(setup.get("sl", setup.get("stop_loss", 0.0)))
+    tp_p = float(setup.get("tp", setup.get("take_profit", 0.0)))
+    rr = float(setup.get("rr", setup.get("risk_reward", 0.0)))
+    if rr <= 0.0 and abs(entry_p - sl_p) > 0:
+        rr = round(abs(tp_p - entry_p) / abs(entry_p - sl_p), 2)
 
     prompt = f"""
 [CANDIDATE TRADE SETUP FOR AUDIT]
@@ -303,7 +324,7 @@ Strictly respond in valid JSON format with this exact schema:
         "Always output clean, parseable JSON with no markdown wrapping or preamble."
     )
 
-    raw_resp = call_llm(prompt, system_prompt=sys_prompt, temperature=0.1)
+    raw_resp = call_llm(prompt, system_prompt=sys_prompt, temperature=0.1, response_json=True)
     if raw_resp:
         try:
             # Extract JSON block
@@ -356,7 +377,7 @@ Respond in JSON:
 }}
 """
         sys_prompt = "You are a trading psychologist and post-trade performance auditor from Akademi Crypto Module 03."
-        resp = call_llm(prompt, system_prompt=sys_prompt, temperature=0.2)
+        resp = call_llm(prompt, system_prompt=sys_prompt, temperature=0.2, response_json=True)
         if resp:
             try:
                 json_str = resp
