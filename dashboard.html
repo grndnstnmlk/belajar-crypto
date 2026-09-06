@@ -499,11 +499,21 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      transition: border-color 0.15s ease;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      position: relative;
     }
 
     .pos-card:hover {
       border-color: var(--color-smoke);
+      background: var(--color-card-subtle);
+      transform: translateY(-1px);
+    }
+
+    .pos-card.active {
+      border-color: var(--color-electric-blue) !important;
+      background: rgba(59, 130, 246, 0.05) !important;
+      box-shadow: 0 0 0 1px var(--color-electric-blue), 0 4px 14px rgba(59, 130, 246, 0.15);
     }
 
     .pos-card-head {
@@ -1373,6 +1383,7 @@
   <script>
     let activeSymbol = "BTC";
     let activeBar = "1H";
+    let currentView = "terminal";
     let currentFeed = {};
     let chartInstance = null;
     let candleSeries = null;
@@ -1380,9 +1391,13 @@
     let upperBandSeries = null;
     let lowerBandSeries = null;
     let pocPriceLine = null;
+    let entryPriceLine = null;
+    let slPriceLine = null;
+    let tpPriceLine = null;
 
     // View Routing
     function switchView(tabId) {
+      currentView = tabId;
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
 
@@ -1401,6 +1416,7 @@
           if (chartInstance) {
             const container = document.getElementById('chart-container');
             chartInstance.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+            chartInstance.timeScale().fitContent();
           }
         }, 50);
       }
@@ -1508,12 +1524,20 @@
           document.getElementById('active-sym-title').innerText = `${data.symbol}/USDT`;
           document.getElementById('active-sym-price').innerText = `$${Number(data.current_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`;
 
+          // Auto-fit chart timescale to newly loaded candles
+          if (chartInstance) {
+            chartInstance.timeScale().fitContent();
+          }
+
           // Macro footer updates
           if (data.volume_profile && data.volume_profile.poc) {
             document.getElementById('poc-val').innerText = `POC: $${Number(data.volume_profile.poc).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
             document.getElementById('va-range-val').innerText = `VAL: $${Number(data.volume_profile.val).toFixed(2)} | VAH: $${Number(data.volume_profile.vah).toFixed(2)}`;
 
-            if (pocPriceLine) candleSeries.removePriceLine(pocPriceLine);
+            if (pocPriceLine) {
+              try { candleSeries.removePriceLine(pocPriceLine); } catch (e) {}
+              pocPriceLine = null;
+            }
             pocPriceLine = candleSeries.createPriceLine({
               price: data.volume_profile.poc,
               color: '#fb923c',
@@ -1522,6 +1546,47 @@
               axisLabelVisible: true,
               title: 'POC'
             });
+          }
+
+          // Draw Active Position Overlays (Entry, SL, TP) if this symbol is currently held
+          if (entryPriceLine) { try { candleSeries.removePriceLine(entryPriceLine); } catch (e) {} entryPriceLine = null; }
+          if (slPriceLine) { try { candleSeries.removePriceLine(slPriceLine); } catch (e) {} slPriceLine = null; }
+          if (tpPriceLine) { try { candleSeries.removePriceLine(tpPriceLine); } catch (e) {} tpPriceLine = null; }
+
+          if (currentFeed && currentFeed.positions) {
+            const heldPos = currentFeed.positions.find(p => (p.symbol || '').toUpperCase().replace(/USDT$/i, '') === activeSymbol);
+            if (heldPos) {
+              if (heldPos.entry_price) {
+                entryPriceLine = candleSeries.createPriceLine({
+                  price: heldPos.entry_price,
+                  color: '#3b82f6',
+                  lineWidth: 2,
+                  lineStyle: LightweightCharts.LineStyle.Solid,
+                  axisLabelVisible: true,
+                  title: `ENTRY (${heldPos.side})`
+                });
+              }
+              if (heldPos.sl) {
+                slPriceLine = candleSeries.createPriceLine({
+                  price: heldPos.sl,
+                  color: '#ef4444',
+                  lineWidth: 1,
+                  lineStyle: LightweightCharts.LineStyle.Dashed,
+                  axisLabelVisible: true,
+                  title: 'STOP LOSS'
+                });
+              }
+              if (heldPos.tp) {
+                tpPriceLine = candleSeries.createPriceLine({
+                  price: heldPos.tp,
+                  color: '#22c55e',
+                  lineWidth: 1,
+                  lineStyle: LightweightCharts.LineStyle.Dashed,
+                  axisLabelVisible: true,
+                  title: 'TAKE PROFIT'
+                });
+              }
+            }
           }
 
           if (data.macro) {
@@ -1619,10 +1684,29 @@
     }
 
     function selectSymbol(sym) {
-      activeSymbol = sym;
+      if (!sym) return;
+      const clean = sym.toUpperCase().replace(/USDT$/i, '').trim();
+      activeSymbol = clean;
+
+      // Update Watchlist items active highlight
       document.querySelectorAll('.watch-item').forEach(el => {
-        el.classList.toggle('active', el.querySelector('.watch-sym-title').innerText.startsWith(sym));
+        const titleEl = el.querySelector('.watch-sym-title');
+        if (titleEl) {
+          el.classList.toggle('active', titleEl.innerText.toUpperCase().startsWith(clean));
+        }
       });
+
+      // Update Position Cards active highlight
+      document.querySelectorAll('.pos-card').forEach(el => {
+        const cardSym = (el.getAttribute('data-symbol') || '').toUpperCase().replace(/USDT$/i, '').trim();
+        el.classList.toggle('active', cardSym === clean);
+      });
+
+      // If user is currently on another tab, switch to terminal view so chart is visible
+      if (currentView !== 'terminal') {
+        switchView('terminal');
+      }
+
       refreshChartData();
     }
 
@@ -1648,16 +1732,19 @@
         const rStr = p.r_multiple >= 0 ? `+${p.r_multiple}R` : `${p.r_multiple}R`;
         const beBadge = p.breakeven_locked ? `<span class="pill-badge mint" style="font-size:9px; padding:2px 6px;">🛡️ BE LOCKED</span>` : '';
         const structLabel = p.structural_level || `SMC Pivot (-${p.sweep_buffer_pct || 1.3}% Buffer)`;
+        const cleanSym = (p.symbol || '').toUpperCase().replace(/USDT$/i, '').trim();
+        const isActive = cleanSym === activeSymbol;
 
         return `
-          <div class="pos-card">
+          <div class="pos-card ${isActive ? 'active' : ''}" data-symbol="${cleanSym}" onclick="selectSymbol('${cleanSym}')" title="Klik untuk memuat candle & analisis chart ${cleanSym}/USDT">
             <div class="pos-card-head">
               <div class="pos-card-sym">
                 <span>${p.symbol}</span>
                 <span class="pill-badge ${isLong ? 'mint' : 'tangerine'}" style="font-size:10px; padding:2px 8px;">${p.side} ${p.leverage}x</span>
               </div>
               <div style="display:flex; gap:4px; align-items:center;">
-                ${p.tp1_taken ? `<span class="pill-badge mint" style="font-size:9px; padding:2px 6px;">🎯 RUNNER ACTIVE</span>` : ''}
+                ${isActive ? `<span class="pill-badge blue" style="font-size:8.5px; padding:2px 6px; letter-spacing:0.3px;">📊 CHARTING</span>` : ''}
+                ${p.tp1_taken ? `<span class="pill-badge mint" style="font-size:9px; padding:2px 6px;">🎯 RUNNER</span>` : ''}
                 ${beBadge}
               </div>
             </div>
@@ -1698,10 +1785,10 @@
             </div>
             ` : ''}
 
-            <div class="pos-card-actions">
-              ${!p.tp1_taken ? `<button class="btn" onclick="partialClosePosition('${p.symbol}')" style="border-color:rgba(59,130,246,0.5); color:var(--color-electric-blue);" title="Kunci Cuan 50% & Jadikan Sisa Posisi Bebas Risiko (Runner)">🎯 TP 50%</button>` : `<span class="pill-badge mint" style="font-size:9.5px; padding:4px 8px;">🎯 50% CASH LOCKED</span>`}
-              ${!p.breakeven_locked ? `<button class="btn" onclick="lockBreakeven('${p.symbol}')" title="Kunci Stop Loss ke Titik Impas">🛡️ Lock BE</button>` : ''}
-              <button class="btn btn-danger" onclick="closeSinglePosition('${p.symbol}')">🔴 Tutup</button>
+            <div class="pos-card-actions" onclick="event.stopPropagation()">
+              ${!p.tp1_taken ? `<button class="btn" onclick="event.stopPropagation(); partialClosePosition('${p.symbol}')" style="border-color:rgba(59,130,246,0.5); color:var(--color-electric-blue);" title="Kunci Cuan 50% & Jadikan Sisa Posisi Bebas Risiko (Runner)">🎯 TP 50%</button>` : `<span class="pill-badge mint" style="font-size:9.5px; padding:4px 8px;">🎯 50% CASH LOCKED</span>`}
+              ${!p.breakeven_locked ? `<button class="btn" onclick="event.stopPropagation(); lockBreakeven('${p.symbol}')" title="Kunci Stop Loss ke Titik Impas">🛡️ Lock BE</button>` : ''}
+              <button class="btn btn-danger" onclick="event.stopPropagation(); closeSinglePosition('${p.symbol}')">🔴 Tutup</button>
             </div>
           </div>
         `;
