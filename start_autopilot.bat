@@ -1,20 +1,23 @@
 @echo off
-title AKADEMI CRYPTO - 24/7 AUTONOMOUS AI TRADING DESK
+title AKADEMI CRYPTO - 24/7 AUTONOMOUS AI TRADING DESK (HYBRID DUAL-ENGINE)
 color 0A
+chcp 65001 >nul
 
 echo ====================================================================
-echo        [ROBOT] AKADEMI CRYPTO - AUTONOMOUS AI TRADING DESK (24/7)
-echo        Akun    : dxmade@gmail.com
-echo        Mode    : Binance Futures Demo (USD-M Testnet)
-echo        Desk    : 🎯 BIG-PROFIT SWING DESK (1H/4H Macro Confluence)
-echo        Genome  : Generation 5 (Min R:R 1:3.00 - 1:5.00+, Max Risk 1.5%%)
-echo        Watchlist: 10 Aset (BTC, ETH, SOL, BNB, XRP, DOGE, ADA, AVAX, LINK, SUI)
+echo   🤖 AKADEMI CRYPTO - AUTONOMOUS AI TRADING DESK (HYBRID AUTO)
+echo   Akun      : dxmade@gmail.com
+echo   Mode      : Binance Futures Demo (USD-M Testnet)
+echo   Desk      : 🤖 HYBRID DUAL-ENGINE (5m Fast Scalp + 1H Swing)
+echo   Timeframe : 5m Micro-Structure + 1H/4H Macro Confluence
+echo   Interval  : Pemindaian Cepat Real-Time Setiap 1 Menit (60 Detik)
+echo   Watchlist : 10 Aset (BTC, ETH, SOL, BNB, XRP, DOGE, ADA, AVAX, LINK, SUI)
+echo   Proteksi  : Fast BE (+0.7R), 45-Min Time-Stop, Macro News Shield
 echo ====================================================================
 echo.
-echo Memulai pemindaian otomatis setiap 15 menit...
+echo Memulai pemindaian otomatis Dual-Engine setiap 1 menit...
 echo Tekan Ctrl+C untuk menghentikan bot.
 echo.
 
-python -u .agents\tools\trading_desk.py run --mode SWING --interval 15 --user dxmade@gmail.com
+python -u .agents\tools\trading_desk.py run --mode HYBRID --interval 1 --user dxmade@gmail.com
 
 pause
