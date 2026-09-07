@@ -840,6 +840,57 @@
       background: var(--color-hover);
     }
 
+    /* Date Filter Chips & Subtabs */
+    .filter-chip {
+      background: var(--color-paper);
+      border: 1px solid var(--color-ash);
+      color: var(--color-text-dim);
+      border-radius: var(--radius-pill);
+      padding: 4px 12px;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .filter-chip:hover {
+      color: var(--color-text);
+      border-color: var(--color-smoke);
+    }
+    .filter-chip.active {
+      background: var(--color-electric-blue-dim);
+      border-color: var(--color-electric-blue);
+      color: var(--color-electric-blue);
+      font-weight: 600;
+    }
+    .journal-subtab {
+      background: transparent;
+      border: none;
+      color: var(--color-text-dim);
+      padding: 5px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .journal-subtab:hover {
+      color: var(--color-text);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .journal-subtab.active {
+      background: var(--color-paper);
+      color: var(--color-text);
+      font-weight: 600;
+      border: 1px solid var(--color-smoke);
+    }
+
     /* Toast System */
     #toast-container {
       position: fixed;
@@ -934,6 +985,7 @@
         </button>
         <button class="tab-btn" onclick="switchView('journal')" id="tab-journal">
           <span class="tab-icon">📖</span> Trade Journal & Analytics
+          <span class="pill-badge mint mono" style="font-size:9.5px; padding:1px 6px;">5 Sep</span>
         </button>
       </div>
 
@@ -1253,43 +1305,96 @@
     <!-- VIEW 3: TRADE JOURNAL & QUANTITATIVE ANALYTICS -->
     <div class="tab-pane" id="view-journal">
       <div class="workspace-journal">
+        <!-- Prominent Filter Notification Banner for Tanggal 5 -->
+        <div id="journal-filter-banner" style="display:flex; align-items:center; justify-content:space-between; background:linear-gradient(90deg, rgba(59,130,246,0.12), rgba(74,222,128,0.06)); border:1px solid rgba(59,130,246,0.35); border-radius:var(--radius-card); padding:12px 18px; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:22px;">📅</span>
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-weight:700; color:var(--color-electric-blue); font-size:13.5px;" id="active-filter-label">Riwayat Trading: Tanggal 5 September 2026</span>
+                <span class="pill-badge mint" id="active-filter-badge" style="font-size:9.5px; padding:2px 8px;">82 TRANSAKSI</span>
+              </div>
+              <div class="mono" style="font-size:11.5px; color:var(--color-text-dim); margin-top:3px;" id="active-filter-summary">
+                Total Net Realized PnL: <b style="color:var(--color-mint); font-weight:700;">+$241.46 USDT</b> | Win Rate: <b style="color:var(--color-mint);">77.8%</b> (21 Menang, 6 Kalah) | 13 Sinyal Eksekusi Trading Desk
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn" onclick="setJournalDateFilter('2026-09-05')" id="banner-btn-d5" style="font-size:11px; border-color:var(--color-electric-blue); color:var(--color-electric-blue); font-weight:600;">⭐ Tanggal 5 (Aktif)</button>
+            <button class="btn" onclick="setJournalDateFilter('all')" id="banner-btn-all" style="font-size:11px;">Tampilkan Semua (158)</button>
+          </div>
+        </div>
+
         <!-- Scorecard 6-Grid -->
         <div class="scorecard-grid">
           <div class="scorecard-brick">
             <span class="scorecard-label">Win Rate %</span>
-            <span class="scorecard-val mono" id="sc-winrate" style="color:var(--color-mint);">0.0%</span>
+            <span class="scorecard-val mono" id="sc-winrate" style="color:var(--color-mint);">77.8%</span>
           </div>
           <div class="scorecard-brick">
             <span class="scorecard-label">Profit Factor</span>
-            <span class="scorecard-val mono" id="sc-pf">0.00</span>
+            <span class="scorecard-val mono" id="sc-pf">2.78</span>
           </div>
           <div class="scorecard-brick">
             <span class="scorecard-label">Math Expectancy</span>
-            <span class="scorecard-val mono" id="sc-expectancy">$0.00</span>
+            <span class="scorecard-val mono" id="sc-expectancy">+$2.94</span>
           </div>
           <div class="scorecard-brick">
             <span class="scorecard-label">Payoff Ratio</span>
-            <span class="scorecard-val mono" id="sc-payoff">0.00</span>
+            <span class="scorecard-val mono" id="sc-payoff">2.15</span>
           </div>
           <div class="scorecard-brick">
             <span class="scorecard-label">Net Realized PnL</span>
-            <span class="scorecard-val mono" id="sc-netpnl">$0.00</span>
+            <span class="scorecard-val mono" id="sc-netpnl" style="color:var(--color-mint);">+$241.46</span>
           </div>
           <div class="scorecard-brick">
-            <span class="scorecard-label">Max Drawdown</span>
-            <span class="scorecard-val mono" id="sc-maxdd" style="color:var(--color-tangerine);">$0.00</span>
+            <span class="scorecard-label">Total Transaksi</span>
+            <span class="scorecard-val mono" id="sc-totaltrades">82</span>
           </div>
         </div>
 
-        <!-- Ledger Table -->
+        <!-- Ledger & Executions Container -->
         <div class="ledger-container">
-          <div class="ledger-header">
-            <span class="ledger-title">Buku Besar Transaksi Tertutup (Akademi Crypto Module 03)</span>
-            <div style="display:flex; gap:8px;">
-              <button class="btn" onclick="syncBinanceLedger()" style="font-size:11px;">🔄 Sinkronisasi Binance</button>
+          <div class="ledger-header" style="flex-wrap:wrap; gap:12px;">
+            <div>
+              <span class="ledger-title">Buku Besar Transaksi & Audit Sinyal (Module 03)</span>
+              <div style="font-size:11px; color:var(--color-text-dim); margin-top:2px;">
+                Catatan komprehensif riwayat transaksi tertutup Binance Futures & log eksekusi trading desk autonomous.
+              </div>
+            </div>
+
+            <!-- Date Filter Toolbar -->
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span style="font-size:11px; color:var(--color-text-dim); font-weight:600;">Pilih Tanggal:</span>
+              <button class="filter-chip active" id="chip-d5" onclick="setJournalDateFilter('2026-09-05')">⭐ Tanggal 5 (5 Sep)</button>
+              <button class="filter-chip" id="chip-d6" onclick="setJournalDateFilter('2026-09-06')">6 Sep</button>
+              <button class="filter-chip" id="chip-d7" onclick="setJournalDateFilter('2026-09-07')">7 Sep (Hari Ini)</button>
+              <button class="filter-chip" id="chip-all" onclick="setJournalDateFilter('all')">Semua</button>
+              
+              <input type="date" id="journal-date-picker" value="2026-09-05" onchange="setJournalDateFilter(this.value)" style="background:var(--color-paper); border:1px solid var(--color-ash); color:var(--color-text); border-radius:var(--radius-btn); padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
+              
+              <button class="btn" onclick="syncBinanceLedger()" style="font-size:11px; padding:4px 10px;" title="Tarik data terbaru dari Binance Futures API">🔄 Sinkronisasi Binance</button>
             </div>
           </div>
-          <div class="ledger-table-wrap">
+
+          <!-- Sub-Navigation & Live Search Bar -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 18px; border-bottom:1px solid var(--color-ash); background:var(--color-card-subtle); flex-wrap:wrap; gap:10px;">
+            <div class="segmented-tabs" style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-pill); padding:2px;">
+              <button class="journal-subtab active" id="subtab-ledger" onclick="switchJournalSubTab('ledger')">
+                📜 Riwayat Realized PnL (<span id="count-subtab-ledger">82</span>)
+              </button>
+              <button class="journal-subtab" id="subtab-executions" onclick="switchJournalSubTab('executions')">
+                🤖 Log Eksekusi Sinyal Bot (<span id="count-subtab-executions">13</span>)
+              </button>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="text" id="journal-search-input" onkeyup="filterJournalSearch(this.value)" placeholder="🔍 Cari Simbol (e.g. BNB, ETH) atau alasan..." style="background:var(--color-paper); border:1px solid var(--color-ash); color:var(--color-text); border-radius:var(--radius-btn); padding:6px 12px; font-size:11.5px; width:250px; font-family:var(--font-body);">
+            </div>
+          </div>
+
+          <!-- Table 1: Realized PnL Closed Trades Table -->
+          <div class="ledger-table-wrap" id="ledger-realized-wrap">
             <table class="ledger-table">
               <thead>
                 <tr>
@@ -1306,7 +1411,33 @@
               <tbody id="ledger-table-body">
                 <tr>
                   <td colspan="8" style="text-align:center; padding:30px; color:var(--color-text-dim);">
-                    Memuat buku besar riwayat transaksi...
+                    Memuat riwayat transaksi...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table 2: Bot Executions Table -->
+          <div class="ledger-table-wrap" id="ledger-executions-wrap" style="display:none;">
+            <table class="ledger-table">
+              <thead>
+                <tr>
+                  <th>Waktu Sinyal</th>
+                  <th>Simbol</th>
+                  <th>Arah</th>
+                  <th>Entry Price</th>
+                  <th>Stop Loss</th>
+                  <th>Take Profit</th>
+                  <th>R:R</th>
+                  <th>Alokasi Risiko</th>
+                  <th>Alasan SMC Confluence</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-executions-body">
+                <tr>
+                  <td colspan="9" style="text-align:center; padding:30px; color:var(--color-text-dim);">
+                    Memuat log sinyal eksekusi bot...
                   </td>
                 </tr>
               </tbody>
@@ -1935,29 +2066,175 @@
       }
     }
 
-    // View 3: Load Journal Data
+    // ==========================================================================
+    // VIEW 3: JOURNAL & TRADING HISTORY FILTER ENGINE (MODULE 03)
+    // ==========================================================================
+    let rawJournalLedger = [];
+    let rawJournalExecutions = [];
+    let selectedJournalDate = '2026-09-05'; // Default Tanggal 5 as commanded
+    let activeJournalSubTab = 'ledger';
+    let journalSearchQuery = '';
+
     async function loadJournalData() {
       try {
         const res = await fetch('/api/journal');
         const data = await res.json();
 
-        if (data.metrics) {
-          const m = data.metrics;
-          document.getElementById('sc-winrate').innerText = `${Number(m.win_rate || 0).toFixed(1)}%`;
-          document.getElementById('sc-pf').innerText = `${Number(m.profit_factor || 0).toFixed(2)}`;
-          document.getElementById('sc-expectancy').innerText = `$${Number(m.expectancy_usd || 0).toFixed(2)}`;
-          document.getElementById('sc-payoff').innerText = `${Number(m.payoff_ratio || 0).toFixed(2)}`;
-          document.getElementById('sc-netpnl').innerText = `${m.net_pnl >= 0 ? '+' : ''}$${Number(m.net_pnl || 0).toFixed(2)}`;
-          document.getElementById('sc-maxdd').innerText = `-$${Number(m.max_drawdown_usd || 0).toFixed(2)}`;
-        }
+        rawJournalLedger = data.ledger || [];
+        rawJournalExecutions = data.executions || [];
 
-        // Render Ledger Table
-        const tbody = document.getElementById('ledger-table-body');
-        if (data.ledger && data.ledger.length > 0) {
-          tbody.innerHTML = data.ledger.map(t => {
+        applyJournalFilters();
+      } catch (e) {
+        console.error("Error loading journal:", e);
+      }
+    }
+
+    function setJournalDateFilter(dateStr) {
+      selectedJournalDate = dateStr;
+
+      // Update Chip UI
+      const chipMap = {
+        '2026-09-05': 'chip-d5',
+        '2026-09-06': 'chip-d6',
+        '2026-09-07': 'chip-d7',
+        'all': 'chip-all'
+      };
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      if (chipMap[dateStr]) {
+        const chip = document.getElementById(chipMap[dateStr]);
+        if (chip) chip.classList.add('active');
+      }
+
+      // Update date picker input
+      const picker = document.getElementById('journal-date-picker');
+      if (picker && dateStr !== 'all') {
+        picker.value = dateStr;
+      }
+
+      applyJournalFilters();
+    }
+
+    function switchJournalSubTab(tab) {
+      activeJournalSubTab = tab;
+      document.querySelectorAll('.journal-subtab').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('subtab-' + tab);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const wrapLedger = document.getElementById('ledger-realized-wrap');
+      const wrapExec = document.getElementById('ledger-executions-wrap');
+      if (wrapLedger && wrapExec) {
+        if (tab === 'ledger') {
+          wrapLedger.style.display = 'block';
+          wrapExec.style.display = 'none';
+        } else {
+          wrapLedger.style.display = 'none';
+          wrapExec.style.display = 'block';
+        }
+      }
+    }
+
+    function filterJournalSearch(query) {
+      journalSearchQuery = (query || '').toLowerCase().trim();
+      applyJournalFilters();
+    }
+
+    function applyJournalFilters() {
+      // 1. Filter Closed Ledger Trades
+      let filteredLedger = rawJournalLedger;
+      if (selectedJournalDate && selectedJournalDate !== 'all') {
+        filteredLedger = filteredLedger.filter(t => (t.closed_at || '').startsWith(selectedJournalDate) || (t.closed_at || '').includes(selectedJournalDate));
+      }
+      if (journalSearchQuery) {
+        filteredLedger = filteredLedger.filter(t => 
+          (t.symbol || '').toLowerCase().includes(journalSearchQuery) ||
+          (t.exit_reason || '').toLowerCase().includes(journalSearchQuery) ||
+          (t.side || '').toLowerCase().includes(journalSearchQuery)
+        );
+      }
+
+      // 2. Filter Bot Executions
+      let filteredExecutions = rawJournalExecutions;
+      if (selectedJournalDate && selectedJournalDate !== 'all') {
+        filteredExecutions = filteredExecutions.filter(x => (x.timestamp || '').startsWith(selectedJournalDate) || (x.timestamp || '').includes(selectedJournalDate));
+      }
+      if (journalSearchQuery) {
+        filteredExecutions = filteredExecutions.filter(x => {
+          const t = x.trade || {};
+          return (t.symbol || '').toLowerCase().includes(journalSearchQuery) ||
+                 (t.reason || '').toLowerCase().includes(journalSearchQuery) ||
+                 (t.side || '').toLowerCase().includes(journalSearchQuery);
+        });
+      }
+
+      // 3. Compute Dynamic Scorecard Metrics on filteredLedger
+      const totalTrades = filteredLedger.length;
+      const wins = filteredLedger.filter(t => Number(t.net_pnl_usd || t.pnl_usd || 0) > 0);
+      const losses = filteredLedger.filter(t => Number(t.net_pnl_usd || t.pnl_usd || 0) < 0);
+      const grossWin = wins.reduce((acc, t) => acc + Number(t.net_pnl_usd || t.pnl_usd || 0), 0);
+      const grossLoss = Math.abs(losses.reduce((acc, t) => acc + Number(t.net_pnl_usd || t.pnl_usd || 0), 0));
+      const netPnl = grossWin - grossLoss;
+      const directionalTrades = wins.length + losses.length;
+      const winRate = directionalTrades > 0 ? ((wins.length / directionalTrades) * 100) : 0;
+      const profitFactor = grossLoss > 0 ? (grossWin / grossLoss) : (grossWin > 0 ? 99.9 : 0);
+      const avgWin = wins.length > 0 ? (grossWin / wins.length) : 0;
+      const avgLoss = losses.length > 0 ? (grossLoss / losses.length) : 0;
+      const payoffRatio = avgLoss > 0 ? (avgWin / avgLoss) : 0;
+      const expectancy = totalTrades > 0 ? (netPnl / totalTrades) : 0;
+
+      // Update DOM Scorecard
+      const elWr = document.getElementById('sc-winrate');
+      if (elWr) elWr.innerText = `${winRate.toFixed(1)}%`;
+      const elPf = document.getElementById('sc-pf');
+      if (elPf) elPf.innerText = `${profitFactor.toFixed(2)}`;
+      const elExp = document.getElementById('sc-expectancy');
+      if (elExp) elExp.innerText = `${expectancy >= 0 ? '+' : ''}$${expectancy.toFixed(2)}`;
+      const elPo = document.getElementById('sc-payoff');
+      if (elPo) elPo.innerText = `${payoffRatio.toFixed(2)}`;
+      const elPnl = document.getElementById('sc-netpnl');
+      if (elPnl) {
+        elPnl.innerText = `${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)}`;
+        elPnl.style.color = netPnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
+      }
+      const elTot = document.getElementById('sc-totaltrades');
+      if (elTot) elTot.innerText = totalTrades;
+
+      // Update Active Filter Banner
+      const elLabel = document.getElementById('active-filter-label');
+      const elBadge = document.getElementById('active-filter-badge');
+      const elSummary = document.getElementById('active-filter-summary');
+      const countSubLedger = document.getElementById('count-subtab-ledger');
+      const countSubExec = document.getElementById('count-subtab-executions');
+
+      if (countSubLedger) countSubLedger.innerText = totalTrades;
+      if (countSubExec) countSubExec.innerText = filteredExecutions.length;
+
+      if (elLabel && elBadge && elSummary) {
+        if (selectedJournalDate === '2026-09-05') {
+          elLabel.innerText = "Riwayat Trading: Tanggal 5 September 2026";
+          elBadge.innerText = `${totalTrades} TRANSAKSI`;
+          elBadge.className = "pill-badge mint";
+          elSummary.innerHTML = `Total Net Realized PnL: <b style="color:var(--color-mint); font-weight:700;">${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)} USDT</b> | Win Rate: <b style="color:var(--color-mint);">${winRate.toFixed(1)}%</b> (${wins.length} Menang, ${losses.length} Kalah) | <b>${filteredExecutions.length}</b> Sinyal Eksekusi Trading Desk`;
+        } else if (selectedJournalDate === 'all') {
+          elLabel.innerText = "Riwayat Trading: Semua Transaksi";
+          elBadge.innerText = `${totalTrades} TOTAL`;
+          elBadge.className = "pill-badge blue";
+          elSummary.innerHTML = `Total Net Realized PnL: <b style="color:${netPnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)'}; font-weight:700;">${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)} USDT</b> | Win Rate: <b>${winRate.toFixed(1)}%</b> | <b>${filteredExecutions.length}</b> Sinyal Eksekusi Trading Desk`;
+        } else {
+          elLabel.innerText = `Riwayat Trading: Tanggal ${selectedJournalDate}`;
+          elBadge.innerText = `${totalTrades} TRANSAKSI`;
+          elBadge.className = "pill-badge cyan";
+          elSummary.innerHTML = `Total Net Realized PnL: <b style="color:${netPnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)'}; font-weight:700;">${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)} USDT</b> | Win Rate: <b>${winRate.toFixed(1)}%</b> | <b>${filteredExecutions.length}</b> Sinyal Eksekusi Trading Desk`;
+        }
+      }
+
+      // 4. Render Table 1: Realized PnL Ledger
+      const tbodyLedger = document.getElementById('ledger-table-body');
+      if (tbodyLedger) {
+        if (filteredLedger.length > 0) {
+          tbodyLedger.innerHTML = filteredLedger.map(t => {
             const pnl = Number(t.net_pnl_usd || t.pnl_usd || 0);
             const pnlColor = pnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
-            const sidePill = t.side.toUpperCase() === 'LONG' || t.side.toUpperCase() === 'BUY'
+            const sidePill = (t.side || '').toUpperCase() === 'LONG' || (t.side || '').toUpperCase() === 'BUY'
               ? `<span class="pill-badge mint" style="font-size:9px; padding:2px 6px;">LONG</span>`
               : `<span class="pill-badge tangerine" style="font-size:9px; padding:2px 6px;">SHORT</span>`;
 
@@ -1970,15 +2247,61 @@
                 <td class="mono">$${Number(t.exit_price || 0).toLocaleString()}</td>
                 <td class="mono" style="font-weight:700; color:${pnlColor};">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</td>
                 <td class="mono">${t.r_multiple ? (t.r_multiple >= 0 ? '+' : '') + t.r_multiple + 'R' : '-'}</td>
-                <td style="color:var(--color-text-dim);">${t.exit_reason || 'Manual / Target Hit'}</td>
+                <td style="color:var(--color-text-dim); font-size:11.5px;">${t.exit_reason || 'Target Hit / Closed'}</td>
               </tr>
             `;
           }).join('');
         } else {
-          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--color-text-dim);">Belum ada catatan transaksi tertutup.</td></tr>`;
+          tbodyLedger.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--color-text-dim);">Tidak ada transaksi pada filter tanggal ini.</td></tr>`;
+        }
+      }
+
+      // 5. Render Table 2: Bot Executions Table
+      const tbodyExec = document.getElementById('ledger-executions-body');
+      if (tbodyExec) {
+        if (filteredExecutions.length > 0) {
+          tbodyExec.innerHTML = filteredExecutions.map(x => {
+            const t = x.trade || {};
+            const isLong = (t.side || '').toUpperCase() === 'LONG';
+            const sidePill = isLong
+              ? `<span class="pill-badge mint" style="font-size:9px; padding:2px 6px;">LONG</span>`
+              : `<span class="pill-badge tangerine" style="font-size:9px; padding:2px 6px;">SHORT</span>`;
+            const rrStr = t.rr ? `1:${Number(t.rr).toFixed(2)}` : '-';
+            const riskStr = x.risk_budget_usd ? `$${Number(x.risk_budget_usd).toFixed(2)} (${x.quantity || '-'} lot)` : '-';
+
+            return `
+              <tr>
+                <td class="mono" style="color:var(--color-text-dim); font-size:11px;">${x.timestamp || '-'}</td>
+                <td><b>${t.symbol || '-'}</b></td>
+                <td>${sidePill}</td>
+                <td class="mono" style="font-weight:600;">$${Number(t.price || 0).toLocaleString()}</td>
+                <td class="mono" style="color:var(--color-tangerine);">$${Number(t.sl || 0).toLocaleString()}</td>
+                <td class="mono" style="color:var(--color-mint);">$${Number(t.tp || 0).toLocaleString()}</td>
+                <td class="mono" style="font-weight:700; color:var(--color-cyan);">${rrStr}</td>
+                <td class="mono" style="font-size:11px;">${riskStr}</td>
+                <td style="color:var(--color-text-dim); font-size:11px; max-width:350px;">${t.reason || '-'}</td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          tbodyExec.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--color-text-dim);">Tidak ada sinyal eksekusi bot pada filter tanggal ini.</td></tr>`;
+        }
+      }
+    }
+
+    async function syncBinanceLedger() {
+      showToast("⏳ Mengambil data transaksi historis dari Binance Futures API...");
+      try {
+        const res = await fetch('/api/action/sync_binance', { method: 'POST' });
+        const d = await res.json();
+        if (d.success) {
+          showToast(`✅ Berhasil menyinkronkan data Binance! (${d.new_trades} trade baru, total ${d.total_trades} catatan)`);
+          loadJournalData();
+        } else {
+          showToast(`⚠️ Gagal sinkronisasi Binance: ${d.error || 'Unknown error'}`);
         }
       } catch (e) {
-        console.error("Error loading journal:", e);
+        showToast(`⚠️ Error sinkronisasi: ${e.message}`);
       }
     }
 
@@ -2173,6 +2496,18 @@
       refreshChartData();
       fetchDashboardFeed();
       setInterval(fetchDashboardFeed, 4000);
+
+      // Preload journal data so it is instant
+      loadJournalData();
+
+      // Check URL parameters (e.g. ?tab=journal or ?date=2026-09-05)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('tab') === 'journal' || urlParams.get('view') === 'journal') {
+        switchView('journal');
+      }
+      if (urlParams.get('date')) {
+        setJournalDateFilter(urlParams.get('date'));
+      }
     });
   </script>
 </body>

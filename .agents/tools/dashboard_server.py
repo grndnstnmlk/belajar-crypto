@@ -214,6 +214,7 @@ def get_journal_data():
     Aggregates quantitative trade journal data (Akademi Crypto Module 03):
     - Scorecard (Win Rate, Profit Factor, Expectancy, Payoff Ratio, Max Drawdown)
     - Closed Trades Ledger
+    - Bot Execution Signals from Trading Desk
     """
     try:
         metrics = trade_journal.calculate_journal_metrics("all")
@@ -226,9 +227,21 @@ def get_journal_data():
     except Exception as e:
         ledger = []
 
+    try:
+        desk_hist_path = os.path.join(ROOT_DIR, ".agents", "data", "trading_desk_history.json")
+        if os.path.exists(desk_hist_path):
+            with open(desk_hist_path, "r", encoding="utf-8") as f:
+                raw_desk = json.load(f)
+            executions = [x for x in reversed(raw_desk) if x.get("action") == "EXECUTE_TRADE"]
+        else:
+            executions = []
+    except Exception:
+        executions = []
+
     return {
         "metrics": metrics,
         "ledger": ledger,
+        "executions": executions,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
@@ -612,6 +625,19 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "mode": new_mode}).encode("utf-8"))
+        elif path == "/api/action/sync_binance":
+            try:
+                count = trade_journal.sync_binance_history(limit=1000)
+                total = len(trade_journal.load_journal())
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "new_trades": count, "total_trades": total}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
         self.send_response(404)

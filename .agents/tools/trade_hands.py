@@ -265,7 +265,51 @@ def close_position_manual(symbol_or_id, user_email=None):
     print(f"New Cash Balance : ${portfolio['cash_balance']:,.2f}")
     print("=======================================================\n")
 
-def show_status(user_email=None):
+def show_history(user_email=None, limit=None):
+    portfolio, user = load_portfolio(user_email)
+    history = portfolio.get("trade_history", [])
+
+    print("\n========================================================================================================")
+    print(f"       📜 RIWAYAT TRANSAKSI PAPER TRADING ({len(history)} Total Closed Trades)")
+    print(f"       👤 Akun Terpilih: {user}")
+    print("========================================================================================================")
+
+    if not history:
+        print("Belum ada riwayat transaksi yang ditutup.\n")
+        return
+
+    display_trades = history[-limit:] if (limit and limit > 0) else history
+
+    print(f"{'No':<4} {'ID':<20} {'Waktu Tutup':<19} {'Pair':<12} {'Arah':<7} {'Entry':<12} {'Exit':<12} {'PnL ($)':<14} {'PnL (%)':<10} {'Alasan'}")
+    print("-" * 115)
+
+    for idx, h in enumerate(display_trades, 1):
+        pnl = h.get("pnl_usd", 0.0)
+        pnl_pct = h.get("pnl_pct", 0.0)
+        pnl_str = f"{'+' if pnl >= 0 else ''}${pnl:,.2f}"
+        pct_str = f"{'+' if pnl_pct >= 0 else ''}{pnl_pct:.2f}%"
+        closed_at = h.get("closed_at", "-")
+        h_id = h.get("id", "-")
+        sym = h.get("symbol", "-")
+        side = h.get("side", "-")
+        entry = f"${h.get('entry_price', 0):,.4f}"
+        exit_p = f"${h.get('exit_price', 0):,.4f}"
+        reason = h.get("reason", "-")
+
+        print(f"{idx:<4} {h_id:<20} {closed_at:<19} {sym:<12} {side:<7} {entry:<12} {exit_p:<12} {pnl_str:<14} {pct_str:<10} {reason}")
+
+    total_realized = sum(h.get("pnl_usd", 0.0) for h in history)
+    win_trades = [h for h in history if h.get("pnl_usd", 0.0) > 0]
+    loss_trades = [h for h in history if h.get("pnl_usd", 0.0) <= 0]
+    total_closed = len(history)
+    win_rate = (len(win_trades) / total_closed * 100) if total_closed > 0 else 0.0
+
+    print("--------------------------------------------------------------------------------------------------------")
+    print(f"Total Trades: {total_closed} closed | Menang: {len(win_trades)} | Kalah: {len(loss_trades)} | Win Rate: {win_rate:.1f}%")
+    print(f"Total Realized P&L: {'+' if total_realized >= 0 else ''}${total_realized:,.2f} USDT")
+    print("========================================================================================================\n")
+
+def show_status(user_email=None, show_all_history=False):
     portfolio, user = load_portfolio(user_email)
     cash = portfolio["cash_balance"]
     unrealized_total = 0.0
@@ -302,6 +346,17 @@ def show_status(user_email=None):
 
     print(f"Realized P&L     : {'+' if total_realized >= 0 else ''}${total_realized:,.2f}")
     print(f"Total Trades     : {total_closed} closed | Win Rate: {win_rate:.1f}%")
+
+    if portfolio.get("trade_history"):
+        trades_to_show = portfolio["trade_history"] if show_all_history else portfolio["trade_history"][-5:]
+        hdr = "Semua Riwayat Transaksi" if show_all_history else "Riwayat Transaksi Terakhir (Gunakan command 'history' untuk melihat semua)"
+        print(f"\n--- 📜 {hdr} ({len(trades_to_show)}/{total_closed}) ---")
+        for h in trades_to_show:
+            pnl = h.get("pnl_usd", 0.0)
+            pnl_pct = h.get("pnl_pct", 0.0)
+            pnl_str = f"{'+' if pnl >= 0 else ''}${pnl:,.2f} ({'+' if pnl_pct >= 0 else ''}{pnl_pct:.2f}%)"
+            print(f" * [{h.get('id', '-')}] {h.get('closed_at', '-')} | {h.get('side', '')} {h.get('symbol', '')} | Entry: ${h.get('entry_price', 0):,.4f} -> Exit: ${h.get('exit_price', 0):,.4f} | PnL: {pnl_str} | {h.get('reason', '-')}")
+
     print("=======================================================\n")
 
 def reset_portfolio(balance=10000.0, user_email=None):
@@ -324,6 +379,12 @@ def main():
     # Status
     s_p = sub.add_parser("status", help="Lihat status portofolio")
     s_p.add_argument("--user", type=str, default=None, help="Email akun")
+    s_p.add_argument("--all", action="store_true", help="Tampilkan semua riwayat transaksi")
+
+    # History
+    h_p = sub.add_parser("history", help="Tampilkan semua riwayat trade yang selesai")
+    h_p.add_argument("--user", type=str, default=None, help="Email akun")
+    h_p.add_argument("--limit", type=int, default=None, help="Batasi jumlah transaksi (default: tampilkan semua)")
 
     # Open
     open_p = sub.add_parser("open", help="Buka posisi")
@@ -351,7 +412,9 @@ def main():
 
     args = parser.parse_args()
     if args.command == "status":
-        show_status(args.user)
+        show_status(args.user, show_all_history=args.all)
+    elif args.command == "history":
+        show_history(args.user, args.limit)
     elif args.command == "open":
         open_position(args.symbol, args.side, args.amount, args.sl, args.tp, args.entry, args.user)
     elif args.command == "update":

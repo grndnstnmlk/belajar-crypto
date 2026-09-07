@@ -5384,6 +5384,60 @@ function updateSimPositionsLiveHtml(){
   }).join('');
 }
 
+function clearSimTradeHistory(){
+  if(!confirm("Apakah Anda yakin ingin menghapus seluruh riwayat transaksi simulasi?")) return;
+  const state = getSimState();
+  state.tradeHistory = [];
+  saveSimState(state);
+  renderPaperTrading();
+}
+
+let simHistoryFilter = 'all';
+
+function setSimHistoryFilter(filter) {
+  simHistoryFilter = filter;
+  renderPaperTrading();
+}
+
+async function loadSimHistoryDate5() {
+  try {
+    const res = await fetch('/api/journal');
+    const data = await res.json();
+    if (data && data.ledger) {
+      const d5 = data.ledger.filter(t => (t.closed_at || '').includes('2026-09-05'));
+      if (d5.length > 0) {
+        const state = getSimState();
+        if (!state.tradeHistory) state.tradeHistory = [];
+        const mapped = d5.map(t => ({
+          pair: t.symbol,
+          direction: (t.side || 'LONG').toUpperCase(),
+          leverage: 10,
+          entryPrice: Number(t.entry_price || 0),
+          closePrice: Number(t.exit_price || 0),
+          pnlUsdt: Number(t.net_pnl_usd || t.pnl_usd || 0),
+          roiPct: Number(t.r_multiple ? t.r_multiple * 10 : 0).toFixed(1),
+          reason: t.exit_reason || 'Binance Realized PnL',
+          closeTime: t.closed_at || '2026-09-05'
+        }));
+        const existingKeys = new Set(state.tradeHistory.map(x => (x.closeTime || '') + (x.pair || '') + (x.pnlUsdt || 0)));
+        mapped.forEach(m => {
+          if (!existingKeys.has(m.closeTime + m.pair + m.pnlUsdt)) {
+            state.tradeHistory.unshift(m);
+          }
+        });
+        saveSimState(state);
+        simHistoryFilter = '2026-09-05';
+        renderPaperTrading();
+        alert(`Berhasil memuat ${mapped.length} transaksi Tanggal 5 September 2026 ke simulator!`);
+        return;
+      }
+    }
+    alert("Data transaksi tanggal 5 tidak ditemukan di server API.");
+  } catch (e) {
+    alert("Gagal memuat transaksi: " + e.message);
+  }
+}
+
 function renderPaperTrading(){
   const panel = document.getElementById('main-panel');
   panel.style.removeProperty('--accent');
@@ -5406,8 +5460,14 @@ function renderPaperTrading(){
   });
 
   const equity = state.balance + totalMarginUsed + totalUnrealizedPnl;
-  const totalTrades = (state.tradeHistory || []).length;
-  const winTrades = (state.tradeHistory || []).filter(t => t.pnlUsdt > 0).length;
+  
+  let displayedTrades = state.tradeHistory || [];
+  if (simHistoryFilter === '2026-09-05') {
+    displayedTrades = displayedTrades.filter(t => (t.closeTime || '').includes('2026-09-05') || (t.closeTime || '').includes('-05') || (t.closeTime || '').includes(' 05:'));
+  }
+
+  const totalTrades = displayedTrades.length;
+  const winTrades = displayedTrades.filter(t => t.pnlUsdt > 0).length;
   const winRate = totalTrades > 0 ? Math.round((winTrades / totalTrades) * 100) : 0;
 
   const pairBtnsHtml = Object.keys(SIM_PAIRS).map(pk => {
@@ -5415,19 +5475,19 @@ function renderPaperTrading(){
     return `<button class="sim-pair-btn ${pk === selectedSimPair ? 'active' : ''}" onclick="selectSimPair('${pk}')">${p.symbol} $${p.price.toLocaleString()}</button>`;
   }).join('');
 
-  const historyHtml = (state.tradeHistory && state.tradeHistory.length > 0)
-    ? state.tradeHistory.slice(0, 8).map(t => `
+  const historyHtml = (displayedTrades && displayedTrades.length > 0)
+    ? displayedTrades.map(t => `
         <tr>
           <td><strong>${t.pair}</strong></td>
           <td><span class="pos-dir-${t.direction.toLowerCase()}">${t.direction} ${t.leverage}x</span></td>
-          <td>$${t.entryPrice.toLocaleString()}</td>
-          <td>$${t.closePrice.toLocaleString()}</td>
-          <td class="${t.pnlUsdt >= 0 ? 'pnl-pos' : 'pnl-neg'}">${t.pnlUsdt >= 0 ? '+' : ''}$${t.pnlUsdt.toFixed(2)} (${t.pnlUsdt >= 0 ? '+' : ''}${t.roiPct}%)</td>
-          <td><span style="font-size:10px; color:var(--text-dim);">${t.reason}</span></td>
-          <td style="color:var(--text-dim); font-size:10px;">${t.closeTime}</td>
+          <td>$${Number(t.entryPrice || 0).toLocaleString()}</td>
+          <td>$${Number(t.closePrice || 0).toLocaleString()}</td>
+          <td class="${t.pnlUsdt >= 0 ? 'pnl-pos' : 'pnl-neg'}">${t.pnlUsdt >= 0 ? '+' : ''}$${Number(t.pnlUsdt || 0).toFixed(2)} (${Number(t.pnlUsdt || 0) >= 0 ? '+' : ''}${t.roiPct}%)</td>
+          <td><span style="font-size:10px; color:var(--text-dim);">${t.reason || '-'}</span></td>
+          <td style="color:var(--text-dim); font-size:10px;">${t.closeTime || '-'}</td>
         </tr>
       `).join('')
-    : `<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:14px;">Belum ada riwayat transaksi yang ditutup.</td></tr>`;
+    : `<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:14px;">Belum ada riwayat transaksi pada filter ini.</td></tr>`;
 
   panel.innerHTML = `
     <div class="sim-container">
@@ -5551,13 +5611,21 @@ function renderPaperTrading(){
       </div>
 
       <div class="sim-table-card">
-        <div class="sim-table-title">
-          <span>📜 Riwayat Transaksi Selesai</span>
-          <span class="mono" style="font-size:10px; color:var(--text-dim);">8 Transaksi Terakhir</span>
+        <div class="sim-table-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span>📜 Riwayat Transaksi Selesai</span>
+            <span class="mono" style="font-size:10px; color:var(--green);">${simHistoryFilter === '2026-09-05' ? 'Tanggal 5' : 'Semua'} (${totalTrades} Transaksi)</span>
+            <button class="btn-ghost mono" onclick="setSimHistoryFilter('all')" style="font-size:10px; padding:2px 8px; ${simHistoryFilter === 'all' ? 'background:rgba(255,255,255,0.08); color:var(--text); font-weight:700;' : ''}">Semua</button>
+            <button class="btn-ghost mono" onclick="setSimHistoryFilter('2026-09-05')" style="font-size:10px; padding:2px 8px; ${simHistoryFilter === '2026-09-05' ? 'background:rgba(246,190,0,0.15); color:var(--yellow); border-color:var(--yellow); font-weight:700;' : ''}">⭐ Tanggal 5</button>
+            <button class="btn-ghost mono" onclick="loadSimHistoryDate5()" style="font-size:10px; padding:2px 8px; color:var(--cyan); border-color:rgba(6,182,212,0.3);" title="Tarik riwayat transaksi Tanggal 5 dari database">📥 Sinkron Tanggal 5</button>
+          </div>
+          ${(state.tradeHistory && state.tradeHistory.length > 0) ? `
+            <button class="btn-ghost mono" onclick="clearSimTradeHistory()" style="font-size:10px; padding:3px 8px; color:var(--red); border-color:rgba(246,70,93,0.3);" title="Bersihkan Riwayat Transaksi">🗑️ Hapus Riwayat</button>
+          ` : ''}
         </div>
-        <div class="sim-table-wrap">
+        <div class="sim-table-wrap" style="max-height: 480px; overflow-y: auto;">
           <table class="sim-table">
-            <thead>
+            <thead style="position: sticky; top: 0; background: var(--bg-raised); z-index: 2;">
               <tr>
                 <th>Pasangan</th>
                 <th>Arah</th>
