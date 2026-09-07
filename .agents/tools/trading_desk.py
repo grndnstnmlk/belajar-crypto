@@ -696,6 +696,20 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             except Exception as e:
                 pass
 
+            # Check Derivatives Funding Rate & Liquidation Hunt Guardrail
+            try:
+                import coinglass_derivatives
+                hunt_audit = coinglass_derivatives.evaluate_liquidation_hunt(best["symbol"], best["side"])
+                if hunt_audit["decision"] == "VETO":
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [LIQUIDATION CROWD GUARD] ---")
+                    print(f"  🛑 {hunt_audit['reason']}")
+                    continue
+                elif hunt_audit["decision"] == "BOOST_HUNT":
+                    best["confluence_score"] = min(100, best.get("confluence_score", 80) + hunt_audit["confluence_boost"])
+                    print(f"  ⚡ {hunt_audit['reason']}")
+            except Exception as e:
+                pass
+
             print(f"\n--- [{idx}/{len(selected)}] EKSEKUSI SETUP: {best['side']} {best['symbol']} ---")
             print(f" * Konfluensi : {best['confluence_score']}% [{best['confluence_grade']}]")
             print(f" * Rationale  : {best['reason']}")
@@ -750,6 +764,26 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     print(f" ⚠️ [AI RISK ADJUST] Risiko disesuaikan oleh AI ke {scale*100:.0f}% ({effective_risk_pct:.2f}% modal)")
             except Exception as e:
                 print(f" * [AI Officer Note] Heuristic bypass: {e}")
+
+            # Volatility-Adaptive Dynamic ATR Stop Loss Buffer (Akademi Crypto Risk Precision)
+            try:
+                import market_regime
+                reg_info = market_regime.detect_market_regime(best["symbol"], "1h")
+                if reg_info and reg_info.get("atr", 0) > 0:
+                    atr_val = float(reg_info["atr"])
+                    min_sl_dist = atr_val * 1.25
+                    current_sl_dist = abs(best["price"] - best["sl"])
+                    if current_sl_dist < min_sl_dist:
+                        old_sl = best["sl"]
+                        if best["side"] in ["BUY", "LONG"]:
+                            best["sl"] = best["price"] - min_sl_dist
+                            best["tp"] = best["price"] + (min_sl_dist * best["rr"])
+                        else:
+                            best["sl"] = best["price"] + min_sl_dist
+                            best["tp"] = best["price"] - (min_sl_dist * best["rr"])
+                        print(f" 🛡️ [VOLATILITY-ADAPTIVE ATR STOP] SL disesuaikan dari ${old_sl:,.4f} ke ${best['sl']:,.4f} (Buffer 1.25x ATR ${atr_val:,.4f}) demi mencegah wick hunt.")
+            except Exception as e:
+                pass
 
             # Refresh live available free margin directly from exchange before sizing
             _, live_avail = get_account_financials(user_email, is_demo)

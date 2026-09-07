@@ -385,6 +385,104 @@ def format_telegram_report(data):
         f"💡 <i>Gunakan data ini untuk menghindari posisi yang terlalu ramai (crowded trade).</i>\n"
     )
 
+def evaluate_liquidation_hunt(symbol, side, deriv_intel=None):
+    """
+    Evaluates Funding Rate & Open Interest positioning extremes to:
+    1. VETO crowded retail traps (Longs during extreme positive funding, Shorts during extreme negative funding).
+    2. BOOST institutional liquidation hunt setups (Shorting into crowded longs, Longing into crowded shorts).
+    """
+    if deriv_intel is None:
+        deriv_intel = get_derivatives_intelligence(symbol)
+
+    if not deriv_intel:
+        return {
+            "is_approved": True,
+            "decision": "APPROVE",
+            "confluence_boost": 0,
+            "funding_rate_pct": 0.01,
+            "long_short_ratio": 1.0,
+            "bias": "NEUTRAL",
+            "reason": "Data derivatif tidak tersedia (Bypass)."
+        }
+
+    fr = float(deriv_intel.get("funding_rate_pct", 0.01))
+    ls = float(deriv_intel.get("long_short_ratio", 1.0))
+    side_clean = side.upper()
+    is_long = side_clean in ["BUY", "LONG"]
+    ccy = clean_coin(symbol)
+
+    # 1. Extreme Crowded Longs (FR >= +0.03% or L/S >= 2.5)
+    if fr >= 0.03 or ls >= 2.5:
+        if is_long:
+            return {
+                "is_approved": False,
+                "decision": "VETO",
+                "confluence_boost": 0,
+                "funding_rate_pct": fr,
+                "long_short_ratio": ls,
+                "bias": "BEARISH_SQUEEZE_RISK",
+                "reason": (
+                    f"🚨 [CROWDED LONGS VETO] {ccy} LONG DIBLOKIR: "
+                    f"Funding Rate sangat tinggi ({fr:+.4f}%) dan L/S ratio ({ls:.2f}) overleveraged. "
+                    f"Risiko Long Squeeze (likuidasi massal buyer ritel) sangat ekstrim!"
+                )
+            }
+        else:
+            return {
+                "is_approved": True,
+                "decision": "BOOST_HUNT",
+                "confluence_boost": 15,
+                "funding_rate_pct": fr,
+                "long_short_ratio": ls,
+                "bias": "INSTITUTIONAL_LIQUIDATION_HUNT",
+                "reason": (
+                    f"⚡ [LIQUIDATION HUNT ALPHA] {ccy} SHORT DI-BOOST (+15% Konfluensi): "
+                    f"Eksploitasi likuidasi ritel overleveraged Long (FR: {fr:+.4f}% | L/S: {ls:.2f}). "
+                    f"Institusi berpeluang menyapu stop-loss ritel ke bawah."
+                )
+            }
+
+    # 2. Extreme Crowded Shorts (FR <= -0.02% or L/S <= 0.75)
+    if fr <= -0.02 or ls <= 0.75:
+        if not is_long:
+            return {
+                "is_approved": False,
+                "decision": "VETO",
+                "confluence_boost": 0,
+                "funding_rate_pct": fr,
+                "long_short_ratio": ls,
+                "bias": "BULLISH_SQUEEZE_RISK",
+                "reason": (
+                    f"🚨 [CROWDED SHORTS VETO] {ccy} SHORT DIBLOKIR: "
+                    f"Funding Rate negatif ({fr:+.4f}%) dan L/S ratio ({ls:.2f}) panik Short. "
+                    f"Risiko Short Squeeze pump (likuidasi seller) sangat tinggi!"
+                )
+            }
+        else:
+            return {
+                "is_approved": True,
+                "decision": "BOOST_HUNT",
+                "confluence_boost": 15,
+                "funding_rate_pct": fr,
+                "long_short_ratio": ls,
+                "bias": "INSTITUTIONAL_LIQUIDATION_HUNT",
+                "reason": (
+                    f"⚡ [LIQUIDATION HUNT ALPHA] {ccy} LONG DI-BOOST (+15% Konfluensi): "
+                    f"Eksploitasi short squeeze pada posisi ritel yang panik short (FR: {fr:+.4f}% | L/S: {ls:.2f})."
+                )
+            }
+
+    # 3. Healthy / Balanced Order Flow
+    return {
+        "is_approved": True,
+        "decision": "APPROVE",
+        "confluence_boost": 0,
+        "funding_rate_pct": fr,
+        "long_short_ratio": ls,
+        "bias": "BALANCED",
+        "reason": f"✅ Arus order flow seimbang (FR: {fr:+.4f}% | L/S: {ls:.2f})."
+    }
+
 # Aliases for external caller & dashboard compatibility
 get_coinglass_sentiment_summary = get_derivatives_intelligence
 get_derivatives_summary = get_derivatives_intelligence

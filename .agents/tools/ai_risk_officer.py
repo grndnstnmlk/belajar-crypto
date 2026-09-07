@@ -263,6 +263,25 @@ def heuristic_quant_audit(setup, market_context=None):
                 suggested_scale = min(suggested_scale, 0.5)
                 key_risks.append(f"BTC 1H Choppy / Sideways (ADX: {adx:.1f} < 24) - Swing breakout rentan terkena fakeout rejeksi")
 
+    # 2C. Derivatives Funding Rate & Liquidation Hunt Positioning Guard
+    try:
+        import coinglass_derivatives
+        deriv_res = coinglass_derivatives.evaluate_liquidation_hunt(sym, side)
+        if deriv_res["decision"] == "VETO":
+            return {
+                "decision": "VETO",
+                "confidence": 94,
+                "suggested_risk_scale": 0.0,
+                "thesis": f"VETO: {deriv_res['reason']}",
+                "key_risks": ["Crowded Retail Positioning", "High Liquidation Cascade Risk"],
+                "invalidation_scenario": "Tunggu Funding Rate kembali netral dan rasio L/S normal.",
+                "provider": "Algorithmic Quant Heuristics"
+            }
+        elif deriv_res["decision"] == "BOOST_HUNT":
+            key_risks.append(f"Liquidation Hunt active: {deriv_res['reason']}")
+    except Exception:
+        pass
+
     # 3. Order Book Depth Wall Collision
     imb_ratio = float(depth.get("imbalance_ratio", 1.0)) if depth else 1.0
     if side in ["BUY", "LONG"] and imb_ratio <= 0.60:
