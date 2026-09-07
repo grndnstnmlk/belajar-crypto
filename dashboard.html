@@ -973,6 +973,7 @@
         </div>
         <span class="pill-badge blue">DUB OBSIDIAN</span>
         <span class="pill-badge mint" id="header-status-pill">● AUTOPILOT ACTIVE</span>
+        <span class="pill-badge blue" id="header-regime-pill" style="font-size:10px; cursor:help;" title="Rezim Pasar Kuantitatif (ADX & Multi-EMA)">● BTC REGIME: DETECTING</span>
       </div>
 
       <!-- Segmented View Tabs -->
@@ -1849,6 +1850,22 @@
         if (statusPill) {
           statusPill.className = feed.is_paused ? "pill-badge tangerine" : "pill-badge mint";
           statusPill.innerText = feed.is_paused ? "⏸️ AUTOPILOT PAUSED" : "● AUTOPILOT ACTIVE";
+        }
+
+        const regimePill = document.getElementById('header-regime-pill');
+        if (regimePill && feed.btc_regime && feed.btc_regime.regime_label) {
+          const r = feed.btc_regime;
+          regimePill.innerText = r.regime_label;
+          if (r.regime && r.regime.includes('BULLISH')) {
+            regimePill.className = 'pill-badge mint';
+          } else if (r.regime && r.regime.includes('BEARISH')) {
+            regimePill.className = 'pill-badge tangerine';
+          } else if (r.regime && r.regime.includes('SQUEEZE')) {
+            regimePill.className = 'pill-badge cyan';
+          } else {
+            regimePill.className = 'pill-badge blue';
+          }
+          regimePill.title = `Rezim BTC: ${r.desc || ''}\nStrategi: ${r.strategy_rec || ''} (ADX: ${r.adx || '-'}, ATR: ${r.atr || '-'})`;
         }
 
         if (feed.session && feed.session.session_name) {

@@ -36,6 +36,22 @@ def load_journal():
             pass
     return []
 
+def load_trade_ledger():
+    """Alias for load_journal() to provide full ledger of closed trades."""
+    return load_journal()
+
+def load_bot_executions():
+    """Loads recorded bot executions from trading_desk_history.json."""
+    desk_history_file = os.path.join(DATA_DIR, "trading_desk_history.json")
+    if os.path.exists(desk_history_file):
+        try:
+            with open(desk_history_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return [d for d in data if d.get("action") == "EXECUTE_TRADE"]
+        except Exception:
+            pass
+    return []
+
 def save_journal(trades):
     os.makedirs(DATA_DIR, exist_ok=True)
     try:

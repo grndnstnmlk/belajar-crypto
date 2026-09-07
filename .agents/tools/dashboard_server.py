@@ -153,6 +153,18 @@ def get_dashboard_feed_data(force_refresh=False):
         "next_event": next_ev.get("title") if next_ev else "None",
         "next_time": next_ev.get("time_wib_str") if next_ev else "-"
     }
+    # Macro Market Regime & Derivatives Flow
+    try:
+        import market_regime
+        feed["btc_regime"] = market_regime.detect_market_regime("BTCUSDT", "1h")
+    except Exception as e:
+        feed["btc_regime"] = {"error": str(e)}
+
+    try:
+        feed["derivatives_sentiment"] = coinglass_derivatives.get_derivatives_intelligence("BTC")
+    except Exception as e:
+        feed["derivatives_sentiment"] = {"error": str(e)}
+
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     _feed_cache = feed
