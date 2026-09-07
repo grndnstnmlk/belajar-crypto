@@ -2,11 +2,13 @@
 Market Eyes (Mata Agent) - Institutional Market Intelligence Engine
 Fetches real-time price, multi-timeframe candles, technical indicators (RSI, EMA 20/50/200),
 Fair Value Gaps (FVG), and Perpetual Funding Rates.
+Resilient multi-exchange data engine: Binance Vision (Primary) -> Binance Futures -> OKX (Fallback).
 """
 
 import argparse
 import json
 import math
+import ssl
 import sys
 import urllib.request
 import urllib.error
@@ -18,18 +20,236 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
+# SSL Context to prevent Windows / regional ISP SSL certificate verification blocks
+SSL_CTX = ssl.create_default_context()
+SSL_CTX.check_hostname = False
+SSL_CTX.verify_mode = ssl.CERT_NONE
+
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
-def fetch_json(url):
+def fetch_json(url, timeout=6):
+    """Safely fetches JSON with SSL bypass and silent error handling."""
     req = urllib.request.Request(url, headers=HEADERS)
     try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except Exception as e:
-        print(f"[Error] Fetching {url}: {e}", file=sys.stderr)
+        with urllib.request.urlopen(req, timeout=timeout, context=SSL_CTX) as resp:
+            data = resp.read()
+            if not data:
+                return None
+            return json.loads(data.decode("utf-8"))
+    except Exception:
         return None
+
+def fetch_ticker_data(symbol="BTC"):
+    """
+    Fetches 24h ticker metrics with automated failover:
+    Primary: Binance Vision (data-api.binance.vision)
+    Fallback 1: OKX Spot API (okx.com)
+    Fallback 2: Binance Live (api.binance.com)
+    """
+    base = symbol.upper().replace("-USDT", "").replace("USDT", "").replace("-", "").replace("/", "")
+    pair = f"{base}USDT"
+    inst_id_okx = f"{base}-USDT"
+
+    # 1. Primary: Binance Vision
+    url_bv = f"https://data-api.binance.vision/api/v3/ticker/24hr?symbol={pair}"
+    res = fetch_json(url_bv, timeout=5)
+    if res and "lastPrice" in res:
+        try:
+            last = float(res.get("lastPrice", 0))
+            open_24h = float(res.get("openPrice", 0))
+            high_24h = float(res.get("highPrice", 0))
+            low_24h = float(res.get("lowPrice", 0))
+            vol_quote = float(res.get("quoteVolume", 0))
+            chg_pct = float(res.get("priceChangePercent", 0))
+            return {
+                "source": "BINANCE_VISION",
+                "price": last,
+                "open_24h": open_24h,
+                "high_24h": high_24h,
+                "low_24h": low_24h,
+                "vol_quote_24h": vol_quote,
+                "change_pct": chg_pct
+            }
+        except Exception:
+            pass
+
+    # 2. Fallback: OKX Spot Ticker
+    url_okx = f"https://www.okx.com/api/v5/market/ticker?instId={inst_id_okx}"
+    res_okx = fetch_json(url_okx, timeout=5)
+    if res_okx and res_okx.get("code") == "0" and res_okx.get("data"):
+        try:
+            t = res_okx["data"][0]
+            last = float(t.get("last", 0))
+            open_24h = float(t.get("open24h", 0))
+            high_24h = float(t.get("high24h", 0))
+            low_24h = float(t.get("low24h", 0))
+            vol_quote = float(t.get("volCcy24h", 0))
+            chg_pct = ((last - open_24h) / open_24h * 100) if open_24h > 0 else 0
+            return {
+                "source": "OKX_SPOT",
+                "price": last,
+                "open_24h": open_24h,
+                "high_24h": high_24h,
+                "low_24h": low_24h,
+                "vol_quote_24h": vol_quote,
+                "change_pct": chg_pct
+            }
+        except Exception:
+            pass
+
+    # 3. Fallback: Binance Live
+    url_bl = f"https://api.binance.com/api/v3/ticker/24hr?symbol={pair}"
+    res_bl = fetch_json(url_bl, timeout=5)
+    if res_bl and "lastPrice" in res_bl:
+        try:
+            last = float(res_bl.get("lastPrice", 0))
+            open_24h = float(res_bl.get("openPrice", 0))
+            high_24h = float(res_bl.get("highPrice", 0))
+            low_24h = float(res_bl.get("lowPrice", 0))
+            vol_quote = float(res_bl.get("quoteVolume", 0))
+            chg_pct = float(res_bl.get("priceChangePercent", 0))
+            return {
+                "source": "BINANCE_LIVE",
+                "price": last,
+                "open_24h": open_24h,
+                "high_24h": high_24h,
+                "low_24h": low_24h,
+                "vol_quote_24h": vol_quote,
+                "change_pct": chg_pct
+            }
+        except Exception:
+            pass
+
+    return None
+
+def fetch_funding_rate(symbol="BTC"):
+    """
+    Fetches Perpetual Funding Rate with automated failover:
+    Primary: Binance Futures Testnet / Live (/fapi/v1/premiumIndex)
+    Fallback: OKX Swap (/api/v5/public/funding-rate)
+    """
+    base = symbol.upper().replace("-USDT", "").replace("USDT", "").replace("-", "").replace("/", "")
+    pair = f"{base}USDT"
+    inst_id_okx = f"{base}-USDT-SWAP"
+
+    # 1. Primary: Binance Futures (Testnet or Live)
+    urls = [
+        f"https://testnet.binancefuture.com/fapi/v1/premiumIndex?symbol={pair}",
+        f"https://fapi.binance.com/fapi/v1/premiumIndex?symbol={pair}"
+    ]
+    for u in urls:
+        res = fetch_json(u, timeout=4)
+        if res and "lastFundingRate" in res:
+            try:
+                raw_rate = float(res.get("lastFundingRate", 0))
+                return raw_rate * 100
+            except Exception:
+                pass
+
+    # 2. Fallback: OKX Swap Funding
+    url_okx = f"https://www.okx.com/api/v5/public/funding-rate?instId={inst_id_okx}"
+    res_okx = fetch_json(url_okx, timeout=4)
+    if res_okx and res_okx.get("code") == "0" and res_okx.get("data"):
+        try:
+            raw_rate = float(res_okx["data"][0].get("fundingRate", 0))
+            return raw_rate * 100
+        except Exception:
+            pass
+
+    return None
+
+def fetch_candles(symbol="BTC", bar="1H", limit=60):
+    """
+    Unified multi-exchange candlestick fetcher.
+    Returns standard raw candles in chronological order (oldest to newest):
+    [[timestamp, open, high, low, close, volume, quoteVolume], ...]
+    """
+    base = symbol.upper().replace("-USDT", "").replace("USDT", "").replace("-", "").replace("/", "")
+    pair = f"{base}USDT"
+    bar_clean = bar.upper()
+
+    # Map bar to Binance interval
+    interval_map = {
+        "1M": "1m", "3M": "3m", "5M": "5m", "15M": "15m", "30M": "30m",
+        "1H": "1h", "2H": "2h", "4H": "4h", "6H": "6h", "8H": "8h", "12H": "12h",
+        "1D": "1d", "1W": "1w", "1MO": "1M"
+    }
+    interval_binance = interval_map.get(bar_clean, "1h")
+
+    # 1. Primary: Binance Vision Klines
+    url_bv = f"https://data-api.binance.vision/api/v3/klines?symbol={pair}&interval={interval_binance}&limit={limit}"
+    res = fetch_json(url_bv, timeout=6)
+    if res and isinstance(res, list) and len(res) > 0:
+        try:
+            candles = []
+            for c in res:
+                candles.append([
+                    int(c[0]),
+                    float(c[1]),
+                    float(c[2]),
+                    float(c[3]),
+                    float(c[4]),
+                    float(c[5]),
+                    float(c[7]) if len(c) > 7 else float(c[5]) * float(c[4])
+                ])
+            return candles
+        except Exception:
+            pass
+
+    # 2. Fallback: OKX Spot Candles
+    bar_okx = "1H"
+    if "5M" in bar_clean:
+        bar_okx = "5m"
+    elif "15M" in bar_clean:
+        bar_okx = "15m"
+    elif "4H" in bar_clean:
+        bar_okx = "4H"
+    elif "1D" in bar_clean:
+        bar_okx = "1D"
+
+    url_okx = f"https://www.okx.com/api/v5/market/candles?instId={base}-USDT&bar={bar_okx}&limit={limit}"
+    res_okx = fetch_json(url_okx, timeout=6)
+    if res_okx and res_okx.get("code") == "0" and res_okx.get("data"):
+        try:
+            raw = list(reversed(res_okx["data"]))
+            candles = []
+            for c in raw:
+                candles.append([
+                    int(c[0]),
+                    float(c[1]),
+                    float(c[2]),
+                    float(c[3]),
+                    float(c[4]),
+                    float(c[5]),
+                    float(c[7]) if len(c) > 7 else float(c[5]) * float(c[4])
+                ])
+            return candles
+        except Exception:
+            pass
+
+    # 3. Fallback: Binance Live Klines
+    url_bl = f"https://api.binance.com/api/v3/klines?symbol={pair}&interval={interval_binance}&limit={limit}"
+    res_bl = fetch_json(url_bl, timeout=6)
+    if res_bl and isinstance(res_bl, list) and len(res_bl) > 0:
+        try:
+            candles = []
+            for c in res_bl:
+                candles.append([
+                    int(c[0]),
+                    float(c[1]),
+                    float(c[2]),
+                    float(c[3]),
+                    float(c[4]),
+                    float(c[5]),
+                    float(c[7]) if len(c) > 7 else float(c[5]) * float(c[4])
+                ])
+            return candles
+        except Exception:
+            pass
+
+    return []
 
 def calculate_rsi(prices, period=14):
     if len(prices) < period + 1:
@@ -330,53 +550,60 @@ def detect_liquidity_sweep_mss(highs, lows, closes, current_price, tolerance=0.0
     return None
 
 def get_market_eyes(symbol="BTC", bar="1H"):
-    base = symbol.upper().replace("-USDT", "").replace("USDT", "")
+    base = symbol.upper().replace("-USDT", "").replace("USDT", "").replace("-", "").replace("/", "")
     inst_id_spot = f"{base}-USDT"
-    inst_id_swap = f"{base}-USDT-SWAP"
     bar_clean = bar.upper()
 
     print(f"\n=======================================================")
     print(f"       👁️ MARKET EYES INTELLIGENCE: {inst_id_spot}")
     print(f"=======================================================")
 
-    # 1. Fetch Spot Ticker
-    ticker_url = f"https://www.okx.com/api/v5/market/ticker?instId={inst_id_spot}"
-    ticker_res = fetch_json(ticker_url)
-    if not ticker_res or ticker_res.get("code") != "0" or not ticker_res.get("data"):
+    # 1. Fetch Ticker Data
+    ticker_data = fetch_ticker_data(base)
+    if not ticker_data or ticker_data.get("price", 0) <= 0:
         print(f"Error: Unable to find market ticker for {inst_id_spot}.")
         return None
 
-    ticker_data = ticker_res["data"][0]
-    current_price = float(ticker_data.get("last", 0))
-    open_24h = float(ticker_data.get("open24h", 0))
-    high_24h = float(ticker_data.get("high24h", 0))
-    low_24h = float(ticker_data.get("low24h", 0))
-    vol_quote_24h = float(ticker_data.get("volCcy24h", 0))
-    change_pct = ((current_price - open_24h) / open_24h * 100) if open_24h > 0 else 0
+    current_price = ticker_data["price"]
+    open_24h = ticker_data["open_24h"]
+    high_24h = ticker_data["high_24h"]
+    low_24h = ticker_data["low_24h"]
+    vol_quote_24h = ticker_data["vol_quote_24h"]
+    change_pct = ticker_data["change_pct"]
+    feed_src = ticker_data.get("source", "BINANCE")
 
+    print(f"Feed Source      : {feed_src}")
     print(f"Current Price    : ${current_price:,.4f}")
     print(f"24h Price Change : {change_pct:+.2f}%")
     print(f"24h High / Low   : ${high_24h:,.4f} / ${low_24h:,.4f}")
     print(f"24h Quote Volume : ${vol_quote_24h / 1_000_000:,.2f} Million USDT")
 
     # 2. Fetch Funding Rate (Market Sentiment & Overleverage)
-    funding_url = f"https://www.okx.com/api/v5/public/funding-rate?instId={inst_id_swap}"
-    funding_res = fetch_json(funding_url)
-    funding_rate = None
-    if funding_res and funding_res.get("code") == "0" and funding_res.get("data"):
-        raw_rate = float(funding_res["data"][0].get("fundingRate", 0))
-        funding_rate = raw_rate * 100
+    funding_rate = fetch_funding_rate(base)
+    if funding_rate is not None:
         sentiment = "High Longs / Bullish Excess (Careful of Long Squeeze)" if funding_rate > 0.03 else "High Shorts / Squeeze Potential" if funding_rate < -0.01 else "Healthy / Balanced"
         print(f"Perp Funding Rate: {funding_rate:+.4f}% [{sentiment}]")
 
     # 3. Candlesticks & Technical Indicators
-    candles_url = f"https://www.okx.com/api/v5/market/candles?instId={inst_id_spot}&bar={bar_clean}&limit=60"
-    candles_res = fetch_json(candles_url)
-    if candles_res and candles_res.get("code") == "0" and candles_res.get("data"):
-        raw_candles = list(reversed(candles_res["data"]))
+    raw_candles = fetch_candles(base, bar=bar_clean, limit=60)
+    bias = "NEUTRAL"
+    rsi14 = None
+    ema20 = None
+    ema50 = None
+    fvg = None
+    three_touch = None
+    volume_profile = None
+    liquidity_sweep = None
+    vwap_data = None
+
+    if raw_candles and len(raw_candles) >= 15:
         closes = [float(c[4]) for c in raw_candles]
         highs = [float(c[2]) for c in raw_candles]
         lows = [float(c[3]) for c in raw_candles]
+
+        # Use latest candle close if available for tighter sync
+        if closes and closes[-1] > 0:
+            current_price = closes[-1]
 
         rsi14 = calculate_rsi(closes, 14)
         ema20 = calculate_ema(closes, min(20, len(closes)))
@@ -439,17 +666,17 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         "symbol": inst_id_spot,
         "price": current_price,
         "change_pct": change_pct,
-        "high_24h": high_24h if 'high_24h' in locals() else None,
-        "low_24h": low_24h if 'low_24h' in locals() else None,
-        "rsi": rsi14 if 'rsi14' in locals() else None,
-        "ema20": ema20 if 'ema20' in locals() else None,
-        "ema50": ema50 if 'ema50' in locals() else None,
-        "bias": bias if 'bias' in locals() else "NEUTRAL",
-        "fvg": fvg if 'fvg' in locals() else None,
-        "three_touch": three_touch if 'three_touch' in locals() else None,
-        "volume_profile": volume_profile if 'volume_profile' in locals() else None,
-        "liquidity_sweep": liquidity_sweep if 'liquidity_sweep' in locals() else None,
-        "vwap": vwap_data if 'vwap_data' in locals() else None,
+        "high_24h": high_24h,
+        "low_24h": low_24h,
+        "rsi": rsi14,
+        "ema20": ema20,
+        "ema50": ema50,
+        "bias": bias,
+        "fvg": fvg,
+        "three_touch": three_touch,
+        "volume_profile": volume_profile,
+        "liquidity_sweep": liquidity_sweep,
+        "vwap": vwap_data,
         "funding_rate": funding_rate
     }
 

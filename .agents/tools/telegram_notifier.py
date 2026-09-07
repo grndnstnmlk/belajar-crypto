@@ -431,6 +431,45 @@ def notify_structural_trailing_updated(symbol, side, mark_price, new_sl_price, s
         f"━━━━━━━━━━━━━━━━━━\n"
         f"🛡️ <i>SL dipindah secara otomatis ke bawah Protected Swing Pivot dengan anti-sweep liquidity hunt buffer. Modal & profit terlindungi dari manipulasi wick!</i>"
     )
+def notify_ai_early_tp(symbol, side, mark_price, pnl_usd, r_multiple, thesis, is_demo=True):
+    """
+    Sends rich alert when AI Adaptive Profit Harvester executes an early market take profit
+    to lock in gains before momentum exhausts and reverses.
+    """
+    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
+    side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
+    pnl_sign = "+" if pnl_usd >= 0 else ""
+    msg = (
+        f"🎯 <b>AI ADAPTIVE EARLY TAKE PROFIT!</b>\n"
+        f"<i>Mode: {mode_text} | AI Sentinel Profit Harvester</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code> ({side_icon})\n"
+        f"💰 <b>Cuan Kas Terkunci:</b> <b>{pnl_sign}${pnl_usd:,.2f} USDT (+{r_multiple:.2f}R)</b>\n"
+        f"💵 <b>Harga Exit:</b> <code>${mark_price:,.4f}</code>\n"
+        f"🤖 <b>Analisa AI Sentinel:</b>\n"
+        f"<i>\"{html.escape(thesis)}\"</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🎉 <i>Trade diselesaikan otomatis dengan PROFIT! Menghindari risiko berbalik arah terkena Stop Loss.</i>"
+    )
+    return send_telegram_msg(msg)
+
+def notify_ai_profit_lock(symbol, side, mark_price, new_sl_price, current_pnl, r_multiple, is_demo=True):
+    """
+    Sends notification when AI tightens Stop Loss directly into the profit zone (+0.25R above entry).
+    """
+    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
+    side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
+    pnl_sign = "+" if current_pnl >= 0 else ""
+    msg = (
+        f"🛡️ <b>AI GREEN-EXIT PROFIT LOCK!</b>\n"
+        f"<i>Mode: {mode_text} | AI Sentinel Profit Guard</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code> ({side_icon})\n"
+        f"📈 <b>Floating Profit:</b> <code>{pnl_sign}${current_pnl:,.2f} USDT (+{r_multiple:.2f}R)</code>\n"
+        f"🛑 <b>Stop Loss Dikunci ke Profit:</b> <code>${new_sl_price:,.4f}</code>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🔒 <i>Garansi Green Exit! Posisi sekarang memiliki jaminan keluar dalam keadaan UNTUNG jika harga tersenggol balik.</i>"
+    )
     return send_telegram_msg(msg)
 
 def notify_pnl_summary(balance_usd, active_positions, is_demo=True):

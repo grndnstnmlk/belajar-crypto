@@ -1,14 +1,26 @@
 """
 Crypto Market Live Scanner (Zero-Dependency)
-Powered by OKX Public Spot API & Candlestick Feeds.
+Powered by Binance Public Spot API & Candlestick Feeds.
 """
 
 import argparse
 import json
 import math
+import ssl
 import sys
 import urllib.request
 import urllib.error
+
+# Ensure UTF-8 output on Windows console
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+SSL_CTX = ssl.create_default_context()
+SSL_CTX.check_hostname = False
+SSL_CTX.verify_mode = ssl.CERT_NONE
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -17,8 +29,11 @@ HEADERS = {
 def fetch_json(url):
     req = urllib.request.Request(url, headers=HEADERS)
     try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            return json.loads(resp.read().decode("utf-8"))
+        with urllib.request.urlopen(req, timeout=10, context=SSL_CTX) as resp:
+            data = resp.read()
+            if not data:
+                return None
+            return json.loads(data.decode("utf-8"))
     except Exception as e:
         print(f"[Error] Failed to fetch {url}: {e}", file=sys.stderr)
         return None
@@ -45,33 +60,33 @@ def calculate_rsi(prices, period=14):
     return round(100.0 - (100.0 / (1.0 + rs)), 2)
 
 def scan_top_markets(limit=15):
-    print(f"=== Scanning Top {limit} Crypto Markets by 24h Volume (OKX Spot) ===\n")
-    url = "https://www.okx.com/api/v5/market/tickers?instType=SPOT"
-    res = fetch_json(url)
-    if not res or res.get("code") != "0":
-        print("Could not retrieve market data.")
+    print(f"=== Scanning Top {limit} Crypto Markets by 24h Volume (Binance Spot) ===\n")
+    url = "https://data-api.binance.vision/api/v3/ticker/24hr"
+    data = fetch_json(url)
+    if not data or not isinstance(data, list):
+        print("Could not retrieve market data from Binance.")
         return
 
-    data = res.get("data", [])
-    ignored_bases = ["USDC", "EUR", "DAI", "TUSD", "FDUSD", "AEUR"]
+    ignored_bases = ["USDC", "EUR", "DAI", "TUSD", "FDUSD", "AEUR", "BUSD"]
     valid = []
 
     for item in data:
-        inst_id = item.get("instId", "")
-        if not inst_id.endswith("-USDT"):
+        symbol = item.get("symbol", "")
+        if not symbol.endswith("USDT"):
             continue
-        base = inst_id.split("-")[0]
-        if base in ignored_bases:
+        base = symbol[:-4]
+        if base in ignored_bases or any(c in base for c in ["UP", "DOWN", "BEAR", "BULL"]):
             continue
 
         try:
-            last_price = float(item.get("last", 0))
-            open_24h = float(item.get("open24h", 0))
-            vol_24h = float(item.get("volCcy24h", 0))  # quote volume in USDT
-            pct_change = ((last_price - open_24h) / open_24h * 100) if open_24h > 0 else 0.0
+            last_price = float(item.get("lastPrice", 0))
+            open_24h = float(item.get("openPrice", 0))
+            vol_24h = float(item.get("quoteVolume", 0))  # quote volume in USDT
+            pct_change = float(item.get("priceChangePercent", 0))
 
             valid.append({
-                "instId": inst_id,
+                "instId": f"{base}-USDT",
+                "symbol": symbol,
                 "base": base,
                 "price": last_price,
                 "change_pct": pct_change,
@@ -92,24 +107,25 @@ def scan_top_markets(limit=15):
         print(f"{c['instId']:<12} | ${price_fmt:<13} | {chg_str:<12} | ${c['volume_m']:>7.1f}M")
 
 def analyze_symbol(symbol, bar="1H"):
-    base = symbol.upper().replace("-USDT", "").replace("USDT", "")
+    base = symbol.upper().replace("-USDT", "").replace("USDT", "").replace("-", "")
+    pair = f"{base}USDT"
     inst_id = f"{base}-USDT"
     bar_clean = bar.upper()
-    print(f"\nAnalyzing {inst_id} [{bar_clean}] candlestick data...")
 
-    url = f"https://www.okx.com/api/v5/market/candles?instId={inst_id}&bar={bar_clean}&limit=60"
-    res = fetch_json(url)
-    if not res or res.get("code") != "0" or not res.get("data"):
+    interval_map = {"15M": "15m", "1H": "1h", "4H": "4h", "1D": "1d"}
+    interval = interval_map.get(bar_clean, "1h")
+
+    print(f"\nAnalyzing {inst_id} [{bar_clean}] candlestick data via Binance...")
+
+    url = f"https://data-api.binance.vision/api/v3/klines?symbol={pair}&interval={interval}&limit=60"
+    raw = fetch_json(url)
+    if not raw or not isinstance(raw, list):
         print(f"Failed to fetch candlesticks for {inst_id}. Make sure the pair exists.")
         return
 
-    # OKX candles format: [ts, open, high, low, close, vol, volCcy, volCcyQuote, confirm]
-    # Data is ordered from newest to oldest; reverse to chronological order
-    raw_candles = list(reversed(res["data"]))
-
-    closes = [float(k[4]) for k in raw_candles]
-    highs = [float(k[2]) for k in raw_candles]
-    lows = [float(k[3]) for k in raw_candles]
+    closes = [float(k[4]) for k in raw]
+    highs = [float(k[2]) for k in raw]
+    lows = [float(k[3]) for k in raw]
 
     current_price = closes[-1]
     rsi = calculate_rsi(closes, period=14)
@@ -126,7 +142,7 @@ def analyze_symbol(symbol, bar="1H"):
 
     # Fair Value Gap (FVG) detection in last 5 candles
     fvg_info = "None detected in recent 5 candles"
-    for i in range(len(raw_candles) - 1, max(1, len(raw_candles) - 6), -1):
+    for i in range(len(raw) - 1, max(1, len(raw) - 6), -1):
         if lows[i] > highs[i - 2]:
             fvg_info = f"Bullish FVG zone between ${highs[i-2]:,.4f} and ${lows[i]:,.4f}"
             break
@@ -154,7 +170,7 @@ def analyze_symbol(symbol, bar="1H"):
     print(f"=======================================================\n")
 
 def main():
-    parser = argparse.ArgumentParser(description="Crypto Market Live Scanner (OKX Spot)")
+    parser = argparse.ArgumentParser(description="Crypto Market Live Scanner (Binance Spot)")
     parser.add_argument("--top", type=int, default=15, help="Number of top volume coins to list")
     parser.add_argument("--symbol", type=str, default=None, help="Analyze specific token (e.g. BTC, ETH, SOL)")
     parser.add_argument("--bar", type=str, default="1H", help="Candle bar: 15m, 1H, 4H, 1D")

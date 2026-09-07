@@ -51,20 +51,16 @@ SSL_CTX.verify_mode = ssl.CERT_NONE
 
 def fetch_candles_for_snapshot(symbol="BTC", bar="1H", limit=45):
     """
-    Fetches latest candles for snapshot from OKX public REST API.
+    Fetches latest candles for snapshot from Binance via market_eyes.
     """
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
-    inst_id_spot = f"{sym_clean}-USDT"
-    bar_param = "5m" if "5M" in bar.upper() else ("15m" if "15M" in bar.upper() else "1H")
-    url = f"https://www.okx.com/api/v5/market/candles?instId={inst_id_spot}&bar={bar_param}&limit={limit}"
-
-    res = market_eyes.fetch_json(url)
-    if not res or res.get("code") != "0" or not res.get("data"):
+    bar_param = "5M" if "5M" in bar.upper() else ("15M" if "15M" in bar.upper() else "1H")
+    raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar_param, limit=limit)
+    if not raw_candles:
         return []
 
-    sorted_raw = sorted(res["data"], key=lambda x: int(x[0]))
     parsed = []
-    for c in sorted_raw:
+    for c in raw_candles:
         parsed.append({
             "time": datetime.fromtimestamp(int(c[0]) / 1000).strftime("%H:%M"),
             "open": float(c[1]),

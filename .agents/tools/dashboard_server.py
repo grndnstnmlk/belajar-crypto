@@ -200,12 +200,28 @@ def get_market_intelligence_data():
     except Exception as e:
         liq = {"error": str(e)}
 
+    # Fincept Terminal Global Macro Intelligence
+    try:
+        import macro_liquidity
+        macro_intel = macro_liquidity.get_macro_liquidity_summary()
+    except Exception as e:
+        macro_intel = {"error": str(e)}
+
+    # Fincept Terminal Institutional Quant Risk Engine
+    try:
+        import quant_risk_engine
+        quant_risk = quant_risk_engine.get_full_quant_risk_summary(balance_usd=balance, active_positions=active_pos)
+    except Exception as e:
+        quant_risk = {"error": str(e)}
+
     return {
         "compass": compass,
         "heat": heat,
         "coinbase_premium": cb_prem,
         "derivatives": derivs,
         "liquidity": liq,
+        "macro": macro_intel,
+        "quant_risk": quant_risk,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
@@ -218,25 +234,10 @@ def get_journal_data():
     """
     try:
         metrics = trade_journal.calculate_journal_metrics("all")
+        ledger = trade_journal.load_trade_ledger()
+        executions = trade_journal.load_bot_executions()
     except Exception as e:
-        metrics = {"error": str(e)}
-
-    try:
-        raw_ledger = trade_journal.load_journal()
-        ledger = list(reversed(raw_ledger))
-    except Exception as e:
-        ledger = []
-
-    try:
-        desk_hist_path = os.path.join(ROOT_DIR, ".agents", "data", "trading_desk_history.json")
-        if os.path.exists(desk_hist_path):
-            with open(desk_hist_path, "r", encoding="utf-8") as f:
-                raw_desk = json.load(f)
-            executions = [x for x in reversed(raw_desk) if x.get("action") == "EXECUTE_TRADE"]
-        else:
-            executions = []
-    except Exception:
-        executions = []
+        return {"error": str(e)}
 
     return {
         "metrics": metrics,
@@ -247,19 +248,16 @@ def get_journal_data():
 
 def get_chart_data(symbol="BTC", bar="1H"):
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
-    inst_id_spot = f"{sym_clean}-USDT"
-    candles_url = f"https://www.okx.com/api/v5/market/candles?instId={inst_id_spot}&bar={bar}&limit=120"
-    res = market_eyes.fetch_json(candles_url)
+    raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar, limit=120)
 
-    if not res or res.get("code") != "0" or not res.get("data"):
+    if not raw_candles or len(raw_candles) < 5:
         return {"error": "Failed to fetch candlestick feed"}
 
-    raw_candles = list(reversed(res["data"]))
     candles = []
     closes = []
 
     for c in raw_candles:
-        # OKX candle format: [ts, open, high, low, close, vol, volCcy, volCcyQuote, confirm]
+        # candle format: [ts_ms, open, high, low, close, vol, quoteVol]
         ts_sec = int(int(c[0]) / 1000)
         o = float(c[1])
         h = float(c[2])

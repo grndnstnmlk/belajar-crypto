@@ -184,6 +184,16 @@ def detect_market_regime(symbol="BTCUSDT", interval="1h"):
         strategy_rec = "MEAN REVERSION (RSI OVERSOLD/OVERBOUGHT)"
         desc = f"Pasar tidak memiliki tren kuat (ADX: {adx} < 24). Hindari Breakout! Gunakan strategi Mean Reversion pantulan Support/Resistance."
 
+    # Directional bias calculation
+    if current_price > ema20 and plus_di > minus_di:
+        bias = "BULLISH"
+    elif current_price < ema20 and minus_di > plus_di:
+        bias = "BEARISH"
+    elif current_price < ema50 or minus_di > plus_di:
+        bias = "LEANING_BEARISH"
+    else:
+        bias = "NEUTRAL"
+
     return {
         "symbol": symbol.upper(),
         "interval": interval.upper(),
@@ -195,11 +205,75 @@ def detect_market_regime(symbol="BTCUSDT", interval="1h"):
         "minus_di": minus_di,
         "ema20": round(ema20, 4),
         "ema50": round(ema50, 4),
+        "bias": bias,
         "regime": regime,
         "regime_label": regime_label,
         "strategy_rec": strategy_rec,
         "description": desc
     }
+
+def filter_candidate_by_regime(candidate, btc_regime=None):
+    """
+    Master Gatekeeper:
+    1. Blocks Altcoin Longs when BTC 1H is Bearish (fighting systemic market gravity).
+    2. Blocks Altcoin Shorts when BTC 1H is Bullish.
+    3. Blocks Swing breakout trades when BTC is Choppy / Sideways (ADX < 24) to prevent fakeouts.
+    Returns: (is_approved: bool, rationale: str)
+    """
+    if btc_regime is None:
+        btc_regime = detect_market_regime("BTCUSDT", interval="1h")
+
+    if not btc_regime:
+        return True, "✅ Lolos: Data rezim BTC tidak tersedia (Bypass)."
+
+    sym = candidate.get("symbol", "").upper().replace("-", "").replace("/", "").replace("_", "")
+    is_btc = "BTC" in sym
+    side = candidate.get("side", "BUY").upper()
+    is_long = side in ["BUY", "LONG"]
+    is_scalp = candidate.get("is_scalp", False)
+
+    btc_bias = btc_regime.get("bias", "NEUTRAL")
+    btc_regime_name = btc_regime.get("regime", "RANGING_CHOPPY")
+    adx = float(btc_regime.get("adx", 20.0))
+    minus_di = float(btc_regime.get("minus_di", 0.0))
+    plus_di = float(btc_regime.get("plus_di", 0.0))
+    price = float(btc_regime.get("price", 0.0))
+    ema20 = float(btc_regime.get("ema20", 0.0))
+
+    # -------------------------------------------------------------
+    # RULE 1: BTC DIRECTIONAL GRAVITY (HUKUM MUTLAK KRIPTO)
+    # -------------------------------------------------------------
+    # A. BTC is Bearish -> Strictly Block Altcoin Longs!
+    if (btc_bias in ["BEARISH", "LEANING_BEARISH"] or (price < ema20 and minus_di > plus_di)):
+        if is_long and not is_btc:
+            return False, (
+                f"🚨 [BTC MACRO TREND GUARD] {sym} LONG DIBLOKIR: "
+                f"Bitcoin 1H sedang Bearish (Harga ${price:,.0f} < EMA20 ${ema20:,.0f} | -DI: {minus_di:.1f} > +DI: {plus_di:.1f}). "
+                f"Melarang Long Altcoin saat BTC tertekan demi mencegah terseret dump!"
+            )
+
+    # B. BTC is Bullish -> Strictly Block Altcoin Shorts!
+    if btc_bias == "BULLISH" or (price > ema20 and plus_di > minus_di):
+        if not is_long and not is_btc:
+            return False, (
+                f"🚨 [BTC MACRO TREND GUARD] {sym} SHORT DIBLOKIR: "
+                f"Bitcoin 1H sedang Bullish (Harga ${price:,.0f} > EMA20 ${ema20:,.0f} | +DI: {plus_di:.1f} > -DI: {minus_di:.1f}). "
+                f"Melarang Short Altcoin saat BTC sedang reli ekspansi!"
+            )
+
+    # -------------------------------------------------------------
+    # RULE 2: CHOPPY / SIDEWAYS ADX GUARD (PREVENT FAKEOUT SWINGS)
+    # -------------------------------------------------------------
+    if adx < 24.0 or btc_regime_name in ["RANGING_CHOPPY", "VOLATILITY_SQUEEZE"]:
+        if not is_scalp:
+            return False, (
+                f"🚨 [MARKET REGIME CHOPPY GUARD] {sym} SWING DIBLOKIR: "
+                f"Rezim pasar BTC 1H sedang Ranging / Sideways (ADX: {adx:.1f} < 24). "
+                f"Breakout swing rawan terkena fakeout / sumbu rejeksi! "
+                f"Sistem standby atau membatasi eksekusi hanya untuk mode Fast Scalp."
+            )
+
+    return True, f"✅ Lolos: Setup {side} {sym} selaras dengan rezim pasar BTC ({btc_regime['regime_label']})."
 
 def display_regime_report(info):
     if not info:

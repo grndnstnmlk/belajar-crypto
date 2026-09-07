@@ -1298,6 +1298,96 @@
               </div>
             </div>
           </div>
+
+          <!-- GLOBAL MACRO INTELLIGENCE COMPASS (FINCEPT SUITE) -->
+          <div class="intel-card">
+            <div class="intel-card-header">
+              <div class="intel-card-title">
+                <span>🌐 Global Macro Compass (Fincept Suite)</span>
+              </div>
+              <span class="pill-badge mint" id="macro-regime-pill">RISK_ON</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                <!-- DXY -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">US Dollar Index (DXY)</span>
+                  <div class="mono" id="macro-dxy-val" style="font-size:15px; font-weight:700; color:var(--color-text); margin-top:3px;">--</div>
+                  <div class="mono" id="macro-dxy-sub" style="font-size:10.5px; margin-top:2px; color:var(--color-mint);">0.00%</div>
+                </div>
+
+                <!-- US 10Y Yield -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">US 10Y Yield (^TNX)</span>
+                  <div class="mono" id="macro-10y-val" style="font-size:15px; font-weight:700; color:var(--color-text); margin-top:3px;">--</div>
+                  <div class="mono" id="macro-10y-sub" style="font-size:10.5px; margin-top:2px; color:var(--color-text-dim);">0.00%</div>
+                </div>
+
+                <!-- Fear & Greed -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Fear & Greed Index</span>
+                  <div class="mono" id="macro-fng-val" style="font-size:15px; font-weight:700; color:var(--color-mint); margin-top:3px;">50 / 100</div>
+                  <div id="macro-fng-label" style="font-size:10.5px; margin-top:2px; color:var(--color-text-dim);">Neutral</div>
+                </div>
+              </div>
+
+              <!-- Macro Thesis Box -->
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px; font-size:11.5px; color:var(--color-text-dim); display:flex; align-items:center; gap:8px;">
+                <span style="font-size:16px;">🏛️</span>
+                <span id="macro-thesis-text">Sinyal makro global seimbang. DXY dan Yield obligasi dalam rentang wajar.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- INSTITUTIONAL QUANT RISK SUITE (QUANTLIB ENGINE) -->
+          <div class="intel-card">
+            <div class="intel-card-header">
+              <div class="intel-card-title">
+                <span>📐 Institutional Quant Risk Engine (QuantLib Suite)</span>
+              </div>
+              <span class="pill-badge blue" id="quant-risk-status-pill">HEALTHY_ALLOCATION</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
+                <!-- VaR 95% -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">VaR 95% (1-Hari)</span>
+                  <div class="mono" id="quant-var95-val" style="font-size:15px; font-weight:700; color:var(--color-tangerine); margin-top:3px;">$0.00</div>
+                  <div style="font-size:10px; color:var(--color-text-dim); margin-top:2px;">Batas Rugi Harian</div>
+                </div>
+
+                <!-- CVaR / Expected Shortfall -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">CVaR 95% (Tail Risk)</span>
+                  <div class="mono" id="quant-cvar-val" style="font-size:15px; font-weight:700; color:var(--color-electric-blue); margin-top:3px;">$0.00</div>
+                  <div style="font-size:10px; color:var(--color-text-dim); margin-top:2px;">Expected Shortfall</div>
+                </div>
+
+                <!-- Sharpe & Sortino -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Sharpe / Sortino</span>
+                  <div class="mono" id="quant-sharpe-val" style="font-size:15px; font-weight:700; color:var(--color-mint); margin-top:3px;">0.00 / 0.00</div>
+                  <div style="font-size:10px; color:var(--color-text-dim); margin-top:2px;">Risk-Adjusted Alpha</div>
+                </div>
+
+                <!-- Kelly Sizing -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Half-Kelly Optimal</span>
+                  <div class="mono" id="quant-kelly-val" style="font-size:15px; font-weight:700; color:var(--color-text); margin-top:3px;">0.00%</div>
+                  <div style="font-size:10px; color:var(--color-text-dim); margin-top:2px;">Max Risk / Trade</div>
+                </div>
+              </div>
+
+              <!-- Portfolio VaR Bar -->
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px; display:flex; justify-content:space-between; align-items:center; font-size:11.5px;">
+                <span>Eksposur Posisi Aktif: <b class="mono" id="quant-active-exposure" style="color:var(--color-text);">$0.00</b></span>
+                <span>Beban VaR 95% Portofolio: <b class="mono" id="quant-port-var-cap" style="color:var(--color-mint);">0.00% dari Modal</b></span>
+                <span style="color:var(--color-text-dim);">Maks. Toleransi: <b class="mono" style="color:var(--color-tangerine);">8.0%</b></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2059,6 +2149,92 @@
                 </tr>
               `;
             }).join('');
+          }
+        }
+
+        // 6. Fincept Global Macro Compass
+        if (data.macro) {
+          const m = data.macro;
+          const dxy = m.dxy || {};
+          const us10y = m.us10y || {};
+          const fng = m.fear_and_greed || {};
+
+          // DXY
+          const dxyEl = document.getElementById('macro-dxy-val');
+          const dxySub = document.getElementById('macro-dxy-sub');
+          if (dxyEl && dxy.price) {
+            dxyEl.innerText = `${dxy.price}`;
+            const dChg = Number(dxy.change_pct || 0);
+            dxySub.innerText = `${dChg >= 0 ? '+' : ''}${dChg.toFixed(2)}% [${dxy.state || 'STABLE'}]`;
+            dxySub.style.color = dChg <= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
+          }
+
+          // 10Y Yield
+          const y10El = document.getElementById('macro-10y-val');
+          const y10Sub = document.getElementById('macro-10y-sub');
+          if (y10El && us10y.yield_pct) {
+            y10El.innerText = `${us10y.yield_pct}%`;
+            const yChg = Number(us10y.change_pct || 0);
+            y10Sub.innerText = `${yChg >= 0 ? '+' : ''}${yChg.toFixed(2)}% [${us10y.state || 'STEADY'}]`;
+          }
+
+          // Fear & Greed
+          const fngEl = document.getElementById('macro-fng-val');
+          const fngLabel = document.getElementById('macro-fng-label');
+          if (fngEl && fng.score !== undefined) {
+            fngEl.innerText = `${fng.score} / 100`;
+            fngLabel.innerText = fng.classification || 'Neutral';
+            fngEl.style.color = fng.score >= 55 ? 'var(--color-mint)' : (fng.score <= 35 ? 'var(--color-tangerine)' : 'var(--color-text)');
+          }
+
+          // Regime Pill & Thesis
+          const pill = document.getElementById('macro-regime-pill');
+          const thesis = document.getElementById('macro-thesis-text');
+          if (pill && m.macro_regime) {
+            pill.innerText = m.macro_regime;
+            pill.className = m.macro_regime.includes('RISK_ON') ? 'pill-badge mint' : (m.macro_regime.includes('RISK_OFF') ? 'pill-badge tangerine' : 'pill-badge blue');
+          }
+          if (thesis && m.bias_detail) {
+            thesis.innerText = `${m.macro_label}: ${m.bias_detail}`;
+          }
+        }
+
+        // 7. Fincept Institutional Quant Risk Engine
+        if (data.quant_risk) {
+          const q = data.quant_risk;
+          const hist = q.historical || {};
+          const port = q.portfolio_var || {};
+
+          // VaR 95%
+          const v95 = document.getElementById('quant-var95-val');
+          if (v95) v95.innerText = `$${Number(hist.var_95_usd || 0).toFixed(2)}`;
+
+          // CVaR
+          const cvar = document.getElementById('quant-cvar-val');
+          if (cvar) cvar.innerText = `$${Number(hist.cvar_95_usd || 0).toFixed(2)}`;
+
+          // Sharpe / Sortino
+          const sh = document.getElementById('quant-sharpe-val');
+          if (sh) sh.innerText = `${hist.sharpe_ratio || 0} / ${hist.sortino_ratio || 0}`;
+
+          // Kelly
+          const kel = document.getElementById('quant-kelly-val');
+          if (kel) kel.innerText = `${hist.kelly_percent || 0}%`;
+
+          // Active Portfolio VaR
+          const exp = document.getElementById('quant-active-exposure');
+          const pCap = document.getElementById('quant-port-var-cap');
+          const pPill = document.getElementById('quant-risk-status-pill');
+
+          if (exp) exp.innerText = `$${Number(port.portfolio_exposure_usd || 0).toLocaleString()}`;
+          if (pCap) {
+            const vPct = Number(port.var_95_pct_of_capital || 0);
+            pCap.innerText = `${vPct.toFixed(2)}% dari Modal (VaR $${Number(port.var_95_usd || 0).toFixed(2)})`;
+            pCap.style.color = vPct >= 6.0 ? 'var(--color-tangerine)' : 'var(--color-mint)';
+          }
+          if (pPill && port.risk_status) {
+            pPill.innerText = port.risk_status.split(' ')[0];
+            pPill.className = port.risk_status.includes('CRITICAL') ? 'pill-badge tangerine' : 'pill-badge mint';
           }
         }
       } catch (e) {

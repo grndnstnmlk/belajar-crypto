@@ -97,10 +97,7 @@ def call_llm(prompt, system_prompt=None, temperature=0.2, response_json=False):
     if provider == "gemini":
         models_to_try = [
             "gemini-flash-latest",
-            "gemini-3.6-flash",
-            "gemini-3.5-flash",
-            "gemini-flash-lite-latest",
-            "gemini-3.7-flash"
+            "gemini-2.5-flash"
         ]
         for m in models_to_try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={key}"
@@ -119,7 +116,7 @@ def call_llm(prompt, system_prompt=None, temperature=0.2, response_json=False):
             try:
                 data = json.dumps(body).encode("utf-8")
                 req = urllib.request.Request(url, data=data, headers=HEADERS, method="POST")
-                with urllib.request.urlopen(req, timeout=18, context=SSL_CTX) as response:
+                with urllib.request.urlopen(req, timeout=6, context=SSL_CTX) as response:
                     res_json = json.loads(response.read().decode("utf-8"))
                     candidates = res_json.get("candidates", [])
                     if candidates:
@@ -221,6 +218,51 @@ def heuristic_quant_audit(setup, market_context=None):
                 "provider": "Algorithmic Quant Heuristics"
             }
 
+    # 2B. BTC Macro Regime Directional Gravity Guardrail (Akademi Crypto Module 02 & 04)
+    market_regime = ctx.get("market_regime")
+    if not market_regime:
+        try:
+            import market_regime as mr_mod
+            market_regime = mr_mod.detect_market_regime("BTCUSDT", "1h")
+        except Exception:
+            market_regime = None
+
+    if market_regime:
+        btc_bias = market_regime.get("bias", "NEUTRAL")
+        btc_label = market_regime.get("regime_label", "Unknown")
+        adx = float(market_regime.get("adx", 20.0))
+        is_btc = "BTC" in sym.upper()
+
+        if not is_btc:
+            if side in ["BUY", "LONG"] and btc_bias in ["BEARISH", "LEANING_BEARISH"]:
+                return {
+                    "decision": "VETO",
+                    "confidence": 96,
+                    "suggested_risk_scale": 0.0,
+                    "thesis": f"VETO: Rezim Makro BTC 1H sedang BEARISH ({btc_label}). Dilarang membuka posisi Long pada Altcoin ({sym}) saat Bitcoin tertekan demi mencegah terseret dump!",
+                    "key_risks": ["BTC Macro Downtrend Gravity", "High risk of altcoin long liquidation dump"],
+                    "invalidation_scenario": "Tunggu struktur 1H BTC kembali bullish di atas EMA 20/50.",
+                    "provider": "Algorithmic Quant Heuristics"
+                }
+            elif side in ["SELL", "SHORT"] and btc_bias == "BULLISH":
+                return {
+                    "decision": "VETO",
+                    "confidence": 96,
+                    "suggested_risk_scale": 0.0,
+                    "thesis": f"VETO: Rezim Makro BTC 1H sedang BULLISH ({btc_label}). Dilarang membuka posisi Short pada Altcoin ({sym}) saat Bitcoin sedang ekspansi reli.",
+                    "key_risks": ["BTC Macro Bullish Expansion", "High risk of short squeeze on altcoins"],
+                    "invalidation_scenario": "Tunggu struktur 1H BTC terkonfirmasi breakdown.",
+                    "provider": "Algorithmic Quant Heuristics"
+                }
+
+        # Choppy / Sideways Regime ADX < 24 check
+        if adx < 24.0 or market_regime.get("regime") in ["RANGING_CHOPPY", "VOLATILITY_SQUEEZE"]:
+            is_scalp = setup.get("is_scalp", False)
+            if not is_scalp:
+                decision = "ADJUST_RISK"
+                suggested_scale = min(suggested_scale, 0.5)
+                key_risks.append(f"BTC 1H Choppy / Sideways (ADX: {adx:.1f} < 24) - Swing breakout rentan terkena fakeout rejeksi")
+
     # 3. Order Book Depth Wall Collision
     imb_ratio = float(depth.get("imbalance_ratio", 1.0)) if depth else 1.0
     if side in ["BUY", "LONG"] and imb_ratio <= 0.60:
@@ -240,7 +282,19 @@ def heuristic_quant_audit(setup, market_context=None):
         suggested_scale = min(suggested_scale, 0.75)
         key_risks.append("Capital flight to USDT.D in progress - altcoin rallies face early exhaustion")
 
-    # 5. R:R Precision
+    # 5. Global Macro Liquidity (Fincept Suite)
+    try:
+        import macro_liquidity
+        macro = macro_liquidity.get_macro_liquidity_summary()
+        dxy = macro.get("dxy", {})
+        if side in ["BUY", "LONG"] and macro.get("macro_regime") == "RISK_OFF":
+            decision = "ADJUST_RISK"
+            suggested_scale = min(suggested_scale, 0.6)
+            key_risks.append(f"Global Macro Risk-Off: DXY Surging ({dxy.get('price')} / {dxy.get('change_pct'):+,.2f}%)")
+    except Exception:
+        pass
+
+    # 6. R:R Precision
     if rr < 2.5:
         key_risks.append(f"Marginal Risk-to-Reward ratio (1:{rr:.2f} below preferred 1:3.0)")
         if decision == "APPROVE":
@@ -276,7 +330,14 @@ def audit_trade_setup(setup, market_context=None):
         return heuristic_quant_audit(setup, market_context)
 
     # Format rich context for LLM
-    ctx = market_context or {}
+    ctx = dict(market_context) if market_context else {}
+    if "market_regime" not in ctx or not ctx["market_regime"]:
+        try:
+            import market_regime as mr_mod
+            ctx["market_regime"] = mr_mod.detect_market_regime("BTCUSDT", "1h")
+        except Exception:
+            pass
+
     sym = setup.get("symbol", "UNKNOWN")
     side = setup.get("side", "BUY")
     entry_p = float(setup.get("entry_price", setup.get("entry", setup.get("price", 0.0))))
@@ -301,9 +362,15 @@ def audit_trade_setup(setup, market_context=None):
 - Macro News Shield: {json.dumps(ctx.get('news_shield', {}))}
 - Directional Portfolio Heat: {json.dumps(ctx.get('heat', {}))}
 - Market Flow Compass (BTC.D & USDT.D): {json.dumps(ctx.get('compass', {}))}
+- Bitcoin Macro Regime (1H ADX/DMI/EMA): {json.dumps(ctx.get('market_regime', {}))}
 - Coinbase Premium Index (Wall St Flow): {json.dumps(ctx.get('coinbase_premium', {}))}
 - Order Book Depth Imbalance (DOM ±2%): {json.dumps(ctx.get('depth', {}))}
 - Derivatives Sentiment (OI & L/S Ratio): {json.dumps(ctx.get('derivatives', {}))}
+
+[CRITICAL INSTITUTIONAL RISK RULES]
+1. If Bitcoin Macro Regime Bias is BEARISH or LEANING_BEARISH, you MUST VETO any Altcoin LONG setup. Fighting BTC macro gravity is strictly forbidden.
+2. If Bitcoin Macro Regime Bias is BULLISH, you MUST VETO any Altcoin SHORT setup.
+3. If Bitcoin Macro Regime is Choppy/Ranging (ADX < 24), penalize breakout swing setups (ADJUST_RISK 0.5 or VETO).
 
 [TASK]
 Evaluate this candidate trade as an institutional Senior Quant Risk Officer.
@@ -450,12 +517,181 @@ Cite real portfolio metrics if relevant. Keep answer under 120 words.
             return "Saat ini tidak ada posisi terbuka di market. Seluruh slot kas aman."
         pos_str = ", ".join([f"{p['symbol']} ({p['side']} PnL: ${float(p.get('pnl_usd', 0)):+.2f})" for p in ctx.get("positions", [])])
         return f"Posisi aktif saat ini ({pos_count}): {pos_str}."
+def fetch_klines_for_sentinel(symbol, interval="15m", limit=20):
+    """
+    Fetches recent 15m or 5m klines from Binance Vision to evaluate price action micro-exhaustion.
+    """
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    url = f"https://data-api.binance.vision/api/v3/klines?symbol={sym_clean}&interval={interval}&limit={limit}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=5, context=SSL_CTX) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            candles = []
+            for d in data:
+                candles.append({
+                    "open": float(d[1]),
+                    "high": float(d[2]),
+                    "low": float(d[3]),
+                    "close": float(d[4]),
+                    "volume": float(d[5])
+                })
+            return candles
+    except Exception:
+        return []
+
+def calculate_fast_rsi(closes, period=14):
+    if len(closes) < period + 1:
+        return 50.0
+    gains = []
+    losses = []
+    for i in range(1, len(closes)):
+        diff = closes[i] - closes[i-1]
+        if diff >= 0:
+            gains.append(diff)
+            losses.append(0.0)
+        else:
+            gains.append(0.0)
+            losses.append(abs(diff))
+    avg_gain = sum(gains[-period:]) / period
+    avg_loss = sum(losses[-period:]) / period
+    if avg_loss == 0:
+        return 100.0
+    rs = avg_gain / avg_loss
+    return round(100.0 - (100.0 / (1.0 + rs)), 2)
+
+def evaluate_active_position_exit(symbol, side, entry_price, mark_price, r_multiple, highest_r=0.0, opened_at=None, is_scalp=False):
+    """
+    AI Position Sentinel & Adaptive Early Profit Harvester:
+    Evaluates positions currently in profit (r_multiple >= 0.35) for momentum exhaustion,
+    micro-structure shifts, or divergence, deciding whether to TAKE PROFIT NOW or LOCK PROFIT TO SL.
+    Returns: {
+        "action": "TAKE_PROFIT_NOW" | "LOCK_PROFIT_SL" | "HOLD_RUNNER",
+        "confidence": int,
+        "thesis": str,
+        "suggested_sl": float,
+        "exhaustion_score": int
+    }
+    """
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    side_clean = "BUY" if side.upper() in ["BUY", "LONG"] else "SELL"
+
+    # 1. Fetch recent 15m price action (fallback 5m)
+    candles = fetch_klines_for_sentinel(sym_clean, interval="15m", limit=20)
+    if not candles:
+        candles = fetch_klines_for_sentinel(sym_clean, interval="5m", limit=20)
+
+    exhaustion_signals = []
+    exhaustion_score = 0
+
+    if len(candles) >= 10:
+        closes = [c["close"] for c in candles]
+        volumes = [c["volume"] for c in candles]
+        rsi_curr = calculate_fast_rsi(closes)
+        rsi_prev = calculate_fast_rsi(closes[:-2]) if len(closes) >= 16 else rsi_curr
+        last_c = candles[-1]
+        prev_c = candles[-2]
+
+        candle_range = max(last_c["high"] - last_c["low"], 0.00001)
+
+        if side_clean == "BUY":
+            upper_wick = last_c["high"] - max(last_c["open"], last_c["close"])
+            if upper_wick / candle_range > 0.40:
+                exhaustion_signals.append("Sumbu rejeksi atas panjang (Selling Wick Rejection 15M)")
+                exhaustion_score += 25
+            if rsi_curr < 55 and rsi_prev > 62:
+                exhaustion_signals.append(f"RSI 15M melemah ({rsi_prev:.0f} -> {rsi_curr:.0f})")
+                exhaustion_score += 30
+            if volumes[-1] < volumes[-2] * 0.70 and last_c["close"] <= prev_c["high"]:
+                exhaustion_signals.append("Volume pembelian menyusut (Volume Exhaustion)")
+                exhaustion_score += 20
+            if highest_r >= 0.65 and r_multiple <= highest_r * 0.65:
+                exhaustion_signals.append(f"Terkoreksi dari puncak +{highest_r:.2f}R ke +{r_multiple:.2f}R")
+                exhaustion_score += 35
+        else: # SHORT
+            lower_wick = min(last_c["open"], last_c["close"]) - last_c["low"]
+            if lower_wick / candle_range > 0.40:
+                exhaustion_signals.append("Sumbu pantulan bawah panjang (Buying Wick Rejection 15M)")
+                exhaustion_score += 25
+            if rsi_curr > 45 and rsi_prev < 38:
+                exhaustion_signals.append(f"RSI 15M memantul naik ({rsi_prev:.0f} -> {rsi_curr:.0f})")
+                exhaustion_score += 30
+            if volumes[-1] < volumes[-2] * 0.70 and last_c["close"] >= prev_c["low"]:
+                exhaustion_signals.append("Volume penjualan mengering (Seller Exhaustion)")
+                exhaustion_score += 20
+            if highest_r >= 0.65 and r_multiple <= highest_r * 0.65:
+                exhaustion_signals.append(f"Terkoreksi dari puncak +{highest_r:.2f}R ke +{r_multiple:.2f}R")
+                exhaustion_score += 35
+
+    # Calculate guaranteed profit SL level (+0.25R above entry for BUY, -0.25R below entry for SELL)
+    r_dist = abs(mark_price - entry_price) / max(r_multiple, 0.001) if r_multiple > 0 else (entry_price * 0.015)
+    if side_clean == "BUY":
+        profit_sl = entry_price + (r_dist * 0.25)
     else:
-        return (
-            f"🤖 <b>AI Officer Report:</b> Sistem beroperasi normal pada mode {mode}. "
-            f"Saldo: ${bal:,.2f} USDT | Posisi: {pos_count}. "
-            f"Untuk mengaktifkan penalaran penuh AI LLM, Anda dapat menambahkan <code>GEMINI_API_KEY=...</code> di file .env."
-        )
+        profit_sl = entry_price - (r_dist * 0.25)
+
+    # 2. Decision Matrix
+    action = "HOLD_RUNNER"
+    confidence = 75
+    suggested_sl = None
+
+    if r_multiple >= 0.75 and exhaustion_score >= 40:
+        action = "TAKE_PROFIT_NOW"
+        confidence = 90
+        thesis = f"AI AUTO-TP: Posisi untung +{r_multiple:.2f}R berisiko berbalik arah akibat {', '.join(exhaustion_signals)}. Menutup posisi 100% untuk mengamankan profit kas!"
+    elif r_multiple >= 0.35 and exhaustion_score >= 50:
+        action = "TAKE_PROFIT_NOW"
+        confidence = 85
+        thesis = f"AI AUTO-TP: Posisi hijau +{r_multiple:.2f}R mendeteksi kelelahan momentum ({', '.join(exhaustion_signals)}). Menutup posisi demi mencegah profit berubah jadi minus."
+    elif r_multiple >= 0.35 and exhaustion_score >= 25:
+        action = "LOCK_PROFIT_SL"
+        confidence = 82
+        suggested_sl = profit_sl
+        thesis = f"AI PROFIT LOCK: Menggeser Stop Loss ke zona hijau ${profit_sl:,.4f} (+0.25R). Posisi dijamin keluar untung (Green Exit) jika harga berbalik arah!"
+    else:
+        action = "HOLD_RUNNER"
+        confidence = 80
+        thesis = f"HOLD: Posisi (+{r_multiple:.2f}R) trennya masih sehat. Membiarkan posisi berjalan menuju target profit."
+
+    # 3. Optional LLM Cognitive Refinement if Key exists
+    creds = get_ai_credentials()
+    if creds.get("provider") != "fallback_quant" and exhaustion_score >= 25:
+        prompt = f"""
+[ACTIVE CRYPTO POSITION PROFIT AUDIT]
+- Symbol: {sym_clean} ({side_clean})
+- Entry Price: ${entry_price:,.4f} | Current Mark: ${mark_price:,.4f}
+- Current Floating Profit: +{r_multiple:.2f}R (Peak: +{highest_r:.2f}R)
+- Exhaustion Score: {exhaustion_score}/100
+- Detected Technical Warnings: {json.dumps(exhaustion_signals)}
+- Heuristic Recommendation: {action}
+
+[QUESTION]
+Should we execute TAKE_PROFIT_NOW (market close), LOCK_PROFIT_SL (move SL into profit zone), or HOLD_RUNNER?
+Output strictly a valid JSON:
+{{"action": "TAKE_PROFIT_NOW"|"LOCK_PROFIT_SL"|"HOLD_RUNNER", "confidence": int, "thesis": "short rationale in Indonesian"}}
+"""
+        sys_prompt = "You are the AI Senior Quant Exit Officer protecting unrealized profits from reversing into losses."
+        resp = call_llm(prompt, system_prompt=sys_prompt, temperature=0.1, response_json=True)
+        if resp:
+            try:
+                data = json.loads(resp)
+                if data.get("action") in ["TAKE_PROFIT_NOW", "LOCK_PROFIT_SL", "HOLD_RUNNER"]:
+                    action = data.get("action")
+                    confidence = int(data.get("confidence", confidence))
+                    thesis = str(data.get("thesis", thesis))
+                    if action == "LOCK_PROFIT_SL":
+                        suggested_sl = profit_sl
+            except Exception:
+                pass
+
+    return {
+        "action": action,
+        "confidence": confidence,
+        "thesis": thesis,
+        "suggested_sl": suggested_sl,
+        "exhaustion_score": exhaustion_score,
+        "exhaustion_signals": exhaustion_signals
+    }
 
 if __name__ == "__main__":
     print("Testing AI Risk Officer module...")

@@ -5,6 +5,7 @@ Bypasses regional SSL blocks via native HTTPS HMAC-SHA256 engine.
 """
 
 import argparse
+from decimal import Decimal, ROUND_DOWN
 import hashlib
 import hmac
 import json
@@ -23,7 +24,9 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
+TOOLS_DIR = os.path.dirname(__file__)
+DATA_DIR = os.path.join(os.path.dirname(TOOLS_DIR), "data")
+ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(TOOLS_DIR)), ".env")
 
 # SSL Context to prevent Windows regional certificate verification blocks
 SSL_CTX = ssl.create_default_context()
@@ -34,6 +37,8 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
     "Content-Type": "application/x-www-form-urlencoded"
 }
+
+_EXCHANGE_INFO_CACHE = {}
 
 def sanitize_email_suffix(email):
     return re.sub(r"[^a-zA-Z0-9]", "_", email.upper())
@@ -92,7 +97,100 @@ def get_server_time_offset(base_url):
         pass
     return 0
 
-def send_signed_request(endpoint, method="GET", params=None, is_demo=True, user_email=None):
+def get_exchange_info(symbol=None, is_demo=True, force_refresh=False):
+    """
+    Retrieves and caches Binance Futures symbol specifications (LOT_SIZE, PRICE_FILTER, MIN_NOTIONAL).
+    Caches to disk for 24 hours to eliminate REST latency overhead.
+    """
+    global _EXCHANGE_INFO_CACHE
+    target_user, key, secret, base_url, mode_label, proxy = resolve_credentials(None, is_demo)
+    cache_key = "demo" if is_demo else "live"
+
+    # 1. In-memory cache
+    if not force_refresh and cache_key in _EXCHANGE_INFO_CACHE:
+        data = _EXCHANGE_INFO_CACHE[cache_key]
+        if symbol:
+            return data.get(symbol.upper().replace("-", "").replace("/", "").replace("_", ""))
+        return data
+
+    # 2. Disk cache (< 24h)
+    os.makedirs(DATA_DIR, exist_ok=True)
+    disk_file = os.path.join(DATA_DIR, f"binance_exchange_info_{cache_key}.json")
+    if not force_refresh and os.path.exists(disk_file):
+        try:
+            mtime = os.path.getmtime(disk_file)
+            if time.time() - mtime < 86400:
+                with open(disk_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    _EXCHANGE_INFO_CACHE[cache_key] = data
+                    if symbol:
+                        return data.get(symbol.upper().replace("-", "").replace("/", "").replace("_", ""))
+                    return data
+        except Exception:
+            pass
+
+    # 3. Fetch from Binance
+    try:
+        url = f"{base_url}/fapi/v1/exchangeInfo"
+        req = urllib.request.Request(url, headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=8, context=SSL_CTX) as resp:
+            raw = json.loads(resp.read().decode("utf-8"))
+            parsed_symbols = {}
+            for s in raw.get("symbols", []):
+                sym_name = s.get("symbol")
+                status = s.get("status")
+                price_prec = int(s.get("pricePrecision", 2))
+                qty_prec = int(s.get("quantityPrecision", 2))
+
+                tick_size = "0.01"
+                min_price = "0.01"
+                max_price = "1000000"
+                min_qty = "0.001"
+                step_size = "0.001"
+                min_notional = "5.0"
+
+                for f in s.get("filters", []):
+                    f_type = f.get("filterType")
+                    if f_type == "PRICE_FILTER":
+                        tick_size = f.get("tickSize", tick_size)
+                        min_price = f.get("minPrice", min_price)
+                        max_price = f.get("maxPrice", max_price)
+                    elif f_type == "LOT_SIZE":
+                        min_qty = f.get("minQty", min_qty)
+                        step_size = f.get("stepSize", step_size)
+                    elif f_type == "MIN_NOTIONAL":
+                        min_notional = f.get("notional", min_notional)
+
+                parsed_symbols[sym_name] = {
+                    "symbol": sym_name,
+                    "status": status,
+                    "pricePrecision": price_prec,
+                    "quantityPrecision": qty_prec,
+                    "tickSize": tick_size,
+                    "minPrice": min_price,
+                    "maxPrice": max_price,
+                    "minQty": min_qty,
+                    "stepSize": step_size,
+                    "minNotional": float(min_notional)
+                }
+
+            _EXCHANGE_INFO_CACHE[cache_key] = parsed_symbols
+            try:
+                with open(disk_file, "w", encoding="utf-8") as f:
+                    json.dump(parsed_symbols, f, indent=2)
+            except Exception:
+                pass
+
+            if symbol:
+                return parsed_symbols.get(symbol.upper().replace("-", "").replace("/", "").replace("_", ""))
+            return parsed_symbols
+    except Exception as e:
+        print(f"[ExchangeInfo Warning] Gagal fetch exchange info: {e}", file=sys.stderr)
+        if symbol:
+            return None
+        return {}
+
+def send_signed_request(endpoint, method="GET", params=None, is_demo=True, user_email=None, retries=3, backoff_base=0.3):
     target_user, key, secret, base_url, mode_label, proxy = resolve_credentials(user_email, is_demo)
     if not key or not secret:
         print("\n=======================================================")
@@ -105,41 +203,54 @@ def send_signed_request(endpoint, method="GET", params=None, is_demo=True, user_
         print("=======================================================\n")
         return None
 
-    if params is None:
-        params = {}
+    last_error = None
+    for attempt in range(1, retries + 1):
+        p = params.copy() if params else {}
+        offset = get_server_time_offset(base_url)
+        p["timestamp"] = int(time.time() * 1000) + offset
+        p["recvWindow"] = 15000
 
-    offset = get_server_time_offset(base_url)
-    params["timestamp"] = int(time.time() * 1000) + offset
-    params["recvWindow"] = 15000
+        query_str = urllib.parse.urlencode(p)
+        signature = hmac.new(secret.encode("utf-8"), query_str.encode("utf-8"), hashlib.sha256).hexdigest()
+        signed_query = f"{query_str}&signature={signature}"
 
-    query_str = urllib.parse.urlencode(params)
-    signature = hmac.new(secret.encode("utf-8"), query_str.encode("utf-8"), hashlib.sha256).hexdigest()
-    signed_query = f"{query_str}&signature={signature}"
+        req_headers = HEADERS.copy()
+        req_headers["X-MBX-APIKEY"] = key
 
-    req_headers = HEADERS.copy()
-    req_headers["X-MBX-APIKEY"] = key
+        if method == "GET":
+            url = f"{base_url}{endpoint}?{signed_query}"
+            req = urllib.request.Request(url, headers=req_headers, method="GET")
+        elif method == "DELETE":
+            url = f"{base_url}{endpoint}?{signed_query}"
+            req = urllib.request.Request(url, headers=req_headers, method="DELETE")
+        else:
+            url = f"{base_url}{endpoint}"
+            post_data = signed_query.encode("utf-8")
+            req = urllib.request.Request(url, data=post_data, headers=req_headers, method="POST")
 
-    if method == "GET":
-        url = f"{base_url}{endpoint}?{signed_query}"
-        req = urllib.request.Request(url, headers=req_headers, method="GET")
-    elif method == "DELETE":
-        url = f"{base_url}{endpoint}?{signed_query}"
-        req = urllib.request.Request(url, headers=req_headers, method="DELETE")
-    else:
-        url = f"{base_url}{endpoint}"
-        post_data = signed_query.encode("utf-8")
-        req = urllib.request.Request(url, data=post_data, headers=req_headers, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=10, context=SSL_CTX) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            err_msg = e.read().decode("utf-8", errors="ignore")
+            if e.code in [429, 500, 502, 503, 504] and attempt < retries:
+                sleep_time = backoff_base * (2 ** (attempt - 1))
+                print(f"[Binance HTTP {e.code}] Percobaan {attempt}/{retries} gagal. Retrying dalam {sleep_time:.2f}s...", file=sys.stderr)
+                time.sleep(sleep_time)
+                continue
+            print(f"[Binance HTTP Error {e.code}] {err_msg}", file=sys.stderr)
+            return None
+        except Exception as e:
+            last_error = e
+            if attempt < retries:
+                sleep_time = backoff_base * (2 ** (attempt - 1))
+                print(f"[Network Error] {e}. Percobaan {attempt}/{retries} gagal. Retrying dalam {sleep_time:.2f}s...", file=sys.stderr)
+                time.sleep(sleep_time)
+                continue
+            print(f"[Network Error] {last_error}", file=sys.stderr)
+            return None
 
-    try:
-        with urllib.request.urlopen(req, timeout=10, context=SSL_CTX) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        err_msg = e.read().decode("utf-8", errors="ignore")
-        print(f"[Binance HTTP Error {e.code}] {err_msg}", file=sys.stderr)
-        return None
-    except Exception as e:
-        print(f"[Network Error] {e}", file=sys.stderr)
-        return None
+    return None
 
 def check_balance(user_email=None, is_demo=True):
     target_user, _, _, _, mode_label, _ = resolve_credentials(user_email, is_demo)
@@ -233,29 +344,143 @@ def get_positions(user_email=None, is_demo=True):
             print(f"   Floating PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}")
     print("=======================================================\n")
 
-def format_price_precision(symbol, price):
-    sym = symbol.upper()
-    if "BTC" in sym:
+def get_precision_from_step(step_str):
+    s = str(step_str)
+    if "." in s:
+        decimals = s.split(".")[1].rstrip("0")
+        return len(decimals)
+    return 0
+
+def format_price_precision(symbol, price, is_demo=True):
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    info = get_exchange_info(sym_clean, is_demo=is_demo)
+
+    if info and "tickSize" in info:
+        try:
+            tick = Decimal(str(info["tickSize"]))
+            p = Decimal(str(price))
+            rounded = (p // tick) * tick
+            dec_places = get_precision_from_step(info["tickSize"])
+            if dec_places == 0:
+                return str(int(rounded))
+            return f"{rounded:.{dec_places}f}"
+        except Exception:
+            pass
+
+    # Fallback heuristic
+    if "BTC" in sym_clean:
         return f"{price:.1f}"
-    elif any(k in sym for k in ["ETH", "BNB", "SOL", "AVAX", "LINK"]):
+    elif any(k in sym_clean for k in ["ETH", "BNB", "SOL", "AVAX", "LINK"]):
         return f"{price:.2f}"
-    elif any(k in sym for k in ["XRP", "ADA", "DOGE", "SUI", "NEAR"]):
+    elif any(k in sym_clean for k in ["XRP", "ADA", "DOGE", "SUI", "NEAR"]):
         return f"{price:.4f}"
     else:
         return f"{price:.2f}"
 
-def format_qty_precision(symbol, qty):
-    sym = symbol.upper()
-    if "BTC" in sym:
-        return f"{float(qty):.3f}"
-    elif "ETH" in sym:
-        return f"{float(qty):.3f}"
-    elif any(k in sym for k in ["SOL", "BNB", "AVAX", "LINK"]):
-        return f"{float(qty):.2f}"
-    elif any(k in sym for k in ["XRP", "ADA", "DOGE", "SUI", "NEAR"]):
-        return f"{float(qty):.1f}"
+def format_qty_precision(symbol, qty, is_demo=True):
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    info = get_exchange_info(sym_clean, is_demo=is_demo)
+
+    if info and "stepSize" in info:
+        try:
+            step = Decimal(str(info["stepSize"]))
+            q = Decimal(str(qty))
+            rounded = (q // step) * step
+            min_q = Decimal(str(info.get("minQty", "0.001")))
+            if rounded < min_q:
+                rounded = min_q
+            dec_places = get_precision_from_step(info["stepSize"])
+            if dec_places == 0:
+                return str(int(rounded))
+            return f"{rounded:.{dec_places}f}"
+        except Exception:
+            pass
+
+    # Fallback heuristic
+    if "BTC" in sym_clean:
+        return f"{max(0.001, float(qty)):.3f}"
+    elif "ETH" in sym_clean:
+        return f"{max(0.01, float(qty)):.3f}"
+    elif any(k in sym_clean for k in ["SOL", "BNB", "AVAX", "LINK"]):
+        return f"{max(0.1, float(qty)):.2f}"
+    elif any(k in sym_clean for k in ["XRP", "ADA", "DOGE", "SUI", "NEAR"]):
+        return f"{max(1.0, float(qty)):.1f}"
     else:
-        return f"{float(qty):.2f}"
+        return f"{max(0.1, float(qty)):.2f}"
+
+def validate_order_filters(symbol, qty, price, is_demo=True):
+    """
+    Validates that quantity, price, and notional meet Binance Futures exchange constraints.
+    Returns: (is_valid: bool, adjusted_qty: float, message: str)
+    """
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    info = get_exchange_info(sym_clean, is_demo=is_demo)
+    if not info:
+        return True, qty, "OK (Exchange info bypass)"
+
+    min_notional = float(info.get("minNotional", 5.0))
+    notional = float(qty) * float(price)
+    if notional < min_notional:
+        required_qty = (min_notional / float(price)) * 1.05
+        formatted_qty = format_qty_precision(sym_clean, required_qty, is_demo=is_demo)
+        return False, float(formatted_qty), f"Notional ${notional:.2f} di bawah batas minimum ${min_notional:.2f}. Disarankan: {formatted_qty} {sym_clean}"
+
+    return True, qty, "OK"
+
+def check_order_book_depth(symbol, quantity, side="BUY", is_demo=True, max_slippage_pct=0.30):
+    """
+    Audits order book depth for the specified symbol before order execution.
+    Calculates spread percentage and estimated slippage impact.
+    Returns: (is_safe: bool, details: dict)
+    """
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    target_user, _, _, base_url, _, _ = resolve_credentials(None, is_demo)
+
+    url = f"{base_url}/fapi/v1/depth?symbol={sym_clean}&limit=10"
+    req = urllib.request.Request(url, headers=HEADERS)
+    try:
+        with urllib.request.urlopen(req, timeout=5, context=SSL_CTX) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            bids = data.get("bids", [])
+            asks = data.get("asks", [])
+            if not bids or not asks:
+                return True, {"warning": "Empty book", "slippage_pct": 0.0, "spread_pct": 0.0, "is_safe": True}
+
+            best_bid = float(bids[0][0])
+            best_ask = float(asks[0][0])
+            spread_pct = ((best_ask - best_bid) / best_bid) * 100.0
+
+            qty_needed = float(quantity)
+            target_levels = asks if side.upper() in ["BUY", "LONG"] else bids
+            cum_qty = 0.0
+            cum_cost = 0.0
+
+            for p_str, q_str in target_levels:
+                level_price = float(p_str)
+                level_qty = float(q_str)
+                fill_qty = min(level_qty, qty_needed - cum_qty)
+                cum_qty += fill_qty
+                cum_cost += fill_qty * level_price
+                if cum_qty >= qty_needed:
+                    break
+
+            if cum_qty > 0:
+                vwap = cum_cost / cum_qty
+                ref_price = best_ask if side.upper() in ["BUY", "LONG"] else best_bid
+                slippage_pct = abs(vwap - ref_price) / ref_price * 100.0
+            else:
+                slippage_pct = 0.0
+
+            is_safe = slippage_pct <= max_slippage_pct and spread_pct <= 0.35
+            return is_safe, {
+                "best_bid": best_bid,
+                "best_ask": best_ask,
+                "spread_pct": round(spread_pct, 4),
+                "slippage_pct": round(slippage_pct, 4),
+                "is_safe": is_safe
+            }
+    except Exception as e:
+        return True, {"warning": str(e), "slippage_pct": 0.0, "spread_pct": 0.0, "is_safe": True}
 
 def cancel_existing_algo_orders_for_symbol(symbol, is_demo=True, user_email=None):
     """
@@ -274,46 +499,85 @@ def cancel_existing_algo_orders_for_symbol(symbol, is_demo=True, user_email=None
     except Exception:
         pass
 
-def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is_demo=True, user_email=None):
+def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is_demo=True, user_email=None, exec_mode="MARKET"):
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
     target_user, _, _, _, mode_label, _ = resolve_credentials(user_email, is_demo)
 
     side_clean = "BUY" if side.upper() in ["LONG", "BUY"] else "SELL"
     pos_label = "LONG 🟢" if side_clean == "BUY" else "SHORT 🔴"
 
+    # Format quantity with dynamic exchange info
+    formatted_qty = format_qty_precision(sym_clean, quantity, is_demo=is_demo)
+
     print("\n=======================================================")
     print(f"       ⚡ EKSEKUSI ORDER BINANCE FUTURES")
     print(f"       👤 Akun: {target_user} | Mode: {mode_label}")
     print("=======================================================")
-    print(f"Pair: {sym_clean} | Posisi: {pos_label} | Qty: {quantity} | Leverage: {leverage}x")
+    print(f"Pair: {sym_clean} | Posisi: {pos_label} | Qty: {formatted_qty} | Leverage: {leverage}x | Exec Mode: {exec_mode}")
 
     # 1. Set Leverage
     set_leverage(sym_clean, leverage, is_demo, user_email)
 
-    # 2. Main Market Order
-    order_params = {
-        "symbol": sym_clean,
-        "side": side_clean,
-        "type": "MARKET",
-        "quantity": str(quantity)
-    }
-    res = send_signed_request("/fapi/v1/order", method="POST", params=order_params, is_demo=is_demo, user_email=user_email)
-    if not res or not res.get("orderId"):
-        print(f"❌ Gagal mengeksekusi order utama: {res}")
-        return None
+    order_id = None
+    avg_price = 0.0
+    res = None
 
-    order_id = res.get("orderId")
-    avg_price = float(res.get("avgPrice", 0) or res.get("price", 0) or 0)
-    print(f"\n✅ ORDER UTAMA TERISI! Order ID: {order_id} @ ${avg_price:,.4f}")
+    # 2. Execution Logic (Limit Chase vs Market)
+    if exec_mode.upper() == "LIMIT_CHASE":
+        is_safe, depth_info = check_order_book_depth(sym_clean, formatted_qty, side_clean, is_demo=is_demo)
+        best_price = depth_info.get("best_bid" if side_clean == "BUY" else "best_ask")
+        if best_price:
+            price_str = format_price_precision(sym_clean, best_price, is_demo=is_demo)
+            limit_params = {
+                "symbol": sym_clean,
+                "side": side_clean,
+                "type": "LIMIT",
+                "timeInForce": "GTC",
+                "quantity": str(formatted_qty),
+                "price": price_str
+            }
+            print(f"⏳ [LIMIT CHASE] Menempatkan Maker Order @ ${price_str} (Potensi Hemat Fee 60%)...")
+            limit_res = send_signed_request("/fapi/v1/order", method="POST", params=limit_params, is_demo=is_demo, user_email=user_email)
+            if limit_res and limit_res.get("orderId"):
+                chase_id = limit_res.get("orderId")
+                for _ in range(4):
+                    time.sleep(0.75)
+                    q_res = send_signed_request("/fapi/v1/order", method="GET", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
+                    if q_res and q_res.get("status") == "FILLED":
+                        res = q_res
+                        order_id = chase_id
+                        avg_price = float(res.get("avgPrice", 0) or res.get("price", 0) or best_price)
+                        print(f"🎉 [MAKER FILL SUKSES] Order terisi di antrean Maker @ ${avg_price:,.4f}!")
+                        break
 
-    # Cancel any previous conflicting algo orders for this symbol before placing fresh SL/TP
+                if not order_id:
+                    print("⚠️ [LIMIT CHASE UNFILLED] 3s belum terisi. Membatalkan Maker Order & mengonversi ke Market...")
+                    send_signed_request("/fapi/v1/order", method="DELETE", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
+
+    if not order_id:
+        order_params = {
+            "symbol": sym_clean,
+            "side": side_clean,
+            "type": "MARKET",
+            "quantity": str(formatted_qty)
+        }
+        res = send_signed_request("/fapi/v1/order", method="POST", params=order_params, is_demo=is_demo, user_email=user_email, retries=3)
+        if not res or not res.get("orderId"):
+            print(f"❌ Gagal mengeksekusi order utama: {res}")
+            return None
+
+        order_id = res.get("orderId")
+        avg_price = float(res.get("avgPrice", 0) or res.get("price", 0) or 0)
+        print(f"\n✅ ORDER UTAMA TERISI! Order ID: {order_id} @ ${avg_price:,.4f}")
+
+    # Cancel previous conflicting algo orders for this symbol before placing fresh SL/TP
     if sl or tp:
         cancel_existing_algo_orders_for_symbol(sym_clean, is_demo=is_demo, user_email=user_email)
 
-    # 3. Attach Stop Loss via Algo Order API
+    # 3. Attach Stop Loss via Algo Order API with dynamic precision & auto-retry
     opp_side = "SELL" if side_clean == "BUY" else "BUY"
     if sl:
-        sl_str = format_price_precision(sym_clean, sl)
+        sl_str = format_price_precision(sym_clean, sl, is_demo=is_demo)
         sl_params = {
             "algoType": "CONDITIONAL",
             "symbol": sym_clean,
@@ -322,15 +586,15 @@ def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is
             "triggerPrice": sl_str,
             "closePosition": "true"
         }
-        sl_res = send_signed_request("/fapi/v1/algoOrder", method="POST", params=sl_params, is_demo=is_demo, user_email=user_email)
+        sl_res = send_signed_request("/fapi/v1/algoOrder", method="POST", params=sl_params, is_demo=is_demo, user_email=user_email, retries=3)
         if sl_res and sl_res.get("algoId"):
             print(f"🛑 Stop Loss dipasang di harga ${sl_str} (Algo ID: {sl_res.get('algoId')})")
         else:
             print(f"⚠️ Respon SL: {sl_res}")
 
-    # 4. Attach Take Profit via Algo Order API
+    # 4. Attach Take Profit via Algo Order API with dynamic precision & auto-retry
     if tp:
-        tp_str = format_price_precision(sym_clean, tp)
+        tp_str = format_price_precision(sym_clean, tp, is_demo=is_demo)
         tp_params = {
             "algoType": "CONDITIONAL",
             "symbol": sym_clean,
@@ -339,7 +603,7 @@ def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is
             "triggerPrice": tp_str,
             "closePosition": "true"
         }
-        tp_res = send_signed_request("/fapi/v1/algoOrder", method="POST", params=tp_params, is_demo=is_demo, user_email=user_email)
+        tp_res = send_signed_request("/fapi/v1/algoOrder", method="POST", params=tp_params, is_demo=is_demo, user_email=user_email, retries=3)
         if tp_res and tp_res.get("algoId"):
             print(f"🎯 Take Profit dipasang di harga ${tp_str} (Algo ID: {tp_res.get('algoId')})")
         else:
@@ -416,8 +680,21 @@ def main():
     trade_p.add_argument("--leverage", type=int, default=5, help="Leverage (default: 5)")
     trade_p.add_argument("--sl", type=float, default=None, help="Stop Loss price")
     trade_p.add_argument("--tp", type=float, default=None, help="Take Profit target price")
+    trade_p.add_argument("--mode", type=str, default="MARKET", choices=["MARKET", "LIMIT_CHASE"], help="Mode eksekusi (MARKET atau LIMIT_CHASE)")
     trade_p.add_argument("--user", type=str, default=None, help="Email akun")
     trade_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo)")
+
+    # Specs (Dynamic Exchange Info)
+    spec_p = sub.add_parser("specs", help="Lihat spesifikasi presisi & filter bursa untuk simbol tertentu")
+    spec_p.add_argument("--symbol", type=str, required=True, help="Pair (misal: BTCUSDT, DOGEUSDT)")
+    spec_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo)")
+
+    # Depth (Order Book Guard)
+    dep_p = sub.add_parser("depth", help="Cek ketebalan buku pesanan dan estimasi slippage")
+    dep_p.add_argument("--symbol", type=str, required=True, help="Pair (misal: BTCUSDT)")
+    dep_p.add_argument("--qty", type=float, default=0.1, help="Kuantitas simulasi")
+    dep_p.add_argument("--side", type=str, default="BUY", choices=["BUY", "SELL"])
+    dep_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo)")
 
     # Cancel All
     can_p = sub.add_parser("cancel", help="Batalkan semua order pending untuk suatu pair")
@@ -436,8 +713,28 @@ def main():
         get_open_orders(args.symbol, is_demo=is_demo, user_email=args.user)
     elif args.command == "ticker":
         get_ticker(args.symbol)
+    elif args.command == "specs":
+        info = get_exchange_info(args.symbol, is_demo=is_demo)
+        print(f"\n=======================================================")
+        print(f"       SPEC FOR {args.symbol} (Binance Futures)")
+        print(f"=======================================================")
+        if info:
+            for k, v in info.items():
+                print(f"  * {k:<20}: {v}")
+        else:
+            print("  Data spesifikasi simbol tidak ditemukan.")
+        print("=======================================================\n")
+    elif args.command == "depth":
+        is_safe, details = check_order_book_depth(args.symbol, args.qty, side=args.side, is_demo=is_demo)
+        print(f"\n=======================================================")
+        print(f"       ORDER BOOK DEPTH AUDIT: {args.symbol}")
+        print(f"=======================================================")
+        print(f"  * Status Eksekusi Aman : {'✅ SAFE' if is_safe else '⚠️ HIGH SLIPPAGE'}")
+        for k, v in details.items():
+            print(f"  * {k:<20}: {v}")
+        print("=======================================================\n")
     elif args.command == "trade":
-        place_futures_order(args.symbol, args.side, args.qty, args.leverage, args.sl, args.tp, is_demo=is_demo, user_email=args.user)
+        place_futures_order(args.symbol, args.side, args.qty, args.leverage, args.sl, args.tp, is_demo=is_demo, user_email=args.user, exec_mode=args.mode)
     elif args.command == "cancel":
         cancel_all_orders(args.symbol, is_demo=is_demo, user_email=args.user)
     else:

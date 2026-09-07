@@ -28,6 +28,7 @@ import telegram_notifier
 import macro_news_shield
 import market_structure
 import trade_journal
+import ai_risk_officer
 
 def load_trade_metadata():
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -82,21 +83,12 @@ def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budge
     }
     save_trade_metadata(meta)
 
-def format_qty_precision(symbol, qty_val):
-    """Formats lot size based on symbol tick constraints."""
-    sym = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
-    if sym in ["BTC"]:
-        return max(0.001, round(qty_val, 3))
-    elif sym in ["ETH"]:
-        return max(0.01, round(qty_val, 2))
-    elif sym in ["SOL", "BNB", "AVAX", "LINK", "APT"]:
-        return max(0.1, round(qty_val, 1))
-    elif sym in ["DOGE", "XRP", "ADA", "SUI", "NEAR"]:
-        return max(1.0, round(qty_val, 0))
-    else:
-        return max(0.1, round(qty_val, 1))
+def format_qty_precision(symbol, qty_val, is_demo=True):
+    """Formats lot size dynamically using Binance exchange filters."""
+    formatted = binance_client.format_qty_precision(symbol, qty_val, is_demo=is_demo)
+    return float(formatted)
 
-def calculate_breakeven_price(symbol, side, entry_price, fee_offset_pct=0.0008):
+def calculate_breakeven_price(symbol, side, entry_price, fee_offset_pct=0.0008, is_demo=True):
     """
     Computes Breakeven price with taker/maker fee offset to ensure a net-zero exit.
     """
@@ -106,16 +98,17 @@ def calculate_breakeven_price(symbol, side, entry_price, fee_offset_pct=0.0008):
     else:
         raw_be = entry_price * (1.0 - fee_offset_pct)
     
-    formatted = binance_client.format_price_precision(symbol, raw_be)
+    formatted = binance_client.format_price_precision(symbol, raw_be, is_demo=is_demo)
     return float(formatted)
 
 def update_binance_stop_loss(symbol, side, new_sl_price, is_demo=True, user_email=None):
     """
     Safely cancels obsolete stop order and places the updated protective stop on Binance Futures.
+    Uses auto-retry and safe error alerting to eliminate unhedged position gaps.
     """
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
     opp_side = "SELL" if side.upper() in ["BUY", "LONG"] else "BUY"
-    sl_str = binance_client.format_price_precision(sym_clean, new_sl_price)
+    sl_str = binance_client.format_price_precision(sym_clean, new_sl_price, is_demo=is_demo)
 
     # 1. Cancel previous open regular orders and algo orders on this symbol to prevent conflicting SLs (-4130)
     try:
@@ -124,7 +117,8 @@ def update_binance_stop_loss(symbol, side, new_sl_price, is_demo=True, user_emai
             method="DELETE",
             params={"symbol": sym_clean},
             is_demo=is_demo,
-            user_email=user_email
+            user_email=user_email,
+            retries=2
         )
     except Exception:
         pass
@@ -138,7 +132,7 @@ def update_binance_stop_loss(symbol, side, new_sl_price, is_demo=True, user_emai
     except Exception:
         pass
 
-    # 2. Place updated Stop Market Algo Order
+    # 2. Place updated Stop Market Algo Order with auto-retry (3 attempts)
     sl_params = {
         "algoType": "CONDITIONAL",
         "symbol": sym_clean,
@@ -152,10 +146,26 @@ def update_binance_stop_loss(symbol, side, new_sl_price, is_demo=True, user_emai
         method="POST",
         params=sl_params,
         is_demo=is_demo,
-        user_email=user_email
+        user_email=user_email,
+        retries=3,
+        backoff_base=0.5
     )
     if res and res.get("algoId"):
         return True, res.get("algoId")
+
+    # Critical fallback notification if all 3 retries fail
+    print(f"🚨 [CRITICAL WARNING] Gagal memasang Stop Loss baru di Binance untuk {sym_clean}! Respon: {res}", file=sys.stderr)
+    try:
+        telegram_notifier.send_telegram_broadcast(
+            f"🚨 <b>CRITICAL WARNING: STOP LOSS GAGAL TERPASANG!</b> 🚨\n"
+            f"Simbol: <code>{sym_clean}</code>\n"
+            f"Level Target SL: <code>${sl_str}</code>\n"
+            f"Respon Error: <code>{res}</code>\n"
+            f"<i>Segera periksa posisi di aplikasi Binance secara manual!</i>"
+        )
+    except Exception:
+        pass
+
     return False, res
 
 def execute_manual_partial_tp(symbol, user_email=None, is_demo=True):
@@ -711,6 +721,117 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     )
                 except Exception as e:
                     print(f"[Telegram Warning] Gagal kirim notif Capital Shield: {e}")
+
+        # -------------------------------------------------------------
+        # STEP 1B.2: AI ADAPTIVE PROFIT HARVESTER & DYNAMIC EXIT SENTINEL
+        # Solves: Profit reversing into loss! When in profit (+0.35R+),
+        # AI evaluates momentum exhaustion, RSI drop, or rejection wicks.
+        # Can execute: (1) Early 100% Market TP Harvest, or (2) Lock SL to Green (+0.25R).
+        # -------------------------------------------------------------
+        if r_multiple >= 0.35 and not t_data.get("ai_harvested", False) and not t_data.get("tp1_taken", False):
+            try:
+                ai_verdict = ai_risk_officer.evaluate_active_position_exit(
+                    symbol=sym,
+                    side=side,
+                    entry_price=entry_price,
+                    mark_price=mark_price,
+                    r_multiple=r_multiple,
+                    highest_r=t_data.get("highest_r_reached", r_multiple),
+                    opened_at=t_data.get("opened_at"),
+                    is_scalp=t_data.get("is_scalp", False)
+                )
+                ai_action = ai_verdict.get("action")
+                ai_thesis = ai_verdict.get("thesis", "")
+
+                if ai_action == "TAKE_PROFIT_NOW":
+                    current_amt = abs(amt)
+                    qty_str = binance_client.format_qty_precision(sym, current_amt, is_demo=is_demo)
+                    close_side = "SELL" if side == "BUY" else "BUY"
+                    print(f"\n🎯 [AI ADAPTIVE PROFIT HARVEST] {sym}: {ai_thesis}")
+                    print(f"   Mengeksekusi Market Close 100% ({qty_str} lot) demi mengamankan cuan kas...")
+
+                    close_res = binance_client.send_signed_request(
+                        "/fapi/v1/order",
+                        method="POST",
+                        params={
+                            "symbol": sym,
+                            "side": close_side,
+                            "type": "MARKET",
+                            "quantity": qty_str,
+                            "reduceOnly": "true"
+                        },
+                        is_demo=is_demo,
+                        user_email=user_email,
+                        retries=3
+                    )
+                    if close_res and close_res.get("orderId"):
+                        realized_usd = (mark_price - entry_price) * current_amt if side == "BUY" else (entry_price - mark_price) * current_amt
+                        binance_client.cancel_existing_algo_orders_for_symbol(sym, is_demo=is_demo, user_email=user_email)
+                        t_data["ai_harvested"] = True
+                        management_events.append(f"🎯 {sym} AI Early TP (+${realized_usd:,.2f} USDT | +{r_multiple:.2f}R)")
+
+                        try:
+                            telegram_notifier.notify_ai_early_tp(
+                                symbol=sym,
+                                side=side,
+                                mark_price=mark_price,
+                                pnl_usd=realized_usd,
+                                r_multiple=r_multiple,
+                                thesis=ai_thesis,
+                                is_demo=is_demo
+                            )
+                        except Exception as e:
+                            print(f"[Telegram Warning] {e}")
+
+                        try:
+                            trade_journal.record_closed_trade({
+                                "id": f"AIHARVEST-{sym}-{int(time.time())}",
+                                "symbol": sym,
+                                "side": side,
+                                "entry_price": entry_price,
+                                "exit_price": mark_price,
+                                "quantity": current_amt,
+                                "amount_usd": round(entry_price * current_amt, 2),
+                                "pnl_usd": round(realized_usd, 2),
+                                "commission_usd": 0.0,
+                                "net_pnl_usd": round(realized_usd, 2),
+                                "r_multiple": round(r_multiple, 2),
+                                "exit_reason": f"🎯 AI Adaptive Profit Harvest (+${realized_usd:,.2f} USDT | +{r_multiple:.2f}R) - {ai_thesis}",
+                                "closed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                "source": "AI_PROFIT_HARVESTER"
+                            })
+                        except Exception as j_err:
+                            print(f"[AI Harvest Journal Warning] {j_err}")
+
+                        closed_syms.append(sym)
+                        continue
+
+                elif ai_action == "LOCK_PROFIT_SL" and not t_data.get("ai_profit_locked", False):
+                    sugg_sl = ai_verdict.get("suggested_sl")
+                    if sugg_sl:
+                        formatted_sl = float(binance_client.format_price_precision(sym, sugg_sl, is_demo=is_demo))
+                        is_better = (formatted_sl > t_data.get("current_sl", 0)) if side == "BUY" else (formatted_sl < t_data.get("current_sl", 999999))
+                        if is_better:
+                            success, _ = update_binance_stop_loss(sym, side, formatted_sl, is_demo=is_demo, user_email=user_email)
+                            if success:
+                                t_data["ai_profit_locked"] = True
+                                t_data["current_sl"] = formatted_sl
+                                print(f"🛡️ [AI GREEN-EXIT PROFIT LOCK] {sym}: SL dinaikkan ke profit zone ${formatted_sl:,.4f} (+0.25R). Garansi Green Exit!")
+                                management_events.append(f"🛡️ {sym} AI Profit Lock @ ${formatted_sl:,.4f} (+{r_multiple:.2f}R)")
+                                try:
+                                    telegram_notifier.notify_ai_profit_lock(
+                                        symbol=sym,
+                                        side=side,
+                                        mark_price=mark_price,
+                                        new_sl_price=formatted_sl,
+                                        current_pnl=upnl,
+                                        r_multiple=r_multiple,
+                                        is_demo=is_demo
+                                    )
+                                except Exception as e:
+                                    print(f"[Telegram Warning] {e}")
+            except Exception as e:
+                print(f" * [AI Sentinel Error] {e}")
 
         # -------------------------------------------------------------
         # STEP 1C: PARTIAL TAKE PROFIT 1 (SCALE-OUT 50% @ +2.0R + RUNNER 50% SMC TRAILING)

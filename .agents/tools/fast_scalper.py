@@ -31,21 +31,16 @@ DEFAULT_SCALP_SYMBOLS = ["BTC", "ETH", "SOL", "DOGE", "XRP"]
 
 def fetch_scalp_candles(symbol="BTC", bar="5m", limit=100):
     """
-    Fetches latest candles for fast scalping from OKX public REST API.
+    Fetches latest candles for fast scalping from Binance via market_eyes.
     Returns chronologically sorted list: oldest to newest.
     """
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
-    inst_id_spot = f"{sym_clean}-USDT"
-    url = f"https://www.okx.com/api/v5/market/candles?instId={inst_id_spot}&bar={bar}&limit={limit}"
-
-    res = market_eyes.fetch_json(url)
-    if not res or res.get("code") != "0" or not res.get("data"):
+    raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar, limit=limit)
+    if not raw_candles:
         return []
 
-    # OKX format: [ts, open, high, low, close, vol, volCcy, volCcyQuote, confirm]
-    sorted_raw = sorted(res["data"], key=lambda x: int(x[0]))
     parsed = []
-    for c in sorted_raw:
+    for c in raw_candles:
         parsed.append({
             "ts": int(c[0]),
             "time": datetime.fromtimestamp(int(c[0]) / 1000).strftime("%Y-%m-%d %H:%M"),

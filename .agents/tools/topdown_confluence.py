@@ -39,11 +39,9 @@ def analyze_macro_structure(symbol, force_refresh=False):
         if now - cached["timestamp"] < CACHE_TTL_SECONDS:
             return cached["data"]
 
-    inst_id_spot = f"{sym_clean}-USDT"
-    candles_url = f"https://www.okx.com/api/v5/market/candles?instId={inst_id_spot}&bar=4H&limit=60"
-    res = market_eyes.fetch_json(candles_url)
+    raw_candles = market_eyes.fetch_candles(sym_clean, bar="4H", limit=60)
 
-    if not res or res.get("code") != "0" or not res.get("data"):
+    if not raw_candles or len(raw_candles) < 15:
         # Fallback to neutral if feed fails
         return {
             "symbol": sym_clean,
@@ -62,7 +60,6 @@ def analyze_macro_structure(symbol, force_refresh=False):
             "updated_at": datetime.now().strftime("%H:%M:%S")
         }
 
-    raw_candles = list(reversed(res["data"]))
     closes = [float(c[4]) for c in raw_candles]
     highs = [float(c[2]) for c in raw_candles]
     lows = [float(c[3]) for c in raw_candles]

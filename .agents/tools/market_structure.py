@@ -54,26 +54,22 @@ def get_asset_sweep_buffer(symbol):
 
 def fetch_candles(symbol, bar="15m", limit=50):
     """
-    Fetches raw candlestick data from OKX with Binance fallback.
-    Returns: list of dicts [{"open": float, "high": float, "low": float, "close": float, "time": str}]
+    Fetches raw candlestick data from Binance.
+    Returns: list of dicts [{"open": float, "high": float, "low": float, "close": float, "time": str, "vol": float}]
     """
     base = clean_coin(symbol)
-    inst_id = f"{base}-USDT"
-    bar_okx = bar.lower()
-    if bar_okx in ["15m", "15"]:
-        bar_okx = "15m"
-    elif bar_okx in ["1h", "60m"]:
-        bar_okx = "1H"
-    elif bar_okx in ["4h"]:
-        bar_okx = "4H"
+    binance_sym = f"{base}USDT"
+    interval = bar.lower()
+    if interval in ["60m"]:
+        interval = "1h"
 
-    url = f"https://www.okx.com/api/v5/market/candles?instId={inst_id}&bar={bar_okx}&limit={limit}"
+    # 1. Primary: Binance Vision Spot Klines
+    bv_url = f"https://data-api.binance.vision/api/v3/klines?symbol={binance_sym}&interval={interval}&limit={limit}"
     try:
-        req = urllib.request.Request(url, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=8, context=SSL_CTX) as resp:
-            res = json.loads(resp.read().decode("utf-8"))
-            if res.get("code") == "0" and res.get("data"):
-                raw = list(reversed(res["data"]))
+        req = urllib.request.Request(bv_url, headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=6, context=SSL_CTX) as resp:
+            raw = json.loads(resp.read().decode("utf-8"))
+            if isinstance(raw, list) and len(raw) > 0:
                 candles = []
                 for c in raw:
                     candles.append({
@@ -82,30 +78,30 @@ def fetch_candles(symbol, bar="15m", limit=50):
                         "high": float(c[2]),
                         "low": float(c[3]),
                         "close": float(c[4]),
-                        "vol": float(c[5]) if len(c) > 5 else 0.0
+                        "vol": float(c[5])
                     })
                 return candles
     except Exception:
         pass
 
-    # Fallback to Binance Futures Public Klines
-    binance_sym = f"{base}USDT"
-    b_url = f"https://fapi.binance.com/fapi/v1/klines?symbol={binance_sym}&interval={bar.lower()}&limit={limit}"
+    # 2. Secondary: Binance Futures Public Klines
+    b_url = f"https://fapi.binance.com/fapi/v1/klines?symbol={binance_sym}&interval={interval}&limit={limit}"
     try:
         req = urllib.request.Request(b_url, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=8, context=SSL_CTX) as resp:
+        with urllib.request.urlopen(req, timeout=6, context=SSL_CTX) as resp:
             raw = json.loads(resp.read().decode("utf-8"))
-            candles = []
-            for c in raw:
-                candles.append({
-                    "time": c[0],
-                    "open": float(c[1]),
-                    "high": float(c[2]),
-                    "low": float(c[3]),
-                    "close": float(c[4]),
-                    "vol": float(c[5])
-                })
-            return candles
+            if isinstance(raw, list) and len(raw) > 0:
+                candles = []
+                for c in raw:
+                    candles.append({
+                        "time": c[0],
+                        "open": float(c[1]),
+                        "high": float(c[2]),
+                        "low": float(c[3]),
+                        "close": float(c[4]),
+                        "vol": float(c[5])
+                    })
+                return candles
     except Exception:
         pass
 

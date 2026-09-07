@@ -141,6 +141,21 @@ def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, ge
         }
     except Exception:
         pass
+
+    # Fincept Terminal Quantitative Risk Suite (VaR, CVaR, Sharpe, Sortino, Kelly)
+    try:
+        import quant_risk_engine
+        data["quant_suite"] = quant_risk_engine.get_full_quant_risk_summary(balance_usd, active_positions)
+    except Exception:
+        pass
+
+    # Fincept Terminal Global Macro Intelligence (DXY, US 10Y Yield, Fear & Greed)
+    try:
+        import macro_liquidity
+        data["macro_intelligence"] = macro_liquidity.get_macro_liquidity_summary()
+    except Exception:
+        pass
+
     try:
         with open(DASHBOARD_FEED_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
@@ -182,37 +197,40 @@ def compute_rs_matrix(symbols):
     Measures alpha against BTC benchmark to pick Strongest for Longs and Weakest for Shorts.
     """
     matrix = {}
-    btc_url = "https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT"
-    btc_res = market_eyes.fetch_json(btc_url)
-    btc_chg = 0.0
-    if btc_res and btc_res.get("data"):
-        d = btc_res["data"][0]
-        o = float(d.get("open24h", 0))
-        c = float(d.get("last", 0))
-        btc_chg = ((c - o) / o * 100.0) if o > 0 else 0.0
+    btc_data = market_eyes.fetch_ticker_data("BTC")
+    btc_chg = float(btc_data.get("change_pct", 0.0)) if btc_data else 0.0
 
     for sym in symbols:
-        url = f"https://www.okx.com/api/v5/market/ticker?instId={sym}-USDT"
-        res = market_eyes.fetch_json(url)
-        if res and res.get("data"):
-            d = res["data"][0]
-            o = float(d.get("open24h", 0))
-            c = float(d.get("last", 0))
-            chg = ((c - o) / o * 100.0) if o > 0 else 0.0
+        data = market_eyes.fetch_ticker_data(sym)
+        if data:
+            chg = float(data.get("change_pct", 0.0))
             rs = round(chg - btc_chg, 2)
             if rs >= 1.0:
                 tier = "LEADER"
                 badge = "🟢 ALPHA LEADER (Strongest)"
             elif rs <= -1.0:
                 tier = "LAGGARD"
-                badge = "🔴 BETA LAGGARD (Weakest)"
+                badge = "🔴 RELATIVE LAGGARD (Weakest)"
             else:
-                tier = "NEUTRAL"
-                badge = "⚪ IN-LINE WITH BTC"
-            matrix[sym] = {"change_24h": round(chg, 2), "rs_score": rs, "tier": tier, "badge": badge}
+                tier = "INLINE"
+                badge = "⚪ MARKET INLINE (Neutral)"
+            matrix[sym] = {
+                "change_24h": round(chg, 2),
+                "chg_24h": round(chg, 2),
+                "rs_score": rs,
+                "rs_alpha": rs,
+                "tier": tier,
+                "badge": badge
+            }
         else:
-            matrix[sym] = {"change_24h": 0.0, "rs_score": 0.0, "tier": "NEUTRAL", "badge": "⚪ UNKNOWN"}
-
+            matrix[sym] = {
+                "change_24h": 0.0,
+                "chg_24h": 0.0,
+                "rs_score": 0.0,
+                "rs_alpha": 0.0,
+                "tier": "INLINE",
+                "badge": "⚪ UNKNOWN"
+            }
     return matrix, btc_chg
 
 def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct):
@@ -503,6 +521,16 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
         comp_info = None
         print(f" * [Dominance Compass Warning] {e}")
 
+    # 1C. BTC Macro Regime & Directional Gatekeeper (Akademi Crypto Module 02 & 04)
+    btc_regime = None
+    try:
+        import market_regime
+        btc_regime = market_regime.detect_market_regime("BTCUSDT", "1h")
+        if btc_regime:
+            print(f" * BTC Macro 1H Regime  : {btc_regime['regime_label']} (ADX {btc_regime['adx']:.1f} | Bias: {btc_regime['bias']})")
+    except Exception as e:
+        print(f" * [Market Regime Warning] {e}")
+
     export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
 
     for p in active_positions:
@@ -609,12 +637,26 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     else:
         # Available slots
         slots_available = max_open_positions - len(active_positions)
-        # Prioritize highest Confluence Score, then Big-Profit Swing setups over scalps, then highest R:R
-        admissible_candidates.sort(key=lambda x: (
-            x.get("confluence_score", 0),
-            0 if x.get("is_scalp") else 1,
-            x["rr"]
-        ), reverse=True)
+        # Prioritize candidates based on active desk mode
+        if desk_mode == "HYBRID":
+            # Fair ranking: Confluence score first, then R:R (giving 5m scalps fast access)
+            admissible_candidates.sort(key=lambda x: (
+                x.get("confluence_score", 0),
+                x.get("rr", 0)
+            ), reverse=True)
+        elif desk_mode == "SCALP":
+            admissible_candidates.sort(key=lambda x: (
+                1 if x.get("is_scalp") else 0,
+                x.get("confluence_score", 0),
+                x.get("rr", 0)
+            ), reverse=True)
+        else:
+            # Swing mode: prioritize Big-Profit Swing setups over scalps
+            admissible_candidates.sort(key=lambda x: (
+                x.get("confluence_score", 0),
+                0 if x.get("is_scalp") else 1,
+                x.get("rr", 0)
+            ), reverse=True)
         selected = admissible_candidates[:slots_available]
 
         print(f"\n🎯 Ditemukan {len(admissible_candidates)} setup lolos uji akurasi. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")
@@ -643,6 +685,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
             except Exception:
                 pass
 
+            # Check BTC Macro Regime Directional Guardrail (Akademi Crypto Master Gatekeeper)
+            try:
+                import market_regime
+                is_regime_ok, regime_msg = market_regime.filter_candidate_by_regime(best, btc_regime=btc_regime)
+                if not is_regime_ok:
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [REGIME GATEKEEPER] ---")
+                    print(f"  {regime_msg}")
+                    continue
+            except Exception as e:
+                pass
+
             print(f"\n--- [{idx}/{len(selected)}] EKSEKUSI SETUP: {best['side']} {best['symbol']} ---")
             print(f" * Konfluensi : {best['confluence_score']}% [{best['confluence_grade']}]")
             print(f" * Rationale  : {best['reason']}")
@@ -660,7 +713,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     "heat": {
                         "long_count": len([p for p in active_positions if float(p.get("positionAmt", 0)) > 0]),
                         "short_count": len([p for p in active_positions if float(p.get("positionAmt", 0)) < 0])
-                    }
+                    },
+                    "market_regime": btc_regime
                 }
                 try:
                     import dominance_compass
@@ -722,23 +776,35 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 print(f" ⚠️ [Margin Guardrail] Sisa margin tersedia (${available_usd:,.2f}) tidak cukup untuk membuka posisi {best['symbol']} (Dibutuhkan: ${margin_required:,.2f}). Melewatkan eksekusi.")
                 continue
 
+            # Dynamic precision formatting from exchange info
             raw_qty = pos_size_usd / best["price"]
-            if best["base"] in ["BTC"]:
-                qty = max(0.001, round(raw_qty, 3))
-            elif best["base"] in ["ETH"]:
-                qty = max(0.01, round(raw_qty, 2))
-            elif best["base"] in ["SOL", "BNB", "AVAX", "LINK", "APT"]:
-                qty = max(0.1, round(raw_qty, 1))
-            elif best["base"] in ["DOGE", "XRP", "ADA", "SUI", "NEAR"]:
-                qty = max(1.0, round(raw_qty, 0))
-            else:
-                qty = max(0.1, round(raw_qty, 1))
+            qty_str = binance_client.format_qty_precision(best["symbol"], raw_qty, is_demo=is_demo)
+            qty = float(qty_str)
+
+            # Check minNotional & order filters
+            is_valid, adjusted_qty, filter_msg = binance_client.validate_order_filters(best["symbol"], qty, best["price"], is_demo=is_demo)
+            if not is_valid:
+                print(f" ⚠️ [Exchange Filter Alignment] {filter_msg}. Menyesuaikan qty ke {adjusted_qty}...")
+                qty = adjusted_qty
+                pos_size_usd = qty * best["price"]
+                margin_required = pos_size_usd / 5.0
+                if margin_required > available_usd:
+                    print(f" ⚠️ [Margin Guardrail] Sisa margin (${available_usd:,.2f}) tidak cukup untuk adjusted qty (${margin_required:,.2f}). Melewatkan.")
+                    continue
+
+            # Check Order Book Depth Guard before dispatching order
+            is_safe_depth, depth_audit = binance_client.check_order_book_depth(
+                best["symbol"], qty, best["side"], is_demo=is_demo, max_slippage_pct=0.30
+            )
+            if not is_safe_depth:
+                print(f" ⚠️ [Order Book Liquidity Warning] {best['symbol']} spread ({depth_audit.get('spread_pct')}%) atau estimasi slippage ({depth_audit.get('slippage_pct')}%) tinggi.")
 
             print(f" * Position Size Budget: ${pos_size_usd:,.2f} ({qty} {best['base']}) | Margin Diperlukan: ${margin_required:,.2f} USDT")
             print(f" * Max Risk At SL      : ${risk_budget:,.2f} ({max_risk_pct}% modal)")
 
-            # Execute via binance_client
-            print(f"[Mengirimkan Order ke Binance Futures...]")
+            # Execute via binance_client (Limit-Chase for Maker fee savings, or Market for fast scalp)
+            exec_mode = "MARKET" if best.get("is_scalp") else "LIMIT_CHASE"
+            print(f"[Mengirimkan Order ke Binance Futures (Mode: {exec_mode})...]")
             order_res = binance_client.place_futures_order(
                 symbol=best["symbol"],
                 side=best["side"],
@@ -747,7 +813,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 sl=best["sl"],
                 tp=best["tp"],
                 is_demo=is_demo,
-                user_email=user_email
+                user_email=user_email,
+                exec_mode=exec_mode
             )
 
             if not order_res or not order_res.get("orderId"):
@@ -818,6 +885,13 @@ def show_desk_status(user_email=None, is_demo=True):
     print("-------------------------------------------------------")
     desk_mode = telegram_notifier.get_desk_mode().upper()
     print(f"Desk Operational Mode: 🎯 {desk_mode} (Big-Profit Swing Focus, 1H/4H Macro Confluence)")
+    try:
+        import market_regime
+        btc_reg = market_regime.detect_market_regime("BTCUSDT", "1h")
+        if btc_reg:
+            print(f"BTC 1H Macro Regime  : {btc_reg['regime_label']} (Bias: {btc_reg['bias']})")
+    except Exception:
+        pass
     print(f"Desk Genetic Rules   : Generation {genome.get('generation', 1)}")
     print(f" * Min R:R Filter    : 1 : {genome.get('parameters', {}).get('min_risk_reward', 3.0)}")
     print(f" * Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5)}%")
