@@ -918,7 +918,13 @@ def show_desk_status(user_email=None, is_demo=True):
 
     print("-------------------------------------------------------")
     desk_mode = telegram_notifier.get_desk_mode().upper()
-    print(f"Desk Operational Mode: 🎯 {desk_mode} (Big-Profit Swing Focus, 1H/4H Macro Confluence)")
+    if desk_mode == "HYBRID":
+        mode_desc = "🤖 HYBRID (Dual-Engine: 5m Fast Scalp + 1H Swing Confluence)"
+    elif desk_mode == "SCALP":
+        mode_desc = "⚡ SCALP ONLY (5m Micro-Structure Protocol)"
+    else:
+        mode_desc = "🎯 SWING ONLY (1H/4H Macro Confluence Focus)"
+    print(f"Desk Operational Mode: {mode_desc}")
     try:
         import market_regime
         btc_reg = market_regime.detect_market_regime("BTCUSDT", "1h")
@@ -938,9 +944,9 @@ def main():
     # Run command
     run_p = sub.add_parser("run", help="Jalankan siklus pemindaian dan eksekusi trading desk")
     run_p.add_argument("--once", action="store_true", help="Jalankan 1 siklus lalu selesai")
-    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID"], default=None, help="Set mode operasional desk (SWING, SCALP, HYBRID)")
+    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID"], default="HYBRID", help="Set mode operasional desk (default: HYBRID)")
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
-    run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 30)")
+    run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 1 menit untuk HYBRID/SCALP, 15 menit untuk SWING)")
     run_p.add_argument("--max-positions", type=int, default=3, help="Batas maksimal posisi aktif bersamaan (default: 3)")
     run_p.add_argument("--user", type=str, default=None, help="Email akun (misal: dxmade@gmail.com)")
     run_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo Testnet)")
@@ -968,14 +974,18 @@ def main():
             run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms)
         else:
             w_str = ", ".join(syms) if syms else ", ".join(DEFAULT_WATCHLIST)
-            print(f"Memulai Autonomous Trading Desk Daemon (Watchlist: {w_str} | Interval: {args.interval} menit | Max Positions: {max_pos})... Tekan Ctrl+C untuk berhenti.")
+            cur_mode = telegram_notifier.get_desk_mode().upper()
+            active_interval = args.interval if args.interval != 30 else (1 if cur_mode in ["HYBRID", "SCALP"] else 15)
+            print(f"Memulai Autonomous Trading Desk Daemon (Watchlist: {w_str} | Mode: {cur_mode} | Interval: {active_interval} menit | Max Positions: {max_pos})... Tekan Ctrl+C untuk berhenti.")
             # Start background Telegram interactive remote control listener thread
             telegram_notifier.start_command_listener(args.user, is_demo=is_demo)
             try:
                 while True:
                     run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms)
-                    print(f"Desk tidur sejenak selama {args.interval} menit...")
-                    time.sleep(args.interval * 60)
+                    cur_mode = telegram_notifier.get_desk_mode().upper()
+                    active_interval = args.interval if args.interval != 30 else (1 if cur_mode in ["HYBRID", "SCALP"] else 15)
+                    print(f"Desk tidur sejenak selama {active_interval} menit...")
+                    time.sleep(active_interval * 60)
             except KeyboardInterrupt:
                 print("\nTrading Desk Daemon dihentikan oleh pengguna.")
     else:

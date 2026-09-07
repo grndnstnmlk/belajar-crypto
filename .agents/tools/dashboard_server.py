@@ -142,8 +142,17 @@ def get_dashboard_feed_data(force_refresh=False):
     except Exception:
         pass
 
+    cur_mode = state.get("mode", "HYBRID").upper()
     feed["is_paused"] = state.get("paused", False)
-    feed["mode"] = state.get("mode", "SWING")
+    feed["mode"] = cur_mode
+    feed["timeframes"] = {
+        "active_mode": cur_mode,
+        "scalp": "5m",
+        "swing": "1H",
+        "macro": "4H",
+        "scan_interval": "60s (Fast Cycle)" if cur_mode in ["HYBRID", "SCALP"] else "15m",
+        "summary": "Dual-Engine: 5m Fast Scalp (Target 15-45m) + 1H Swing (1:3.0+ R:R)" if cur_mode == "HYBRID" else ("5m Micro-Structure Protocol" if cur_mode == "SCALP" else "1H / 4H Macro Confluence")
+    }
     feed["session"] = session_filter.get_current_session_info()
     is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
     feed["news_shield"] = {
@@ -573,7 +582,7 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 ctx = {
                     "balance_usd": feed.get("balance_usd", 5000.0),
                     "positions": feed.get("positions", []),
-                    "mode": feed.get("mode", "SWING"),
+                    "mode": feed.get("mode", "HYBRID"),
                     "news_shield": feed.get("news_shield", {})
                 }
                 ans = ai_risk_officer.answer_trader_query(query, ctx)
@@ -624,17 +633,23 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == "/api/action/set_mode":
             state = telegram_notifier.load_desk_state()
-            requested_mode = payload.get("mode")
-            if requested_mode in ["SCALP", "SWING"]:
+            requested_mode = (payload.get("mode") or "").upper()
+            modes_cycle = ["HYBRID", "SCALP", "SWING"]
+            if requested_mode in modes_cycle:
                 new_mode = requested_mode
             else:
-                new_mode = "SCALP" if state.get("mode", "SWING") == "SWING" else "SWING"
+                curr = state.get("mode", "HYBRID").upper()
+                next_idx = (modes_cycle.index(curr) + 1) % len(modes_cycle) if curr in modes_cycle else 0
+                new_mode = modes_cycle[next_idx]
+
             state["mode"] = new_mode
+            state["strategy_focus"] = "FAST_SCALP_HYBRID" if new_mode == "HYBRID" else ("FAST_SCALP" if new_mode == "SCALP" else "SWING_INTRADAY")
             telegram_notifier.save_desk_state(state)
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "mode": new_mode}).encode("utf-8"))
+            return
         elif path == "/api/action/sync_binance":
             try:
                 count = trade_journal.sync_binance_history(limit=1000)

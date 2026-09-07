@@ -85,7 +85,7 @@ def is_desk_paused():
 
 def get_desk_mode():
     state = load_desk_state()
-    return state.get("mode", "SWING")
+    return state.get("mode", "HYBRID")
 
 MAIN_KEYBOARD = {
     "keyboard": [
@@ -825,11 +825,18 @@ class TelegramCommandListener(threading.Thread):
             except Exception:
                 pass
 
+            if mode == "HYBRID":
+                mode_str = "🤖 HYBRID (Dual-Engine: 5m Scalp + 1H Swing)"
+            elif mode == "SCALP":
+                mode_str = "⚡ SCALP (5m Micro-Structure)"
+            else:
+                mode_str = "🎯 SWING (1H / 4H Macro Confluence)"
+
             reply = (
                 f"🖥️ <b>STATUS TRADING DESK</b>\n"
                 f"━━━━━━━━━━━━━━━━━━\n"
                 f"Status Autopilot: {status_tag}\n"
-                f"Mode Operasi: <b>🎯 {mode} (Big-Profit Swing Focus)</b>\n"
+                f"Mode Operasi: <b>{mode_str}</b>\n"
                 f"Mode Akun: {'🟡 DEMO (Testnet)' if self.is_demo else '🔴 LIVE'}\n"
                 f"Saldo Equity: <code>${bal:,.2f} USDT</code>\n"
                 f"Posisi Terbuka: <code>{len(positions)} posisi</code>\n"

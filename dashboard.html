@@ -446,7 +446,7 @@
 
     .chart-footer-metrics {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       border-top: 1px solid var(--color-ash);
       background: var(--color-paper);
     }
@@ -997,8 +997,8 @@
           <span class="equity-val mono" id="header-equity">$5,250.28</span>
         </div>
 
-        <button class="btn" id="mode-badge-btn" onclick="toggleTradingMode()" title="Ganti Mode Trading">
-          <span id="mode-text">🎯 SWING</span>
+        <button class="btn" id="mode-badge-btn" onclick="toggleTradingMode()" title="Ganti Mode Trading (HYBRID: 5m Scalp + 1H Swing | SCALP: 5m | SWING: 1H)" style="border-color:var(--color-electric-blue); box-shadow:0 0 10px rgba(59, 130, 246, 0.2);">
+          <span id="mode-text">🤖 HYBRID (5m+1H)</span>
         </button>
 
         <button class="btn" onclick="openBacktestModal()" title="Jalankan Simulasi Quant">
@@ -1085,6 +1085,10 @@
             <div class="metric-brick">
               <span class="metric-brick-label">Institutional Session</span>
               <span class="metric-brick-val" id="session-val">Loading...</span>
+            </div>
+            <div class="metric-brick">
+              <span class="metric-brick-label">Active Protocol</span>
+              <span class="metric-brick-val" id="protocol-val" style="color:var(--color-cyan); font-size:11px;">5m Scalp + 1H Swing (60s)</span>
             </div>
           </div>
         </div>
@@ -1841,7 +1845,37 @@
         }
 
         const modeBtn = document.getElementById('mode-text');
-        if (modeBtn) modeBtn.innerText = `🎯 ${feed.mode || 'SWING'}`;
+        const modeBadgeBtn = document.getElementById('mode-badge-btn');
+        if (modeBtn) {
+          const m = (feed.mode || 'HYBRID').toUpperCase();
+          if (m === 'HYBRID') {
+            modeBtn.innerText = '🤖 HYBRID (5m+1H)';
+            if (modeBadgeBtn) {
+              modeBadgeBtn.title = 'Mode HYBRID Aktif: 5m Fast Scalp (Target 15-45m) + 1H/4H Swing Macro Confluence';
+              modeBadgeBtn.style.borderColor = 'var(--color-electric-blue)';
+              modeBadgeBtn.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.25)';
+            }
+          } else if (m === 'SCALP') {
+            modeBtn.innerText = '⚡ SCALP (5m)';
+            if (modeBadgeBtn) {
+              modeBadgeBtn.title = 'Mode SCALP Aktif: 5m Micro-Structure Fast Scalping Protocol';
+              modeBadgeBtn.style.borderColor = 'var(--color-cyan)';
+              modeBadgeBtn.style.boxShadow = 'none';
+            }
+          } else {
+            modeBtn.innerText = '🎯 SWING (1H)';
+            if (modeBadgeBtn) {
+              modeBadgeBtn.title = 'Mode SWING Aktif: 1H / 4H Macro Confluence Focus';
+              modeBadgeBtn.style.borderColor = 'var(--color-ash)';
+              modeBadgeBtn.style.boxShadow = 'none';
+            }
+          }
+        }
+
+        const protoEl = document.getElementById('protocol-val');
+        if (protoEl && feed.timeframes) {
+          protoEl.innerText = `${feed.timeframes.scalp} Scalp + ${feed.timeframes.swing} Swing (${feed.timeframes.scan_interval})`;
+        }
 
         const pauseBtn = document.getElementById('pause-btn');
         if (pauseBtn) pauseBtn.innerText = feed.is_paused ? "▶️ Lanjutkan" : "⏸️ Jeda";
@@ -2584,7 +2618,8 @@
       try {
         const res = await fetch('/api/action/set_mode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
         const d = await res.json();
-        showToast(`🎯 Mode diubah ke ${d.mode}`);
+        const modeDesc = d.mode === 'HYBRID' ? '🤖 HYBRID (5m Fast Scalp + 1H Swing)' : (d.mode === 'SCALP' ? '⚡ SCALP (5m Micro-Structure)' : '🎯 SWING (1H Macro Confluence)');
+        showToast(`🎯 Mode Operasional: ${modeDesc}`);
         fetchDashboardFeed();
       } catch (e) {
         showToast(`⚠️ Error: ${e.message}`);
