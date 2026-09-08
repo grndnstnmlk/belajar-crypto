@@ -1041,6 +1041,11 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                 print(f" * 🤖 AI Officer: {ai_audit['decision']} ({ai_audit['confidence']}%) via {ai_audit.get('provider', 'AI')}")
                 print(f"   Thesis     : {ai_audit['thesis']}")
 
+                if ai_audit.get("adversarial_debate"):
+                    deb = ai_audit["adversarial_debate"]
+                    print(f" * 🐂 vs 🐻 [Tauric Debate]: Bull {deb.get('bull_score')}% vs Bear {deb.get('bear_score')}% | Arbiter: {deb.get('verdict')} ({deb.get('winner')})")
+                    print(f"   Arbiter    : {deb.get('arbiter_synthesis')}")
+
                 if ai_audit["decision"] == "VETO":
                     print(f" 🚨 [AI OFFICER VETO] Setup {best['symbol']} diveto oleh AI: {ai_audit['thesis']}")
                     try:

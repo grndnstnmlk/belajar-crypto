@@ -214,6 +214,12 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
         conf = ai_audit.get("confidence", 85)
         thesis = html.escape(ai_audit.get("thesis", ""))
         ai_line = f"🤖 <b>AI Officer Review:</b> <code>{dec} ({conf}%)</code>\n   <i>\"{thesis}\"</i>\n"
+        deb = ai_audit.get("adversarial_debate")
+        if deb:
+            winner = deb.get("winner", "BULL")
+            bull_s = deb.get("bull_score", 0)
+            bear_s = deb.get("bear_score", 0)
+            ai_line += f"🐂 vs 🐻 <b>Tauric Debate:</b> <code>Bull {bull_s}% vs Bear {bear_s}% [{winner}]</code>\n"
 
     is_scalp = trade.get("is_scalp", False)
     header_title = "⚡ <b>EKSEKUSI 5m FAST SCALP - BINANCE FUTURES</b>" if is_scalp else "🚀 <b>EKSEKUSI ORDER BINANCE FUTURES</b>"
@@ -275,6 +281,20 @@ def notify_ai_officer_veto(trade, ai_audit):
     risks = "\n".join([f"• <i>{html.escape(r)}</i>" for r in ai_audit.get("key_risks", [])])
     provider = ai_audit.get("provider", "AI Senior Quant Officer")
 
+    deb = ai_audit.get("adversarial_debate")
+    debate_section = ""
+    if deb:
+        winner = deb.get("winner", "BEAR")
+        bull_s = deb.get("bull_score", 0)
+        bear_s = deb.get("bear_score", 0)
+        synthesis = html.escape(deb.get("arbiter_synthesis", ""))
+        debate_section = (
+            f"━━━━━━━━━━━━━━━━━━\n"
+            f"🐂 vs 🐻 <b>TAURIC ADVERSARIAL DEBATE:</b>\n"
+            f"• Skor: <b>Bull {bull_s}%</b> vs <b>Bear {bear_s}%</b> [{winner}]\n"
+            f"• <b>Putusan Arbiter:</b> <i>{synthesis}</i>\n"
+        )
+
     msg = (
         f"🛡️ <b>AI QUANT OFFICER — SETUP DIVETO!</b>\n"
         f"<i>Reviewer: {html.escape(provider)}</i>\n"
@@ -283,6 +303,7 @@ def notify_ai_officer_veto(trade, ai_audit):
         f"🛑 <b>Keputusan AI:</b> <code>VETO ({conf}% Confidence)</code>\n"
         f"📝 <b>Alasan Veto:</b>\n{thesis}\n\n"
         f"⚠️ <b>Faktor Risiko Utama:</b>\n{risks}\n"
+        f"{debate_section}"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"💡 <i>Modal terlindungi! Autopilot membatalkan eksekusi order ini untuk mencegah potensi jebakan manipulasi wick/dump.</i>"
     )

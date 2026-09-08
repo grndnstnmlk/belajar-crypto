@@ -1393,6 +1393,73 @@
               </div>
             </div>
           </div>
+
+          <!-- TAURIC RESEARCH ADVERSARIAL DEBATE LAYER (BULL vs BEAR) -->
+          <div class="intel-card" style="grid-column: span 2;">
+            <div class="intel-card-header">
+              <div class="intel-card-title">
+                <span>🐂 vs 🐻 Tauric Adversarial Debate Layer (TradingAgents Protocol)</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="pill-badge blue mono" id="debate-engine-pill">TAURIC ENGINE</span>
+                <span class="pill-badge mint mono" id="debate-verdict-pill">APPROVE</span>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <!-- Debate Conviction Bar -->
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px 14px; display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600;">
+                  <span style="color:var(--color-mint);" id="debate-bull-label">🐂 Bull Conviction: 70%</span>
+                  <span class="mono" id="debate-target-label" style="color:var(--color-text-dim);">SOL/USDT (LONG)</span>
+                  <span style="color:var(--color-tangerine);" id="debate-bear-label">🐻 Bear Skepticism: 30%</span>
+                </div>
+                <div class="heat-bar-track" style="height:10px;">
+                  <div class="heat-bar-long" id="debate-bull-fill" style="width:70%; background:var(--color-mint);" title="Bull Researcher Conviction"></div>
+                  <div class="heat-bar-short" id="debate-bear-fill" style="width:30%; background:var(--color-tangerine);" title="Bear Researcher Skepticism"></div>
+                </div>
+              </div>
+
+              <!-- Two Column Debate Arguments -->
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <!-- Bull Column -->
+                <div style="background:var(--color-paper); border:1px solid rgba(74, 222, 128, 0.25); border-radius:var(--radius-btn); padding:12px;">
+                  <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                    <span style="font-size:15px;">🐂</span>
+                    <span style="font-size:12px; font-weight:700; color:var(--color-mint);">Bull Researcher (Thesis & Catalysts)</span>
+                  </div>
+                  <div id="debate-bull-thesis" style="font-size:11.5px; line-height:1.5; color:var(--color-text-dim); white-space:pre-line;">
+                    Memuat thesis bull...
+                  </div>
+                </div>
+
+                <!-- Bear Column -->
+                <div style="background:var(--color-paper); border:1px solid rgba(251, 146, 60, 0.25); border-radius:var(--radius-btn); padding:12px;">
+                  <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                    <span style="font-size:15px;">🐻</span>
+                    <span style="font-size:12px; font-weight:700; color:var(--color-tangerine);">Bear Researcher (Devil's Advocate)</span>
+                  </div>
+                  <div id="debate-bear-critique" style="font-size:11.5px; line-height:1.5; color:var(--color-text-dim); white-space:pre-line;">
+                    Memuat telaah risiko bear...
+                  </div>
+                </div>
+              </div>
+
+              <!-- Arbiter Synthesis Box -->
+              <div style="background:linear-gradient(90deg, rgba(59,130,246,0.08), rgba(74,222,128,0.05)); border:1px solid rgba(59,130,246,0.3); border-radius:var(--radius-btn); padding:12px 14px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:15px;">⚖️</span>
+                    <span style="font-size:12px; font-weight:700; color:var(--color-electric-blue);">Research Manager & Arbiter Adjudication</span>
+                  </div>
+                  <span class="mono" id="debate-invalidation-label" style="font-size:10.5px; color:var(--color-text-dim);">Invalidasi: SL Hit</span>
+                </div>
+                <div id="debate-arbiter-synthesis" style="font-size:11.5px; line-height:1.45; color:var(--color-text);">
+                  Adjudikasi konsensus Tauric...
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2364,8 +2431,61 @@
             pPill.className = port.risk_status.includes('CRITICAL') ? 'pill-badge tangerine' : 'pill-badge mint';
           }
         }
+
+        // 8. Tauric Adversarial Debate Layer (Bull vs Bear Agent)
+        try {
+          const debRes = await fetch('/api/debate');
+          const debData = await debRes.json();
+          if (debData && debData.length > 0) {
+            renderDebateCard(debData[debData.length - 1]);
+          }
+        } catch (e) {
+          console.warn("Could not load debate data:", e);
+        }
       } catch (e) {
         console.error("Error loading intelligence:", e);
+      }
+    }
+
+    function renderDebateCard(deb) {
+      if (!deb) return;
+      const bScore = deb.bull_score !== undefined ? deb.bull_score : 50;
+      const rScore = deb.bear_score !== undefined ? deb.bear_score : 50;
+      
+      const bullLabel = document.getElementById('debate-bull-label');
+      const bearLabel = document.getElementById('debate-bear-label');
+      const targetLabel = document.getElementById('debate-target-label');
+      const bullFill = document.getElementById('debate-bull-fill');
+      const bearFill = document.getElementById('debate-bear-fill');
+      const verdictPill = document.getElementById('debate-verdict-pill');
+      const enginePill = document.getElementById('debate-engine-pill');
+      const bullThesis = document.getElementById('debate-bull-thesis');
+      const bearCritique = document.getElementById('debate-bear-critique');
+      const arbiterSyn = document.getElementById('debate-arbiter-synthesis');
+      const invalLabel = document.getElementById('debate-invalidation-label');
+
+      if (bullLabel) bullLabel.innerText = `🐂 Bull Conviction: ${bScore}%`;
+      if (bearLabel) bearLabel.innerText = `🐻 Bear Skepticism: ${rScore}%`;
+      if (targetLabel) targetLabel.innerText = `${deb.symbol} (${deb.side || 'LONG'})`;
+      if (bullFill) bullFill.style.width = `${bScore}%`;
+      if (bearFill) bearFill.style.width = `${rScore}%`;
+
+      if (verdictPill) {
+        verdictPill.innerText = deb.verdict || 'APPROVE';
+        if (deb.verdict === 'VETO') verdictPill.className = 'pill-badge tangerine mono';
+        else if (deb.verdict === 'ADJUST_RISK') verdictPill.className = 'pill-badge blue mono';
+        else verdictPill.className = 'pill-badge mint mono';
+      }
+
+      if (enginePill && deb.engine) {
+        enginePill.innerText = deb.engine.includes('LLM') ? 'TAURIC LLM' : 'QUANT MATRIX';
+      }
+
+      if (bullThesis) bullThesis.innerText = deb.bull_thesis || '-';
+      if (bearCritique) bearCritique.innerText = deb.bear_critique || '-';
+      if (arbiterSyn) arbiterSyn.innerText = deb.arbiter_synthesis || '-';
+      if (invalLabel && deb.invalidation_price) {
+        invalLabel.innerText = `Invalidasi: $${Number(deb.invalidation_price).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}`;
       }
     }
 

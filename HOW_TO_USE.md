@@ -172,6 +172,14 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
    * **Batas Posisi Searah (*Directional Cap*)**: Maksimal 3 posisi searah (misal: 3 Long atau 3 Short). Slot ke-4 dicadangkan khusus untuk Hedging (arah berlawanan) atau Cadangan Kas demi mencegah kerugian serentak (*quadruple-SL*) saat pasar berbalik arah secara drastis.
    * **Cluster Altcoin Guard**: Maksimal 3 *High-Beta Altcoins* bersamaan guna mencegah over-konsentrasi pada token berkorelasi tinggi.
    * **Dynamic Heat Scaling**: Alokasi risiko posisi ke-1 (100%), posisi ke-2 (75%), posisi ke-3 (50%), dan posisi ke-4 (35%) sehingga total risiko terarah kumulatif tetap aman dan terkendali.
+7. **Tauric Adversarial Debate Layer (Bull 🐂 vs Bear 🐻)**:
+   * Mengadopsi arsitektur multi-agent institusional **Tauric Research** (*TradingAgents*, arXiv:2412.20138).
+   * Sebelum order dieksekusi, **Bull Researcher** (katalis kenaikan & struktur FVG) dipertemukan dengan **Bear Researcher** (*Devil's Advocate*, jebakan likuiditas & fakeout) dalam debat dialektika.
+   * **Debate Arbiter** menimbang argumen secara objektif terhadap data pasar live:
+     * **`APPROVE`**: Bull menang meyakinkan $\rightarrow$ eksekusi ukuran penuh.
+     * **`ADJUST_RISK`**: Kompromi kehati-hatian $\rightarrow$ ukuran risiko otomatis dipotong ke 50%.
+     * **`VETO`**: Bear mengekspos risiko fatal $\rightarrow$ eksekusi dibatalkan demi proteksi modal.
+   * Mendukung mode ganda (*Dual-Engine*): **Cognitive LLM** (Gemini/OpenAI/DeepSeek/Groq) dan **Deterministic Quant Matrix** (< 5ms). Transkrip debat dapat dipantau langsung di tab Market Intelligence dashboard.
 
 ---
 

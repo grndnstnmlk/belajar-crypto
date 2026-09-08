@@ -337,6 +337,24 @@ def heuristic_quant_audit(setup, market_context=None):
     else:
         thesis = f"ADJUST_RISK: Setup {sym} ({side}) diterima dengan catatan risiko kehati-hatian ({', '.join(key_risks)}). Alokasi modal disarankan dipangkas ke {suggested_scale*100:.0f}%."
 
+    # 7. Tauric Adversarial Debate Layer (Bull vs Bear Agent)
+    debate = None
+    try:
+        import adversarial_debate
+        debate = adversarial_debate.run_adversarial_debate(setup, market_context)
+        if debate.get("verdict") == "VETO" and decision != "VETO":
+            decision = "VETO"
+            confidence = max(confidence, debate.get("bear_score", 75))
+            thesis = f"VETO ARBITER (Tauric Debate): {debate.get('arbiter_synthesis', 'Vetoed by Bear Researcher')}"
+            suggested_scale = 0.0
+            key_risks.append("Vetoed by Tauric Adversarial Debate Arbiter")
+        elif debate.get("verdict") == "ADJUST_RISK" and decision == "APPROVE":
+            decision = "ADJUST_RISK"
+            suggested_scale = min(suggested_scale, debate.get("suggested_risk_scale", 0.5))
+            thesis += f" | Tauric Debate: {debate.get('arbiter_synthesis')}"
+    except Exception:
+        pass
+
     return {
         "decision": decision,
         "confidence": confidence,
@@ -344,7 +362,8 @@ def heuristic_quant_audit(setup, market_context=None):
         "thesis": thesis,
         "key_risks": key_risks if key_risks else ["Normal market volatility risk"],
         "invalidation_scenario": f"Penutupan candle 15m melewati level Stop Loss ${setup.get('sl', 0):,.4f}.",
-        "provider": "Algorithmic Quant Heuristics"
+        "provider": "Algorithmic Quant Heuristics",
+        "adversarial_debate": debate
     }
 
 def audit_trade_setup(setup, market_context=None):
@@ -432,6 +451,21 @@ Strictly respond in valid JSON format with this exact schema:
                     json_str = m.group(0)
             parsed = json.loads(json_str)
             parsed["provider"] = provider.upper()
+            try:
+                import adversarial_debate
+                debate = adversarial_debate.run_adversarial_debate(setup, market_context)
+                parsed["adversarial_debate"] = debate
+                if debate.get("verdict") == "VETO" and parsed.get("decision") != "VETO":
+                    parsed["decision"] = "VETO"
+                    parsed["confidence"] = max(parsed.get("confidence", 70), debate.get("bear_score", 75))
+                    parsed["thesis"] = f"VETO ARBITER (Tauric Debate): {debate.get('arbiter_synthesis', 'Vetoed by Bear Researcher')}"
+                    parsed["suggested_risk_scale"] = 0.0
+                elif debate.get("verdict") == "ADJUST_RISK" and parsed.get("decision") == "APPROVE":
+                    parsed["decision"] = "ADJUST_RISK"
+                    parsed["suggested_risk_scale"] = min(parsed.get("suggested_risk_scale", 1.0), debate.get("suggested_risk_scale", 0.5))
+                    parsed["thesis"] += f" | Tauric Debate Note: {debate.get('arbiter_synthesis')}"
+            except Exception:
+                pass
             return parsed
         except Exception:
             pass
