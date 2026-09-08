@@ -1,0 +1,196 @@
+# 🤖 Autonomous AI Trading Desk — User Guide & Manual (HOW TO USE)
+
+Panduan operasional lengkap untuk menjalankan, mengendalikan, dan memantau **Autonomous AI Crypto Trading Agent** (Binance Futures Testnet & Live).
+
+---
+
+## 📑 Daftar Isi
+1. [Prasyarat & Persiapan Awal](#1-prasyarat--persiapan-awal)
+2. [3 Mode Operasional Trading Desk](#2-3-mode-operasional-trading-desk)
+3. [Cara Menjalankan Trading Desk (CLI & Batch)](#3-cara-menjalankan-trading-desk-cli--batch)
+4. [Pengendalian Jarak Jauh via Telegram Bot](#4-pengendalian-jarak-jauh-via-telegram-bot)
+5. [Mission Control Web Dashboard (Port 5000)](#5-mission-control-web-dashboard-port-5000)
+6. [Sistem Proteksi Otomatis (Hands-Free Risk Management)](#6-sistem-proteksi-otomatis-hands-free-risk-management)
+7. [Skrip Diagnostik & Scanner Mandiri](#7-skrip-diagnostik--scanner-mandiri)
+
+---
+
+## 1. Prasyarat & Persiapan Awal
+
+Pastikan file konfigurasi `.env` telah terisi di direktori utama:
+
+```env
+# Binance Futures API (Demo Testnet atau Live)
+BINANCE_API_KEY=your_binance_api_key_here
+BINANCE_API_SECRET=your_binance_api_secret_here
+
+# Telegram Remote Control & Alerts
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+TELEGRAM_CHAT_ID=your_chat_id_here
+
+# AI Senior Quant Risk Officer (Opsional: Google Gemini API)
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+> [!TIP]
+> Jika Chat ID Telegram Anda belum terhubung, jalankan perintah auto-pairing sekali saja:
+> ```powershell
+> python .agents/tools/telegram_notifier.py pair
+> ```
+> Lalu buka bot Telegram Anda dan kirim pesan apa saja (misal: "halo").
+
+---
+
+## 2. 3 Mode Operasional Trading Desk
+
+Trading desk memiliki 3 mode eksekusi yang dapat diganti sewaktu-waktu melalui CLI maupun Telegram:
+
+| Mode | Timeframe | Fokus Strategi | Alokasi Risiko | Target R:R | Karakteristik |
+| :--- | :---: | :--- | :---: | :---: | :--- |
+| **`SCALP`** | **5m** (Mikro) | Rejection Block, Liquidity Sweep, VWAP $\pm 2\sigma$, Volume Surge | **0.35% – 0.50%** (Micro-Kelly) | **1:1.50 – 1:2.50** | Eksekusi cepat, durasi 15–30 menit, Micro-BE (+0.60R), Time-Stop 20 menit |
+| **`HYBRID`** *(Default)* | **5m + 1H** | Dual Engine: Menangkap Swing 1H sekaligus Scalp 5m | **0.50% s/d 1.05%** | **1:2.00 – 1:3.50** | Fleksibel: Eksekusi scalp kilat ke slot kosong saat menunggu setup swing matang |
+| **`SWING`** | **1H & 4H** (Makro) | SMC, Wyckoff Accumulation, Volume Profile VAH/VAL, FVG Retest | **1.05% – 1.50%** | **1:3.00 – 1:5.00+** | Menunggangi ekspansi tren besar multi-jam/hari, proteksi Chandelier Trailing |
+
+---
+
+## 3. Cara Menjalankan Trading Desk (CLI & Batch)
+
+Buka PowerShell di folder proyek (`c:\Users\USER\Downloads\Githubku\belajar kripto`):
+
+### A. Menjalankan Mode SCALP (Fast Scalper 5m)
+```powershell
+# 1. Siklus 24/7 Autopilot (Memindai 10 koin teratas setiap 1 menit)
+python .agents/tools/trading_desk.py run --mode SCALP --interval 1
+
+# 2. Siklus Uji Coba Sekali Jalan (Single Run Test)
+python .agents/tools/trading_desk.py run --mode SCALP --once
+```
+
+### B. Menjalankan Mode HYBRID (Swing + Scalp Otomatis)
+```powershell
+# Berjalan terus-menerus dengan interval 1-2 menit
+python .agents/tools/trading_desk.py run --mode HYBRID --interval 1
+```
+
+### C. Menjalankan Mode SWING (Tren Besar 1H)
+```powershell
+# Berjalan terus-menerus dengan interval 15 menit
+python .agents/tools/trading_desk.py run --mode SWING --interval 15
+```
+
+### D. Mode Demo Testnet vs Live Real Money
+* **Demo Testnet (Bebas Risiko)**: Default (tanpa flag tambahan). Menggunakan saldo virtual Binance Futures Testnet.
+* **Live Real Money**: Tambahkan argumen `--live`:
+  ```powershell
+  python .agents/tools/trading_desk.py run --mode HYBRID --interval 1 --live
+  ```
+
+### E. Melalui File Batch Windows (.bat)
+* Jalankan `start_autopilot.bat` untuk menyalakan daemon desk autopilot.
+* Jalankan `start_dashboard.bat` untuk menyalakan Mission Control Web Dashboard.
+
+---
+
+## 4. Pengendalian Jarak Jauh via Telegram Bot
+
+Anda dapat mengendalikan bot secara penuh dari HP tanpa perlu membuka terminal laptop:
+
+```
+                  ┌────────────────────────┐
+                  │   TELEGRAM BOT REMOTE  │
+                  └───────────┬────────────┘
+                              │
+       ┌──────────────────────┼──────────────────────┐
+       ▼                      ▼                      ▼
+[STATUS & INTEL]      [KONTROL MODE]         [EKSEKUSI POSISI]
+• /status             • /scalp               • /scaleout (TP 50%)
+• /pnl (24h Recap)    • /hybrid              • /close <koin>
+• /scalpscan          • /swing               • /closeall
+• /rejection          • /pause /resume       • /chart <koin> <tf>
+```
+
+### Daftar Perintah Interaktif:
+
+| Perintah | Fungsi | Contoh Respon / Tindakan |
+| :--- | :--- | :--- |
+| **`/scalpscan`** | ⚡ **Scan 5m Scalp Instan** | Memindai 10 koin teratas detik ini dan mengirim kartu sinyal entry, SL, TP |
+| **`/scalp`** | ⚡ **Ganti ke Mode Scalp** | Mengubah operasional desk ke 5m Fast Scalper (Micro-BE +0.6R, Time-Stop 20m) |
+| **`/hybrid`** | 🤖 **Ganti ke Mode Hybrid** | Mengaktifkan dual-engine (1H Swing + 5m Scalp bersamaan) |
+| **`/swing`** | 🎯 **Ganti ke Mode Swing** | Mengaktifkan mode tren besar 1H/4H (Target R:R $\ge 1:3.0$) |
+| **`/rejection`** | 🕯️ **Pantau Rejection Block** | Menampilkan zona Mean Threshold 50% untuk BTC, ETH, dan SOL |
+| **`/status`** | 📊 **Cek Saldo & Posisi** | Menampilkan saldo dompet USDT dan daftar posisi aktif dengan floating PnL |
+| **`/pnl`** | 💰 **Rangkuman 24 Jam** | Laporan eksekutif: Win Rate, Profit Factor, Net PnL harian |
+| **`/chart btc 5m`** | 📈 **Snapshot Chart** | Mengirim gambar grafik candlestick 5m lengkap dengan pita VWAP & target |
+| **`/scaleout`** | 🎯 **Amankan Cuan 50%** | Menjual 50% lot di market dan menggeser sisa posisi ke Breakeven |
+| **`/close btc`** | 🔴 **Tutup 1 Posisi** | Melikuidasi posisi koin tertentu secara instan di market |
+| **`/closeall`** | 🚨 **Tutup Semua Posisi** | Darurat: Melikuidasi seluruh posisi terbuka menjadi kas USDT |
+| **`/pause`** | ⏸️ **Jeda Desk** | Menghentikan pembukaan posisi baru |
+| **`/resume`** | ▶️ **Lanjutkan Desk** | Melanjutkan pemindaian dan eksekusi autopilot |
+
+---
+
+## 5. Mission Control Web Dashboard (Port 5000)
+
+Mission Control Dashboard menyajikan pemantauan grafis visual secara real-time:
+* **Alamat URL**: [http://localhost:5000](http://localhost:5000)
+
+### Tab Dashboard:
+1. **Real-Time Feed**:
+   * Ticker harga langsung koin-koin likuid.
+   * Kartu posisi aktif dengan margin, floating PnL dinamis, dan status exchange.
+2. **Chart & Market Intelligence**:
+   * Candlestick interaktif TradingView-grade (1m, 5m, 15m, 1H).
+   * Overlay Indikator Institusional: Institutional VWAP ($\pm 1\sigma, \pm 2\sigma$), Volume Profile (VAH, POC, VAL), Fair Value Gaps (FVG), dan Rejection Block Zones.
+   * **Active Scalp Screener**: Daftar peluang scalping 5m yang sedang aktif di pasar.
+3. **Quant Trade Journal**:
+   * Metrik performa kuantitatif: *Win Rate*, *Profit Factor*, *Expectancy*, *Payoff Ratio*, dan *Max Drawdown*.
+   * Buku besar (*ledger*) riwayat seluruh trade tertutup lengkap dengan rincian komisi fee bursa.
+
+*Jika dashboard belum aktif di background, nyalakan dengan:*
+```powershell
+python -u .agents/tools/dashboard_server.py
+```
+
+---
+
+## 6. Sistem Proteksi Otomatis (Hands-Free Risk Management)
+
+Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Trade Manager** ([trade_manager.py](file:///c:/Users/USER/Downloads/Githubku/belajar%20kripto/.agents/tools/trade_manager.py)):
+
+1. **Micro-Breakeven (+0.60R)**:
+   * Begitu trade scalping mencapai laba $+0.60R$, Stop Loss otomatis digeser ke titik `Entry + 0.08%` (menutup biaya komisi fee). Trade Anda dijamin bebas risiko (*Free Roll*).
+2. **Micro Scale-Out TP1 (+1.25R)**:
+   * Saat floating profit menyentuh $+1.25R$, bot otomatis menjual **60% dari kuantitas lot** di market untuk mengunci profit kas ke dompet, menyisakan 40% sebagai *runner* dengan proteksi Breakeven.
+3. **Strict 20-Minute Anti-Stall Time-Stop**:
+   * Jika posisi scalping berjalan selama $\ge 20$ menit (4 candle 5m) dan pergerakan harga stagnan di rentang flat ($0.0 \le R < 0.35$), bot akan menutup posisi di market untuk membebaskan modal margin.
+4. **Liquidation Crowd Guard**:
+   * Menganalisis Funding Rate dan rasio Long/Short Coinglass. Jika ritel terlalu padat (*crowded longs/shorts*), bot otomatis membatalkan eksekusi untuk melindungi akun dari *liquidation squeeze dump*.
+5. **Macro News Blackout Shield**:
+   * Otomatis menjeda pembukaan posisi 30 menit sebelum dan sesudah rilis berita ekonomi AS berbobot tinggi (CPI, NFP, FOMC, PPI).
+
+---
+
+## 7. Skrip Diagnostik & Scanner Mandiri
+
+Anda dapat menjalankan skrip-skrip independen kapan saja untuk inspeksi cepat:
+
+```powershell
+# 1. Pemindai Scalping 5m Kilat (10 Koin)
+python .agents/tools/fast_scalper.py
+
+# 2. Analisis Lengkap Intelijen Institusional untuk BTC (atau ETH / SOL)
+python .agents/tools/market_eyes.py --symbol BTC
+
+# 3. Deteksi ICT Rejection Block & 50% Mean Threshold
+python .agents/tools/rejection_block_engine.py
+
+# 4. Status Portofolio dan Ringkasan Posisi Terbuka
+python .agents/tools/trading_desk.py status
+
+# 5. Audit Kesehatan Sistem Total (26 Poin Uji Operasional)
+python scratch/total_system_debug.py
+```
+
+---
+
+*Dikembangkan dengan standar arsitektur kuantitatif & silabus Akademi Crypto Module 01-04.*
