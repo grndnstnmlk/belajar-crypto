@@ -727,11 +727,11 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
 
         # -------------------------------------------------------------
         # STEP 1B.2: AI ADAPTIVE PROFIT HARVESTER & DYNAMIC EXIT SENTINEL
-        # Solves: Profit reversing into loss! When in profit (+0.35R+),
+        # Solves: Profit reversing into loss! When in solid profit (+1.00R+),
         # AI evaluates momentum exhaustion, RSI drop, or rejection wicks.
-        # Can execute: (1) Early 100% Market TP Harvest, or (2) Lock SL to Green (+0.25R).
+        # Can execute: (1) Early 100% Market TP Harvest, or (2) Lock SL to Green (+0.50R).
         # -------------------------------------------------------------
-        if r_multiple >= 0.35 and not t_data.get("ai_harvested", False) and not t_data.get("tp1_taken", False):
+        if r_multiple >= 1.00 and not t_data.get("ai_harvested", False) and not t_data.get("tp1_taken", False):
             try:
                 ai_verdict = ai_risk_officer.evaluate_active_position_exit(
                     symbol=sym,
@@ -837,11 +837,11 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                 print(f" * [AI Sentinel Error] {e}")
 
         # -------------------------------------------------------------
-        # STEP 1C: PARTIAL TAKE PROFIT 1 (SCALE-OUT 50% @ +2.0R + RUNNER 50% SMC TRAILING)
+        # STEP 1C: PARTIAL TAKE PROFIT 1 (SCALE-OUT 50% @ +1.5R/+2.0R + RUNNER 50% SMC TRAILING)
         # Realizes 50% cash profit into wallet & locks remaining 50% (Runner) at Breakeven!
         # Synthesized from Akademi Crypto Module 03 (Money Management)
         # -------------------------------------------------------------
-        tp1_target_r = 1.20 if t_data.get("is_scalp") else 2.00
+        tp1_target_r = 1.50 if t_data.get("is_scalp") else 2.00
         if r_multiple >= tp1_target_r and not t_data.get("tp1_taken", False):
             current_amt = abs(amt)
             half_qty_str = binance_client.format_qty_precision(sym, current_amt * 0.5)

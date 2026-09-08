@@ -19,6 +19,7 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
         pass
 
 TOOLS_DIR = os.path.dirname(__file__)
+ROOT_DIR = os.path.dirname(os.path.dirname(TOOLS_DIR))
 DATA_DIR = os.path.join(os.path.dirname(TOOLS_DIR), "data")
 GENOME_FILE = os.path.join(DATA_DIR, "agent_genome.json")
 DESK_HISTORY_FILE = os.path.join(DATA_DIR, "trading_desk_history.json")
@@ -335,8 +336,21 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
         has_bearish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BEARISH_SWEEP_MSS")
         rsi_safe_short = rsi > sub_gen.get("rsi_oversold", 30) and rsi < sub_gen.get("rsi_overbought", 70)
 
+        # -------------------------------------------------------------
+        # SMC EQUILIBRIUM & PREMIUM / DISCOUNT ZONE AUDIT (Akademi Crypto Module 02)
+        # -------------------------------------------------------------
+        h_24 = data.get("high_24h") or (price * 1.02)
+        l_24 = data.get("low_24h") or (price * 0.98)
+        range_24 = h_24 - l_24
+        price_equilibrium_pct = ((price - l_24) / range_24 * 100.0) if range_24 > 0 else 50.0
+
         signal = None
         if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep) and rsi_safe_long:
+            # SMC Equilibrium Guard: Skip Long if price is already in Extreme Premium (> 75%)
+            if price_equilibrium_pct > 75.0 and not has_bullish_sweep:
+                print(f"   🛡️ [SMC Equilibrium Guard] {sym} di-skip untuk LONG: Harga berada di zona Premium Ekstrem ({price_equilibrium_pct:.1f}%). Dilarang membeli di pucuk resistance!")
+                continue
+
             # Derivatives Crowd Shield: Skip Long if retail is dangerously overleveraged (e.g. L/S > 3.0)
             if deriv_intel and deriv_intel.get("bias") == "BEARISH_SQUEEZE_RISK":
                 print(f"   🚨 [Derivatives Squeeze Shield] {sym} di-skip untuk LONG: Retail overleveraged ({deriv_intel['long_short_ratio']:.2f}x L/S). Rawan Liquidity Hunt / Long Squeeze!")
@@ -392,6 +406,11 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                 }
 
         elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep) and rsi_safe_short:
+            # SMC Equilibrium Guard: Skip Short if price is in Discount (< 50%)
+            if price_equilibrium_pct < 50.0 and not has_bearish_sweep:
+                print(f"   🛡️ [SMC Equilibrium Guard] {sym} di-skip untuk SHORT: Harga berada di zona Diskon ({price_equilibrium_pct:.1f}%). Dilarang shorting di area diskon/support!")
+                continue
+
             # Derivatives Crowd Shield: Skip Short if retail is crowded short (<0.75 L/S), high risk of short squeeze pump!
             if deriv_intel and deriv_intel.get("bias") == "BULLISH_SQUEEZE":
                 print(f"   🚨 [Derivatives Squeeze Shield] {sym} di-skip untuk SHORT: Retail overleveraged Short ({deriv_intel['long_short_ratio']:.2f}x L/S). Rawan Short Squeeze pump!")
@@ -937,6 +956,42 @@ def show_desk_status(user_email=None, is_demo=True):
     print(f" * Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5)}%")
     print("=======================================================\n")
 
+def ensure_dashboard_daemon():
+    """
+    Checks if Web Dashboard HTTP server is listening on port 5000.
+    If not, automatically launches dashboard_server.py as a background daemon.
+    """
+    import socket
+    import subprocess
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(0.5)
+    is_up = False
+    try:
+        if sock.connect_ex(("127.0.0.1", 5000)) == 0:
+            is_up = True
+    except Exception:
+        pass
+    finally:
+        sock.close()
+
+    if not is_up:
+        dash_script = os.path.join(TOOLS_DIR, "dashboard_server.py")
+        if os.path.exists(dash_script):
+            try:
+                flags = (0x00000008 | 0x00000200 | 0x08000000) if sys.platform == "win32" else 0
+                subprocess.Popen(
+                    [sys.executable, "-u", dash_script],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=flags,
+                    close_fds=True,
+                    cwd=ROOT_DIR
+                )
+                print("🌐 [Web Dashboard] Daemon otomatis dinyalakan di background (http://localhost:5000).")
+            except Exception as e:
+                print(f"⚠️ [Web Dashboard] Gagal auto-start daemon: {e}")
+
 def main():
     parser = argparse.ArgumentParser(description="Autonomous AI Trading Desk (CEO Orchestrator)")
     sub = parser.add_subparsers(dest="command")
@@ -962,6 +1017,7 @@ def main():
     if args.command == "status":
         show_desk_status(args.user, is_demo)
     elif args.command == "run":
+        ensure_dashboard_daemon()
         if getattr(args, "mode", None):
             state = telegram_notifier.load_desk_state()
             state["mode"] = args.mode.upper()

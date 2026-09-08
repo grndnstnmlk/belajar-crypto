@@ -12,7 +12,11 @@ echo   Timeframe : 5m Micro-Structure + 1H/4H Macro Confluence
 echo   Interval  : Pemindaian Cepat Real-Time Setiap 1 Menit (60 Detik)
 echo   Watchlist : 10 Aset (BTC, ETH, SOL, BNB, XRP, DOGE, ADA, AVAX, LINK, SUI)
 echo   Proteksi  : Fast BE (+0.7R), 45-Min Time-Stop, Macro News Shield
+echo   Dashboard : http://localhost:5000
 echo ====================================================================
+echo.
+echo Memeriksa dan menyalakan Web Dashboard di latar belakang (Port 5000)...
+start "" /B python -u .agents\tools\dashboard_server.py
 echo.
 echo Memulai pemindaian otomatis Dual-Engine setiap 1 menit...
 echo Tekan Ctrl+C untuk menghentikan bot.

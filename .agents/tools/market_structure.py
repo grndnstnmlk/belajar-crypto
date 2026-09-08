@@ -34,23 +34,61 @@ HEADERS = {
 def clean_coin(symbol):
     return symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
 
-def get_asset_sweep_buffer(symbol):
+def calculate_atr(candles, period=14):
+    """
+    Calculates Average True Range (ATR) from candlestick data.
+    """
+    if not candles or len(candles) < 2:
+        return 0.0
+    
+    true_ranges = []
+    for i in range(1, len(candles)):
+        h = candles[i]["high"]
+        l = candles[i]["low"]
+        prev_c = candles[i - 1]["close"]
+        tr = max(h - l, abs(h - prev_c), abs(l - prev_c))
+        true_ranges.append(tr)
+        
+    if not true_ranges:
+        return 0.0
+    if len(true_ranges) < period:
+        return sum(true_ranges) / len(true_ranges)
+    return sum(true_ranges[-period:]) / period
+
+def get_asset_sweep_buffer(symbol, candles=None):
     """
     Akademi Crypto Anti-Liquidity-Hunt Buffer:
+    Static Tier Baselines:
     - BTC: 0.8% (Deepest order book)
     - ETH/BNB: 1.0%
-    - SOL/LINK/AVAX: 1.3%
-    - High-Beta Altcoins (DOGE, ADA, SUI, XRP, NEAR): 1.6%
+    - LINK/AVAX: 1.3%
+    - High-Beta L1s & Alts (SOL, DOGE, ADA, SUI, XRP, NEAR): 1.8% (Aggressive stop hunts & wick volatility)
+    - Default Alts: 1.6%
+    
+    Dynamic ATR Expansion:
+    If candles are provided, uses max(static_buffer, 1.5 * (atr / current_price))
+    to adaptively expand buffer during high-volatility expansions.
     """
     sym = symbol.upper()
     if "BTC" in sym:
-        return 0.008
+        static_buffer = 0.008
     elif "ETH" in sym or "BNB" in sym:
-        return 0.010
-    elif any(k in sym for k in ["SOL", "LINK", "AVAX"]):
-        return 0.013
+        static_buffer = 0.010
+    elif "LINK" in sym or "AVAX" in sym:
+        static_buffer = 0.013
+    elif any(k in sym for k in ["SOL", "NEAR", "SUI", "DOGE", "ADA", "XRP"]):
+        static_buffer = 0.018
     else:
-        return 0.016
+        static_buffer = 0.016
+
+    if candles and len(candles) >= 15:
+        cur_p = candles[-1]["close"]
+        if cur_p > 0:
+            atr = calculate_atr(candles, period=14)
+            atr_buffer = (1.5 * atr) / cur_p
+            return round(max(static_buffer, atr_buffer), 4)
+
+    return static_buffer
 
 def fetch_candles(symbol, bar="15m", limit=50):
     """
@@ -163,7 +201,7 @@ def get_protected_structural_stop(symbol, side, entry_price, current_sl, bar="15
         return False, current_sl, "No candle data available"
 
     current_price = candles[-1]["close"]
-    buffer_pct = get_asset_sweep_buffer(symbol)
+    buffer_pct = get_asset_sweep_buffer(symbol, candles=candles)
     swing_highs, swing_lows = detect_swing_pivots(candles, window=2)
 
     if side_clean == "BUY":
