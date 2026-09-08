@@ -1097,7 +1097,7 @@
         <div class="panel-positions">
           <div class="panel-header">
             <span>Posisi Aktif</span>
-            <span class="pill-badge blue mono" id="pos-header-count">0 / 3 MAX</span>
+            <span class="pill-badge blue mono" id="pos-header-count">0 / 4 MAX</span>
           </div>
           <div class="positions-scroll" id="positions-list">
             <div style="color:var(--color-text-dim); text-align:center; padding:40px 10px;">
@@ -1917,42 +1917,114 @@
       }
     }
 
+    let lastWatchlistData = null;
+
+    async function fetchDirectBinanceTickers() {
+      try {
+        const res = await fetch('https://data-api.binance.vision/api/v3/ticker/24hr');
+        const data = await res.json();
+        const targetCoins = ["BTC", "ETH", "SOL", "LINK", "BNB", "DOGE", "ADA", "SUI", "AVAX", "XRP"];
+        const targetPairs = {};
+        targetCoins.forEach(c => targetPairs[c + 'USDT'] = c);
+        
+        const tickers = {};
+        data.forEach(item => {
+          if (targetPairs[item.symbol]) {
+            tickers[targetPairs[item.symbol]] = {
+              price: parseFloat(item.lastPrice),
+              change_24h: parseFloat(item.priceChangePercent)
+            };
+          }
+        });
+        
+        const btcChange = tickers['BTC'] ? tickers['BTC'].change_24h : 0;
+        const list = targetCoins.map(coin => {
+          const t = tickers[coin] || { price: 0, change_24h: 0 };
+          const rs = coin === 'BTC' ? Number(t.change_24h.toFixed(2)) : Number((t.change_24h - btcChange).toFixed(2));
+          return {
+            symbol: coin,
+            pair: `${coin}USDT`,
+            price: t.price,
+            change_24h: t.change_24h,
+            rs_score: rs,
+            is_leader: rs >= 0
+          };
+        });
+        list.sort((a, b) => b.rs_score - a.rs_score);
+        list.forEach((item, idx) => item.rs_rank = idx + 1);
+        renderWatchlist(list);
+      } catch (e) {
+        console.warn("Direct Binance ticker fetch fallback warning:", e);
+      }
+    }
+
+    function updateActiveSymRs(watchlist) {
+      if (!watchlist || watchlist.length === 0) return;
+      const cur = watchlist.find(w => w.symbol === activeSymbol);
+      const rsPill = document.getElementById('active-sym-rs');
+      if (cur && rsPill) {
+        if (cur.symbol === 'BTC') {
+          rsPill.className = 'pill-badge blue';
+          rsPill.innerText = 'BASE BENCHMARK';
+        } else if (cur.is_leader || cur.rs_score >= 0) {
+          rsPill.className = 'pill-badge mint';
+          rsPill.innerText = `LEADER #${cur.rs_rank} (RS +${cur.rs_score}%)`;
+        } else {
+          rsPill.className = 'pill-badge tangerine';
+          rsPill.innerText = `LAGGARD #${cur.rs_rank} (RS ${cur.rs_score}%)`;
+        }
+      }
+    }
+
     function renderWatchlist(watchlist) {
       const container = document.getElementById('watchlist-list');
       if (!watchlist || watchlist.length === 0) {
-        // Default top watchlist
-        const defaultCoins = ["BTC", "ETH", "SOL", "LINK", "BNB", "DOGE", "ADA", "SUI", "AVAX", "XRP"];
-        container.innerHTML = defaultCoins.map(coin => `
-          <div class="watch-item ${coin === activeSymbol ? 'active' : ''}" onclick="selectSymbol('${coin}')">
-            <div>
-              <div class="watch-sym-title">${coin}/USDT</div>
-              <span class="pill-badge ${coin === 'BTC' || coin === 'LINK' ? 'mint' : 'blue'}" style="font-size:9px; padding:2px 6px;">LEADER</span>
-            </div>
-            <div class="watch-price-row">
-              <div class="watch-price mono" id="wprice-${coin}">$0.00</div>
-            </div>
-          </div>
-        `).join('');
+        if (!lastWatchlistData) {
+          fetchDirectBinanceTickers();
+        }
         return;
       }
 
+      lastWatchlistData = watchlist;
+
       container.innerHTML = watchlist.map(w => {
-        const isLeader = (w.rs_rank && w.rs_rank <= 3) || (w.change_24h > 0);
+        const isBtc = w.symbol === 'BTC';
+        const isLeader = w.is_leader ?? ((w.rs_rank && w.rs_rank <= 4) || (w.rs_score > 0));
+        const badgeClass = isBtc ? 'blue' : (isLeader ? 'mint' : 'tangerine');
+        const badgeText = isBtc ? 'BENCHMARK' : (isLeader ? `LEADER #${w.rs_rank || ''}` : `LAGGARD #${w.rs_rank || ''}`);
+        
+        const priceNum = Number(w.price);
+        const priceFormatted = priceNum < 1 
+          ? priceNum.toFixed(4) 
+          : priceNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          
+        const changeNum = Number(w.change_24h || 0);
+        const changeSign = changeNum >= 0 ? '+' : '';
+        const changeColor = changeNum >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
+        
+        const rsVal = w.rs_score !== undefined ? Number(w.rs_score) : 0;
+        const rsSign = rsVal >= 0 ? '+' : '';
+        const rsColor = isBtc ? 'var(--color-electric-blue)' : (rsVal >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)');
+        const rsLabel = isBtc ? 'BTC BASE' : `RS ${rsSign}${rsVal.toFixed(2)}%`;
+
         return `
-          <div class="watch-item ${w.symbol === activeSymbol ? 'active' : ''}" onclick="selectSymbol('${w.symbol}')">
+          <div class="watch-item ${w.symbol === activeSymbol ? 'active' : ''}" onclick="selectSymbol('${w.symbol}')" id="watch-${w.symbol}">
             <div>
               <div class="watch-sym-title">${w.symbol}/USDT</div>
-              <span class="pill-badge ${isLeader ? 'mint' : 'tangerine'}" style="font-size:9px; padding:2px 6px;">${isLeader ? 'LEADER' : 'LAGGARD'}</span>
+              <span class="pill-badge ${badgeClass}" style="font-size:9px; padding:2px 6px;">${badgeText}</span>
             </div>
             <div class="watch-price-row">
-              <div class="watch-price mono">$${Number(w.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-              <div class="mono" style="font-size:11px; color:${w.change_24h >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)'};">
-                ${w.change_24h >= 0 ? '+' : ''}${Number(w.change_24h).toFixed(2)}%
+              <div class="watch-price mono" id="wprice-${w.symbol}">$${priceFormatted}</div>
+              <div style="display:flex; justify-content:flex-end; gap:6px; font-size:10px; margin-top:2px;">
+                <span class="mono" style="color:${changeColor};">${changeSign}${changeNum.toFixed(2)}%</span>
+                <span class="mono" style="color:${rsColor}; font-weight:600;">${rsLabel}</span>
               </div>
             </div>
           </div>
         `;
       }).join('');
+
+      updateActiveSymRs(watchlist);
     }
 
     function selectSymbol(sym) {
@@ -1974,6 +2046,10 @@
         el.classList.toggle('active', cardSym === clean);
       });
 
+      if (lastWatchlistData) {
+        updateActiveSymRs(lastWatchlistData);
+      }
+
       // If user is currently on another tab, switch to terminal view so chart is visible
       if (currentView !== 'terminal') {
         switchView('terminal');
@@ -1984,7 +2060,7 @@
 
     function renderPositions(positions) {
       const countPill = document.getElementById('pos-header-count');
-      if (countPill) countPill.innerText = `${positions.length} / 3 MAX`;
+      if (countPill) countPill.innerText = `${positions.length} / 4 MAX`;
 
       const container = document.getElementById('positions-list');
       if (!positions || positions.length === 0) {

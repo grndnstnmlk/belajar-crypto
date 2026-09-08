@@ -56,6 +56,75 @@ HEADERS = {
 
 _feed_cache = None
 _last_feed_fetch_time = 0
+_watchlist_cache = []
+_last_watchlist_time = 0
+
+def get_live_watchlist_rs():
+    """
+    Fetches real-time market prices & calculates Relative Strength (RS vs BTC)
+    for top liquid crypto assets on the RS RADAR watchlist.
+    """
+    global _watchlist_cache, _last_watchlist_time
+    now = time.time()
+    if _watchlist_cache and (now - _last_watchlist_time) < 5.0:
+        return _watchlist_cache
+
+    target_coins = ["BTC", "ETH", "SOL", "LINK", "BNB", "DOGE", "ADA", "SUI", "AVAX", "XRP"]
+    target_pairs = {c + "USDT": c for c in target_coins}
+
+    try:
+        url = "https://data-api.binance.vision/api/v3/ticker/24hr"
+        req = urllib.request.Request(url, headers=HEADERS)
+        with urllib.request.urlopen(req, context=SSL_CTX, timeout=4) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+
+        tickers = {}
+        for item in data:
+            pair = item.get("symbol")
+            if pair in target_pairs:
+                coin = target_pairs[pair]
+                tickers[coin] = {
+                    "price": float(item.get("lastPrice", 0)),
+                    "change_24h": float(item.get("priceChangePercent", 0)),
+                    "high_24h": float(item.get("highPrice", 0)),
+                    "low_24h": float(item.get("lowPrice", 0)),
+                    "volume_usd": float(item.get("quoteVolume", 0))
+                }
+
+        btc_change = tickers.get("BTC", {}).get("change_24h", 0.0)
+
+        watchlist = []
+        for coin in target_coins:
+            t = tickers.get(coin, {"price": 0.0, "change_24h": 0.0})
+            price = t["price"]
+            change = t["change_24h"]
+            # Relative Strength vs BTC
+            rs_score = round(change - btc_change, 2) if coin != "BTC" else round(change, 2)
+            watchlist.append({
+                "symbol": coin,
+                "pair": f"{coin}USDT",
+                "price": price,
+                "change_24h": round(change, 2),
+                "rs_score": rs_score,
+                "is_leader": rs_score >= 0,
+            })
+
+        # Rank by RS score (Leader -> Laggard)
+        watchlist.sort(key=lambda x: x["rs_score"], reverse=True)
+        for idx, item in enumerate(watchlist):
+            item["rs_rank"] = idx + 1
+
+        _watchlist_cache = watchlist
+        _last_watchlist_time = now
+        return watchlist
+    except Exception as e:
+        if _watchlist_cache:
+            return _watchlist_cache
+        # Fallback list with zero-safe defaults
+        return [
+            {"symbol": c, "pair": f"{c}USDT", "price": 0.0, "change_24h": 0.0, "rs_score": 0.0, "is_leader": True, "rs_rank": i+1}
+            for i, c in enumerate(target_coins)
+        ]
 
 def get_dashboard_feed_data(force_refresh=False):
     global _feed_cache, _last_feed_fetch_time
@@ -173,6 +242,9 @@ def get_dashboard_feed_data(force_refresh=False):
         feed["derivatives_sentiment"] = coinglass_derivatives.get_derivatives_intelligence("BTC")
     except Exception as e:
         feed["derivatives_sentiment"] = {"error": str(e)}
+
+    # RS Radar Live Watchlist (Prices & Relative Strength vs BTC)
+    feed["watchlist"] = get_live_watchlist_rs()
 
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -410,6 +482,14 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == "/api/feed":
             data = get_dashboard_feed_data()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/watchlist":
+            data = get_live_watchlist_rs()
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
