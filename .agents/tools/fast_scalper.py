@@ -5,9 +5,10 @@ Designed for short-duration trades (15 to 35 minutes completion) using:
 2. 5m 4H-Range Breakout & Re-Entry Failure (YouTube Scalper Strategy)
 3. 5m Inverse Fair Value Gap (IFVG) Liquidity Scalp (YouTube Manipulation Strategy)
 4. 5m 15m-Key-Level Rectangle Break & Retest (YouTube Mulham Sniper Strategy)
-5. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
-6. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
-7. 5m Volume Surge Momentum Breakout
+5. 5m 20-EMA Dynamic Pullback Trap Scalp (YouTube Trader DNA 90% Win Rate Strategy)
+6. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
+7. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
+8. 5m Volume Surge Momentum Breakout
 Includes Fast Breakeven (+0.60R), Scale-Out (+1.25R), and 20-Minute Anti-Stall Time-Stop.
 """
 
@@ -928,6 +929,129 @@ def evaluate_scalp_time_stop(entry_time_str, current_profit_r, max_minutes=45):
 
     return False, ""
 
+# =====================================================================
+# STRATEGY 8: 5m 20-EMA Dynamic Pullback Trap Scalp
+# Reference: "(9 Wins Out of 10)... This 90% WIN RATE Scalping Strategy Should Be Illegal" (YouTube ll_9xH10KPY)
+# =====================================================================
+def calc_ema_series(values, period):
+    """
+    Computes exponential moving average series for the given values and period.
+    """
+    if not values:
+        return []
+    k = 2.0 / (period + 1.0)
+    res = []
+    ema = values[0]
+    for v in values:
+        ema = (v * k) + (ema * (1.0 - k))
+        res.append(ema)
+    return res
+
+def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
+    """
+    Trader DNA 20-EMA Dynamic Pullback Trap Scalping Strategy:
+    1. Identifies Trend Filter (Green / Red Market Bias via 20 EMA vs 50 EMA and 15m context).
+    2. Detects a temporary counter-trend deviation / discount dip:
+       - LONG: Price pulls back below 20 EMA in previous candles (discount liquidity trap).
+       - SHORT: Price rallies above 20 EMA in previous candles (premium bull trap).
+    3. Confirms rejection and reclaim of 20 EMA on current candle:
+       - LONG: Current candle closes back ABOVE 20 EMA with bullish body/wick.
+       - SHORT: Current candle closes back BELOW 20 EMA with bearish body/wick.
+    4. Places Stop Loss at the swing extreme of the pullback/rally.
+    5. Sets Take Profit at strict 1:2.0 R:R (2R).
+    """
+    if len(candles_5m) < 25:
+        return None
+
+    closes = [c["close"] for c in candles_5m]
+    ema20_s = calc_ema_series(closes, 20)
+    ema50_s = calc_ema_series(closes, 50)
+
+    if not ema20_s or not ema50_s:
+        return None
+
+    curr = candles_5m[-1]
+    curr_c = curr["close"]
+    curr_o = curr["open"]
+    curr_ema20 = ema20_s[-1]
+    curr_ema50 = ema50_s[-1]
+
+    ctx = get_15m_context(symbol)
+    m15_bias = ctx.get("bias", "NEUTRAL")
+
+    pullback_window = candles_5m[-6:-1]
+    prev = candles_5m[-2]
+
+    # --- CASE 1: BULLISH 20-EMA PULLBACK TRAP (LONG ENTRY) ---
+    is_bullish_trend = (curr_ema20 >= curr_ema50) or (m15_bias == "BULLISH")
+    if is_bullish_trend and m15_bias != "BEARISH":
+        dipped_below = any(c["low"] < ema20_s[-(6 - idx)] for idx, c in enumerate(pullback_window))
+        reclaimed = (curr_c > curr_ema20) and (curr_c > curr_o) and (prev["close"] <= curr_ema20 * 1.0015)
+
+        if dipped_below and reclaimed:
+            pullback_low = min(c["low"] for c in candles_5m[-6:])
+            entry = curr_c
+            sl = round(pullback_low * 0.9990, 4)
+            r_dist = entry - sl
+
+            if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
+                tp = round(entry + (r_dist * 2.0), 4)
+                return {
+                    "symbol": symbol,
+                    "side": "LONG",
+                    "strategy": "5m 20-EMA Dynamic Pullback Trap",
+                    "entry": entry,
+                    "sl": sl,
+                    "tp": tp,
+                    "r_dist": round(r_dist, 4),
+                    "rr_ratio": 2.0,
+                    "is_scalp": True,
+                    "is_mean_reversion_or_sweep": True,
+                    "macro_aligned": True,
+                    "timeframe": "5m",
+                    "target_duration": "10-25 menit",
+                    "reason": (
+                        f"20-EMA Discount Trap: Price dipped below 20 EMA (${curr_ema20:,.2f}) to ${pullback_low:,.2f} "
+                        f"and reclaimed with bullish close @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 2R (${tp:,.2f})."
+                    )
+                }
+
+    # --- CASE 2: BEARISH 20-EMA PULLBACK TRAP (SHORT ENTRY) ---
+    is_bearish_trend = (curr_ema20 <= curr_ema50) or (m15_bias == "BEARISH")
+    if is_bearish_trend and m15_bias != "BULLISH":
+        rallied_above = any(c["high"] > ema20_s[-(6 - idx)] for idx, c in enumerate(pullback_window))
+        reclaimed = (curr_c < curr_ema20) and (curr_c < curr_o) and (prev["close"] >= curr_ema20 * 0.9985)
+
+        if rallied_above and reclaimed:
+            rally_high = max(c["high"] for c in candles_5m[-6:])
+            entry = curr_c
+            sl = round(rally_high * 1.0010, 4)
+            r_dist = sl - entry
+
+            if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
+                tp = round(entry - (r_dist * 2.0), 4)
+                return {
+                    "symbol": symbol,
+                    "side": "SHORT",
+                    "strategy": "5m 20-EMA Dynamic Pullback Trap",
+                    "entry": entry,
+                    "sl": sl,
+                    "tp": tp,
+                    "r_dist": round(r_dist, 4),
+                    "rr_ratio": 2.0,
+                    "is_scalp": True,
+                    "is_mean_reversion_or_sweep": True,
+                    "macro_aligned": True,
+                    "timeframe": "5m",
+                    "target_duration": "10-25 menit",
+                    "reason": (
+                        f"20-EMA Premium Trap: Price rallied above 20 EMA (${curr_ema20:,.2f}) to ${rally_high:,.2f} "
+                        f"and rejected with bearish close @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 2R (${tp:,.2f})."
+                    )
+                }
+
+    return None
+
 def scan_symbol_scalp(symbol):
     """
     Runs fast scalp strategies on a single symbol. Returns the best signal if found.
@@ -956,17 +1080,22 @@ def scan_symbol_scalp(symbol):
     if s_rect:
         return s_rect
 
-    # Priority 5: Liquidity Sweep & Micro FVG
+    # Priority 5: 5m 20-EMA Dynamic Pullback Trap (YouTube Trader DNA Strategy)
+    s_ema = scan_5m_20ema_pullback_trap_scalp(symbol, candles)
+    if s_ema:
+        return s_ema
+
+    # Priority 6: Liquidity Sweep & Micro FVG
     s1 = scan_5m_liquidity_sweep_fvg(symbol, candles)
     if s1:
         return s1
 
-    # Priority 6: VWAP ±2σ Extreme Mean-Reversion
+    # Priority 7: VWAP ±2σ Extreme Mean-Reversion
     s2 = scan_5m_vwap_mean_reversion(symbol, candles)
     if s2:
         return s2
 
-    # Priority 7: Volume Surge Momentum
+    # Priority 8: Volume Surge Momentum
     s3 = scan_5m_volume_surge_breakout(symbol, candles)
     if s3:
         return s3

@@ -156,6 +156,9 @@ def calculate_confluence_score(setup, session_info=None):
     elif "Rectangle" in setup.get("strategy", "") or "Break & Retest" in setup.get("strategy", ""):
         struct_pts += 23
         reasons.append("15m Rectangle Break & Retest (Mulham Sniper)")
+    elif "20-EMA" in setup.get("strategy", "") or "20 EMA" in setup.get("strategy", "") or "Pullback Trap" in setup.get("strategy", ""):
+        struct_pts += 22
+        reasons.append("20-EMA Dynamic Pullback Trap (Trader DNA)")
     elif "4H-Range" in setup.get("strategy", "") or "4H Range" in setup.get("reason", ""):
         struct_pts += 22
         reasons.append("4H Range Boundary Liquidity Trap")
