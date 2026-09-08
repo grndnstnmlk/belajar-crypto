@@ -234,26 +234,37 @@ def heuristic_quant_audit(setup, market_context=None):
         is_btc = "BTC" in sym.upper()
 
         if not is_btc:
+            is_scalp_reversion = setup.get("is_scalp", False) and setup.get("is_mean_reversion_or_sweep", False)
             if side in ["BUY", "LONG"] and btc_bias in ["BEARISH", "LEANING_BEARISH"]:
-                return {
-                    "decision": "VETO",
-                    "confidence": 96,
-                    "suggested_risk_scale": 0.0,
-                    "thesis": f"VETO: Rezim Makro BTC 1H sedang BEARISH ({btc_label}). Dilarang membuka posisi Long pada Altcoin ({sym}) saat Bitcoin tertekan demi mencegah terseret dump!",
-                    "key_risks": ["BTC Macro Downtrend Gravity", "High risk of altcoin long liquidation dump"],
-                    "invalidation_scenario": "Tunggu struktur 1H BTC kembali bullish di atas EMA 20/50.",
-                    "provider": "Algorithmic Quant Heuristics"
-                }
+                if not is_scalp_reversion:
+                    return {
+                        "decision": "VETO",
+                        "confidence": 96,
+                        "suggested_risk_scale": 0.0,
+                        "thesis": f"VETO: Rezim Makro BTC 1H sedang BEARISH ({btc_label}). Dilarang membuka posisi Long pada Altcoin ({sym}) saat Bitcoin tertekan demi mencegah terseret dump!",
+                        "key_risks": ["BTC Macro Downtrend Gravity", "High risk of altcoin long liquidation dump"],
+                        "invalidation_scenario": "Tunggu struktur 1H BTC kembali bullish di atas EMA 20/50.",
+                        "provider": "Algorithmic Quant Heuristics"
+                    }
+                else:
+                    decision = "ADJUST_RISK"
+                    suggested_scale = min(suggested_scale, 0.75)
+                    key_risks.append("BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.")
             elif side in ["SELL", "SHORT"] and btc_bias == "BULLISH":
-                return {
-                    "decision": "VETO",
-                    "confidence": 96,
-                    "suggested_risk_scale": 0.0,
-                    "thesis": f"VETO: Rezim Makro BTC 1H sedang BULLISH ({btc_label}). Dilarang membuka posisi Short pada Altcoin ({sym}) saat Bitcoin sedang ekspansi reli.",
-                    "key_risks": ["BTC Macro Bullish Expansion", "High risk of short squeeze on altcoins"],
-                    "invalidation_scenario": "Tunggu struktur 1H BTC terkonfirmasi breakdown.",
-                    "provider": "Algorithmic Quant Heuristics"
-                }
+                if not is_scalp_reversion:
+                    return {
+                        "decision": "VETO",
+                        "confidence": 96,
+                        "suggested_risk_scale": 0.0,
+                        "thesis": f"VETO: Rezim Makro BTC 1H sedang BULLISH ({btc_label}). Dilarang membuka posisi Short pada Altcoin ({sym}) saat Bitcoin sedang ekspansi reli.",
+                        "key_risks": ["BTC Macro Bullish Expansion", "High risk of short squeeze on altcoins"],
+                        "invalidation_scenario": "Tunggu struktur 1H BTC terkonfirmasi breakdown.",
+                        "provider": "Algorithmic Quant Heuristics"
+                    }
+                else:
+                    decision = "ADJUST_RISK"
+                    suggested_scale = min(suggested_scale, 0.75)
+                    key_risks.append("BTC 1H Bullish - 5m Scalp Fade dijalankan dengan Micro-Risk.")
 
         # Choppy / Sideways Regime ADX < 24 check
         if adx < 24.0 or market_regime.get("regime") in ["RANGING_CHOPPY", "VOLATILITY_SQUEEZE"]:

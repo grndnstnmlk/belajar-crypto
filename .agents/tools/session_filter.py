@@ -121,10 +121,15 @@ def calculate_confluence_score(setup, session_info=None):
     breakdown = {}
     total_score = 0
 
+    is_scalp = setup.get("is_scalp", False)
+
     # 1. Macro 4H Confluence (30 pts)
     if setup.get("macro_aligned", False):
         macro_pts = 30
         breakdown["Macro 4H Trend Aligned"] = "+30 pts"
+    elif is_scalp and setup.get("is_mean_reversion_or_sweep", False):
+        macro_pts = 28
+        breakdown["Statistical Reversion / Micro-Sweep"] = "+28 pts (High-Prob 5m Reversion/Sweep)"
     else:
         macro_pts = 0
         breakdown["Macro 4H Trend"] = "0 pts (Counter-trend or unaligned)"
@@ -145,8 +150,8 @@ def calculate_confluence_score(setup, session_info=None):
     if "FVG" in setup.get("reason", "") or setup.get("is_fvg"):
         struct_pts += 12
         reasons.append("Fair Value Gap Retest")
-    if setup.get("is_scalp"):
-        struct_pts += 12
+    if is_scalp:
+        struct_pts += 20
         reasons.append("5m Micro-Structure Trigger")
 
     struct_pts = min(25, struct_pts)
@@ -173,18 +178,34 @@ def calculate_confluence_score(setup, session_info=None):
 
     # 4. Risk-to-Reward Execution Quality (15 pts)
     rr = float(setup.get("rr", 0.0))
-    if rr >= 3.5:
-        rr_pts = 15
-        breakdown["Risk:Reward Quality"] = f"+15 pts (Exceptional R:R 1:{rr:.2f})"
-    elif rr >= 2.5:
-        rr_pts = 12
-        breakdown["Risk:Reward Quality"] = f"+12 pts (Strong R:R 1:{rr:.2f})"
-    elif rr >= 2.0:
-        rr_pts = 8
-        breakdown["Risk:Reward Quality"] = f"+8 pts (Acceptable R:R 1:{rr:.2f})"
+    if is_scalp:
+        # Calibrated for 5m scalping (Micro targets 1:1.5 - 1:2.0)
+        if rr >= 1.8:
+            rr_pts = 15
+            breakdown["Risk:Reward Quality"] = f"+15 pts (High-Velocity Scalp R:R 1:{rr:.2f})"
+        elif rr >= 1.5:
+            rr_pts = 12
+            breakdown["Risk:Reward Quality"] = f"+12 pts (Standard Scalp R:R 1:{rr:.2f})"
+        elif rr >= 1.3:
+            rr_pts = 8
+            breakdown["Risk:Reward Quality"] = f"+8 pts (Acceptable Scalp R:R 1:{rr:.2f})"
+        else:
+            rr_pts = 0
+            breakdown["Risk:Reward Quality"] = f"0 pts (Subpar R:R 1:{rr:.2f})"
     else:
-        rr_pts = 0
-        breakdown["Risk:Reward Quality"] = f"0 pts (Subpar R:R 1:{rr:.2f})"
+        # Standard Swing R:R
+        if rr >= 3.5:
+            rr_pts = 15
+            breakdown["Risk:Reward Quality"] = f"+15 pts (Exceptional R:R 1:{rr:.2f})"
+        elif rr >= 2.5:
+            rr_pts = 12
+            breakdown["Risk:Reward Quality"] = f"+12 pts (Strong R:R 1:{rr:.2f})"
+        elif rr >= 2.0:
+            rr_pts = 8
+            breakdown["Risk:Reward Quality"] = f"+8 pts (Acceptable R:R 1:{rr:.2f})"
+        else:
+            rr_pts = 0
+            breakdown["Risk:Reward Quality"] = f"0 pts (Subpar R:R 1:{rr:.2f})"
     total_score += rr_pts
 
     # 5. Session Liquidity Bonus (Max 15 pts)
@@ -326,6 +347,9 @@ def calculate_confluence_score(setup, session_info=None):
         grade = "C (Low Confluence / High Noise)"
 
     min_required = session_info["min_threshold"]
+    if is_scalp:
+        # Micro scalping threshold: calibrated to 72% - 75% for 5m micro-structure
+        min_required = min(75, max(72, min_required - 8))
     is_admissible = (total_score >= min_required)
 
     return {

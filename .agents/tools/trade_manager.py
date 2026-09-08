@@ -643,8 +643,8 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     elapsed_min = (datetime.now() - op_dt).total_seconds() / 60.0
                     # Proteksi: Jangan pernah force-close posisi yang sedang minus/floating red.
                     # Biarkan posisi bernafas hingga menyentuh Stop Loss terukur atau memantul ke Take Profit.
-                    # Hanya tutup jika posisi sudah flat / untung tipis stagnan (0.0 <= r_multiple < 0.35) setelah 90 menit.
-                    if elapsed_min >= 90.0 and (0.0 <= r_multiple < 0.35):
+                    # Tutup jika posisi scalp sudah flat / stagnan (0.0 <= r_multiple < 0.35) setelah 20 menit (4 candle 5m).
+                    if elapsed_min >= 20.0 and (0.0 <= r_multiple < 0.35):
                         close_side = "SELL" if amt > 0 else "BUY"
                         binance_client.send_signed_request(
                             "/fapi/v1/order",
@@ -838,19 +838,20 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                 print(f" * [AI Sentinel Error] {e}")
 
         # -------------------------------------------------------------
-        # STEP 1C: PARTIAL TAKE PROFIT 1 (SCALE-OUT 50% @ +1.5R/+2.0R + RUNNER 50% SMC TRAILING)
-        # Realizes 50% cash profit into wallet & locks remaining 50% (Runner) at Breakeven!
+        # STEP 1C: PARTIAL TAKE PROFIT 1 (SCALE-OUT 50% @ +1.25R Scalp / +2.0R Swing + RUNNER SMC TRAILING)
+        # Realizes cash profit into wallet & locks remaining (Runner) at Breakeven!
         # Synthesized from Akademi Crypto Module 03 (Money Management)
         # -------------------------------------------------------------
-        tp1_target_r = 1.50 if t_data.get("is_scalp") else 2.00
+        tp1_target_r = 1.25 if t_data.get("is_scalp") else 2.00
         if r_multiple >= tp1_target_r and not t_data.get("tp1_taken", False):
             current_amt = abs(amt)
-            half_qty_str = binance_client.format_qty_precision(sym, current_amt * 0.5)
+            scale_pct = 0.60 if t_data.get("is_scalp") else 0.50
+            half_qty_str = binance_client.format_qty_precision(sym, current_amt * scale_pct)
             half_qty = float(half_qty_str)
 
             if half_qty > 0 and half_qty < current_amt:
                 close_side = "SELL" if side == "BUY" else "BUY"
-                print(f"🎯 [SCALE-OUT TP1] {sym}: Capai +{r_multiple:.2f}R! Menjual 50% lot ({half_qty} dari {current_amt})...")
+                print(f"🎯 [SCALE-OUT TP1] {sym}: Capai +{r_multiple:.2f}R! Menjual {int(scale_pct*100)}% lot ({half_qty} dari {current_amt})...")
                 order_res = binance_client.send_signed_request(
                     "/fapi/v1/order",
                     method="POST",
@@ -908,7 +909,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                             "commission_usd": 0.0,
                             "net_pnl_usd": round(est_tp1_pnl, 2),
                             "r_multiple": round(r_multiple, 2),
-                            "exit_reason": f"🎯 Scale-Out TP1 (50% Locked @ +{r_multiple:.2f}R)",
+                            "exit_reason": f"🎯 Scale-Out TP1 ({int(scale_pct*100)}% Locked @ +{r_multiple:.2f}R)",
                             "closed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "source": "SCALE_OUT_ENGINE"
                         })
@@ -931,9 +932,9 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                         print(f"[Telegram Warning] Gagal kirim notif TP1: {ex}")
 
         # -------------------------------------------------------------
-        # STEP 1D: STANDARD BREAKEVEN AUTO-LOCK (+1.3R Swing Fallback)
+        # STEP 1D: STANDARD BREAKEVEN AUTO-LOCK (+0.60R Scalp / +1.3R Swing)
         # -------------------------------------------------------------
-        be_target_r = 0.8 if t_data.get("is_scalp") else 1.3
+        be_target_r = 0.60 if t_data.get("is_scalp") else 1.3
         if r_multiple >= be_target_r and not t_data.get("breakeven_locked"):
             be_price = calculate_breakeven_price(sym, side, entry_price)
             success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)

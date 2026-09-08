@@ -857,7 +857,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     # 2A. Fast Scalper Scan (Runs in HYBRID and SCALP modes)
     if desk_mode in ["SCALP", "HYBRID"]:
         print(f"\n[2A. FAST SCALPER ENGINE — 5m / 15m MICRO-STRUCTURE SCAN]")
-        scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:8])
+        scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:10])
         for s in scalp_setups:
             pair_sym = f"{s['symbol']}USDT"
             if pair_sym in active_symbols:
@@ -872,9 +872,11 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 "sl": s["sl"],
                 "tp": s["tp"],
                 "rr": s["rr_ratio"],
-                "risk_pct": 1.2,
+                "risk_pct": 0.45,
                 "is_scalp": True,
-                "macro_aligned": True,
+                "is_mean_reversion_or_sweep": s.get("is_mean_reversion_or_sweep", True),
+                "macro_aligned": s.get("macro_aligned", True),
+                "strategy": s["strategy"],
                 "reason": f"⚡ SCALP [{s['strategy']}]: {s['reason']} (Target: {s['target_duration']})"
             })
 
@@ -943,10 +945,16 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     print(f"  {port_msg}")
                     continue
                 base_risk = best.get("risk_pct", max_risk_pct)
+                if best.get("is_scalp"):
+                    base_risk = min(0.50, base_risk)
                 kelly_risk, kelly_status = get_adaptive_kelly_risk_pct(base_risk_pct=base_risk)
+                if best.get("is_scalp"):
+                    kelly_risk = min(0.50, kelly_risk)
                 effective_risk_pct = portfolio_guard.get_scaled_risk_pct(best["side"], active_positions, kelly_risk)
+                if best.get("is_scalp"):
+                    effective_risk_pct = min(0.50, effective_risk_pct)
             except Exception:
-                effective_risk_pct = max_risk_pct
+                effective_risk_pct = 0.50 if best.get("is_scalp") else max_risk_pct
                 kelly_status = "Fallback"
 
             # Anti-Martingale Cold-Streak Circuit Breaker (Module 03)
@@ -969,9 +977,12 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                 import market_regime
                 is_regime_ok, regime_msg = market_regime.filter_candidate_by_regime(best, btc_regime=btc_regime)
                 if not is_regime_ok:
-                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [REGIME GATEKEEPER] ---")
-                    print(f"  {regime_msg}")
-                    continue
+                    if best.get("is_scalp") and best.get("is_mean_reversion_or_sweep"):
+                        print(f"  ⚡ [SCALP REGIME BYPASS] {best['symbol']} {best['side']} diizinkan beroperasi sebagai Mean-Reversion Scalp di bawah BTC {btc_regime.get('regime')}.")
+                    else:
+                        print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [REGIME GATEKEEPER] ---")
+                        print(f"  {regime_msg}")
+                        continue
             except Exception as e:
                 pass
 
@@ -1046,21 +1057,24 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
 
             # Volatility-Adaptive Dynamic ATR Stop Loss Buffer (Akademi Crypto Risk Precision)
             try:
-                import market_regime
-                reg_info = market_regime.detect_market_regime(best["symbol"], "1h")
-                if reg_info and reg_info.get("atr", 0) > 0:
-                    atr_val = float(reg_info["atr"])
-                    min_sl_dist = atr_val * 1.25
-                    current_sl_dist = abs(best["price"] - best["sl"])
-                    if current_sl_dist < min_sl_dist:
-                        old_sl = best["sl"]
-                        if best["side"] in ["BUY", "LONG"]:
-                            best["sl"] = best["price"] - min_sl_dist
-                            best["tp"] = best["price"] + (min_sl_dist * best["rr"])
-                        else:
-                            best["sl"] = best["price"] + min_sl_dist
-                            best["tp"] = best["price"] - (min_sl_dist * best["rr"])
-                        print(f" 🛡️ [VOLATILITY-ADAPTIVE ATR STOP] SL disesuaikan dari ${old_sl:,.4f} ke ${best['sl']:,.4f} (Buffer 1.25x ATR ${atr_val:,.4f}) demi mencegah wick hunt.")
+                if not best.get("is_scalp"):
+                    import market_regime
+                    reg_info = market_regime.detect_market_regime(best["symbol"], "1h")
+                    if reg_info and reg_info.get("atr", 0) > 0:
+                        atr_val = float(reg_info["atr"])
+                        min_sl_dist = atr_val * 1.25
+                        current_sl_dist = abs(best["price"] - best["sl"])
+                        if current_sl_dist < min_sl_dist:
+                            old_sl = best["sl"]
+                            if best["side"] in ["BUY", "LONG"]:
+                                best["sl"] = best["price"] - min_sl_dist
+                                best["tp"] = best["price"] + (min_sl_dist * best["rr"])
+                            else:
+                                best["sl"] = best["price"] + min_sl_dist
+                                best["tp"] = best["price"] - (min_sl_dist * best["rr"])
+                            print(f" 🛡️ [VOLATILITY-ADAPTIVE ATR STOP] SL disesuaikan dari ${old_sl:,.4f} ke ${best['sl']:,.4f} (Buffer 1.25x ATR ${atr_val:,.4f}) demi mencegah wick hunt.")
+                else:
+                    print(f" ⚡ [SCALP MICRO-SL PRESERVED] SL ${best['sl']:,.4f} dipertahankan presisi berbasis 5m micro-structure (R:R 1:{best['rr']:.2f}).")
             except Exception as e:
                 pass
 

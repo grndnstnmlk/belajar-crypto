@@ -27,7 +27,33 @@ sys.path.insert(0, TOOLS_DIR)
 
 import market_eyes
 
-DEFAULT_SCALP_SYMBOLS = ["BTC", "ETH", "SOL", "DOGE", "XRP"]
+DEFAULT_SCALP_SYMBOLS = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "SUI", "LINK", "AVAX", "NEAR"]
+
+def get_15m_context(symbol):
+    """
+    Fetches 15m trend bias and VWAP to align 5m scalping direction.
+    """
+    try:
+        sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
+        raw = market_eyes.fetch_candles(sym_clean, bar="15m", limit=40)
+        if not raw or len(raw) < 25:
+            return {"bias": "NEUTRAL", "trend": "NEUTRAL"}
+        
+        closes = [float(c[4]) for c in raw]
+        # EMA20 vs EMA50
+        def calc_ema(values, period):
+            k = 2 / (period + 1)
+            ema = values[0]
+            for v in values[1:]:
+                ema = (v * k) + (ema * (1 - k))
+            return ema
+
+        ema20 = calc_ema(closes[-25:], 20)
+        cur_p = closes[-1]
+        bias = "BULLISH" if cur_p > ema20 else "BEARISH"
+        return {"bias": bias, "ema20": ema20, "cur_price": cur_p}
+    except Exception:
+        return {"bias": "NEUTRAL", "trend": "NEUTRAL"}
 
 def fetch_scalp_candles(symbol="BTC", bar="5m", limit=100):
     """
@@ -98,6 +124,9 @@ def scan_5m_liquidity_sweep_fvg(symbol, candles_5m):
                     "tp": tp,
                     "r_dist": round(r_dist, 4),
                     "rr_ratio": 1.8,
+                    "is_scalp": True,
+                    "is_mean_reversion_or_sweep": True,
+                    "macro_aligned": True,
                     "timeframe": "5m",
                     "target_duration": "15-30 menit",
                     "reason": f"Swept lowest low (${lowest_low:.2f}) with rejection wick and bullish displacement"
@@ -122,6 +151,9 @@ def scan_5m_liquidity_sweep_fvg(symbol, candles_5m):
                     "tp": tp,
                     "r_dist": round(r_dist, 4),
                     "rr_ratio": 1.8,
+                    "is_scalp": True,
+                    "is_mean_reversion_or_sweep": True,
+                    "macro_aligned": True,
                     "timeframe": "5m",
                     "target_duration": "15-30 menit",
                     "reason": f"Swept highest high (${highest_high:.2f}) with rejection wick and bearish displacement"
@@ -184,9 +216,12 @@ def scan_5m_vwap_mean_reversion(symbol, candles_5m):
                 "tp": tp,
                 "r_dist": round(r_dist, 4),
                 "rr_ratio": rr,
+                "is_scalp": True,
+                "is_mean_reversion_or_sweep": True,
+                "macro_aligned": True,
                 "timeframe": "5m",
                 "target_duration": "10-25 menit",
-                "reason": f"Oversold bounce from -2σ VWAP band (${lower_2sigma:.2f}) targeting VWAP ($ {vwap:.2f})"
+                "reason": f"Oversold bounce from -2σ VWAP band (${lower_2sigma:.2f}) targeting VWAP (${vwap:.2f})"
             }
 
     # Overbought Extreme: Touched or pierced Upper 2-sigma band and rejecting
@@ -208,6 +243,9 @@ def scan_5m_vwap_mean_reversion(symbol, candles_5m):
                 "tp": tp,
                 "r_dist": round(r_dist, 4),
                 "rr_ratio": rr,
+                "is_scalp": True,
+                "is_mean_reversion_or_sweep": True,
+                "macro_aligned": True,
                 "timeframe": "5m",
                 "target_duration": "10-25 menit",
                 "reason": f"Overbought rejection from +2σ VWAP band (${upper_2sigma:.2f}) targeting VWAP (${vwap:.2f})"
@@ -221,7 +259,7 @@ def scan_5m_vwap_mean_reversion(symbol, candles_5m):
 def scan_5m_volume_surge_breakout(symbol, candles_5m):
     """
     Detects aggressive institutional volume injection (Volume >= 2.5x 20-period SMA)
-    breaking out of recent micro-consolidation on 5m chart.
+    breaking out of recent micro-consolidation on 5m chart aligned with 15m trend.
     """
     if len(candles_5m) < 25:
         return None
@@ -245,48 +283,57 @@ def scan_5m_volume_surge_breakout(symbol, candles_5m):
     if volume_surge_ratio >= 2.5 and body_ratio >= 0.65:
         prev_5_high = max(c["high"] for c in candles_5m[-6:-1])
         prev_5_low = min(c["low"] for c in candles_5m[-6:-1])
+        ctx = get_15m_context(symbol)
 
         # Bullish Surge Breakout
         if c_close > prev_5_high and c_close > c_open:
-            sl = round(c_low * 0.9985, 4)
-            entry = c_close
-            r_dist = entry - sl
-            if r_dist > 0:
-                tp = round(entry + (r_dist * 1.6), 4)
-                return {
-                    "symbol": symbol,
-                    "side": "LONG",
-                    "strategy": "5m Volume Surge Momentum",
-                    "entry": entry,
-                    "sl": sl,
-                    "tp": tp,
-                    "r_dist": round(r_dist, 4),
-                    "rr_ratio": 1.6,
-                    "timeframe": "5m",
-                    "target_duration": "15-40 menit",
-                    "reason": f"Volume spike {volume_surge_ratio:.1f}x avg with decisive breakout above ${prev_5_high:.2f}"
-                }
+            if ctx.get("bias") != "BEARISH":
+                sl = round(c_low * 0.9985, 4)
+                entry = c_close
+                r_dist = entry - sl
+                if r_dist > 0:
+                    tp = round(entry + (r_dist * 1.6), 4)
+                    return {
+                        "symbol": symbol,
+                        "side": "LONG",
+                        "strategy": "5m Volume Surge Momentum",
+                        "entry": entry,
+                        "sl": sl,
+                        "tp": tp,
+                        "r_dist": round(r_dist, 4),
+                        "rr_ratio": 1.6,
+                        "is_scalp": True,
+                        "is_mean_reversion_or_sweep": False,
+                        "macro_aligned": True,
+                        "timeframe": "5m",
+                        "target_duration": "15-40 menit",
+                        "reason": f"Volume spike {volume_surge_ratio:.1f}x avg with decisive breakout above ${prev_5_high:.2f} (15m {ctx.get('bias')})"
+                    }
 
         # Bearish Surge Breakdown
         if c_close < prev_5_low and c_close < c_open:
-            sl = round(c_high * 1.0015, 4)
-            entry = c_close
-            r_dist = sl - entry
-            if r_dist > 0:
-                tp = round(entry - (r_dist * 1.6), 4)
-                return {
-                    "symbol": symbol,
-                    "side": "SHORT",
-                    "strategy": "5m Volume Surge Momentum",
-                    "entry": entry,
-                    "sl": sl,
-                    "tp": tp,
-                    "r_dist": round(r_dist, 4),
-                    "rr_ratio": 1.6,
-                    "timeframe": "5m",
-                    "target_duration": "15-40 menit",
-                    "reason": f"Volume spike {volume_surge_ratio:.1f}x avg with decisive breakdown below ${prev_5_low:.2f}"
-                }
+            if ctx.get("bias") != "BULLISH":
+                sl = round(c_high * 1.0015, 4)
+                entry = c_close
+                r_dist = sl - entry
+                if r_dist > 0:
+                    tp = round(entry - (r_dist * 1.6), 4)
+                    return {
+                        "symbol": symbol,
+                        "side": "SHORT",
+                        "strategy": "5m Volume Surge Momentum",
+                        "entry": entry,
+                        "sl": sl,
+                        "tp": tp,
+                        "r_dist": round(r_dist, 4),
+                        "rr_ratio": 1.6,
+                        "is_scalp": True,
+                        "is_mean_reversion_or_sweep": False,
+                        "macro_aligned": True,
+                        "timeframe": "5m",
+                        "target_duration": "15-40 menit",
+                        "reason": f"Volume spike {volume_surge_ratio:.1f}x avg with decisive breakdown below ${prev_5_low:.2f} (15m {ctx.get('bias')})"
+                    }
 
     return None
 
@@ -322,6 +369,9 @@ def scan_rejection_block_scalp(symbol, candles_5m):
                     "tp": tp,
                     "r_dist": round(r_dist, 4),
                     "rr_ratio": rr,
+                    "is_scalp": True,
+                    "is_mean_reversion_or_sweep": True,
+                    "macro_aligned": True,
                     "timeframe": "5m",
                     "target_duration": "15-30 menit",
                     "reason": details["reason"]

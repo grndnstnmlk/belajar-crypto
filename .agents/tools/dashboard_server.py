@@ -243,6 +243,12 @@ def get_market_intelligence_data():
     except Exception as e:
         rb_intel = {"error": str(e)}
 
+    try:
+        import fast_scalper
+        active_scalps = fast_scalper.scan_all_scalp_opportunities(["BTC", "ETH", "SOL"])
+    except Exception:
+        active_scalps = []
+
     return {
         "compass": compass,
         "heat": heat,
@@ -252,6 +258,7 @@ def get_market_intelligence_data():
         "macro": macro_intel,
         "quant_risk": quant_risk,
         "rejection_block": rb_intel,
+        "active_scalps": active_scalps,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 

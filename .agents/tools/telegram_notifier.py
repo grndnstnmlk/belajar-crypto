@@ -215,12 +215,17 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
         thesis = html.escape(ai_audit.get("thesis", ""))
         ai_line = f"🤖 <b>AI Officer Review:</b> <code>{dec} ({conf}%)</code>\n   <i>\"{thesis}\"</i>\n"
 
+    is_scalp = trade.get("is_scalp", False)
+    header_title = "⚡ <b>EKSEKUSI 5m FAST SCALP - BINANCE FUTURES</b>" if is_scalp else "🚀 <b>EKSEKUSI ORDER BINANCE FUTURES</b>"
+    scalp_badge = "⚡ <b>Tipe Setup:</b> <code>5m Micro Scalp (Target: 15-30m | BE: +0.60R)</code>\n" if is_scalp else ""
+
     msg = (
-        f"🚀 <b>EKSEKUSI ORDER BINANCE FUTURES</b>\n"
+        f"{header_title}\n"
         f"<i>Mode: {mode_text}</i>\n"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"💎 <b>Simbol:</b> <code>{symbol}</code>\n"
         f"🧭 <b>Arah:</b> <b>{side_icon} (5x Leverage)</b>\n"
+        f"{scalp_badge}"
         f"{conf_line}"
         f"{rb_line}"
         f"{ai_line}"
@@ -239,7 +244,7 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
     # 1. Attempt to generate and send visual Candlestick Chart Snapshot
     try:
         import chart_snapshot
-        tf = "5m" if ("SCALP" in reason.upper() or "5M" in reason.upper()) else "1H"
+        tf = "5m" if (is_scalp or "SCALP" in reason.upper() or "5M" in reason.upper()) else "1H"
         chart_file = chart_snapshot.generate_trade_chart(
             symbol=symbol,
             side=side,
@@ -1111,14 +1116,45 @@ class TelegramCommandListener(threading.Thread):
             send_telegram_msg(
                 "⚡ <b>MODE FAST SCALPER AKTIF! (5m / 15m)</b>\n\n"
                 "• Timeframe: <b>5m Micro-Structure</b>\n"
-                "• Setup: <b>Liquidity Sweep, VWAP 2σ, Volume Surge</b>\n"
-                "• Target Durasi: <b>15 - 45 Menit</b>\n"
-                "• Breakeven Kilat: <b>+0.7R (Free Roll)</b>\n"
-                "• Time-Stop: <b>Maksimal 45 Menit</b> (tutup otomatis jika stagnan)\n\n"
-                "<i>Agent akan memindai setup kilat setiap 1-3 menit.</i>",
+                "• Setup: <b>Rejection Block, Liquidity Sweep, VWAP 2σ, Volume Surge</b>\n"
+                "• Target Durasi: <b>15 - 30 Menit</b>\n"
+                "• Breakeven Kilat: <b>+0.60R (Free Roll)</b>\n"
+                "• Time-Stop: <b>Maksimal 20 Menit</b> (tutup otomatis jika stagnan)\n"
+                "• Risk Budget: <b>0.35% – 0.50% (Micro-Kelly)</b>\n\n"
+                "<i>Agent memindai 10 koin teratas setiap 1 menit. Kirim <code>/scalpscan</code> untuk memindai setup sekarang!</i>",
                 chat_id_override=chat_id,
                 reply_markup=MAIN_KEYBOARD
             )
+
+        elif command in ["/scalpscan", "/scan5m"]:
+            send_telegram_msg("⚡ <i>Memindai 10 koin teratas pada timeframe 5m...</i>", chat_id_override=chat_id)
+            try:
+                import fast_scalper
+                setups = fast_scalper.scan_all_scalp_opportunities()
+                if not setups:
+                    send_telegram_msg(
+                        "ℹ️ <b>Belum ada setup scalping 5m yang valid saat ini.</b>\n"
+                        "Semua koin sedang berada di fase konsolidasi atau belum menyentuh Mean Threshold / Liquidity Pool.",
+                        chat_id_override=chat_id,
+                        reply_markup=MAIN_KEYBOARD
+                    )
+                else:
+                    msg = f"⚡ <b>DITEMUKAN {len(setups)} PELUANG SCALPING 5M!</b>\n━━━━━━━━━━━━━━━━━━\n"
+                    for s in setups[:5]:
+                        side_emoji = "🟢 LONG" if s["side"] == "LONG" else "🔴 SHORT"
+                        msg += (
+                            f"💎 <b>{s['symbol']}</b> | {side_emoji}\n"
+                            f"• Strategi: <code>{s['strategy']}</code>\n"
+                            f"• Entry: <code>${s['entry']:,.4f}</code>\n"
+                            f"• Stop Loss: <code>${s['sl']:,.4f}</code>\n"
+                            f"• Take Profit: <code>${s['tp']:,.4f}</code> (R:R 1:{s['rr_ratio']:.2f})\n"
+                            f"• Target: <code>{s.get('target_duration', '15-30m')}</code>\n"
+                            f"• Alasan: <i>{s['reason']}</i>\n"
+                            f"──────────────────\n"
+                        )
+                    send_telegram_msg(msg, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Error saat memindai scalp: {e}", chat_id_override=chat_id)
 
         elif command in ["/swing", "🎯 mode swing (1h)", "🎯 mode swing (profit besar)"]:
             state = load_desk_state()
