@@ -37,7 +37,69 @@ def load_closed_trades():
                 return trades if isinstance(trades, list) else []
         except Exception:
             return []
-    return []
+def calculate_kelly_criterion(win_rate=0.55, win_loss_ratio=2.0, fraction=0.5):
+    """
+    Computes optimal Kelly Criterion capital fraction:
+    Kelly % = W - ((1 - W) / R)
+    fraction: 0.5 for Half-Kelly (industry standard), 1.0 for Full Kelly.
+    """
+    if win_loss_ratio <= 0:
+        return 0.0
+    p_loss = 1.0 - win_rate
+    raw_kelly = win_rate - (p_loss / win_loss_ratio)
+    eff_kelly = max(0.0, raw_kelly * fraction)
+    return min(eff_kelly, 0.25)
+
+def run_monte_carlo_simulation(initial_balance=5000.0, win_rate=0.55, rr_ratio=2.0, risk_pct=0.015, num_simulations=500, trades_per_sim=100):
+    """
+    Runs a Monte Carlo simulation over sequence of trades to calculate
+    probability of ruin, expected drawdown, and median final balance.
+    """
+    import random
+    final_balances = []
+    ruin_count = 0
+    max_drawdowns = []
+
+    for _ in range(num_simulations):
+        bal = initial_balance
+        peak = bal
+        mdd = 0.0
+        ruined = False
+
+        for _ in range(trades_per_sim):
+            risk_amt = bal * risk_pct
+            if random.random() < win_rate:
+                bal += risk_amt * rr_ratio
+            else:
+                bal -= risk_amt
+
+            if bal > peak:
+                peak = bal
+            dd = (peak - bal) / peak if peak > 0 else 0.0
+            if dd > mdd:
+                mdd = dd
+
+            if bal <= initial_balance * 0.5:
+                ruined = True
+                break
+
+        if ruined:
+            ruin_count += 1
+        final_balances.append(bal)
+        max_drawdowns.append(mdd)
+
+    final_balances.sort()
+    median_bal = final_balances[len(final_balances) // 2]
+    ruin_prob = round((ruin_count / num_simulations) * 100.0, 2)
+    avg_mdd = round((sum(max_drawdowns) / len(max_drawdowns)) * 100.0, 2)
+
+    return {
+        "num_simulations": num_simulations,
+        "trades_per_sim": trades_per_sim,
+        "median_final_balance": round(median_bal, 2),
+        "ruin_probability": ruin_prob,
+        "average_max_drawdown_pct": avg_mdd
+    }
 
 def compute_historical_trade_metrics(trades=None):
     """

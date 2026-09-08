@@ -312,6 +312,7 @@ def get_dominance_compass():
 
     result = {
         "quadrant": quadrant,
+        "regime": regime_code,
         "regime_code": regime_code,
         "regime_title": regime_title,
         "advice": advice,
@@ -435,6 +436,9 @@ def format_telegram_compass(compass_info=None):
         f"━━━━━━━━━━━━━━━━━━\n"
         f"🕒 <i>Diperbarui: {compass_info['updated_at']}</i>"
     )
+def get_dominance_regime():
+    """Alias for get_dominance_compass()"""
+    return get_dominance_compass()
 
 if __name__ == "__main__":
     comp = get_dominance_compass()

@@ -66,30 +66,34 @@ def analyze_coin(base, idr_pair):
     except Exception as e:
         return None
 
-print("\n================================================================================")
-print("       📊 SCREENER INTELIJEN PASAR - MENCARI KOIN SEDANG DISKON / PULLBACK")
-print("================================================================================")
-print(f"{'Koin':<6} | {'Pair IDR':<10} | {'Harga ($)':<12} | {'1H RSI':<8} | {'Posisi dr Low':<14} | {'Status Setup'}")
-print("-" * 75)
+def run_scan():
+    print("\n================================================================================")
+    print("       📊 SCREENER INTELIJEN PASAR - MENCARI KOIN SEDANG DISKON / PULLBACK")
+    print("================================================================================")
+    print(f"{'Koin':<6} | {'Pair IDR':<10} | {'Harga ($)':<12} | {'1H RSI':<8} | {'Posisi dr Low':<14} | {'Status Setup'}")
+    print("-" * 75)
 
-candidates = []
-for base, idr_pair in COINS:
-    res = analyze_coin(base, idr_pair)
-    if res:
-        candidates.append(res)
+    candidates = []
+    for base, idr_pair in COINS:
+        res = analyze_coin(base, idr_pair)
+        if res:
+            candidates.append(res)
 
-# Sort by lowest range_pct (paling dekat dengan area Support / dasar)
-candidates.sort(key=lambda x: x["range_pct"])
+    # Sort by lowest range_pct (paling dekat dengan area Support / dasar)
+    candidates.sort(key=lambda x: x["range_pct"])
 
-for c in candidates:
-    pos_str = f"{c['range_pct']:.1f}% dr Low"
-    if c['range_pct'] <= 40 or c['rsi_1h'] <= 50:
-        status = "🟢 DISKON / DEKAT SUPPORT (Layak Beli)"
-    elif c['range_pct'] >= 80 or c['rsi_1h'] >= 70:
-        status = "🔴 OVERBOUGHT / DI PUCUK (Hindari Beli)"
-    else:
-        status = "🟡 KONSOLIDASI TENGAH"
-        
-    print(f"{c['base']:<6} | {c['idr_pair']:<10} | ${c['price_usd']:<11.4f} | {c['rsi_1h']:<8} | {pos_str:<14} | {status}")
+    for c in candidates:
+        pos_str = f"{c['range_pct']:.1f}% dr Low"
+        if c['range_pct'] <= 40 or c['rsi_1h'] <= 50:
+            status = "🟢 DISKON / DEKAT SUPPORT (Layak Beli)"
+        elif c['range_pct'] >= 80 or c['rsi_1h'] >= 70:
+            status = "🔴 OVERBOUGHT / DI PUCUK (Hindari Beli)"
+        else:
+            status = "🟡 KONSOLIDASI TENGAH"
+            
+        print(f"{c['base']:<6} | {c['idr_pair']:<10} | ${c['price_usd']:<11.4f} | {c['rsi_1h']:<8} | {pos_str:<14} | {status}")
 
-print("================================================================================\n")
+    print("================================================================================\n")
+
+if __name__ == "__main__":
+    run_scan()

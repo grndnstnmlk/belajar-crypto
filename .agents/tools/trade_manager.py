@@ -1092,10 +1092,15 @@ class FastPositionWatcher(threading.Thread):
     def stop(self):
         self.running = False
 
-def start_fast_watcher(user_email=None, is_demo=True, interval_seconds=8):
+def start_fast_watcher(user_email=None, is_demo=True, interval_seconds=8, poll_interval=None):
     global _FAST_WATCHER_THREAD
+    actual_interval = poll_interval if poll_interval is not None else interval_seconds
     if _FAST_WATCHER_THREAD is None or not _FAST_WATCHER_THREAD.is_alive():
-        _FAST_WATCHER_THREAD = FastPositionWatcher(user_email=user_email, is_demo=is_demo, interval_seconds=interval_seconds)
+        _FAST_WATCHER_THREAD = FastPositionWatcher(user_email=user_email, is_demo=is_demo, interval_seconds=actual_interval)
         _FAST_WATCHER_THREAD.start()
-        print(f"⚡ [Fast Position Watcher] Daemon pengawas posisi frekuensi tinggi aktif (Interval: {interval_seconds}s).")
+        print(f"⚡ [Fast Position Watcher] Daemon pengawas posisi frekuensi tinggi aktif (Interval: {actual_interval}s).")
     return _FAST_WATCHER_THREAD
+
+# Alias for external API convenience
+start_fast_position_watcher = start_fast_watcher
+

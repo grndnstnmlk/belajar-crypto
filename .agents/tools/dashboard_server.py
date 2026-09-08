@@ -687,7 +687,15 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(json.dumps({"success": False, "error": "Missing symbol or action in TradingView payload"}).encode("utf-8"))
                     return
 
-                base_sym = raw_sym.upper().replace("USDT", "").replace("-", "").replace("/", "").replace("_", "")
+                clean_sym = str(raw_sym).split(":")[-1].replace("/", "").replace("-", "").replace("_", "").upper().strip()
+                for suffix in [".PERP", ".P", "PERP"]:
+                    if clean_sym.endswith(suffix):
+                        clean_sym = clean_sym[:-len(suffix)]
+                        break
+                if clean_sym.endswith("USDT"):
+                    base_sym = clean_sym[:-4]
+                else:
+                    base_sym = clean_sym
                 target_sym = f"{base_sym}USDT"
                 side = "BUY" if raw_action in ["BUY", "LONG"] else "SELL"
 
@@ -745,6 +753,9 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 pos_usd = min(risk_budget / max(sl_pct, 0.005), avail_usd * 0.75 * 5.0)
                 raw_qty = pos_usd / price
                 qty = float(binance_client.format_qty_precision(target_sym, raw_qty, is_demo=is_demo))
+                is_valid_f, adj_qty, _ = binance_client.validate_order_filters(target_sym, qty, price, is_demo=is_demo)
+                if not is_valid_f and adj_qty > 0:
+                    qty = adj_qty
 
                 # 5. Place Futures Order via Limit-Chase (Maker fee savings)
                 order_res = binance_client.place_futures_order(
