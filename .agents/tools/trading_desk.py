@@ -551,14 +551,20 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
             except Exception:
                 cb_intel = None
 
-        # Rule A: Bullish Setup (Bullish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, or Tim Flossbach MSS)
+        # 6. ICT Rejection Block & Mean Threshold (50% Wick Reversal)
+        rb_intel = data.get("rejection_block")
+        rb_setup = rb_intel.get("retest_setup") if rb_intel else None
+        has_bullish_rb = bool(rb_setup and rb_setup.get("side") == "LONG")
+        has_bearish_rb = bool(rb_setup and rb_setup.get("side") == "SHORT")
+
+        # Rule A: Bullish Setup (Bullish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, Tim Flossbach MSS, or ICT Rejection Block)
         has_bullish_fvg = "Bullish FVG" in fvg
         has_bullish_3touch = bool(three_touch and three_touch.get("type") == "BULLISH_3_TOUCH")
         has_bullish_auction = bool(va_setup and va_setup.get("type") == "BULLISH_FAILED_AUCTION")
         has_bullish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BULLISH_SWEEP_MSS")
         rsi_safe_long = rsi < sub_gen.get("rsi_overbought", 70) and rsi > sub_gen.get("rsi_oversold", 30)
 
-        # Rule B: Bearish Setup (Bearish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, or Tim Flossbach MSS)
+        # Rule B: Bearish Setup (Bearish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, Tim Flossbach MSS, or ICT Rejection Block)
         has_bearish_fvg = "Bearish FVG" in fvg
         has_bearish_3touch = bool(three_touch and three_touch.get("type") == "BEARISH_3_TOUCH")
         has_bearish_auction = bool(va_setup and va_setup.get("type") == "BEARISH_FAILED_AUCTION")
@@ -574,9 +580,9 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
         price_equilibrium_pct = ((price - l_24) / range_24 * 100.0) if range_24 > 0 else 50.0
 
         signal = None
-        if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep) and rsi_safe_long:
+        if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb) and rsi_safe_long:
             # SMC Equilibrium Guard: Skip Long if price is already in Extreme Premium (> 75%)
-            if price_equilibrium_pct > 75.0 and not has_bullish_sweep:
+            if price_equilibrium_pct > 75.0 and not (has_bullish_sweep or has_bullish_rb):
                 print(f"   🛡️ [SMC Equilibrium Guard] {sym} di-skip untuk LONG: Harga berada di zona Premium Ekstrem ({price_equilibrium_pct:.1f}%). Dilarang membeli di pucuk resistance!")
                 continue
 
@@ -591,7 +597,10 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                 continue
             # Plan Long with Dynamic Anti-Liquidity-Hunt SL Buffer
             sweep_buf = get_asset_sweep_buffer(sym)
-            if has_bullish_sweep and liquidity_sweep:
+            if has_bullish_rb and rb_setup:
+                sl = round(rb_setup["sl_price"], 4)
+                reason_tag = f"🕯️ ICT REJECTION BLOCK (MT ${rb_setup['mean_threshold']:,.4f} | {rb_setup['retest_state']})"
+            elif has_bullish_sweep and liquidity_sweep:
                 sl = round(liquidity_sweep["sweep_level"] * (1.0 - sweep_buf), 4)
                 reason_tag = f"⚡ TIM FLOSSBACH MSS (SSL Sweep ${liquidity_sweep['sweep_level']})"
             elif has_bullish_auction and va_setup:
@@ -614,7 +623,7 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
             dist_sl = price - sl
             if dist_sl > 0:
                 bonus_rr = 0.5 if is_alpha_leader else 0.0
-                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep) else (effective_min_rr + bonus_rr))
+                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb) else (effective_min_rr + bonus_rr))
                 tp = round(price + (dist_sl * target_rr), 4)
                 rr = (tp - price) / dist_sl
                 signal = {
@@ -628,15 +637,17 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                     "is_3touch": has_bullish_3touch,
                     "is_fabio": has_bullish_auction,
                     "is_tim": has_bullish_sweep,
+                    "is_rejection_block": has_bullish_rb,
+                    "rejection_block_setup": rb_setup if has_bullish_rb else None,
                     "is_alpha_leader": is_alpha_leader,
                     "sub_genome": sub_label,
                     "risk_pct": effective_max_risk,
                     "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
                 }
 
-        elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep) and rsi_safe_short:
+        elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) and rsi_safe_short:
             # SMC Equilibrium Guard: Skip Short if price is in Discount (< 50%)
-            if price_equilibrium_pct < 50.0 and not has_bearish_sweep:
+            if price_equilibrium_pct < 50.0 and not (has_bearish_sweep or has_bearish_rb):
                 print(f"   🛡️ [SMC Equilibrium Guard] {sym} di-skip untuk SHORT: Harga berada di zona Diskon ({price_equilibrium_pct:.1f}%). Dilarang shorting di area diskon/support!")
                 continue
 
@@ -651,7 +662,10 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                 continue
             # Plan Short with Dynamic Anti-Liquidity-Hunt SL Buffer
             sweep_buf = get_asset_sweep_buffer(sym)
-            if has_bearish_sweep and liquidity_sweep:
+            if has_bearish_rb and rb_setup:
+                sl = round(rb_setup["sl_price"], 4)
+                reason_tag = f"🕯️ ICT REJECTION BLOCK (MT ${rb_setup['mean_threshold']:,.4f} | {rb_setup['retest_state']})"
+            elif has_bearish_sweep and liquidity_sweep:
                 sl = round(liquidity_sweep["sweep_level"] * (1.0 + sweep_buf), 4)
                 reason_tag = f"⚡ TIM FLOSSBACH MSS (BSL Sweep ${liquidity_sweep['sweep_level']})"
             elif has_bearish_auction and va_setup:
@@ -674,7 +688,7 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
             dist_sl = sl - price
             if dist_sl > 0:
                 bonus_rr = 0.5 if is_beta_laggard else 0.0
-                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep) else (effective_min_rr + bonus_rr))
+                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) else (effective_min_rr + bonus_rr))
                 tp = round(price - (dist_sl * target_rr), 4)
                 rr = (price - tp) / dist_sl
                 signal = {
@@ -688,6 +702,8 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                     "is_3touch": has_bearish_3touch,
                     "is_fabio": has_bearish_auction,
                     "is_tim": has_bearish_sweep,
+                    "is_rejection_block": has_bearish_rb,
+                    "rejection_block_setup": rb_setup if has_bearish_rb else None,
                     "is_beta_laggard": is_beta_laggard,
                     "sub_genome": sub_label,
                     "risk_pct": effective_max_risk,

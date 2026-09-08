@@ -235,6 +235,14 @@ def get_market_intelligence_data():
     except Exception as e:
         quant_risk = {"error": str(e)}
 
+    # ICT Rejection Block Intelligence (Mean Threshold 50% Wick Reversals)
+    try:
+        import rejection_block_engine
+        rb_btc = market_eyes.fetch_candles("BTC", bar="1H", limit=40)
+        rb_intel = rejection_block_engine.get_rejection_block_intelligence("BTCUSDT", rb_btc)
+    except Exception as e:
+        rb_intel = {"error": str(e)}
+
     return {
         "compass": compass,
         "heat": heat,
@@ -243,6 +251,7 @@ def get_market_intelligence_data():
         "liquidity": liq,
         "macro": macro_intel,
         "quant_risk": quant_risk,
+        "rejection_block": rb_intel,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 

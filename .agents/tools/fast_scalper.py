@@ -291,6 +291,46 @@ def scan_5m_volume_surge_breakout(symbol, candles_5m):
     return None
 
 # =====================================================================
+# STRATEGY 4: 5m ICT Rejection Block & Mean Threshold Bounce
+# =====================================================================
+def scan_rejection_block_scalp(symbol, candles_5m):
+    """
+    ICT Rejection Block 5m Scalp Strategy:
+    Detects active Rejection Block retest at Mean Threshold (50% Wick).
+    """
+    try:
+        import rejection_block_engine
+        blocks = rejection_block_engine.detect_rejection_blocks(candles_5m, timeframe="5m", min_wick_ratio=0.38)
+        if not blocks:
+            return None
+        current_p = float(candles_5m[-1]["close"])
+        has_setup, best_block, details = rejection_block_engine.evaluate_retest_status(symbol, current_p, blocks)
+        if has_setup and details:
+            side = details["side"]
+            entry = details["entry_price"]
+            sl = details["sl_price"]
+            tp = details["tp1_price"]
+            r_dist = abs(entry - sl)
+            if r_dist > 0:
+                rr = round(abs(tp - entry) / r_dist, 2)
+                return {
+                    "symbol": symbol,
+                    "side": side,
+                    "strategy": "5m ICT Rejection Block Mean Threshold",
+                    "entry": entry,
+                    "sl": sl,
+                    "tp": tp,
+                    "r_dist": round(r_dist, 4),
+                    "rr_ratio": rr,
+                    "timeframe": "5m",
+                    "target_duration": "15-30 menit",
+                    "reason": details["reason"]
+                }
+    except Exception:
+        pass
+    return None
+
+# =====================================================================
 # TIME-STOP & FAST BREAKEVEN EVALUATOR
 # =====================================================================
 def evaluate_scalp_time_stop(entry_time_str, current_profit_r, max_minutes=45):
@@ -317,23 +357,28 @@ def evaluate_scalp_time_stop(entry_time_str, current_profit_r, max_minutes=45):
 
 def scan_symbol_scalp(symbol):
     """
-    Runs all 3 fast scalp strategies on a single symbol. Returns the best signal if found.
+    Runs fast scalp strategies on a single symbol. Returns the best signal if found.
     """
     candles = fetch_scalp_candles(symbol, bar="5m", limit=60)
     if len(candles) < 25:
         return None
 
-    # Priority 1: Liquidity Sweep & Micro FVG
+    # Priority 1: ICT Rejection Block Mean Threshold Bounce
+    s_rb = scan_rejection_block_scalp(symbol, candles)
+    if s_rb:
+        return s_rb
+
+    # Priority 2: Liquidity Sweep & Micro FVG
     s1 = scan_5m_liquidity_sweep_fvg(symbol, candles)
     if s1:
         return s1
 
-    # Priority 2: VWAP ±2σ Extreme Mean-Reversion
+    # Priority 3: VWAP ±2σ Extreme Mean-Reversion
     s2 = scan_5m_vwap_mean_reversion(symbol, candles)
     if s2:
         return s2
 
-    # Priority 3: Volume Surge Momentum
+    # Priority 4: Volume Surge Momentum
     s3 = scan_5m_volume_surge_breakout(symbol, candles)
     if s3:
         return s3

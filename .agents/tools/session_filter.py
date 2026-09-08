@@ -297,6 +297,22 @@ def calculate_confluence_score(setup, session_info=None):
         pass
     total_score += depth_pts
 
+    # 9. ICT Rejection Block & 50% Mean Threshold Confluence (+6 to +10 pts)
+    rb_pts = 0
+    try:
+        rb_setup = setup.get("rejection_block_setup")
+        if rb_setup:
+            retest_state = rb_setup.get("retest_state")
+            if retest_state == "TESTING_MEAN_THRESHOLD":
+                rb_pts = 10
+                breakdown["ICT Rejection Block"] = f"+10 pts (Optimal 50% Mean Threshold Retest @ ${rb_setup.get('mean_threshold'):,.2f})"
+            elif retest_state == "INSIDE_REJECTION_BLOCK":
+                rb_pts = 6
+                breakdown["ICT Rejection Block"] = f"+6 pts (Inside Rejection Block Sumbu Zone)"
+    except Exception:
+        pass
+    total_score += rb_pts
+
     total_score = min(100, max(0, total_score))
 
     # Grade Classification

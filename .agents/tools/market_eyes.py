@@ -661,6 +661,16 @@ def get_market_eyes(symbol="BTC", bar="1H"):
             print(f"Inst. VWAP       : ${vwap_data['vwap']:,.4f} [{vwap_data['dist_pct']:+,.2f}%] | Bands (±1σ): ${vwap_data['lower_1']:,.4f} - ${vwap_data['upper_1']:,.4f}")
             print(f"VWAP Bias        : {vwap_data['state']}")
 
+        # ICT Rejection Block & Mean Threshold (50% Wick Reversal Strategy)
+        rejection_block_intel = None
+        try:
+            import rejection_block_engine
+            rejection_block_intel = rejection_block_engine.get_rejection_block_intelligence(f"{base}USDT", raw_candles, current_price)
+            if rejection_block_intel and rejection_block_intel.get("has_rejection_block"):
+                print(f"Rejection Block  : {rejection_block_intel['summary']}")
+        except Exception:
+            pass
+
     print(f"=======================================================\n")
     return {
         "symbol": inst_id_spot,
@@ -676,6 +686,7 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         "three_touch": three_touch,
         "volume_profile": volume_profile,
         "liquidity_sweep": liquidity_sweep,
+        "rejection_block": rejection_block_intel,
         "vwap": vwap_data,
         "funding_rate": funding_rate
     }

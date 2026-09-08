@@ -126,6 +126,7 @@ def setup_bot_commands():
         {"command": "heatmap", "description": "🧲 Order Book Depth & Magnet Likuidasi (/heatmap BTC)"},
         {"command": "depth", "description": "📊 DOM Imbalance Ratio & Order Book Wall"},
         {"command": "chart", "description": "📈 Visual snapshot chart candlestick (cth: /chart BTC)"},
+        {"command": "rejection", "description": "🕯️ Scan ICT Rejection Block & 50% Mean Threshold"},
         {"command": "coinalyze", "description": "🌊 Sentimen Open Interest, Likuidasi & L/S Ratio"},
         {"command": "coinbase", "description": "🏛️ Coinbase Premium Index (Arus Wall Street vs Ritel)"},
         {"command": "genome", "description": "🧬 Status AI Quant Genome & evolusi"},
@@ -199,6 +200,13 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
     conf_grade = trade.get("confluence_grade")
     conf_line = f"⭐ <b>Konfluensi/Akurasi:</b> <code>{conf_score}% [{conf_grade}]</code>\n" if conf_score else ""
 
+    rb_setup = trade.get("rejection_block_setup")
+    rb_line = ""
+    if rb_setup:
+        mt_val = rb_setup.get("mean_threshold", 0)
+        state_val = rb_setup.get("retest_state", "Retest")
+        rb_line = f"🕯️ <b>ICT Rejection Block:</b> <code>MT 50%: ${mt_val:,.4f} ({state_val})</code>\n"
+
     ai_audit = trade.get("ai_audit")
     ai_line = ""
     if ai_audit:
@@ -214,6 +222,7 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
         f"💎 <b>Simbol:</b> <code>{symbol}</code>\n"
         f"🧭 <b>Arah:</b> <b>{side_icon} (5x Leverage)</b>\n"
         f"{conf_line}"
+        f"{rb_line}"
         f"{ai_line}"
         f"🎯 <b>Strategi:</b> {reason}\n"
         f"💵 <b>Entry Price:</b> <code>${price:,.4f}</code>\n"
@@ -975,6 +984,46 @@ class TelegramCommandListener(threading.Thread):
                 notify_daily_executive_briefing(self.user_email, self.is_demo)
             except Exception as e:
                 send_telegram_msg(f"⚠️ Gagal memuat Executive Briefing: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+
+        elif command in ["/rejection", "/reversal", "/wick", "🕯️ rejection block"]:
+            try:
+                import rejection_block_engine
+                import market_eyes
+                msg_lines = [
+                    "🕯️ <b>ICT REJECTION BLOCK REVERSAL RADAR</b>\n"
+                    "<i>Smart Money Mean Threshold (50% Wick) Scanner</i>\n"
+                    "━━━━━━━━━━━━━━━━━━"
+                ]
+                for c_sym in ["BTC", "ETH", "SOL"]:
+                    pair = f"{c_sym}USDT"
+                    candles = market_eyes.fetch_candles(c_sym, bar="1H", limit=40)
+                    intel = rejection_block_engine.get_rejection_block_intelligence(pair, candles)
+                    cur_p = candles[-1]["close"] if candles else 0
+                    msg_lines.append(f"\n💎 <b>{pair}</b> (1H: <code>${cur_p:,.2f}</code>)")
+                    if intel["is_retesting_now"] and intel["retest_setup"]:
+                        setup = intel["retest_setup"]
+                        side_ico = "🟢 LONG" if setup["side"] == "LONG" else "🔴 SHORT"
+                        msg_lines.append(
+                            f"🔥 <b>ACTIVE RETEST:</b> {side_ico}\n"
+                            f"• State: <code>{setup['retest_state']}</code>\n"
+                            f"• MT 50%: <code>${setup['mean_threshold']:,.4f}</code>\n"
+                            f"• Target R:R: <code>1 : {setup['rr_ratio']:.1f}</code>\n"
+                            f"• SL: <code>${setup['sl_price']:,.4f}</code> | TP: <code>${setup['tp2_price']:,.4f}</code>"
+                        )
+                    elif intel["blocks"]:
+                        top_b = intel["blocks"][0]
+                        side_txt = "🟢 Bullish" if top_b["side"] == "LONG" else "🔴 Bearish"
+                        msg_lines.append(
+                            f"• Latest: <b>{side_txt}</b> ({top_b['status']})\n"
+                            f"• Zona Sumbu: <code>${top_b['block_low']:,.2f} - ${top_b['block_high']:,.2f}</code>\n"
+                            f"• MT 50%: <code>${top_b['mean_threshold']:,.2f}</code> (Wick: {top_b['wick_ratio']*100:.1f}%)"
+                        )
+                    else:
+                        msg_lines.append("• <i>Tidak ada Rejection Block aktif saat ini.</i>")
+                msg_lines.append("\n━━━━━━━━━━━━━━━━━━\n🕒 <i>" + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "</i>")
+                send_telegram_msg("\n".join(msg_lines), chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat Rejection Block: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
 
         elif command in ["/heat", "/correlation", "/korelasi"]:
             try:
