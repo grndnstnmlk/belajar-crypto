@@ -201,7 +201,9 @@ def heuristic_quant_audit(setup, market_context=None):
             "thesis": f"VETO: Pasar dalam periode News Blackout ({news.get('reason', 'High-Impact Event')}). Volatilitas manipulatif ekstrem berisiko memicu slippage.",
             "key_risks": ["High-impact economic news window active", "Severe spread widening risk"],
             "invalidation_scenario": "N/A - Wait until 30 minutes after news release.",
-            "provider": "Algorithmic Quant Heuristics"
+            "provider": "Algorithmic Quant Heuristics",
+            "adversarial_debate": None,
+            "tri_perspective_risk": None
         }
 
     # 2. Directional Heat Risk
@@ -215,7 +217,9 @@ def heuristic_quant_audit(setup, market_context=None):
                 "thesis": f"VETO: Batas Directional Heat Portofolio tercapai ({heat.get('long_count', 0)} Longs / {heat.get('short_count', 0)} Shorts). Terlalu rentan terhadap pergerakan sistemik BTC.",
                 "key_risks": ["Portfolio directional correlation limit reached", "Systemic simultaneous liquidation risk"],
                 "invalidation_scenario": "Tunggu salah satu posisi searah tertutup atau TP1 terlindungi.",
-                "provider": "Algorithmic Quant Heuristics"
+                "provider": "Algorithmic Quant Heuristics",
+                "adversarial_debate": None,
+                "tri_perspective_risk": None
             }
 
     # 2B. BTC Macro Regime Directional Gravity Guardrail (Akademi Crypto Module 02 & 04)
@@ -244,7 +248,9 @@ def heuristic_quant_audit(setup, market_context=None):
                         "thesis": f"VETO: Rezim Makro BTC 1H sedang BEARISH ({btc_label}). Dilarang membuka posisi Long pada Altcoin ({sym}) saat Bitcoin tertekan demi mencegah terseret dump!",
                         "key_risks": ["BTC Macro Downtrend Gravity", "High risk of altcoin long liquidation dump"],
                         "invalidation_scenario": "Tunggu struktur 1H BTC kembali bullish di atas EMA 20/50.",
-                        "provider": "Algorithmic Quant Heuristics"
+                        "provider": "Algorithmic Quant Heuristics",
+                        "adversarial_debate": None,
+                        "tri_perspective_risk": None
                     }
                 else:
                     decision = "ADJUST_RISK"
@@ -259,7 +265,9 @@ def heuristic_quant_audit(setup, market_context=None):
                         "thesis": f"VETO: Rezim Makro BTC 1H sedang BULLISH ({btc_label}). Dilarang membuka posisi Short pada Altcoin ({sym}) saat Bitcoin sedang ekspansi reli.",
                         "key_risks": ["BTC Macro Bullish Expansion", "High risk of short squeeze on altcoins"],
                         "invalidation_scenario": "Tunggu struktur 1H BTC terkonfirmasi breakdown.",
-                        "provider": "Algorithmic Quant Heuristics"
+                        "provider": "Algorithmic Quant Heuristics",
+                        "adversarial_debate": None,
+                        "tri_perspective_risk": None
                     }
                 else:
                     decision = "ADJUST_RISK"
@@ -286,7 +294,9 @@ def heuristic_quant_audit(setup, market_context=None):
                 "thesis": f"VETO: {deriv_res['reason']}",
                 "key_risks": ["Crowded Retail Positioning", "High Liquidation Cascade Risk"],
                 "invalidation_scenario": "Tunggu Funding Rate kembali netral dan rasio L/S normal.",
-                "provider": "Algorithmic Quant Heuristics"
+                "provider": "Algorithmic Quant Heuristics",
+                "adversarial_debate": None,
+                "tri_perspective_risk": None
             }
         elif deriv_res["decision"] == "BOOST_HUNT":
             key_risks.append(f"Liquidation Hunt active: {deriv_res['reason']}")
@@ -355,6 +365,36 @@ def heuristic_quant_audit(setup, market_context=None):
     except Exception:
         pass
 
+    # 8. Tauric Tri-Perspective Risk Balancing (Aggressive, Neutral, Conservative)
+    tri_risk = None
+    try:
+        import tri_perspective_risk
+        p_state = market_context.get("portfolio_state") if market_context else None
+        if not p_state and market_context:
+            p_state = {
+                "active_positions": market_context.get("active_positions", []),
+                "heat": market_context.get("heat", {}),
+                "free_margin_ratio": market_context.get("free_margin_ratio", 0.85)
+            }
+        # Attach debate to market context so tri-risk can read Bull vs Bear conviction
+        if debate and market_context:
+            market_context["adversarial_debate"] = debate
+        tri_risk = tri_perspective_risk.run_tri_perspective_risk(setup, p_state, market_context)
+        fm = tri_risk.get("fund_manager", {})
+        if fm.get("verdict") == "BLOCKED_RISK_LIMIT" and decision != "VETO":
+            decision = "VETO"
+            suggested_scale = 0.0
+            thesis = f"VETO FUND MANAGER (Tri-Perspective Risk): {fm.get('synthesis')}"
+            key_risks.append("Blocked by Tri-Perspective Fund Manager")
+        elif decision != "VETO":
+            fm_scale = float(fm.get("allocated_risk_scale", 1.0))
+            suggested_scale = round(suggested_scale * fm_scale, 2)
+            if fm_scale < 0.70 and decision == "APPROVE":
+                decision = "ADJUST_RISK"
+            thesis += f" | Tri-Risk: {fm.get('verdict')} (Scale {fm_scale:.2f}x)"
+    except Exception:
+        pass
+
     return {
         "decision": decision,
         "confidence": confidence,
@@ -363,7 +403,8 @@ def heuristic_quant_audit(setup, market_context=None):
         "key_risks": key_risks if key_risks else ["Normal market volatility risk"],
         "invalidation_scenario": f"Penutupan candle 15m melewati level Stop Loss ${setup.get('sl', 0):,.4f}.",
         "provider": "Algorithmic Quant Heuristics",
-        "adversarial_debate": debate
+        "adversarial_debate": debate,
+        "tri_perspective_risk": tri_risk
     }
 
 def audit_trade_setup(setup, market_context=None):
@@ -451,6 +492,7 @@ Strictly respond in valid JSON format with this exact schema:
                     json_str = m.group(0)
             parsed = json.loads(json_str)
             parsed["provider"] = provider.upper()
+            debate = None
             try:
                 import adversarial_debate
                 debate = adversarial_debate.run_adversarial_debate(setup, market_context)
@@ -464,6 +506,34 @@ Strictly respond in valid JSON format with this exact schema:
                     parsed["decision"] = "ADJUST_RISK"
                     parsed["suggested_risk_scale"] = min(parsed.get("suggested_risk_scale", 1.0), debate.get("suggested_risk_scale", 0.5))
                     parsed["thesis"] += f" | Tauric Debate Note: {debate.get('arbiter_synthesis')}"
+            except Exception:
+                pass
+
+            try:
+                import tri_perspective_risk
+                p_state = market_context.get("portfolio_state") if market_context else None
+                if not p_state and market_context:
+                    p_state = {
+                        "active_positions": market_context.get("active_positions", []),
+                        "heat": market_context.get("heat", {}),
+                        "free_margin_ratio": market_context.get("free_margin_ratio", 0.85)
+                    }
+                if debate and market_context:
+                    market_context["adversarial_debate"] = debate
+                tri_risk = tri_perspective_risk.run_tri_perspective_risk(setup, p_state, market_context)
+                parsed["tri_perspective_risk"] = tri_risk
+                fm = tri_risk.get("fund_manager", {})
+                if fm.get("verdict") == "BLOCKED_RISK_LIMIT" and parsed.get("decision") != "VETO":
+                    parsed["decision"] = "VETO"
+                    parsed["suggested_risk_scale"] = 0.0
+                    parsed["thesis"] = f"VETO FUND MANAGER (Tri-Perspective Risk): {fm.get('synthesis')}"
+                elif parsed.get("decision") != "VETO":
+                    fm_scale = float(fm.get("allocated_risk_scale", 1.0))
+                    cur_scale = float(parsed.get("suggested_risk_scale", 1.0))
+                    parsed["suggested_risk_scale"] = round(cur_scale * fm_scale, 2)
+                    if fm_scale < 0.70 and parsed.get("decision") == "APPROVE":
+                        parsed["decision"] = "ADJUST_RISK"
+                    parsed["thesis"] += f" | Tri-Risk: {fm.get('verdict')} (Scale {fm_scale:.2f}x)"
             except Exception:
                 pass
             return parsed

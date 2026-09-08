@@ -1460,6 +1460,107 @@
               </div>
             </div>
           </div>
+
+          <!-- TAURIC RESEARCH TRI-PERSPECTIVE RISK BALANCING -->
+          <div class="intel-card" style="grid-column: span 2;">
+            <div class="intel-card-header">
+              <div class="intel-card-title">
+                <span>⚖️ Tauric Tri-Perspective Risk Balancing (TradingAgents CRO Protocol)</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="pill-badge mono" id="tri-target-label" style="background:var(--color-ash); color:var(--color-text-dim); font-size:10px;">BTC/USDT (BUY)</span>
+                <span class="pill-badge blue mono" id="tri-engine-pill">TAURIC CRO ENGINE</span>
+                <span class="pill-badge mint mono" id="tri-verdict-pill">APPROVED_BALANCED</span>
+                <span class="pill-badge mint mono" id="tri-scale-pill">ALLOC: 1.00x</span>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <!-- 3-Perspective Cards (Aggressive, Neutral, Conservative) -->
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+                <!-- 1. Aggressive Officer -->
+                <div style="background:var(--color-paper); border:1px solid rgba(74, 222, 128, 0.25); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <span style="font-size:14px;">🟢</span>
+                      <span style="font-size:11.5px; font-weight:700; color:var(--color-mint);">Aggressive Officer</span>
+                    </div>
+                    <span class="mono" id="tri-agg-score" style="font-size:13px; font-weight:700; color:var(--color-mint);">80%</span>
+                  </div>
+                  <div style="background:rgba(255,255,255,0.06); border-radius:3px; height:6px; overflow:hidden;">
+                    <div id="tri-agg-bar" style="height:100%; width:80%; background:var(--color-mint); border-radius:3px;"></div>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--color-text-dim);">
+                    <span>Alpha / Momentum</span>
+                    <b class="mono" id="tri-agg-scale" style="color:var(--color-mint);">Desired: 1.20x</b>
+                  </div>
+                  <div id="tri-agg-thesis" style="font-size:11px; line-height:1.4; color:var(--color-text-dim); margin-top:2px;">
+                    Memuat perspektif agresif...
+                  </div>
+                </div>
+
+                <!-- 2. Neutral Officer -->
+                <div style="background:var(--color-paper); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <span style="font-size:14px;">🔵</span>
+                      <span style="font-size:11.5px; font-weight:700; color:var(--color-electric-blue);">Neutral Officer</span>
+                    </div>
+                    <span class="mono" id="tri-neu-score" style="font-size:13px; font-weight:700; color:var(--color-electric-blue);">75%</span>
+                  </div>
+                  <div style="background:rgba(255,255,255,0.06); border-radius:3px; height:6px; overflow:hidden;">
+                    <div id="tri-neu-bar" style="height:100%; width:75%; background:var(--color-electric-blue); border-radius:3px;"></div>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--color-text-dim);">
+                    <span>Kelly / Volatility</span>
+                    <b class="mono" id="tri-neu-scale" style="color:var(--color-electric-blue);">Kelly: 1.5% | 1.00x</b>
+                  </div>
+                  <div id="tri-neu-thesis" style="font-size:11px; line-height:1.4; color:var(--color-text-dim); margin-top:2px;">
+                    Memuat perspektif netral...
+                  </div>
+                </div>
+
+                <!-- 3. Conservative Officer -->
+                <div style="background:var(--color-paper); border:1px solid rgba(251, 146, 60, 0.25); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <span style="font-size:14px;">🔴</span>
+                      <span style="font-size:11.5px; font-weight:700; color:var(--color-tangerine);">Conservative Officer</span>
+                    </div>
+                    <span class="mono" id="tri-con-score" style="font-size:13px; font-weight:700; color:var(--color-tangerine);">65%</span>
+                  </div>
+                  <div style="background:rgba(255,255,255,0.06); border-radius:3px; height:6px; overflow:hidden;">
+                    <div id="tri-con-bar" style="height:100%; width:65%; background:var(--color-tangerine); border-radius:3px;"></div>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--color-text-dim);">
+                    <span>Margin / Heat Shield</span>
+                    <b class="mono" id="tri-con-scale" style="color:var(--color-tangerine);">Defense: 0.65x</b>
+                  </div>
+                  <div id="tri-con-thesis" style="font-size:11px; line-height:1.4; color:var(--color-text-dim); margin-top:2px;">
+                    Memuat perspektif konservatif...
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fund Manager (Chief Risk Officer) Synthesis Box -->
+              <div style="background:linear-gradient(90deg, rgba(99,102,241,0.08), rgba(59,130,246,0.06)); border:1px solid rgba(99,102,241,0.3); border-radius:var(--radius-btn); padding:12px 14px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:15px;">🏛️</span>
+                    <span style="font-size:12px; font-weight:700; color:var(--color-cyan);">Chief Risk Officer (Fund Manager) Synthesis</span>
+                  </div>
+                  <div style="display:flex; gap:8px; align-items:center; font-size:10.5px;">
+                    <span class="mono" id="tri-weights-label" style="color:var(--color-text-dim);">Weights: Agg 25% | Neu 40% | Con 35%</span>
+                    <span class="mono pill-badge blue" id="tri-stop-profile" style="padding:1px 6px; font-size:9.5px;">SL: ATR_TRAILING</span>
+                    <span class="mono pill-badge mint" id="tri-composite-score" style="padding:1px 6px; font-size:9.5px;">Composite: 72/100</span>
+                  </div>
+                </div>
+                <div id="tri-fm-synthesis" style="font-size:11.5px; line-height:1.45; color:var(--color-text);">
+                  Menyelaraskan risiko tri-perspektif...
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2442,6 +2543,17 @@
         } catch (e) {
           console.warn("Could not load debate data:", e);
         }
+
+        // 9. Tauric Tri-Perspective Risk Balancing (TradingAgents CRO Protocol)
+        try {
+          const triRes = await fetch('/api/tri_risk');
+          const triData = await triRes.json();
+          if (triData && triData.length > 0) {
+            renderTriRiskCard(triData[triData.length - 1]);
+          }
+        } catch (e) {
+          console.warn("Could not load tri-perspective risk data:", e);
+        }
       } catch (e) {
         console.error("Error loading intelligence:", e);
       }
@@ -2486,6 +2598,83 @@
       if (arbiterSyn) arbiterSyn.innerText = deb.arbiter_synthesis || '-';
       if (invalLabel && deb.invalidation_price) {
         invalLabel.innerText = `Invalidasi: $${Number(deb.invalidation_price).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}`;
+      }
+    }
+
+    function renderTriRiskCard(tri) {
+      if (!tri) return;
+      const agg = tri.aggressive || {};
+      const neu = tri.neutral || {};
+      const con = tri.conservative || {};
+      const fm = tri.fund_manager || {};
+
+      const aggScore = agg.score !== undefined ? agg.score : 50;
+      const neuScore = neu.score !== undefined ? neu.score : 50;
+      const conScore = con.score !== undefined ? con.score : 50;
+
+      const targetLabel = document.getElementById('tri-target-label');
+      if (targetLabel) targetLabel.innerText = `${tri.symbol || 'BTC'} (${tri.side || 'BUY'})`;
+
+      const enginePill = document.getElementById('tri-engine-pill');
+      if (enginePill && tri.engine) {
+        enginePill.innerText = tri.engine.includes('LLM') ? 'TAURIC LLM' : 'QUANT MATRIX';
+      }
+
+      const verdictPill = document.getElementById('tri-verdict-pill');
+      if (verdictPill) {
+        verdictPill.innerText = fm.verdict || 'APPROVED_BALANCED';
+        if (fm.verdict === 'BLOCKED_RISK_LIMIT') verdictPill.className = 'pill-badge tangerine mono';
+        else if (fm.verdict === 'APPROVED_DEFENSIVE') verdictPill.className = 'pill-badge blue mono';
+        else verdictPill.className = 'pill-badge mint mono';
+      }
+
+      const scalePill = document.getElementById('tri-scale-pill');
+      if (scalePill) {
+        scalePill.innerText = `ALLOC: ${Number(fm.allocated_risk_scale || 1.0).toFixed(2)}x`;
+      }
+
+      // Aggressive column
+      const aggScoreEl = document.getElementById('tri-agg-score');
+      const aggBarEl = document.getElementById('tri-agg-bar');
+      const aggScaleEl = document.getElementById('tri-agg-scale');
+      const aggThesisEl = document.getElementById('tri-agg-thesis');
+      if (aggScoreEl) aggScoreEl.innerText = `${aggScore}%`;
+      if (aggBarEl) aggBarEl.style.width = `${aggScore}%`;
+      if (aggScaleEl) aggScaleEl.innerText = `Desired: ${Number(agg.desired_scale || 1.0).toFixed(2)}x`;
+      if (aggThesisEl) aggThesisEl.innerText = agg.thesis || '-';
+
+      // Neutral column
+      const neuScoreEl = document.getElementById('tri-neu-score');
+      const neuBarEl = document.getElementById('tri-neu-bar');
+      const neuScaleEl = document.getElementById('tri-neu-scale');
+      const neuThesisEl = document.getElementById('tri-neu-thesis');
+      if (neuScoreEl) neuScoreEl.innerText = `${neuScore}%`;
+      if (neuBarEl) neuBarEl.style.width = `${neuScore}%`;
+      if (neuScaleEl) neuScaleEl.innerText = `Kelly: ${Number(neu.half_kelly_pct || 1.5).toFixed(1)}% | ${Number(neu.desired_scale || 1.0).toFixed(2)}x`;
+      if (neuThesisEl) neuThesisEl.innerText = neu.thesis || '-';
+
+      // Conservative column
+      const conScoreEl = document.getElementById('tri-con-score');
+      const conBarEl = document.getElementById('tri-con-bar');
+      const conScaleEl = document.getElementById('tri-con-scale');
+      const conThesisEl = document.getElementById('tri-con-thesis');
+      if (conScoreEl) conScoreEl.innerText = `${conScore}%`;
+      if (conBarEl) conBarEl.style.width = `${conScore}%`;
+      if (conScaleEl) conScaleEl.innerText = `Defense: ${Number(con.desired_scale || 0.6).toFixed(2)}x`;
+      if (conThesisEl) conThesisEl.innerText = con.thesis || '-';
+
+      // Fund Manager Adjudication
+      const fmSynEl = document.getElementById('tri-fm-synthesis');
+      const stopProfEl = document.getElementById('tri-stop-profile');
+      const compScoreEl = document.getElementById('tri-composite-score');
+      const weightsEl = document.getElementById('tri-weights-label');
+
+      if (fmSynEl) fmSynEl.innerText = fm.synthesis || '-';
+      if (stopProfEl) stopProfEl.innerText = `SL Policy: ${fm.stop_loss_profile || 'ATR_TRAILING'}`;
+      if (compScoreEl) compScoreEl.innerText = `Composite: ${fm.composite_risk_score || 70}/100`;
+      if (weightsEl && fm.regime_weights) {
+        const w = fm.regime_weights;
+        weightsEl.innerText = `Weights: Agg ${(w.aggressive*100).toFixed(0)}% | Neu ${(w.neutral*100).toFixed(0)}% | Con ${(w.conservative*100).toFixed(0)}%`;
       }
     }
 

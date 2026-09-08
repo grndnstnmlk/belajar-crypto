@@ -180,6 +180,14 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
      * **`ADJUST_RISK`**: Kompromi kehati-hatian $\rightarrow$ ukuran risiko otomatis dipotong ke 50%.
      * **`VETO`**: Bear mengekspos risiko fatal $\rightarrow$ eksekusi dibatalkan demi proteksi modal.
    * Mendukung mode ganda (*Dual-Engine*): **Cognitive LLM** (Gemini/OpenAI/DeepSeek/Groq) dan **Deterministic Quant Matrix** (< 5ms). Transkrip debat dapat dipantau langsung di tab Market Intelligence dashboard.
+8. **Tauric Tri-Perspective Risk Balancing (TradingAgents CRO Protocol)**:
+   * Mengadopsi arsitektur tata kelola risiko multi-perspektif **Tauric Research** (*TradingAgents*, arXiv:2412.20138).
+   * Setelah setup lolos debat Bull vs Bear, tiga perwira risiko spesialis mengevaluasi kelayakan posisi secara serentak:
+     * 🟢 **Aggressive Risk Officer**: Mengevaluasi peluang pertumbuhan alpha & asimetri return ($R:R \ge 2.5$, momentum ADX, keyakinan Bull). Mengusulkan skala modal agresif ($1.0\times - 1.25\times$) dalam batas aman bursa.
+     * 🔵 **Neutral Risk Officer**: Menjadi jangkar kuantitatif objektif berbasis *Half-Kelly Criterion* ($f^*$), rasio ekspektasi statistik ($EV$), dan normalisasi volatilitas ATR. Mengusulkan skala proporsional ($0.60\times - 1.0\times$).
+     * 🔴 **Conservative Risk Officer**: Menegakkan prinsip preservasi modal (*capital preservation*), mengawasi margin bebas, penumpukan posisi searah (*directional clustering*), dan potensi *tail-risk drawdown*. Mengusulkan pemangkasan defensif ($0.25\times - 0.50\times$) atau VETO total jika risiko melampaui batas aman.
+     * 🏛️ **Fund Manager (Chief Risk Officer Synthesis)**: Menimbang ketiga pandangan dengan pembobotan dinamis adaptif (bobot konservatif melonjak ke 60% bila portofolio sedang tertekan), menetapkan skor komposit (0-100), skala alokasi akhir, profil Stop Loss (`ATR_TRAILING`, `TIGHT_BREAKEVEN`, atau `RUNNER_EXPANSION`), serta vonis izin (`APPROVED_OPTIMAL`, `APPROVED_BALANCED`, `APPROVED_DEFENSIVE`, atau `BLOCKED_RISK_LIMIT`).
+   * Tersedia visualisasi 3-bar dinamis dan kartu adjudikasi Fund Manager pada tab *Market Intelligence* di Web Dashboard.
 
 ---
 

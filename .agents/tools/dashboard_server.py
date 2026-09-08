@@ -253,6 +253,13 @@ def get_dashboard_feed_data(force_refresh=False):
     except Exception:
         feed["recent_debates"] = []
 
+    # Tauric Tri-Perspective Risk Balancing (TradingAgents Protocol)
+    try:
+        import tri_perspective_risk
+        feed["recent_tri_risk"] = tri_perspective_risk.load_tri_risk_history(limit=5)
+    except Exception:
+        feed["recent_tri_risk"] = []
+
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     _feed_cache = feed
@@ -506,6 +513,15 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
         elif path == "/api/debate":
             import adversarial_debate
             data = adversarial_debate.load_debate_history(limit=15)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/tri_risk":
+            import tri_perspective_risk
+            data = tri_perspective_risk.load_tri_risk_history(limit=15)
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()

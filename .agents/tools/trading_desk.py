@@ -1018,6 +1018,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                         "long_count": len([p for p in active_positions if float(p.get("positionAmt", 0)) > 0]),
                         "short_count": len([p for p in active_positions if float(p.get("positionAmt", 0)) < 0])
                     },
+                    "active_positions": active_positions,
+                    "free_margin_ratio": max(0.1, min(1.0, (available_usd / balance_usd))) if balance_usd > 0 else 0.85,
                     "market_regime": btc_regime
                 }
                 try:
@@ -1045,6 +1047,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                     deb = ai_audit["adversarial_debate"]
                     print(f" * 🐂 vs 🐻 [Tauric Debate]: Bull {deb.get('bull_score')}% vs Bear {deb.get('bear_score')}% | Arbiter: {deb.get('verdict')} ({deb.get('winner')})")
                     print(f"   Arbiter    : {deb.get('arbiter_synthesis')}")
+
+                if ai_audit.get("tri_perspective_risk"):
+                    tri = ai_audit["tri_perspective_risk"]
+                    agg_s = tri.get("aggressive", {}).get("score", 0)
+                    neu_s = tri.get("neutral", {}).get("score", 0)
+                    con_s = tri.get("conservative", {}).get("score", 0)
+                    fm = tri.get("fund_manager", {})
+                    print(f" * ⚖️ [Tri-Risk Balance]: 🟢 Agg {agg_s}% | 🔵 Neu {neu_s}% | 🔴 Con {con_s}% -> CRO: {fm.get('verdict')} ({fm.get('allocated_risk_scale', 1.0):.2f}x)")
+                    print(f"   CRO Plan   : {fm.get('synthesis')}")
+                    if fm.get("stop_loss_profile"):
+                        best["stop_loss_profile"] = fm["stop_loss_profile"]
 
                 if ai_audit["decision"] == "VETO":
                     print(f" 🚨 [AI OFFICER VETO] Setup {best['symbol']} diveto oleh AI: {ai_audit['thesis']}")

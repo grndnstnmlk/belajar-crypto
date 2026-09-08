@@ -221,6 +221,16 @@ def notify_trade_opened(trade, quantity, risk_budget_usd, is_demo=True):
             bear_s = deb.get("bear_score", 0)
             ai_line += f"🐂 vs 🐻 <b>Tauric Debate:</b> <code>Bull {bull_s}% vs Bear {bear_s}% [{winner}]</code>\n"
 
+        tri = ai_audit.get("tri_perspective_risk")
+        if tri:
+            fm = tri.get("fund_manager", {})
+            v = fm.get("verdict", "APPROVED")
+            sc = float(fm.get("allocated_risk_scale", 1.0))
+            agg = tri.get("aggressive", {}).get("score", 0)
+            neu = tri.get("neutral", {}).get("score", 0)
+            con = tri.get("conservative", {}).get("score", 0)
+            ai_line += f"⚖️ <b>Tri-Risk Balance:</b> <code>🟢 Agg {agg}% | 🔵 Neu {neu}% | 🔴 Con {con}% [{v} - {sc:.2f}x]</code>\n"
+
     is_scalp = trade.get("is_scalp", False)
     header_title = "⚡ <b>EKSEKUSI 5m FAST SCALP - BINANCE FUTURES</b>" if is_scalp else "🚀 <b>EKSEKUSI ORDER BINANCE FUTURES</b>"
     scalp_badge = "⚡ <b>Tipe Setup:</b> <code>5m Micro Scalp (Target: 15-30m | BE: +0.60R)</code>\n" if is_scalp else ""
@@ -295,6 +305,21 @@ def notify_ai_officer_veto(trade, ai_audit):
             f"• <b>Putusan Arbiter:</b> <i>{synthesis}</i>\n"
         )
 
+    tri = ai_audit.get("tri_perspective_risk")
+    tri_section = ""
+    if tri:
+        fm = tri.get("fund_manager", {})
+        agg = tri.get("aggressive", {}).get("score", 0)
+        neu = tri.get("neutral", {}).get("score", 0)
+        con = tri.get("conservative", {}).get("score", 0)
+        tri_syn = html.escape(fm.get("synthesis", ""))
+        tri_section = (
+            f"━━━━━━━━━━━━━━━━━━\n"
+            f"⚖️ <b>TAURIC TRI-PERSPECTIVE RISK TEAM:</b>\n"
+            f"• Skor: 🟢 <b>Agg {agg}%</b> | 🔵 <b>Neu {neu}%</b> | 🔴 <b>Con {con}%</b>\n"
+            f"• <b>Fund Manager:</b> <i>{tri_syn}</i>\n"
+        )
+
     msg = (
         f"🛡️ <b>AI QUANT OFFICER — SETUP DIVETO!</b>\n"
         f"<i>Reviewer: {html.escape(provider)}</i>\n"
@@ -304,6 +329,7 @@ def notify_ai_officer_veto(trade, ai_audit):
         f"📝 <b>Alasan Veto:</b>\n{thesis}\n\n"
         f"⚠️ <b>Faktor Risiko Utama:</b>\n{risks}\n"
         f"{debate_section}"
+        f"{tri_section}"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"💡 <i>Modal terlindungi! Autopilot membatalkan eksekusi order ini untuk mencegah potensi jebakan manipulasi wick/dump.</i>"
     )
