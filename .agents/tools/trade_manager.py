@@ -631,7 +631,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
             t_data["highest_r_reached"] = round(r_multiple, 2)
 
         # -------------------------------------------------------------
-        # STEP 0: TIME-STOP CHECK FOR SCALP TRADES (Max 45 Menit)
+        # STEP 0: TIME-STOP CHECK FOR SCALP TRADES (Safeguard: Never force-close in minus!)
         # -------------------------------------------------------------
         if t_data.get("is_scalp"):
             opened_at = t_data.get("opened_at", "")
@@ -640,7 +640,10 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     fmt = "%Y-%m-%d %H:%M:%S" if len(opened_at) > 16 else "%Y-%m-%d %H:%M"
                     op_dt = datetime.strptime(opened_at, fmt)
                     elapsed_min = (datetime.now() - op_dt).total_seconds() / 60.0
-                    if elapsed_min >= 45.0 and r_multiple < 0.5:
+                    # Proteksi: Jangan pernah force-close posisi yang sedang minus/floating red.
+                    # Biarkan posisi bernafas hingga menyentuh Stop Loss terukur atau memantul ke Take Profit.
+                    # Hanya tutup jika posisi sudah flat / untung tipis stagnan (0.0 <= r_multiple < 0.35) setelah 90 menit.
+                    if elapsed_min >= 90.0 and (0.0 <= r_multiple < 0.35):
                         close_side = "SELL" if amt > 0 else "BUY"
                         binance_client.send_signed_request(
                             "/fapi/v1/order",
@@ -655,14 +658,14 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                             is_demo=is_demo,
                             user_email=user_email
                         )
-                        print(f"⏱️ [SCALP TIME-STOP] {sym}: Ditutup otomatis setelah {int(elapsed_min)} menit (Stagnan).")
+                        print(f"⏱️ [SCALP STAGNANT CLOSE] {sym}: Ditutup setelah {int(elapsed_min)} menit (Stagnan di Breakeven/Untung Tipis +{r_multiple:.2f}R).")
                         try:
                             telegram_notifier.send_telegram_broadcast(
-                                f"⏱️ *SCALP TIME-STOP EXECUTED* ⏱️\n"
+                                f"⏱️ *STAGNANT TRADE CLOSED (CAPITAL REALLOCATION)* ⏱️\n"
                                 f"Aset: *{sym}*\n"
-                                f"Durasi Aktif: *{int(elapsed_min)} menit* (Batas: 45m)\n"
-                                f"PnL: *${upnl:+,.2f} USDT*\n"
-                                f"Posisi ditutup otomatis demi menjaga perputaran modal kilat."
+                                f"Durasi Aktif: *{int(elapsed_min)} menit*\n"
+                                f"PnL: *${upnl:+,.2f} USDT* (+{r_multiple:.2f}R)\n"
+                                f"Posisi ditutup karena stagnan di zona aman untuk memutar modal ke setup baru."
                             )
                         except Exception:
                             pass
@@ -954,8 +957,9 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
         # STEP 2A: SMC STRUCTURAL TRAILING STOP (Akademi Crypto Module 02)
         # Trails behind confirmed Protected Higher Lows (Long) or Lower Highs (Short)
         # with asset-specific anti-liquidity sweep buffers and strict one-way ratchet.
+        # Only activates once trade is solidly in profit (+0.80R+) or after TP1/BE lock.
         # -------------------------------------------------------------
-        if r_multiple >= 0.25 or t_data.get("breakeven_locked") or t_data.get("tp1_taken"):
+        if r_multiple >= 0.80 or t_data.get("breakeven_locked") or t_data.get("tp1_taken"):
             try:
                 has_struct_stop, struct_sl, struct_label = market_structure.get_protected_structural_stop(
                     symbol=sym,
