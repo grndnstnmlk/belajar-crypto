@@ -150,7 +150,10 @@ def calculate_confluence_score(setup, session_info=None):
     if "FVG" in setup.get("reason", "") or setup.get("is_fvg"):
         struct_pts += 12
         reasons.append("Fair Value Gap Retest")
-    if "4H-Range" in setup.get("strategy", "") or "4H Range" in setup.get("reason", ""):
+    if "IFVG" in setup.get("strategy", "") or "Inverse FVG" in setup.get("strategy", ""):
+        struct_pts += 24
+        reasons.append("Inverse FVG Role Reversal (ICT Manipulation)")
+    elif "4H-Range" in setup.get("strategy", "") or "4H Range" in setup.get("reason", ""):
         struct_pts += 22
         reasons.append("4H Range Boundary Liquidity Trap")
     elif is_scalp:

@@ -3,9 +3,10 @@ Fast Scalper Engine (5m / 15m High-Frequency Protocol)
 Designed for short-duration trades (15 to 35 minutes completion) using:
 1. 5m ICT Rejection Block & 50% Mean Threshold Bounce
 2. 5m 4H-Range Breakout & Re-Entry Failure (YouTube Scalper Strategy)
-3. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
-4. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
-5. 5m Volume Surge Momentum Breakout
+3. 5m Inverse Fair Value Gap (IFVG) Liquidity Scalp (YouTube Manipulation Strategy)
+4. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
+5. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
+6. 5m Volume Surge Momentum Breakout
 Includes Fast Breakeven (+0.60R), Scale-Out (+1.25R), and 20-Minute Anti-Stall Time-Stop.
 """
 
@@ -522,6 +523,179 @@ def scan_4h_range_reentry_scalp(symbol, candles_5m, range_4h=None):
     return None
 
 # =====================================================================
+# STRATEGY 6: 5m Inverse Fair Value Gap (IFVG) Liquidity Scalp
+# Reference: "The PERFECT SCALPING Strategy That Actually Works..." (YouTube vK28i-qy8Ec)
+# =====================================================================
+def detect_candlestick_fvgs(candles, min_gap_pct=0.0006):
+    """
+    Scans a sequence of candles and identifies all standard 3-candle Fair Value Gaps.
+    Returns list of:
+    {
+        "type": "BULLISH" | "BEARISH",
+        "idx": int (index of the third candle closing the gap),
+        "low": float,
+        "high": float,
+        "gap_size": float,
+        "gap_pct": float,
+        "time": str
+    }
+    """
+    fvgs = []
+    if len(candles) < 3:
+        return fvgs
+
+    for i in range(2, len(candles)):
+        c0 = candles[i - 2]
+        c1 = candles[i - 1]
+        c2 = candles[i]
+        c1_mid = (c1["high"] + c1["low"]) / 2.0
+
+        # Bullish FVG: c0 high < c2 low
+        if c0["high"] < c2["low"]:
+            gap_size = c2["low"] - c0["high"]
+            gap_pct = gap_size / max(c1_mid, 0.0001)
+            if gap_pct >= min_gap_pct:
+                fvgs.append({
+                    "type": "BULLISH",
+                    "idx": i,
+                    "low": c0["high"],
+                    "high": c2["low"],
+                    "gap_size": gap_size,
+                    "gap_pct": gap_pct,
+                    "time": c2.get("time", "")
+                })
+
+        # Bearish FVG: c0 low > c2 high
+        elif c0["low"] > c2["high"]:
+            gap_size = c0["low"] - c2["high"]
+            gap_pct = gap_size / max(c1_mid, 0.0001)
+            if gap_pct >= min_gap_pct:
+                fvgs.append({
+                    "type": "BEARISH",
+                    "idx": i,
+                    "low": c2["high"],
+                    "high": c0["low"],
+                    "gap_size": gap_size,
+                    "gap_pct": gap_pct,
+                    "time": c2.get("time", "")
+                })
+
+    return fvgs
+
+def scan_5m_inverse_fvg_scalp(symbol, candles_5m):
+    """
+    Detects Liquidity Sweep + Manipulation + Inverse Fair Value Gap (IFVG) Reversal:
+    1. Finds prior FVGs within recent 15 candles.
+    2. Confirms aggressive inversion: a subsequent candle closes body through the FVG.
+       - Bearish FVG broken upwards by close > fvg_high -> Bullish IFVG
+       - Bullish FVG broken downwards by close < fvg_low  -> Bearish IFVG
+    3. Confirms Retest / Price Acceptance within the IFVG boundary.
+    4. Places Stop Loss at manipulation sweep extreme.
+    5. Sets strict 1:2.0 R:R Take Profit (2R).
+    """
+    if len(candles_5m) < 18:
+        return None
+
+    # Scan for recent FVGs
+    all_fvgs = detect_candlestick_fvgs(candles_5m)
+    if not all_fvgs:
+        return None
+
+    curr = candles_5m[-1]
+    curr_c = curr["close"]
+    curr_h = curr["high"]
+    curr_l = curr["low"]
+
+    # Consider FVGs that formed at least 2 candles ago (up to 14 candles ago)
+    recent_fvgs = [f for f in all_fvgs if (len(candles_5m) - 1 - f["idx"]) >= 2 and (len(candles_5m) - 1 - f["idx"]) <= 14]
+
+    # Check from newest to oldest FVG
+    for fvg in reversed(recent_fvgs):
+        fvg_idx = fvg["idx"]
+        fvg_low = fvg["low"]
+        fvg_high = fvg["high"]
+        post_candles = candles_5m[fvg_idx + 1:]
+
+        # --- CASE 1: BEARISH FVG -> BULLISH IFVG (LONG SETUP) ---
+        if fvg["type"] == "BEARISH":
+            # Check if any candle closed above fvg_high (Inversion penetration)
+            inversion_candles = [c for c in post_candles[:-1] if c["close"] > fvg_high]
+            if inversion_candles:
+                # Retest check: current candle dipped into or is resting at IFVG zone
+                touched_ifvg = (curr_l <= fvg_high * 1.0015)
+                held_above_base = (curr_c >= fvg_low * 0.9985)
+
+                if touched_ifvg and held_above_base:
+                    # Find manipulation sweep low before the breakout
+                    sweep_low = min(c["low"] for c in candles_5m[fvg_idx:])
+                    entry = curr_c
+                    sl = round(min(sweep_low, fvg_low) * 0.9990, 4)
+                    r_dist = entry - sl
+
+                    if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
+                        tp = round(entry + (r_dist * 2.0), 4)
+                        return {
+                            "symbol": symbol,
+                            "side": "LONG",
+                            "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+                            "entry": entry,
+                            "sl": sl,
+                            "tp": tp,
+                            "r_dist": round(r_dist, 4),
+                            "rr_ratio": 2.0,
+                            "is_scalp": True,
+                            "is_mean_reversion_or_sweep": True,
+                            "macro_aligned": True,
+                            "timeframe": "5m",
+                            "target_duration": "15-30 menit",
+                            "reason": (
+                                f"Bullish Inversion: Bearish FVG [${fvg_low:,.2f} - ${fvg_high:,.2f}] inverted by "
+                                f"displacement breakout. Retest confirmed at ${entry:,.2f} with sweep low @ ${sweep_low:,.2f}. Targeting 2R."
+                            )
+                        }
+
+        # --- CASE 2: BULLISH FVG -> BEARISH IFVG (SHORT SETUP) ---
+        elif fvg["type"] == "BULLISH":
+            # Check if any candle closed below fvg_low (Inversion penetration)
+            inversion_candles = [c for c in post_candles[:-1] if c["close"] < fvg_low]
+            if inversion_candles:
+                # Retest check: current candle pulled up into or is resting at IFVG zone
+                touched_ifvg = (curr_h >= fvg_low * 0.9985)
+                held_below_top = (curr_c <= fvg_high * 1.0015)
+
+                if touched_ifvg and held_below_top:
+                    # Find manipulation sweep high before the breakdown
+                    sweep_high = max(c["high"] for c in candles_5m[fvg_idx:])
+                    entry = curr_c
+                    sl = round(max(sweep_high, fvg_high) * 1.0010, 4)
+                    r_dist = sl - entry
+
+                    if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
+                        tp = round(entry - (r_dist * 2.0), 4)
+                        if tp > 0:
+                            return {
+                                "symbol": symbol,
+                                "side": "SHORT",
+                                "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+                                "entry": entry,
+                                "sl": sl,
+                                "tp": tp,
+                                "r_dist": round(r_dist, 4),
+                                "rr_ratio": 2.0,
+                                "is_scalp": True,
+                                "is_mean_reversion_or_sweep": True,
+                                "macro_aligned": True,
+                                "timeframe": "5m",
+                                "target_duration": "15-30 menit",
+                                "reason": (
+                                    f"Bearish Inversion: Bullish FVG [${fvg_low:,.2f} - ${fvg_high:,.2f}] inverted by "
+                                    f"displacement breakdown. Retest confirmed at ${entry:,.2f} with sweep high @ ${sweep_high:,.2f}. Targeting 2R."
+                                )
+                            }
+
+    return None
+
+# =====================================================================
 # TIME-STOP & FAST BREAKEVEN EVALUATOR
 # =====================================================================
 def evaluate_scalp_time_stop(entry_time_str, current_profit_r, max_minutes=45):
@@ -564,17 +738,22 @@ def scan_symbol_scalp(symbol):
     if s_4h:
         return s_4h
 
-    # Priority 3: Liquidity Sweep & Micro FVG
+    # Priority 3: 5m Inverse FVG (IFVG) Liquidity Scalp (YouTube Manipulation Strategy)
+    s_ifvg = scan_5m_inverse_fvg_scalp(symbol, candles)
+    if s_ifvg:
+        return s_ifvg
+
+    # Priority 4: Liquidity Sweep & Micro FVG
     s1 = scan_5m_liquidity_sweep_fvg(symbol, candles)
     if s1:
         return s1
 
-    # Priority 4: VWAP ±2σ Extreme Mean-Reversion
+    # Priority 5: VWAP ±2σ Extreme Mean-Reversion
     s2 = scan_5m_vwap_mean_reversion(symbol, candles)
     if s2:
         return s2
 
-    # Priority 5: Volume Surge Momentum
+    # Priority 6: Volume Surge Momentum
     s3 = scan_5m_volume_surge_breakout(symbol, candles)
     if s3:
         return s3
