@@ -153,6 +153,9 @@ def calculate_confluence_score(setup, session_info=None):
     if "IFVG" in setup.get("strategy", "") or "Inverse FVG" in setup.get("strategy", ""):
         struct_pts += 24
         reasons.append("Inverse FVG Role Reversal (ICT Manipulation)")
+    elif "Akademi Crypto" in setup.get("strategy", "") or "Pocket" in setup.get("strategy", ""):
+        struct_pts += 24
+        reasons.append("Akademi Crypto High Win-Rate Blueprint (EMA 9/21 + Stoch)")
     elif "Rectangle" in setup.get("strategy", "") or "Break & Retest" in setup.get("strategy", ""):
         struct_pts += 23
         reasons.append("15m Rectangle Break & Retest (Mulham Sniper)")

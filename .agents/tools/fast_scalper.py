@@ -6,9 +6,10 @@ Designed for short-duration trades (15 to 35 minutes completion) using:
 3. 5m Inverse Fair Value Gap (IFVG) Liquidity Scalp (YouTube Manipulation Strategy)
 4. 5m 15m-Key-Level Rectangle Break & Retest (YouTube Mulham Sniper Strategy)
 5. 5m 20-EMA Dynamic Pullback Trap Scalp (YouTube Trader DNA 90% Win Rate Strategy)
-6. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
-7. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
-8. 5m Volume Surge Momentum Breakout
+6. 5m Akademi Crypto High Win-Rate Blueprint (EMA 9/21 + Stoch Pocket)
+7. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
+8. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
+9. 5m Volume Surge Momentum Breakout
 Includes Fast Breakeven (+0.60R), Scale-Out (+1.25R), and 20-Minute Anti-Stall Time-Stop.
 """
 
@@ -1050,6 +1051,163 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
                     )
                 }
 
+# =====================================================================
+# STRATEGY 9: 5m Akademi Crypto High Win-Rate Scalping Blueprint
+# Reference: Akademi Crypto Curriculum & "Strategi Scalping Crypto Win Rate Tinggi"
+# =====================================================================
+def calc_stochastic(candles, k_period=14, d_period=3):
+    """
+    Calculates 14-period Stochastic Oscillator (%K and %D with d_period SMA smoothing).
+    Returns dict {"k": float, "d": float, "prev_k": float, "prev_d": float}.
+    """
+    if len(candles) < k_period + d_period:
+        return None
+
+    raw_k = []
+    start_idx = max(0, len(candles) - (d_period + 1))
+    for i in range(start_idx, len(candles)):
+        window = candles[max(0, i - k_period + 1) : i + 1]
+        highest_h = max(c["high"] for c in window)
+        lowest_l = min(c["low"] for c in window)
+        curr_c = candles[i]["close"]
+        hl_range = max(highest_h - lowest_l, 0.00001)
+        k_val = ((curr_c - lowest_l) / hl_range) * 100.0
+        raw_k.append(k_val)
+
+    if len(raw_k) < d_period + 1:
+        return None
+
+    curr_k = raw_k[-1]
+    prev_k = raw_k[-2]
+    curr_d = sum(raw_k[-d_period:]) / float(d_period)
+    prev_d = sum(raw_k[-d_period - 1 : -1]) / float(d_period)
+
+    return {
+        "k": round(curr_k, 2),
+        "d": round(curr_d, 2),
+        "prev_k": round(prev_k, 2),
+        "prev_d": round(prev_d, 2)
+    }
+
+def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
+    """
+    Akademi Crypto Standard High Win-Rate Scalping Blueprint:
+    1. Multi-Timeframe Institutional Trend Alignment (15m Context + 50 EMA).
+    2. 5m EMA Dynamic Pocket: Fast EMA 9 (momentum) vs Base EMA 21 (equilibrium).
+    3. Momentum Oscillator Filter: Stochastic 14,3,3 in Oversold/Overbought zone.
+       - LONG: Price pulls into EMA 9/21 pocket while Stoch %K <= 35 or bullish hook (%K > %D).
+       - SHORT: Price rallies into EMA 9/21 pocket while Stoch %K >= 65 or bearish hook (%K < %D).
+    4. Price Action Rejection: Confirmation candle bouncing out of the pocket.
+    5. Strict 1:2.0 R:R (2R) with Micro-Breakeven (+0.60R) protection.
+    """
+    if len(candles_5m) < 25:
+        return None
+
+    closes = [c["close"] for c in candles_5m]
+    ema9_s = calc_ema_series(closes, 9)
+    ema21_s = calc_ema_series(closes, 21)
+    ema50_s = calc_ema_series(closes, 50)
+
+    if not ema9_s or not ema21_s or not ema50_s:
+        return None
+
+    stoch = calc_stochastic(candles_5m, k_period=14, d_period=3)
+    if not stoch:
+        return None
+
+    curr = candles_5m[-1]
+    curr_c = curr["close"]
+    curr_o = curr["open"]
+    curr_h = curr["high"]
+    curr_l = curr["low"]
+
+    curr_ema9 = ema9_s[-1]
+    curr_ema21 = ema21_s[-1]
+    curr_ema50 = ema50_s[-1]
+
+    ctx = get_15m_context(symbol)
+    m15_bias = ctx.get("bias", "NEUTRAL")
+
+    pullback_window = candles_5m[-5:]
+
+    # --- CASE 1: AKADEMI CRYPTO BULLISH SCALP (LONG SETUP) ---
+    is_bullish_trend = (curr_ema9 >= curr_ema21) and (curr_ema21 >= curr_ema50 * 0.9975)
+    if is_bullish_trend and m15_bias != "BEARISH":
+        tested_pocket = any(
+            c["low"] <= ema9_s[-(5 - idx)] * 1.0015 and c["low"] >= ema21_s[-(5 - idx)] * 0.9960
+            for idx, c in enumerate(pullback_window)
+        )
+        # Stochastic confirmation: %K in oversold (<= 40) or hooked up out of oversold (prev_k <= 35)
+        stoch_confirmed = (stoch["k"] <= 40.0) or (stoch["prev_k"] <= 35.0) or (stoch["k"] >= stoch["d"] and stoch["prev_k"] <= 45.0)
+        is_bullish_bounce = (curr_c > curr_o) and (curr_c >= curr_ema9 * 0.9990)
+
+        if tested_pocket and stoch_confirmed and is_bullish_bounce:
+            pocket_low = min(c["low"] for c in pullback_window)
+            entry = curr_c
+            sl = round(min(curr_ema21, pocket_low) * 0.9990, 4)
+            r_dist = round(entry - sl, 4)
+
+            if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
+                tp = round(entry + (r_dist * 2.0), 4)
+                return {
+                    "symbol": symbol,
+                    "side": "LONG",
+                    "strategy": "5m Akademi Crypto High Win-Rate Scalp",
+                    "entry": entry,
+                    "sl": sl,
+                    "tp": tp,
+                    "r_dist": round(r_dist, 4),
+                    "rr_ratio": 2.0,
+                    "is_scalp": True,
+                    "is_mean_reversion_or_sweep": True,
+                    "macro_aligned": True,
+                    "timeframe": "5m",
+                    "target_duration": "15-30 menit",
+                    "reason": (
+                        f"Akademi Crypto Pocket Bounce: Tested EMA 9/21 dynamic pocket (${curr_ema21:,.2f}-${curr_ema9:,.2f}) "
+                        f"with Stoch %K @ {stoch['k']:.1f} (prev %K @ {stoch['prev_k']:.1f} Oversold Hook). Bullish close @ ${entry:,.2f}, targeting 2R (${tp:,.2f})."
+                    )
+                }
+
+    # --- CASE 2: AKADEMI CRYPTO BEARISH SCALP (SHORT SETUP) ---
+    is_bearish_trend = (curr_ema9 <= curr_ema21) and (curr_ema21 <= curr_ema50 * 1.0025)
+    if is_bearish_trend and m15_bias != "BULLISH":
+        tested_pocket = any(
+            c["high"] >= ema9_s[-(5 - idx)] * 0.9985 and c["high"] <= ema21_s[-(5 - idx)] * 1.0040
+            for idx, c in enumerate(pullback_window)
+        )
+        # Stochastic confirmation: %K in overbought (>= 60) or hooked down out of overbought (prev_k >= 65)
+        stoch_confirmed = (stoch["k"] >= 60.0) or (stoch["prev_k"] >= 65.0) or (stoch["k"] <= stoch["d"] and stoch["prev_k"] >= 55.0)
+        is_bearish_bounce = (curr_c < curr_o) and (curr_c <= curr_ema9 * 1.0010)
+
+        if tested_pocket and stoch_confirmed and is_bearish_bounce:
+            pocket_high = max(c["high"] for c in pullback_window)
+            entry = curr_c
+            sl = round(max(curr_ema21, pocket_high) * 1.0010, 4)
+            r_dist = round(sl - entry, 4)
+
+            if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
+                tp = round(entry - (r_dist * 2.0), 4)
+                return {
+                    "symbol": symbol,
+                    "side": "SHORT",
+                    "strategy": "5m Akademi Crypto High Win-Rate Scalp",
+                    "entry": entry,
+                    "sl": sl,
+                    "tp": tp,
+                    "r_dist": round(r_dist, 4),
+                    "rr_ratio": 2.0,
+                    "is_scalp": True,
+                    "is_mean_reversion_or_sweep": True,
+                    "macro_aligned": True,
+                    "timeframe": "5m",
+                    "target_duration": "15-30 menit",
+                    "reason": (
+                        f"Akademi Crypto Pocket Rejection: Tested EMA 9/21 dynamic pocket (${curr_ema9:,.2f}-${curr_ema21:,.2f}) "
+                        f"with Stoch %K @ {stoch['k']:.1f} (prev %K @ {stoch['prev_k']:.1f} Overbought Hook). Bearish close @ ${entry:,.2f}, targeting 2R (${tp:,.2f})."
+                    )
+                }
+
     return None
 
 def scan_symbol_scalp(symbol):
@@ -1085,17 +1243,22 @@ def scan_symbol_scalp(symbol):
     if s_ema:
         return s_ema
 
-    # Priority 6: Liquidity Sweep & Micro FVG
+    # Priority 6: 5m Akademi Crypto High Win-Rate Blueprint (EMA 9/21 + Stoch Pocket)
+    s_ac = scan_5m_akademi_crypto_scalp(symbol, candles)
+    if s_ac:
+        return s_ac
+
+    # Priority 7: Liquidity Sweep & Micro FVG
     s1 = scan_5m_liquidity_sweep_fvg(symbol, candles)
     if s1:
         return s1
 
-    # Priority 7: VWAP ±2σ Extreme Mean-Reversion
+    # Priority 8: VWAP ±2σ Extreme Mean-Reversion
     s2 = scan_5m_vwap_mean_reversion(symbol, candles)
     if s2:
         return s2
 
-    # Priority 8: Volume Surge Momentum
+    # Priority 9: Volume Surge Momentum
     s3 = scan_5m_volume_surge_breakout(symbol, candles)
     if s3:
         return s3
