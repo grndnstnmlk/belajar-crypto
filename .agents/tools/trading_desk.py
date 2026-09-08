@@ -98,6 +98,90 @@ def get_asset_sweep_buffer(symbol):
     else:  # High beta / meme / sensitive: DOGE, ADA, SUI, XRP
         return 0.016  # 1.6% (absorbs stop hunt wicks)
 
+def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
+    """
+    Dynamic Universe Screener:
+    Fetches real-time 24h ticker data from Binance Vision, filters for valid Binance Futures USDT pairs,
+    excludes stablecoins & leveraged tokens, and ranks assets by 24h quote volume & momentum.
+    Guarantees foundational benchmark assets (BTC, ETH, SOL) are always included.
+    """
+    anchor_coins = ["BTC", "ETH", "SOL"]
+    stables = {"USDCUSDT", "FDUSDUSDT", "TUSDUSDT", "BUSDUSDT", "EURUSDT", "DAIUSDT", "AEURUSDT", "USDSUSDT"}
+
+    try:
+        req = urllib.request.Request(
+            "https://data-api.binance.vision/api/v3/ticker/24hr",
+            headers={"User-Agent": "Mozilla/5.0"}
+        )
+        with urllib.request.urlopen(req, timeout=5, context=SSL_CTX) as resp:
+            tickers = json.loads(resp.read().decode("utf-8"))
+
+        futures_info = binance_client.get_exchange_info(is_demo=is_demo) or {}
+
+        usdt_tickers = [
+            t for t in tickers
+            if t.get("symbol", "").endswith("USDT")
+            and t["symbol"] not in stables
+            and not t["symbol"].startswith("UP")
+            and not t["symbol"].startswith("DOWN")
+            and (t["symbol"] in futures_info if futures_info else True)
+        ]
+
+        usdt_tickers.sort(key=lambda x: float(x.get("quoteVolume", 0)), reverse=True)
+
+        screened = []
+        for t in usdt_tickers:
+            sym_clean = t["symbol"].replace("USDT", "")
+            if sym_clean not in screened:
+                screened.append(sym_clean)
+            if len(screened) >= top_n:
+                break
+
+        final_list = list(anchor_coins)
+        for c in screened:
+            if c not in final_list:
+                final_list.append(c)
+            if len(final_list) >= top_n:
+                break
+
+        return final_list
+    except Exception as e:
+        print(f" * [Dynamic Screener Note] Fallback to default watchlist: {e}")
+        return DEFAULT_WATCHLIST
+
+def get_adaptive_kelly_risk_pct(base_risk_pct=1.5, min_risk=0.5, max_risk=2.0):
+    """
+    Module 03 Quantitative Risk Sizing (Adaptive Half-Kelly Formula):
+    Dynamically adjusts risk budget according to empirical statistical edge from historical ledger.
+    Scales down risk when win rate or profit factor drops; scales up (capped at max_risk) during high edge.
+    """
+    try:
+        import quant_risk_engine
+        metrics = quant_risk_engine.compute_historical_trade_metrics()
+        total_trades = metrics.get("total_trades", 0)
+        half_kelly = metrics.get("kelly_fraction", 0.0)
+        profit_factor = metrics.get("profit_factor", 0.0)
+        win_rate = metrics.get("win_rate_pct", 0.0)
+
+        if total_trades >= 10:
+            if profit_factor < 1.0 or win_rate < 35.0:
+                scaled_risk = max(min_risk, base_risk_pct * 0.60)
+                status = f"Defensive Cut (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
+            elif half_kelly > 0:
+                kelly_factor = min(1.5, max(0.6, half_kelly / 0.10))
+                scaled_risk = base_risk_pct * kelly_factor
+                status = f"Half-Kelly {half_kelly:.2f} (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
+            else:
+                scaled_risk = max(min_risk, base_risk_pct * 0.70)
+                status = f"Safe Baseline (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
+
+            final_risk = round(min(max_risk, max(min_risk, scaled_risk)), 2)
+            return final_risk, status
+    except Exception as e:
+        pass
+
+    return base_risk_pct, "Standard Fixed (1.50%)"
+
 def log_desk_activity(entry):
     os.makedirs(DATA_DIR, exist_ok=True)
     history = []
@@ -635,9 +719,15 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
     max_risk_pct = params.get("max_risk_per_trade_pct", 1.5)
     target_user, _, _, _, mode_label, _ = binance_client.resolve_credentials(user_email, is_demo)
 
-    active_watchlist = symbols if symbols else DEFAULT_WATCHLIST
+    active_watchlist = symbols if symbols else get_dynamic_futures_watchlist(top_n=12, is_demo=is_demo)
     session_info = session_filter.get_current_session_info()
     is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
+
+    # Launch High-Frequency Fast Position Watcher Thread if not running
+    try:
+        trade_manager.start_fast_watcher(user_email=user_email, is_demo=is_demo)
+    except Exception:
+        pass
 
     timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("\n" + "=" * 68)
@@ -836,9 +926,12 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, 
                     print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP ---")
                     print(f"  {port_msg}")
                     continue
-                effective_risk_pct = portfolio_guard.get_scaled_risk_pct(best["side"], active_positions, max_risk_pct)
+                base_risk = best.get("risk_pct", max_risk_pct)
+                kelly_risk, kelly_status = get_adaptive_kelly_risk_pct(base_risk_pct=base_risk)
+                effective_risk_pct = portfolio_guard.get_scaled_risk_pct(best["side"], active_positions, kelly_risk)
             except Exception:
                 effective_risk_pct = max_risk_pct
+                kelly_status = "Fallback"
 
             # Anti-Martingale Cold-Streak Circuit Breaker (Module 03)
             if cold_streak_mult < 1.0:

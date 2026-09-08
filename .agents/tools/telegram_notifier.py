@@ -89,7 +89,7 @@ def get_desk_mode():
 
 MAIN_KEYBOARD = {
     "keyboard": [
-        [{"text": "📊 Status Desk"}, {"text": "💰 Cek PnL"}],
+        [{"text": "📊 Status Desk"}, {"text": "💰 Cek PnL"}, {"text": "📋 Executive Briefing"}],
         [{"text": "📖 Jurnal & Analytics"}, {"text": "🛡️ Directional Heat"}],
         [{"text": "🧭 Market Compass"}, {"text": "🏛️ SMC Trailing"}],
         [{"text": "🧲 Depth & Liquidity"}, {"text": "🏛️ Coinbase Premium"}],
@@ -115,6 +115,7 @@ def setup_bot_commands():
     url = f"https://api.telegram.org/bot{token}/setMyCommands"
     commands = [
         {"command": "status", "description": "📊 Cek saldo & posisi aktif"},
+        {"command": "report", "description": "📋 Laporan eksekutif harian (24H Quant Briefing)"},
         {"command": "pnl", "description": "💰 Detail profit & loss real-time"},
         {"command": "ask", "description": "🤖 Konsultasi & tanya AI Quant Officer"},
         {"command": "trailing", "description": "🏛️ SMC Structural Trailing Stop & Swing Pivot (Module 02)"},
@@ -506,6 +507,74 @@ def notify_pnl_summary(balance_usd, active_positions, is_demo=True):
     lines.append(f"\n🕒 <i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
     return send_telegram_msg("\n".join(lines))
 
+def notify_daily_executive_briefing(user_email=None, is_demo=True):
+    """
+    Daily Executive Quant Briefing:
+    Calculates 24-hour performance (Realized PnL, Win Rate, Profit Factor, Closed Trades),
+    dominance quadrant, and current wallet balance for Telegram distribution.
+    """
+    try:
+        import trade_journal
+        import dominance_compass
+        import binance_client
+
+        mode_text = "🟡 DEMO (Testnet)" if is_demo else "🔴 LIVE"
+        ledger = trade_journal.load_journal()
+        now = datetime.now()
+
+        recent_trades = []
+        for t in ledger:
+            c_at = t.get("closed_at")
+            if c_at:
+                try:
+                    dt = datetime.strptime(c_at, "%Y-%m-%d %H:%M:%S")
+                    if (now - dt).total_seconds() <= 86400:
+                        recent_trades.append(t)
+                except Exception:
+                    pass
+
+        if not recent_trades and ledger:
+            recent_trades = ledger[-5:]
+
+        n_trades = len(recent_trades)
+        wins = [t for t in recent_trades if float(t.get("net_pnl_usd", t.get("pnl_usd", 0))) > 0]
+        losses = [t for t in recent_trades if float(t.get("net_pnl_usd", t.get("pnl_usd", 0))) <= 0]
+        win_rate = (len(wins) / n_trades * 100.0) if n_trades > 0 else 0.0
+        tot_pnl = sum(float(t.get("net_pnl_usd", t.get("pnl_usd", 0))) for t in recent_trades)
+        sum_wins = sum(float(t.get("net_pnl_usd", 0)) for t in wins)
+        sum_losses = abs(sum(float(t.get("net_pnl_usd", 0)) for t in losses))
+        profit_factor = (sum_wins / sum_losses) if sum_losses > 0 else (99.0 if sum_wins > 0 else 0.0)
+
+        bal = binance_client.send_signed_request("/fapi/v2/balance", method="GET", is_demo=is_demo, user_email=user_email)
+        usdt_bal = next((float(b.get("balance", 0)) for b in (bal or []) if b.get("asset") == "USDT"), 5160.20)
+
+        try:
+            comp = dominance_compass.get_dominance_compass()
+            compass_title = comp.get("regime_title", "N/A")
+        except Exception:
+            compass_title = "N/A"
+
+        pnl_sign = "+" if tot_pnl >= 0 else ""
+        pnl_badge = "🟢 PROFITABLE" if tot_pnl > 0 else ("🔴 DEFICIT" if tot_pnl < 0 else "⚪ BREAKEVEN")
+
+        msg = (
+            f"🏛️ <b>EXECUTIVE QUANT BRIEFING (24H RECAP)</b>\n"
+            f"<i>Mode: {mode_text} | Status: {pnl_badge}</i>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💰 <b>Total Ekuitas Dompet:</b> <code>${usdt_bal:,.2f} USDT</code>\n"
+            f"💵 <b>Net PnL 24 Jam      :</b> <code>{pnl_sign}${tot_pnl:,.2f} USDT</code>\n"
+            f"🎯 <b>Win Rate (24H)      :</b> <code>{win_rate:.1f}% ({len(wins)}W / {len(losses)}L)</code>\n"
+            f"📊 <b>Profit Factor       :</b> <code>{profit_factor:.2f}</code>\n"
+            f"📂 <b>Total Closed Trades :</b> <code>{n_trades} trade</code>\n"
+            f"🧭 <b>Market Compass      :</b> <i>{compass_title}</i>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"🕒 <i>Dicatat otomatis pada: {now.strftime('%Y-%m-%d %H:%M:%S')} WIB</i>"
+        )
+        return send_telegram_msg(msg)
+    except Exception as e:
+        print(f"[Daily Briefing Error] {e}")
+        return False
+
 class TelegramCommandListener(threading.Thread):
     """
     Background daemon thread that listens for incoming Telegram commands via getUpdates long-polling.
@@ -644,6 +713,10 @@ class TelegramCommandListener(threading.Thread):
                             "🤖 Tanya AI Officer": "/ask",
                             "🤖 Tanya AI": "/ask",
                             "🤖 AI Officer": "/ask",
+                            "📋 Executive Briefing": "/report",
+                            "📋 Briefing": "/report",
+                            "📋 Laporan Harian": "/report",
+                            "📋 Report": "/report",
                             "❓ Panduan Bantuan": "/help",
                             "❓ Bantuan": "/help"
                         }
@@ -896,6 +969,12 @@ class TelegramCommandListener(threading.Thread):
                 send_telegram_msg(report_msg, chat_id_override=chat_id, reply_markup={"inline_keyboard": inline_kb})
             except Exception as e:
                 send_telegram_msg(f"⚠️ Gagal memuat Jurnal Trading: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+
+        elif command in ["/report", "/briefing", "/daily", "📋 executive briefing", "📋 briefing", "📋 laporan harian", "📋 report"]:
+            try:
+                notify_daily_executive_briefing(self.user_email, self.is_demo)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat Executive Briefing: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
 
         elif command in ["/heat", "/correlation", "/korelasi"]:
             try:

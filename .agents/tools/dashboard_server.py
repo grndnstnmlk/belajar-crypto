@@ -665,6 +665,157 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path == "/api/webhook/tradingview":
+            """
+            TradingView External Signal Gateway:
+            Receives JSON alerts from TradingView Pine Script / Alerts.
+            Validates with internal Risk Guardrails (News, Dominance, Heat) before execution.
+            """
+            try:
+                raw_sym = payload.get("symbol") or payload.get("ticker")
+                raw_action = (payload.get("action") or payload.get("side") or payload.get("order_action") or "").upper()
+                price = float(payload.get("price") or payload.get("close") or 0.0)
+                sl = float(payload.get("sl") or payload.get("stop_loss") or 0.0)
+                tp = float(payload.get("tp") or payload.get("take_profit") or 0.0)
+                strategy = payload.get("strategy") or "TradingView Alert"
+                is_demo = payload.get("is_demo", True)
+
+                if not raw_sym or not raw_action:
+                    self.send_response(400)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "Missing symbol or action in TradingView payload"}).encode("utf-8"))
+                    return
+
+                base_sym = raw_sym.upper().replace("USDT", "").replace("-", "").replace("/", "").replace("_", "")
+                target_sym = f"{base_sym}USDT"
+                side = "BUY" if raw_action in ["BUY", "LONG"] else "SELL"
+
+                # 1. Check News Blackout Guardrail
+                is_blk, blk_reason, _ = macro_news_shield.audit_news_blackout(buffer_minutes=30)
+                if is_blk:
+                    self.send_response(423)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": f"Macro News Blackout Active: {blk_reason}"}).encode("utf-8"))
+                    return
+
+                # 2. Check Active Positions & Directional Heat
+                pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=is_demo)
+                active_positions = [p for p in (pos or []) if float(p.get("positionAmt", 0)) != 0]
+                if len(active_positions) >= 3:
+                    self.send_response(429)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "Max open positions (3) reached. Margin guarded."}).encode("utf-8"))
+                    return
+
+                # 3. Check live price if not provided
+                if price <= 0:
+                    ticker_data = market_eyes.fetch_ticker_data(base_sym)
+                    price = float(ticker_data.get("price", 0.0)) if ticker_data else 0.0
+
+                if price <= 0:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": f"Unable to fetch live price for {target_sym}"}).encode("utf-8"))
+                    return
+
+                # Dynamic SL if not given
+                r_dist = abs(price - sl) if sl > 0 else 0.0
+                if sl <= 0 or r_dist <= 0:
+                    buf = market_structure.get_asset_sweep_buffer(target_sym)
+                    sl = round(price * (1.0 - buf) if side == "BUY" else price * (1.0 + buf), 4)
+                    r_dist = abs(price - sl)
+
+                # Dynamic TP if not given (Min 1:2.5 R:R)
+                if tp <= 0:
+                    tp = round(price + (r_dist * 2.5) if side == "BUY" else price - (r_dist * 2.5), 4)
+
+                # 4. Financials & Position Sizing
+                import trading_desk
+                bal_usd, avail_usd = trading_desk.get_account_financials(is_demo=is_demo)
+                kelly_risk, _ = trading_desk.get_adaptive_kelly_risk_pct(base_risk_pct=1.5)
+                cold_mult = trading_desk.get_drawdown_risk_multiplier(lookback_trades=2)
+                eff_risk = round(kelly_risk * cold_mult, 2)
+
+                risk_budget = bal_usd * (eff_risk / 100.0)
+                sl_pct = abs(price - sl) / price
+                pos_usd = min(risk_budget / max(sl_pct, 0.005), avail_usd * 0.75 * 5.0)
+                raw_qty = pos_usd / price
+                qty = float(binance_client.format_qty_precision(target_sym, raw_qty, is_demo=is_demo))
+
+                # 5. Place Futures Order via Limit-Chase (Maker fee savings)
+                order_res = binance_client.place_futures_order(
+                    symbol=target_sym,
+                    side=side,
+                    quantity=qty,
+                    leverage=5,
+                    sl=sl,
+                    tp=tp,
+                    is_demo=is_demo,
+                    exec_mode="LIMIT_CHASE"
+                )
+
+                if order_res and order_res.get("orderId"):
+                    trade_manager.record_trade_entry(
+                        symbol=target_sym,
+                        side=side,
+                        entry_price=price,
+                        sl_price=sl,
+                        tp_price=tp,
+                        risk_budget_usd=risk_budget,
+                        quantity=qty,
+                        is_scalp=True,
+                        ai_thesis=f"External TradingView Webhook: {strategy}"
+                    )
+                    try:
+                        telegram_notifier.notify_trade_opened(
+                            {
+                                "symbol": target_sym,
+                                "side": "LONG" if side == "BUY" else "SHORT",
+                                "price": price,
+                                "sl": sl,
+                                "tp": tp,
+                                "rr": abs(tp - price) / r_dist if r_dist > 0 else 2.5,
+                                "reason": f"📡 TRADINGVIEW WEBHOOK: {strategy}"
+                            },
+                            quantity=qty,
+                            risk_budget_usd=risk_budget,
+                            is_demo=is_demo
+                        )
+                    except Exception:
+                        pass
+
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        "success": True,
+                        "orderId": order_res.get("orderId"),
+                        "symbol": target_sym,
+                        "side": side,
+                        "quantity": qty,
+                        "price": price,
+                        "sl": sl,
+                        "tp": tp,
+                        "strategy": strategy
+                    }).encode("utf-8"))
+                    return
+                else:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "Order placement rejected by Binance"}).encode("utf-8"))
+                    return
+            except Exception as tv_err:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(tv_err)}).encode("utf-8"))
+                return
+
         self.send_response(404)
         self.end_headers()
 

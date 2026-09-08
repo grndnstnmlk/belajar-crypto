@@ -8,6 +8,7 @@ import json
 import math
 import os
 import sys
+import threading
 import time
 from datetime import datetime
 
@@ -1055,3 +1056,46 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
 
     save_trade_metadata(meta)
     return management_events
+
+_FAST_WATCHER_THREAD = None
+
+class FastPositionWatcher(threading.Thread):
+    """
+    High-Frequency Fast Position Risk Daemon (8s poll interval).
+    Specifically monitors open Binance Futures positions to execute immediate Breakeven lock (+1.0R / +1.5R)
+    and Take Profit 1 scale-out without waiting for the full CEO desk cycle.
+    Automatically idles with zero overhead when no positions are active.
+    """
+    def __init__(self, user_email=None, is_demo=True, interval_seconds=8):
+        super().__init__(daemon=True, name="FastPositionWatcher")
+        self.user_email = user_email
+        self.is_demo = is_demo
+        self.interval = interval_seconds
+        self.running = True
+
+    def run(self):
+        while self.running:
+            try:
+                meta = load_trade_metadata()
+                if meta:
+                    pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=self.is_demo, user_email=self.user_email)
+                    active = [p for p in (pos or []) if float(p.get("positionAmt", 0)) != 0]
+                    if active:
+                        events = audit_and_manage_positions(user_email=self.user_email, is_demo=self.is_demo)
+                        if events:
+                            for ev in events:
+                                print(f"⚡ [Fast Position Watcher] {ev}")
+            except Exception:
+                pass
+            time.sleep(self.interval)
+
+    def stop(self):
+        self.running = False
+
+def start_fast_watcher(user_email=None, is_demo=True, interval_seconds=8):
+    global _FAST_WATCHER_THREAD
+    if _FAST_WATCHER_THREAD is None or not _FAST_WATCHER_THREAD.is_alive():
+        _FAST_WATCHER_THREAD = FastPositionWatcher(user_email=user_email, is_demo=is_demo, interval_seconds=interval_seconds)
+        _FAST_WATCHER_THREAD.start()
+        print(f"⚡ [Fast Position Watcher] Daemon pengawas posisi frekuensi tinggi aktif (Interval: {interval_seconds}s).")
+    return _FAST_WATCHER_THREAD
