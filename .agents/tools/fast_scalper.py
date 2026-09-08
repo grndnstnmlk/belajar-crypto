@@ -4,9 +4,10 @@ Designed for short-duration trades (15 to 35 minutes completion) using:
 1. 5m ICT Rejection Block & 50% Mean Threshold Bounce
 2. 5m 4H-Range Breakout & Re-Entry Failure (YouTube Scalper Strategy)
 3. 5m Inverse Fair Value Gap (IFVG) Liquidity Scalp (YouTube Manipulation Strategy)
-4. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
-5. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
-6. 5m Volume Surge Momentum Breakout
+4. 5m 15m-Key-Level Rectangle Break & Retest (YouTube Mulham Sniper Strategy)
+5. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
+6. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
+7. 5m Volume Surge Momentum Breakout
 Includes Fast Breakeven (+0.60R), Scale-Out (+1.25R), and 20-Minute Anti-Stall Time-Stop.
 """
 
@@ -696,6 +697,213 @@ def scan_5m_inverse_fvg_scalp(symbol, candles_5m):
     return None
 
 # =====================================================================
+# STRATEGY 7: 15m Key Level "Rectangle" Break & Retest (Mulham Sniper Scalp)
+# Reference: "My Simple 1 Minute Scalping Strategy (Sniper Entry)" (YouTube Y1r7fTJ0FZ8)
+# =====================================================================
+def fetch_15m_key_levels(symbol, limit=35):
+    """
+    Identifies high-probability horizontal key levels (swing highs & swing lows)
+    from 15m candles to establish structural boundaries for the 1m/5m scalper.
+    """
+    try:
+        sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
+        raw_15m = market_eyes.fetch_candles(sym_clean, bar="15m", limit=limit)
+        if not raw_15m or len(raw_15m) < 15:
+            return None
+
+        parsed = []
+        for c in raw_15m:
+            parsed.append({
+                "high": float(c[2]),
+                "low": float(c[3]),
+                "close": float(c[4]),
+                "open": float(c[1])
+            })
+
+        swing_highs = []
+        swing_lows = []
+
+        for i in range(1, len(parsed) - 1):
+            if parsed[i]["high"] >= parsed[i-1]["high"] and parsed[i]["high"] >= parsed[i+1]["high"]:
+                swing_highs.append(parsed[i]["high"])
+            if parsed[i]["low"] <= parsed[i-1]["low"] and parsed[i]["low"] <= parsed[i+1]["low"]:
+                swing_lows.append(parsed[i]["low"])
+
+        if not swing_highs:
+            swing_highs = [max(p["high"] for p in parsed[:-2])]
+        if not swing_lows:
+            swing_lows = [min(p["low"] for p in parsed[:-2])]
+
+        # Cluster levels within 0.15% to deduplicate
+        def cluster_levels(levels, tol=0.0015):
+            if not levels:
+                return []
+            sorted_lvls = sorted(levels)
+            clusters = []
+            curr_cluster = [sorted_lvls[0]]
+            for l in sorted_lvls[1:]:
+                if (l - curr_cluster[-1]) / curr_cluster[-1] <= tol:
+                    curr_cluster.append(l)
+                else:
+                    clusters.append(sum(curr_cluster) / len(curr_cluster))
+                    curr_cluster = [l]
+            if curr_cluster:
+                clusters.append(sum(curr_cluster) / len(curr_cluster))
+            return [round(c, 4) for c in clusters]
+
+        return {
+            "highs": cluster_levels(swing_highs),
+            "lows": cluster_levels(swing_lows),
+            "latest_close": parsed[-1]["close"]
+        }
+    except Exception:
+        return None
+
+def scan_15m_rectangle_break_retest_scalp(symbol, candles_5m, levels_15m=None):
+    """
+    15m Key Level "Rectangle" Break & Retest Sniper Scalp (Mulham Trading):
+    1. Identifies HTF 15m structural Highs (Resistance) & Lows (Support).
+    2. Detects a 5m candle breaking cleanly through the 15m level.
+    3. Defines the "Rectangle" zone encompassing the key level and breakout body.
+    4. Confirms Retest + Rejection within the Rectangle (Role Reversal / S-to-R or R-to-S).
+    5. Sets invalidation Stop Loss just outside the Rectangle and Take Profit at strict 1:2.0 R:R (2R).
+    """
+    if len(candles_5m) < 18:
+        return None
+
+    if levels_15m is None:
+        levels_15m = fetch_15m_key_levels(symbol)
+
+    if not levels_15m:
+        return None
+
+    highs = levels_15m.get("highs", [])
+    lows = levels_15m.get("lows", [])
+    if not highs and not lows:
+        return None
+
+    curr = candles_5m[-1]
+    curr_c = curr["close"]
+    curr_o = curr["open"]
+    curr_h = curr["high"]
+    curr_l = curr["low"]
+
+    lookback = candles_5m[-14:-1]
+
+    # --- CASE 1: RESISTANCE BREAKOUT -> SUPPORT RETEST (LONG ENTRY) ---
+    for R in reversed(highs):
+        # Find 5m candles in lookback that closed above R
+        breakout_candidates = [
+            (idx, c) for idx, c in enumerate(lookback)
+            if c["close"] > R and c["close"] > c["open"]
+        ]
+        if breakout_candidates:
+            bo_sub_idx, bo_candle = breakout_candidates[0]
+            # Global index of breakout in candles_5m
+            bo_global_idx = (len(candles_5m) - 14) + bo_sub_idx
+
+            if bo_global_idx < len(candles_5m) - 1:
+                rect_top = round(max(bo_candle["close"], R * 1.0005), 4)
+                rect_bottom = round(min(bo_candle["open"], R * 0.9985), 4)
+
+                post_candles = candles_5m[bo_global_idx + 1:]
+                min_low = min(c["low"] for c in post_candles)
+                min_close = min(c["close"] for c in post_candles)
+
+                touched_rect = min_low <= rect_top * 1.0015
+                held_base = min_close >= rect_bottom * 0.9975
+
+                # Current candle rejection: closed above rect_bottom and bullish or long lower wick
+                lower_wick = curr_c - curr_l
+                full_range = max(curr_h - curr_l, 0.00001)
+                is_bullish_reaction = (curr_c > curr_o) or (lower_wick / full_range >= 0.40)
+
+                if touched_rect and held_base and is_bullish_reaction and curr_c >= rect_bottom:
+                    retest_low = min(c["low"] for c in post_candles)
+                    entry = curr_c
+                    sl = round(min(rect_bottom, retest_low) * 0.9990, 4)
+                    r_dist = entry - sl
+
+                    if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.045):
+                        tp = round(entry + (r_dist * 2.0), 4)
+                        return {
+                            "symbol": symbol,
+                            "side": "LONG",
+                            "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+                            "entry": entry,
+                            "sl": sl,
+                            "tp": tp,
+                            "r_dist": round(r_dist, 4),
+                            "rr_ratio": 2.0,
+                            "is_scalp": True,
+                            "is_mean_reversion_or_sweep": True,
+                            "macro_aligned": True,
+                            "timeframe": "5m",
+                            "target_duration": "15-35 menit",
+                            "reason": (
+                                f"15m Resistance (${R:,.2f}) broken & flipped to Support: Rectangle [${rect_bottom:,.2f} - ${rect_top:,.2f}] "
+                                f"retested with bullish rejection @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 2R (${tp:,.2f})."
+                            )
+                        }
+
+    # --- CASE 2: SUPPORT BREAKDOWN -> RESISTANCE RETEST (SHORT ENTRY) ---
+    for S in lows:
+        # Find 5m candles in lookback that closed below S
+        breakdown_candidates = [
+            (idx, c) for idx, c in enumerate(lookback)
+            if c["close"] < S and c["close"] < c["open"]
+        ]
+        if breakdown_candidates:
+            bd_sub_idx, bd_candle = breakdown_candidates[0]
+            bd_global_idx = (len(candles_5m) - 14) + bd_sub_idx
+
+            if bd_global_idx < len(candles_5m) - 1:
+                rect_top = round(max(bd_candle["open"], S * 1.0015), 4)
+                rect_bottom = round(min(bd_candle["close"], S * 0.9995), 4)
+
+                post_candles = candles_5m[bd_global_idx + 1:]
+                max_high = max(c["high"] for c in post_candles)
+                max_close = max(c["close"] for c in post_candles)
+
+                touched_rect = max_high >= rect_bottom * 0.9985
+                held_ceiling = max_close <= rect_top * 1.0025
+
+                # Current candle rejection: closed below rect_top and bearish or long upper wick
+                upper_wick = curr_h - curr_c
+                full_range = max(curr_h - curr_l, 0.00001)
+                is_bearish_reaction = (curr_c < curr_o) or (upper_wick / full_range >= 0.40)
+
+                if touched_rect and held_ceiling and is_bearish_reaction and curr_c <= rect_top:
+                    retest_high = max(c["high"] for c in post_candles)
+                    entry = curr_c
+                    sl = round(max(rect_top, retest_high) * 1.0010, 4)
+                    r_dist = sl - entry
+
+                    if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.045):
+                        tp = round(entry - (r_dist * 2.0), 4)
+                        return {
+                            "symbol": symbol,
+                            "side": "SHORT",
+                            "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+                            "entry": entry,
+                            "sl": sl,
+                            "tp": tp,
+                            "r_dist": round(r_dist, 4),
+                            "rr_ratio": 2.0,
+                            "is_scalp": True,
+                            "is_mean_reversion_or_sweep": True,
+                            "macro_aligned": True,
+                            "timeframe": "5m",
+                            "target_duration": "15-35 menit",
+                            "reason": (
+                                f"15m Support (${S:,.2f}) broken & flipped to Resistance: Rectangle [${rect_bottom:,.2f} - ${rect_top:,.2f}] "
+                                f"retested with bearish rejection @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 2R (${tp:,.2f})."
+                            )
+                        }
+
+    return None
+
+# =====================================================================
 # TIME-STOP & FAST BREAKEVEN EVALUATOR
 # =====================================================================
 def evaluate_scalp_time_stop(entry_time_str, current_profit_r, max_minutes=45):
@@ -743,17 +951,22 @@ def scan_symbol_scalp(symbol):
     if s_ifvg:
         return s_ifvg
 
-    # Priority 4: Liquidity Sweep & Micro FVG
+    # Priority 4: 15m Key Level Rectangle Break & Retest (YouTube Mulham Sniper Strategy)
+    s_rect = scan_15m_rectangle_break_retest_scalp(symbol, candles)
+    if s_rect:
+        return s_rect
+
+    # Priority 5: Liquidity Sweep & Micro FVG
     s1 = scan_5m_liquidity_sweep_fvg(symbol, candles)
     if s1:
         return s1
 
-    # Priority 5: VWAP ±2σ Extreme Mean-Reversion
+    # Priority 6: VWAP ±2σ Extreme Mean-Reversion
     s2 = scan_5m_vwap_mean_reversion(symbol, candles)
     if s2:
         return s2
 
-    # Priority 6: Volume Surge Momentum
+    # Priority 7: Volume Surge Momentum
     s3 = scan_5m_volume_surge_breakout(symbol, candles)
     if s3:
         return s3
