@@ -1,10 +1,12 @@
 """
 Fast Scalper Engine (5m / 15m High-Frequency Protocol)
-Designed for short-duration trades (15 to 45 minutes completion) using:
-1. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
-2. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
-3. 5m Volume Surge Momentum Breakout
-Includes Fast Breakeven (+0.7R) and 45-Minute Time-Stop Execution.
+Designed for short-duration trades (15 to 35 minutes completion) using:
+1. 5m ICT Rejection Block & 50% Mean Threshold Bounce
+2. 5m 4H-Range Breakout & Re-Entry Failure (YouTube Scalper Strategy)
+3. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
+4. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
+5. 5m Volume Surge Momentum Breakout
+Includes Fast Breakeven (+0.60R), Scale-Out (+1.25R), and 20-Minute Anti-Stall Time-Stop.
 """
 
 import json
@@ -381,6 +383,145 @@ def scan_rejection_block_scalp(symbol, candles_5m):
     return None
 
 # =====================================================================
+# STRATEGY 5: 4H Range Breakout & Re-Entry Failure (5m Scalper)
+# Reference: "The BEST 5 Minute Scalping Strategy Ever" (YouTube O5eC5lY7ZXY)
+# =====================================================================
+def fetch_4h_range(symbol):
+    """
+    Fetches the 4-hour key reference range (High & Low of previous completed 4H bar).
+    """
+    try:
+        sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
+        raw_4h = market_eyes.fetch_candles(sym_clean, bar="4h", limit=5)
+        if not raw_4h or len(raw_4h) < 2:
+            return None
+        # Previous completed 4H candle is at index -2
+        prev_4h = raw_4h[-2]
+        r_high = float(prev_4h[2])
+        r_low = float(prev_4h[3])
+        r_mid = round((r_high + r_low) / 2.0, 4)
+        return {
+            "high": r_high,
+            "low": r_low,
+            "mid": r_mid,
+            "candle_time": datetime.fromtimestamp(int(prev_4h[0]) / 1000).strftime("%Y-%m-%d %H:%M")
+        }
+    except Exception:
+        return None
+
+def scan_4h_range_reentry_scalp(symbol, candles_5m, range_4h=None):
+    """
+    4H Range Breakout & Re-Entry Failure (5m Scalp):
+    1. Identifies 4H Range High & Low.
+    2. Requires a recent 5m candle body to close completely OUTSIDE the 4H range (fakeout attempt).
+    3. Triggers when current/latest 5m candle closes back INSIDE the 4H range (failed auction).
+    4. Stop Loss placed at the extreme breakout swing wick.
+    5. Take Profit placed at strict 1:2.0 R:R (2R).
+    """
+    if len(candles_5m) < 20:
+        return None
+
+    if range_4h is None:
+        range_4h = fetch_4h_range(symbol)
+
+    if not range_4h:
+        return None
+
+    r_high = range_4h["high"]
+    r_low = range_4h["low"]
+
+    if r_high <= r_low:
+        return None
+
+    curr = candles_5m[-1]
+    curr_c = curr["close"]
+    curr_o = curr["open"]
+
+    # Lookback window for attempted breakout: last 8 candles before current
+    lookback = candles_5m[-9:-1]
+
+    # --- SETUP 1: BEARISH FAKEOUT AT 4H HIGH -> SHORT ENTRY ---
+    # At least one 5m candle closed above 4H High
+    closed_above = [c for c in lookback if c["close"] > r_high]
+    if closed_above:
+        # Current candle must close back inside (below 4H High)
+        if curr_c < r_high:
+            prev_was_above = candles_5m[-2]["close"] >= r_high
+            is_bearish_close = curr_c <= curr_o
+            if prev_was_above or is_bearish_close:
+                # Extreme fakeout wick
+                fakeout_high = max(c["high"] for c in candles_5m[-9:])
+                entry = curr_c
+                sl = round(fakeout_high * 1.0008, 4)
+                r_dist = sl - entry
+                
+                # Check stop width sanity (0.10% to 5.0%)
+                if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.050):
+                    tp = round(entry - (r_dist * 2.0), 4)
+                    if tp > 0:
+                        return {
+                            "symbol": symbol,
+                            "side": "SHORT",
+                            "strategy": "5m 4H-Range Breakout Re-entry",
+                            "entry": entry,
+                            "sl": sl,
+                            "tp": tp,
+                            "r_dist": round(r_dist, 4),
+                            "rr_ratio": 2.0,
+                            "is_scalp": True,
+                            "is_mean_reversion_or_sweep": True,
+                            "macro_aligned": True,
+                            "timeframe": "5m",
+                            "target_duration": "15-35 menit",
+                            "reason": (
+                                f"4H Range High (${r_high:,.2f}) Fakeout Failure: 5m candle body pushed outside "
+                                f"to ${fakeout_high:,.2f} then closed back inside at ${entry:,.2f}. "
+                                f"Targeting 2R reversal back into range."
+                            )
+                        }
+
+    # --- SETUP 2: BULLISH FAKEOUT AT 4H LOW -> LONG ENTRY ---
+    # At least one 5m candle closed below 4H Low
+    closed_below = [c for c in lookback if c["close"] < r_low]
+    if closed_below:
+        # Current candle must close back inside (above 4H Low)
+        if curr_c > r_low:
+            prev_was_below = candles_5m[-2]["close"] <= r_low
+            is_bullish_close = curr_c >= curr_o
+            if prev_was_below or is_bullish_close:
+                # Extreme fakeout wick
+                fakeout_low = min(c["low"] for c in candles_5m[-9:])
+                entry = curr_c
+                sl = round(fakeout_low * 0.9992, 4)
+                r_dist = entry - sl
+                
+                # Check stop width sanity (0.10% to 5.0%)
+                if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.050):
+                    tp = round(entry + (r_dist * 2.0), 4)
+                    return {
+                        "symbol": symbol,
+                        "side": "LONG",
+                        "strategy": "5m 4H-Range Breakout Re-entry",
+                        "entry": entry,
+                        "sl": sl,
+                        "tp": tp,
+                        "r_dist": round(r_dist, 4),
+                        "rr_ratio": 2.0,
+                        "is_scalp": True,
+                        "is_mean_reversion_or_sweep": True,
+                        "macro_aligned": True,
+                        "timeframe": "5m",
+                        "target_duration": "15-35 menit",
+                        "reason": (
+                            f"4H Range Low (${r_low:,.2f}) Fakeout Failure: 5m candle body pushed outside "
+                            f"to ${fakeout_low:,.2f} then closed back inside at ${entry:,.2f}. "
+                            f"Targeting 2R reversal back into range."
+                        )
+                    }
+
+    return None
+
+# =====================================================================
 # TIME-STOP & FAST BREAKEVEN EVALUATOR
 # =====================================================================
 def evaluate_scalp_time_stop(entry_time_str, current_profit_r, max_minutes=45):
@@ -418,17 +559,22 @@ def scan_symbol_scalp(symbol):
     if s_rb:
         return s_rb
 
-    # Priority 2: Liquidity Sweep & Micro FVG
+    # Priority 2: 4H Range Breakout & Re-Entry Failure (YouTube Scalper Strategy)
+    s_4h = scan_4h_range_reentry_scalp(symbol, candles)
+    if s_4h:
+        return s_4h
+
+    # Priority 3: Liquidity Sweep & Micro FVG
     s1 = scan_5m_liquidity_sweep_fvg(symbol, candles)
     if s1:
         return s1
 
-    # Priority 3: VWAP ±2σ Extreme Mean-Reversion
+    # Priority 4: VWAP ±2σ Extreme Mean-Reversion
     s2 = scan_5m_vwap_mean_reversion(symbol, candles)
     if s2:
         return s2
 
-    # Priority 4: Volume Surge Momentum
+    # Priority 5: Volume Surge Momentum
     s3 = scan_5m_volume_surge_breakout(symbol, candles)
     if s3:
         return s3

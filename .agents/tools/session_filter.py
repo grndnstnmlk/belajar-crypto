@@ -150,7 +150,10 @@ def calculate_confluence_score(setup, session_info=None):
     if "FVG" in setup.get("reason", "") or setup.get("is_fvg"):
         struct_pts += 12
         reasons.append("Fair Value Gap Retest")
-    if is_scalp:
+    if "4H-Range" in setup.get("strategy", "") or "4H Range" in setup.get("reason", ""):
+        struct_pts += 22
+        reasons.append("4H Range Boundary Liquidity Trap")
+    elif is_scalp:
         struct_pts += 20
         reasons.append("5m Micro-Structure Trigger")
 

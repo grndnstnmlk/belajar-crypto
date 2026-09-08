@@ -47,7 +47,7 @@ Trading desk memiliki 3 mode eksekusi yang dapat diganti sewaktu-waktu melalui C
 
 | Mode | Timeframe | Fokus Strategi | Alokasi Risiko | Target R:R | Karakteristik |
 | :--- | :---: | :--- | :---: | :---: | :--- |
-| **`SCALP`** | **5m** (Mikro) | Rejection Block, Liquidity Sweep, VWAP $\pm 2\sigma$, Volume Surge | **0.35% – 0.50%** (Micro-Kelly) | **1:1.50 – 1:2.50** | Eksekusi cepat, durasi 15–30 menit, Micro-BE (+0.60R), Time-Stop 20 menit |
+| **`SCALP`** | **5m** (Mikro) | Rejection Block, 4H-Range Re-entry (Failed Auction), Liquidity Sweep, VWAP $\pm 2\sigma$, Volume Surge | **0.35% – 0.50%** (Micro-Kelly) | **1:1.50 – 1:2.50** | Eksekusi cepat, durasi 15–35 menit, Micro-BE (+0.60R), Time-Stop 20 menit |
 | **`HYBRID`** *(Default)* | **5m + 1H** | Dual Engine: Menangkap Swing 1H sekaligus Scalp 5m | **0.50% s/d 1.05%** | **1:2.00 – 1:3.50** | Fleksibel: Eksekusi scalp kilat ke slot kosong saat menunggu setup swing matang |
 | **`SWING`** | **1H & 4H** (Makro) | SMC, Wyckoff Accumulation, Volume Profile VAH/VAL, FVG Retest | **1.05% – 1.50%** | **1:3.00 – 1:5.00+** | Menunggangi ekspansi tren besar multi-jam/hari, proteksi Chandelier Trailing |
 
