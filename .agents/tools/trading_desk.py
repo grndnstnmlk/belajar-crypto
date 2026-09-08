@@ -728,7 +728,7 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
 
     return candidates
 
-def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=3, symbols=None):
+def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, symbols=None):
     genome = load_genome()
     params = genome.get("parameters", {})
     min_rr = params.get("min_risk_reward", 2.0)
@@ -1276,7 +1276,7 @@ def main():
     run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID"], default="HYBRID", help="Set mode operasional desk (default: HYBRID)")
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 1 menit untuk HYBRID/SCALP, 15 menit untuk SWING)")
-    run_p.add_argument("--max-positions", type=int, default=3, help="Batas maksimal posisi aktif bersamaan (default: 3)")
+    run_p.add_argument("--max-positions", type=int, default=4, help="Batas maksimal posisi aktif bersamaan (default: 4)")
     run_p.add_argument("--user", type=str, default=None, help="Email akun (misal: dxmade@gmail.com)")
     run_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo Testnet)")
 
@@ -1299,7 +1299,7 @@ def main():
             print(f"🎯 Mode Operasional Desk diset ke: {state['mode']}")
 
         syms = [s.strip().upper() for s in args.symbols.split(",") if s.strip()] if getattr(args, "symbols", None) else None
-        max_pos = getattr(args, "max_positions", 3)
+        max_pos = getattr(args, "max_positions", 4)
         if args.once:
             run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms)
         else:

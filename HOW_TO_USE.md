@@ -167,6 +167,11 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
    * Menganalisis Funding Rate dan rasio Long/Short Coinglass. Jika ritel terlalu padat (*crowded longs/shorts*), bot otomatis membatalkan eksekusi untuk melindungi akun dari *liquidation squeeze dump*.
 5. **Macro News Blackout Shield**:
    * Otomatis menjeda pembukaan posisi 30 menit sebelum dan sesudah rilis berita ekonomi AS berbobot tinggi (CPI, NFP, FOMC, PPI).
+6. **Portfolio Correlation & Directional Heat Guard (Maksimal 4 Posisi)**:
+   * **Kapasitas Portofolio**: Maksimal 4 posisi aktif bersamaan (`MAX_TOTAL_POSITIONS = 4`).
+   * **Batas Posisi Searah (*Directional Cap*)**: Maksimal 3 posisi searah (misal: 3 Long atau 3 Short). Slot ke-4 dicadangkan khusus untuk Hedging (arah berlawanan) atau Cadangan Kas demi mencegah kerugian serentak (*quadruple-SL*) saat pasar berbalik arah secara drastis.
+   * **Cluster Altcoin Guard**: Maksimal 3 *High-Beta Altcoins* bersamaan guna mencegah over-konsentrasi pada token berkorelasi tinggi.
+   * **Dynamic Heat Scaling**: Alokasi risiko posisi ke-1 (100%), posisi ke-2 (75%), posisi ke-3 (50%), dan posisi ke-4 (35%) sehingga total risiko terarah kumulatif tetap aman dan terkendali.
 
 ---
 

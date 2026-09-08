@@ -24,9 +24,9 @@ CLUSTER_MAJORS = ["BTC", "ETH", "SOL"]
 CLUSTER_HIGH_BETA_ALTS = ["DOGE", "ADA", "AVAX", "LINK", "SUI", "XRP", "NEAR", "APT", "BNB"]
 
 # Configuration Rules
-MAX_TOTAL_POSITIONS = 3
-MAX_SAME_DIRECTION_CAP = 2      # Max 2 Longs or Max 2 Shorts simultaneously!
-MAX_HIGH_BETA_ALTS_TOTAL = 2   # Max 2 high-beta altcoins across portfolio
+MAX_TOTAL_POSITIONS = 4
+MAX_SAME_DIRECTION_CAP = 3      # Max 3 Longs or Max 3 Shorts simultaneously!
+MAX_HIGH_BETA_ALTS_TOTAL = 3   # Max 3 high-beta altcoins across portfolio
 
 def clean_coin(symbol):
     return symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
@@ -77,17 +77,17 @@ def audit_portfolio_heat(active_positions, balance_usd=5000.0):
     can_open_short = (total_active < MAX_TOTAL_POSITIONS) and (short_count < MAX_SAME_DIRECTION_CAP)
 
     # Correlation Warning Status
-    if long_count >= 3:
+    if long_count >= 4:
         heat_status = "🚨 EXTREME LONG OVER-EXPOSURE (Vulnerable to simultaneous BTC dump)"
         heat_code = "CRITICAL_LONG"
-    elif short_count >= 3:
+    elif short_count >= 4:
         heat_status = "🚨 EXTREME SHORT OVER-EXPOSURE (Vulnerable to short squeeze pump)"
         heat_code = "CRITICAL_SHORT"
-    elif long_count == 2 and short_count == 0:
-        heat_status = "⚠️ HIGH DIRECTIONAL LONG HEAT (Max 2 Longs reached | Slot 3 reserved for Short/Cash)"
+    elif long_count == 3 and short_count == 0:
+        heat_status = "⚠️ HIGH DIRECTIONAL LONG HEAT (Max 3 Longs reached | Slot 4 reserved for Short/Cash)"
         heat_code = "HIGH_LONG"
-    elif short_count == 2 and long_count == 0:
-        heat_status = "⚠️ HIGH DIRECTIONAL SHORT HEAT (Max 2 Shorts reached | Slot 3 reserved for Long/Cash)"
+    elif short_count == 3 and long_count == 0:
+        heat_status = "⚠️ HIGH DIRECTIONAL SHORT HEAT (Max 3 Shorts reached | Slot 4 reserved for Long/Cash)"
         heat_code = "HIGH_SHORT"
     elif long_count >= 1 and short_count >= 1:
         heat_status = "⚖️ HEDGED / BALANCED PORTFOLIO (Lower Systematic Drawdown Risk)"
@@ -182,11 +182,13 @@ def get_scaled_risk_pct(proposed_side, active_positions, base_risk_pct=1.5):
             active_in_side += 1
 
     if active_in_side == 0:
-        return base_risk_pct               # Posisi ke-1: 1.50%
+        return base_risk_pct               # Posisi ke-1: 100% (misal: 0.50% / 1.50%)
     elif active_in_side == 1:
-        return round(base_risk_pct * 0.67, 2)  # Posisi ke-2: 1.00% (Total: 2.50%)
+        return round(base_risk_pct * 0.75, 2)  # Posisi ke-2: 75%
+    elif active_in_side == 2:
+        return round(base_risk_pct * 0.50, 2)  # Posisi ke-3: 50%
     else:
-        return round(base_risk_pct * 0.50, 2)  # Posisi ke-3 (Hedge): 0.75%
+        return round(base_risk_pct * 0.35, 2)  # Posisi ke-4 (Hedge): 35%
 
 def format_telegram_portfolio_heat(active_positions, balance_usd=5000.0):
     """
@@ -212,11 +214,11 @@ def format_telegram_portfolio_heat(active_positions, balance_usd=5000.0):
         f"🔴 <b>Short Heat:</b> {short_bar} (<code>{audit['short_count']}/{audit['max_same_direction']} max</code>)\n"
         f"   • Posisi: <code>{short_str}</code>\n"
         f"   • Izin Short Baru: <b>{'✅ DIIZINKAN' if audit['can_open_short'] else '🔒 TERKUNCI (FULL)'}</b>\n\n"
-        f"🌐 <b>High-Beta Altcoins:</b> <code>{alts_str}</code> ({audit['high_beta_count']}/2 max)\n\n"
+        f"🌐 <b>High-Beta Altcoins:</b> <code>{alts_str}</code> ({audit['high_beta_count']}/{MAX_HIGH_BETA_ALTS_TOTAL} max)\n\n"
         f"🧭 <b>Status Kesehatan Portofolio:</b>\n"
         f"<b>{audit['heat_status']}</b>\n"
         f"━━━━━━━━━━━━━━━━━━\n"
-        f"💡 <i>Aturan Besi: Maksimal 2 posisi searah. Slot ke-3 dialokasikan khusus untuk Hedging atau Cadangan Kas agar terhindar dari kerugian serentak!</i>\n"
+        f"💡 <i>Aturan Besi: Maksimal {MAX_SAME_DIRECTION_CAP} posisi searah. Slot ke-{MAX_TOTAL_POSITIONS} dialokasikan khusus untuk Hedging atau Cadangan Kas agar terhindar dari kerugian serentak!</i>\n"
         f"🕒 <i>{audit['updated_at']}</i>"
     )
 
