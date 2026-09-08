@@ -870,6 +870,7 @@ class TelegramCommandListener(threading.Thread):
                 f"• <code>/analytics</code> : 📊 Analisis kuantitatif Win Rate, Profit Factor & Payoff Ratio\n"
                 f"• <code>/heat</code> : 🛡️ Directional Heat & Batas Korelasi Portofolio (Akademi Crypto Module 03)\n"
                 f"• <code>/compass</code> : 🧭 BTC.D & USDT.D Market Flow Compass (Akademi Crypto Module 01)\n"
+                f"• <code>/sentiment</code> : 🧭 Fear & Greed Index, Rotasi Sektor Narasi, & Trending Virality\n"
                 f"• <code>/heatmap [koin]</code> : 🧲 Liquidity Heatmap & Order Book Depth Imbalance (cth: <code>/heatmap btc</code>, <code>/depth sol</code>)\n"
                 f"• <code>/chart [koin] [tf]</code> : Snapshot visual candlestick chart (cth: <code>/chart btc</code>, <code>/chart sol 5m</code>)\n"
                 f"• <code>/coinalyze [koin]</code> : Sentimen Open Interest, Likuidasi 4H, & L/S Ratio (cth: <code>/coinalyze btc</code>, <code>/coinalyze doge</code>)\n"
@@ -1255,7 +1256,7 @@ class TelegramCommandListener(threading.Thread):
             except Exception as e:
                 send_telegram_msg(f"⚠️ Error saat membuat chart: {e}", chat_id_override=chat_id)
 
-        elif command in ["/coinglass", "/coinalyze", "/oi", "/sentiment"]:
+        elif command in ["/coinglass", "/coinalyze", "/oi"]:
             raw_sym = parts[1].upper() if len(parts) > 1 else "BTC"
             sym_clean = raw_sym.replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
             try:
@@ -1265,6 +1266,45 @@ class TelegramCommandListener(threading.Thread):
                 send_telegram_msg(report_msg, chat_id_override=chat_id)
             except Exception as e:
                 send_telegram_msg(f"⚠️ Gagal memuat data CoinGlass untuk {sym_clean}: {e}", chat_id_override=chat_id)
+
+        elif command in ["/sentiment", "/narrative", "/fng", "🧭 sentiment & narrative"]:
+            send_telegram_msg("🧭 <i>Memindai sentimen sosial, Fear & Greed, dan rotasi narasi...</i>", chat_id_override=chat_id)
+            try:
+                import sentiment_narrative_scanner
+                summary = sentiment_narrative_scanner.get_market_sentiment_narrative_summary()
+                fng = summary.get("fear_and_greed", {})
+                rot = summary.get("narrative_rotation", {})
+                vir = summary.get("social_virality", {})
+                lead = rot.get("leading_sector", {})
+
+                fng_score = fng.get("score", 50)
+                fng_icon = "🟢" if fng_score >= 55 else ("🔴" if fng_score <= 45 else "⚪")
+
+                sector_lines = []
+                for s in rot.get("sectors", [])[:5]:
+                    sign = "+" if s["avg_change_24h"] >= 0 else ""
+                    sector_lines.append(f"• {s['icon']} <b>{s['title']}</b>: <code>{sign}{s['avg_change_24h']:.2f}%</code> (vs BTC {s['relative_strength_vs_btc']:+.1f}%)")
+
+                trend_symbols = ", ".join([f"<code>{t['symbol']}</code>" for t in vir.get("trending_tokens", [])[:6]]) or "-"
+
+                msg = (
+                    f"🧭 <b>CRYPTO SENTIMENT & NARRATIVE SCANNER</b>\n"
+                    f"<i>Tauric Research Analyst Protocol</i>\n"
+                    f"━━━━━━━━━━━━━━━━━━\n"
+                    f"{fng_icon} <b>Fear & Greed Index:</b> <code>{fng_score}/100 [{fng.get('classification')}]</code>\n"
+                    f"💡 <i>Contrarian Signal: {fng.get('contrarian_note')}</i>\n\n"
+                    f"🌟 <b>Sektor Pemimpin Rotasi Modal:</b>\n"
+                    f"👉 {lead.get('icon')} <b>{lead.get('title')}</b> (24h: <code>{lead.get('avg_change_24h'):+.2f}%</code>)\n\n"
+                    f"📊 <b>Peringkat Rotasi Narasi (24h):</b>\n" + "\n".join(sector_lines) + f"\n\n"
+                    f"🔥 <b>Trending Search Virality:</b>\n"
+                    f"{trend_symbols}\n"
+                    f"📌 <i>Fase: {vir.get('virality_stage')} ({vir.get('stage_note')})</i>\n"
+                    f"━━━━━━━━━━━━━━━━━━\n"
+                    f"🕒 <i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} WIB</i>"
+                )
+                send_telegram_msg(msg, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memindai sentimen: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
 
         elif command in ["/coinbase", "/premium", "🏛️ coinbase premium"]:
             sym_arg = parts[1].upper() if len(parts) > 1 else "ALL"

@@ -1037,6 +1037,13 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                     ai_ctx["coinbase_premium"] = coinbase_premium.get_coinbase_premium(best.get("base", "BTC"))
                 except Exception:
                     pass
+                try:
+                    import sentiment_narrative_scanner
+                    ai_ctx["sentiment_summary"] = sentiment_narrative_scanner.get_market_sentiment_narrative_summary()
+                    ai_ctx["narrative_info"] = sentiment_narrative_scanner.get_token_narrative_info(best["symbol"])
+                    ai_ctx["fear_and_greed"] = ai_ctx["sentiment_summary"].get("fear_and_greed")
+                except Exception:
+                    pass
 
                 ai_audit = ai_risk_officer.audit_trade_setup(best, ai_ctx)
                 best["ai_audit"] = ai_audit
@@ -1058,6 +1065,11 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                     print(f"   CRO Plan   : {fm.get('synthesis')}")
                     if fm.get("stop_loss_profile"):
                         best["stop_loss_profile"] = fm["stop_loss_profile"]
+
+                if ai_audit.get("sentiment_narrative"):
+                    nar = ai_audit["sentiment_narrative"]
+                    lead_badge = "🌟 [LEADER SECTOR]" if nar.get("is_leading_sector") else f"Rank #{nar.get('sector_rank')}"
+                    print(f" * 🧭 [Narrative Radar]: {nar.get('sector_icon')} {nar.get('sector_title')} ({lead_badge} | {nar.get('relative_strength_vs_btc'):+.1f}% vs BTC)")
 
                 if ai_audit["decision"] == "VETO":
                     print(f" 🚨 [AI OFFICER VETO] Setup {best['symbol']} diveto oleh AI: {ai_audit['thesis']}")

@@ -1561,6 +1561,96 @@
               </div>
             </div>
           </div>
+
+          <!-- TAURIC RESEARCH SENTIMENT & SOCIAL NARRATIVE SCANNER -->
+          <div class="intel-card" style="grid-column: span 2;">
+            <div class="intel-card-header">
+              <div class="intel-card-title">
+                <span>🧭 Sentiment & Social Narrative Scanner (Tauric Analyst Protocol)</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="pill-badge mint mono" id="sentiment-posture-pill">BULLISH EXPANSION</span>
+                <span class="pill-badge blue mono" id="fng-score-pill">F&G: 69 [GREED]</span>
+                <span class="pill-badge mint mono" id="sentiment-composite-pill">MOOD SCORE: +16</span>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1.2fr 1fr; gap:12px;">
+              <!-- 1. Fear & Greed Radar -->
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:12px; font-weight:700; color:var(--color-text);">🎭 Crypto Fear & Greed</span>
+                  <span class="mono" id="fng-score-val" style="font-size:15px; font-weight:800; color:var(--color-mint);">69/100</span>
+                </div>
+
+                <!-- Gauge Bar -->
+                <div>
+                  <div style="background:linear-gradient(90deg, #ef4444 0%, #f97316 25%, #eab308 50%, #84cc16 75%, #22c55e 100%); border-radius:4px; height:8px; position:relative;">
+                    <div id="fng-needle" style="position:absolute; top:-3px; left:69%; width:4px; height:14px; background:#ffffff; border-radius:2px; box-shadow:0 0 6px rgba(0,0,0,0.8); transform:translateX(-50%);"></div>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:9.5px; color:var(--color-text-dim); margin-top:4px;">
+                    <span>Extreme Fear</span>
+                    <span>Neutral</span>
+                    <span>Extreme Greed</span>
+                  </div>
+                </div>
+
+                <!-- Contrarian Note -->
+                <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:4px; padding:8px; font-size:11px; line-height:1.4; color:var(--color-text-dim);" id="fng-contrarian-note">
+                  Memuat sinyal kontrarian...
+                </div>
+
+                <!-- 7-Day History Mini Sparkline -->
+                <div>
+                  <div style="font-size:10px; color:var(--color-text-dim); margin-bottom:4px;">Tren 7 Hari Terakhir:</div>
+                  <div id="fng-7d-track" style="display:flex; gap:4px; height:18px; align-items:flex-end;"></div>
+                </div>
+              </div>
+
+              <!-- 2. Narrative Sector Rotation Radar -->
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:12px; font-weight:700; color:var(--color-text);">🏛️ Rotasi Modal 6 Sektor Narasi</span>
+                  <span class="pill-badge mint" id="leading-sector-badge" style="font-size:9.5px; padding:2px 6px;">⚡ SOL/L1 LEADING</span>
+                </div>
+
+                <div id="narrative-sectors-list" style="display:flex; flex-direction:column; gap:6px;">
+                  <!-- Dynamic Sector Rows -->
+                </div>
+
+                <div id="narrative-rotation-thesis" style="font-size:10.5px; line-height:1.35; color:var(--color-text-dim); margin-top:2px; background:rgba(59,130,246,0.06); padding:6px 8px; border-radius:4px; border-left:2px solid var(--color-electric-blue);">
+                  Memuat analisis rotasi narasi...
+                </div>
+              </div>
+
+              <!-- 3. Social Virality & Catalyst Intelligence -->
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:12px; font-weight:700; color:var(--color-text);">🔥 Social Buzz & Virality</span>
+                  <span class="pill-badge blue mono" id="virality-stage-pill" style="font-size:9.5px; padding:2px 6px;">ORGANIC EXPANSION</span>
+                </div>
+
+                <!-- Trending Tokens Chips -->
+                <div>
+                  <div style="font-size:10px; color:var(--color-text-dim); margin-bottom:5px;">CoinGecko Global Search Trending:</div>
+                  <div id="trending-tokens-container" style="display:flex; flex-wrap:wrap; gap:4px;">
+                    <!-- Trending Chips -->
+                  </div>
+                </div>
+
+                <!-- Catalyst Intelligence -->
+                <div style="background:linear-gradient(90deg, rgba(99,102,241,0.08), rgba(59,130,246,0.05)); border:1px solid rgba(99,102,241,0.25); border-radius:4px; padding:8px; display:flex; flex-direction:column; gap:4px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:11px; font-weight:700; color:var(--color-cyan);">⚡ Katalis Pasar & Berita</span>
+                    <span class="pill-badge mint mono" id="catalyst-category-pill" style="font-size:9px; padding:1px 5px;">BULLISH</span>
+                  </div>
+                  <div id="catalyst-executive-note" style="font-size:10.5px; line-height:1.4; color:var(--color-text);">
+                    Memuat sintesis katalis...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2554,6 +2644,17 @@
         } catch (e) {
           console.warn("Could not load tri-perspective risk data:", e);
         }
+
+        // 10. Tauric Sentiment & Social Narrative Scanner (Tauric Analyst Protocol)
+        try {
+          const sentRes = await fetch('/api/sentiment');
+          const sentData = await sentRes.json();
+          if (sentData) {
+            renderSentimentCard(sentData);
+          }
+        } catch (e) {
+          console.warn("Could not load sentiment narrative data:", e);
+        }
       } catch (e) {
         console.error("Error loading intelligence:", e);
       }
@@ -2675,6 +2776,118 @@
       if (weightsEl && fm.regime_weights) {
         const w = fm.regime_weights;
         weightsEl.innerText = `Weights: Agg ${(w.aggressive*100).toFixed(0)}% | Neu ${(w.neutral*100).toFixed(0)}% | Con ${(w.conservative*100).toFixed(0)}%`;
+      }
+    }
+
+    function renderSentimentCard(sData) {
+      if (!sData) return;
+      const fng = sData.fear_and_greed || {};
+      const rot = sData.narrative_rotation || {};
+      const vir = sData.social_virality || {};
+      const cat = sData.catalyst_intelligence || {};
+
+      // Header pills
+      const posturePill = document.getElementById('sentiment-posture-pill');
+      const fngPill = document.getElementById('fng-score-pill');
+      const compPill = document.getElementById('sentiment-composite-pill');
+
+      if (posturePill) {
+        posturePill.innerText = (sData.market_posture || 'NEUTRAL').replace('_', ' ');
+        if (sData.market_posture === 'BULLISH_EXPANSION') posturePill.className = 'pill-badge mint mono';
+        else if (sData.market_posture === 'BEARISH_CONTRACTION') posturePill.className = 'pill-badge tangerine mono';
+        else posturePill.className = 'pill-badge blue mono';
+      }
+
+      if (fngPill && fng.score !== undefined) {
+        fngPill.innerText = `F&G: ${fng.score} [${(fng.classification || '').toUpperCase()}]`;
+      }
+
+      if (compPill) {
+        const cs = Number(sData.composite_sentiment_score || 0);
+        compPill.innerText = `MOOD SCORE: ${cs >= 0 ? '+' : ''}${cs}`;
+        compPill.className = cs >= 20 ? 'pill-badge mint mono' : (cs <= -20 ? 'pill-badge tangerine mono' : 'pill-badge blue mono');
+      }
+
+      // Fear & Greed Gauge & Notes
+      const fngValEl = document.getElementById('fng-score-val');
+      const fngNeedle = document.getElementById('fng-needle');
+      const fngNote = document.getElementById('fng-contrarian-note');
+      const fngTrack = document.getElementById('fng-7d-track');
+
+      const fScore = Number(fng.score || 50);
+      if (fngValEl) {
+        fngValEl.innerText = `${fScore}/100`;
+        fngValEl.style.color = fScore >= 60 ? 'var(--color-mint)' : (fScore <= 40 ? 'var(--color-tangerine)' : 'var(--color-electric-blue)');
+      }
+      if (fngNeedle) {
+        fngNeedle.style.left = `${Math.min(98, Math.max(2, fScore))}%`;
+      }
+      if (fngNote) {
+        fngNote.innerText = fng.contrarian_note || 'Sentimen pasar berimbang.';
+      }
+      if (fngTrack && fng.history_7d) {
+        fngTrack.innerHTML = fng.history_7d.slice(0, 7).reverse().map(h => {
+          const v = Number(h.value || 50);
+          const barColor = v >= 60 ? 'var(--color-mint)' : (v <= 40 ? 'var(--color-tangerine)' : 'var(--color-cyan)');
+          const heightPx = Math.max(4, Math.round((v / 100) * 18));
+          return `<div style="flex:1; height:${heightPx}px; background:${barColor}; border-radius:2px;" title="${h.value} (${h.classification})"></div>`;
+        }).join('');
+      }
+
+      // Narrative Sector Rotation List
+      const leadBadge = document.getElementById('leading-sector-badge');
+      const secList = document.getElementById('narrative-sectors-list');
+      const rotThesis = document.getElementById('narrative-rotation-thesis');
+
+      if (rot.leading_sector && leadBadge) {
+        leadBadge.innerText = `${rot.leading_sector.icon} ${rot.leading_sector.title.toUpperCase()} LEADING`;
+      }
+      if (rotThesis) {
+        rotThesis.innerText = rot.rotation_thesis || 'Rotasi sektor stabil.';
+      }
+      if (secList && rot.sectors) {
+        secList.innerHTML = rot.sectors.slice(0, 5).map((sec, idx) => {
+          const isLeader = idx === 0;
+          const chg = Number(sec.avg_change_24h || 0);
+          const chgSign = chg >= 0 ? '+' : '';
+          const chgColor = chg >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
+          const borderStyle = isLeader ? 'border:1px solid rgba(74,222,128,0.35); background:rgba(74,222,128,0.06);' : 'border:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02);';
+          return `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 8px; border-radius:4px; ${borderStyle} font-size:11px;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:13px;">${sec.icon}</span>
+                <span style="font-weight:600; color:var(--color-text);">${sec.title}</span>
+                ${isLeader ? '<span class="pill-badge mint mono" style="font-size:8.5px; padding:1px 4px;">#1 LEADER</span>' : ''}
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="mono" style="font-size:10px; color:var(--color-text-dim);">vs BTC ${sec.relative_strength_vs_btc >= 0 ? '+' : ''}${sec.relative_strength_vs_btc}%</span>
+                <b class="mono" style="color:${chgColor}; font-size:11px;">${chgSign}${chg.toFixed(2)}%</b>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Social Virality & Catalyst
+      const virPill = document.getElementById('virality-stage-pill');
+      const trendCont = document.getElementById('trending-tokens-container');
+      const catNote = document.getElementById('catalyst-executive-note');
+      const catPill = document.getElementById('catalyst-category-pill');
+
+      if (virPill) {
+        virPill.innerText = (vir.virality_stage || 'ORGANIC_EXPANSION').replace('_', ' ');
+      }
+      if (trendCont && vir.trending_tokens) {
+        trendCont.innerHTML = vir.trending_tokens.slice(0, 6).map(t => {
+          return `<span class="pill-badge mono" style="background:rgba(255,255,255,0.06); color:var(--color-text); font-size:9.5px; padding:2px 6px;">#${(t.score||0)+1} ${t.symbol}</span>`;
+        }).join('');
+      }
+      if (catPill) {
+        catPill.innerText = cat.sentiment || 'BULLISH';
+        catPill.className = cat.sentiment === 'BULLISH' ? 'pill-badge mint mono' : (cat.sentiment === 'BEARISH' ? 'pill-badge tangerine mono' : 'pill-badge blue mono');
+      }
+      if (catNote) {
+        catNote.innerText = cat.executive_note || '-';
       }
     }
 

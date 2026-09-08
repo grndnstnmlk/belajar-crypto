@@ -188,6 +188,12 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
      * 🔴 **Conservative Risk Officer**: Menegakkan prinsip preservasi modal (*capital preservation*), mengawasi margin bebas, penumpukan posisi searah (*directional clustering*), dan potensi *tail-risk drawdown*. Mengusulkan pemangkasan defensif ($0.25\times - 0.50\times$) atau VETO total jika risiko melampaui batas aman.
      * 🏛️ **Fund Manager (Chief Risk Officer Synthesis)**: Menimbang ketiga pandangan dengan pembobotan dinamis adaptif (bobot konservatif melonjak ke 60% bila portofolio sedang tertekan), menetapkan skor komposit (0-100), skala alokasi akhir, profil Stop Loss (`ATR_TRAILING`, `TIGHT_BREAKEVEN`, atau `RUNNER_EXPANSION`), serta vonis izin (`APPROVED_OPTIMAL`, `APPROVED_BALANCED`, `APPROVED_DEFENSIVE`, atau `BLOCKED_RISK_LIMIT`).
    * Tersedia visualisasi 3-bar dinamis dan kartu adjudikasi Fund Manager pada tab *Market Intelligence* di Web Dashboard.
+9. **Tauric Sentiment & Social Narrative Scanner (TradingAgents Analyst Protocol)**:
+   * Mengadopsi pilar *Sentiment & News Analyst* dari framework **Tauric Research** (*TradingAgents*, arXiv:2412.20138) yang disintesis dengan Akademi Crypto Module 01 (Macro Sentiment & Narrative Trading).
+   * **Crypto Fear & Greed Index Engine**: Memantau indeks sentimen pasar 0-100 real-time via Alternative.me dengan sinyal institusional kontrarian (*Extreme Fear* < 25 = akumulasi harga diskon institusional; *Extreme Greed* > 75 = waspada *liquidation sweep* dan *retail trap*).
+   * **Rotasi Modal 6 Sektor Narasi**: Melacak kinerja 24 jam dan volume bursa di 6 sektor kunci: 🤖 *AI & DePIN*, ⚡ *Solana & Alt-L1*, 🏛️ *RWA & DeFi*, 🐶 *Meme & Cultural Tokens*, ⛓️ *L2 & Modular Rollups*, dan 👑 *Macro Heavyweights*. Setup yang searah dengan sektor pemimpin (#1 Leader) otomatis mendapatkan bonus konfluensi akurasi!
+   * **Social Buzz & Virality Index**: Memindai token pencarian terpopuler (*trending search*) global via CoinGecko untuk mendeteksi siklus *organic expansion* vs *retail FOMO climax*.
+   * **Dukungan Perintah Telegram**: Ketik `/sentiment` atau `/narrative` di bot Telegram kapan saja untuk menerima laporan sentimen pasar dan rotasi sektor terkini secara instan dari ponsel Anda.
 
 ---
 

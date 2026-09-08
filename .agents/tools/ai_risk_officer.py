@@ -395,6 +395,17 @@ def heuristic_quant_audit(setup, market_context=None):
     except Exception:
         pass
 
+    # 9. Sentiment & Narrative Sector Confluence (Tauric Analyst Layer)
+    narrative_ctx = None
+    try:
+        import sentiment_narrative_scanner
+        narrative_ctx = sentiment_narrative_scanner.get_token_narrative_info(sym)
+        if narrative_ctx.get("is_leading_sector") and decision == "APPROVE":
+            confidence = min(98, confidence + 5)
+            thesis += f" | 🌟 Sektor Pemimpin Narasi: {narrative_ctx['sector_icon']} {narrative_ctx['sector_title']} (+{narrative_ctx['relative_strength_vs_btc']:.1f}% vs BTC)"
+    except Exception:
+        pass
+
     return {
         "decision": decision,
         "confidence": confidence,
@@ -404,7 +415,8 @@ def heuristic_quant_audit(setup, market_context=None):
         "invalidation_scenario": f"Penutupan candle 15m melewati level Stop Loss ${setup.get('sl', 0):,.4f}.",
         "provider": "Algorithmic Quant Heuristics",
         "adversarial_debate": debate,
-        "tri_perspective_risk": tri_risk
+        "tri_perspective_risk": tri_risk,
+        "sentiment_narrative": narrative_ctx
     }
 
 def audit_trade_setup(setup, market_context=None):
@@ -534,6 +546,12 @@ Strictly respond in valid JSON format with this exact schema:
                     if fm_scale < 0.70 and parsed.get("decision") == "APPROVE":
                         parsed["decision"] = "ADJUST_RISK"
                     parsed["thesis"] += f" | Tri-Risk: {fm.get('verdict')} (Scale {fm_scale:.2f}x)"
+            except Exception:
+                pass
+
+            try:
+                import sentiment_narrative_scanner
+                parsed["sentiment_narrative"] = sentiment_narrative_scanner.get_token_narrative_info(setup.get("symbol", "BTC"))
             except Exception:
                 pass
             return parsed

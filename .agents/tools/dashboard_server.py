@@ -260,6 +260,13 @@ def get_dashboard_feed_data(force_refresh=False):
     except Exception:
         feed["recent_tri_risk"] = []
 
+    # Tauric Sentiment & Social Narrative Scanner
+    try:
+        import sentiment_narrative_scanner
+        feed["sentiment_narrative"] = sentiment_narrative_scanner.get_market_sentiment_narrative_summary()
+    except Exception:
+        feed["sentiment_narrative"] = {}
+
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     _feed_cache = feed
@@ -335,6 +342,12 @@ def get_market_intelligence_data():
     except Exception:
         active_scalps = []
 
+    try:
+        import sentiment_narrative_scanner
+        sentiment_intel = sentiment_narrative_scanner.get_market_sentiment_narrative_summary()
+    except Exception as e:
+        sentiment_intel = {"error": str(e)}
+
     return {
         "compass": compass,
         "heat": heat,
@@ -345,6 +358,7 @@ def get_market_intelligence_data():
         "quant_risk": quant_risk,
         "rejection_block": rb_intel,
         "active_scalps": active_scalps,
+        "sentiment_narrative": sentiment_intel,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
@@ -522,6 +536,15 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
         elif path == "/api/tri_risk":
             import tri_perspective_risk
             data = tri_perspective_risk.load_tri_risk_history(limit=15)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/sentiment":
+            import sentiment_narrative_scanner
+            data = sentiment_narrative_scanner.get_market_sentiment_narrative_summary()
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()

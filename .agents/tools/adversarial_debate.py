@@ -150,6 +150,43 @@ def run_deterministic_debate(setup, market_context=None):
         bear_points += 14
         bear_arguments.append(f"Volatilitas pasar lesu (ADX {adx:.1f} < 20), sinyal swing rentan terperangkap fakeout mendatar.")
 
+    # 6. Sentiment & Narrative Sector Confluence (Tauric Analyst Layer)
+    narrative_info = ctx.get("narrative_info")
+    if not narrative_info:
+        try:
+            import sentiment_narrative_scanner
+            narrative_info = sentiment_narrative_scanner.get_token_narrative_info(sym)
+        except Exception:
+            narrative_info = None
+
+    if narrative_info:
+        if narrative_info.get("is_leading_sector"):
+            bull_points += 15
+            bull_arguments.append(f"Aset {sym} tergabung dalam sektor narasi terkuat hari ini ({narrative_info['sector_icon']} {narrative_info['sector_title']}), menikmati rotasi modal institusional prima.")
+        elif narrative_info.get("sector_rank", 99) <= 3 and narrative_info.get("sector_rank", 99) > 1:
+            bull_points += 8
+            bull_arguments.append(f"Aset {sym} berada dalam 3 besar rotasi sektor ({narrative_info['sector_icon']} {narrative_info['sector_title']}).")
+        elif narrative_info.get("sector_rank", 99) >= 5:
+            bear_points += 10
+            bear_arguments.append(f"Aset {sym} berada di sektor narasi laggard ({narrative_info['sector_icon']} {narrative_info['sector_title']}), minim dorongan momentum spekulatif.")
+
+    fng = ctx.get("fear_and_greed")
+    if not fng:
+        try:
+            import sentiment_narrative_scanner
+            fng = sentiment_narrative_scanner.get_fear_and_greed_index()
+        except Exception:
+            fng = None
+
+    if fng:
+        fng_score = fng.get("score", 50)
+        if fng_score >= 75 and side in ["BUY", "LONG"]:
+            bear_points += 12
+            bear_arguments.append(f"Fear & Greed mencapai level Extreme Greed ({fng_score}/100); waspada potensi exit liquidity / long squeeze.")
+        elif fng_score <= 25 and side in ["BUY", "LONG"]:
+            bull_points += 12
+            bull_arguments.append(f"Fear & Greed di level Extreme Fear ({fng_score}/100); sentimen kontrarian institusional mengonfirmasi akumulasi harga diskon.")
+
     # Default arguments if empty
     if not bull_arguments:
         bull_arguments.append("Setup teknikal dasar memenuhi syarat rasio risiko dan level support/resistance terdekat.")
