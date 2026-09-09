@@ -1376,6 +1376,47 @@
             </div>
           </div>
 
+          <!-- ORDER FLOW, CVD DIVERGENCE & DOM FOOTPRINT MATRIX -->
+          <div class="intel-card">
+            <div class="intel-card-header">
+              <div class="intel-card-title">
+                <span>🌊 Order Flow, CVD Divergence & Footprint (Micro-Structure)</span>
+              </div>
+              <span class="pill-badge mint" id="of-divergence-pill">BULLISH ABSORPTION</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                <!-- CVD Delta -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Taker Net Delta</span>
+                  <div class="mono" id="of-net-delta-val" style="font-size:15px; font-weight:700; color:var(--color-mint); margin-top:3px;">+14.2 BTC</div>
+                  <div class="mono" id="of-delta-pct" style="font-size:10.5px; margin-top:2px; color:var(--color-mint);">+28.4% Delta</div>
+                </div>
+
+                <!-- Taker Ratio -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Buy/Sell Taker Ratio</span>
+                  <div class="mono" id="of-taker-ratio-val" style="font-size:15px; font-weight:700; color:var(--color-text); margin-top:3px;">1.42x</div>
+                  <div class="mono" id="of-slope-val" style="font-size:10.5px; margin-top:2px; color:var(--color-cyan);">BUY EXPANSION</div>
+                </div>
+
+                <!-- DOM Imbalance -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">DOM Stack Imbalance</span>
+                  <div class="mono" id="of-dom-ratio-val" style="font-size:15px; font-weight:700; color:var(--color-mint); margin-top:3px;">1.85x BID</div>
+                  <div id="of-stacked-count" style="font-size:10.5px; margin-top:2px; color:var(--color-text-dim);">3 Stacked Levels</div>
+                </div>
+              </div>
+
+              <!-- Order Flow Thesis & Absorption Callout -->
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:11px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5; display:flex; align-items:flex-start; gap:8px;">
+                <span style="font-size:15px; margin-top:1px;">🛡️</span>
+                <span id="of-thesis-text">Memuat analisis Order Flow & Cumulative Volume Delta (CVD)...</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Top Liquidity Clusters (Magnet Likuidasi Institusional) -->
           <div class="intel-card">
             <div class="intel-card-header">
@@ -2912,8 +2953,83 @@
         } catch (e) {
           console.warn("Could not load sentiment narrative data:", e);
         }
+
+        // 11. Order Flow, CVD Divergence & DOM Footprint Scanner
+        try {
+          const ofRes = await fetch(`/api/orderflow?symbol=${activeSymbol || 'BTC'}`);
+          const ofData = await ofRes.json();
+          if (ofData) {
+            renderOrderflowCard(ofData);
+          }
+        } catch (e) {
+          console.warn("Could not load orderflow data:", e);
+        }
       } catch (e) {
         console.error("Error loading intelligence:", e);
+      }
+    }
+
+    function renderOrderflowCard(data) {
+      if (!data) return;
+      const cvd = data.cvd || {};
+      const dom = data.dom || {};
+      const div = data.divergence || {};
+
+      const pill = document.getElementById('of-divergence-pill');
+      const netDeltaVal = document.getElementById('of-net-delta-val');
+      const deltaPct = document.getElementById('of-delta-pct');
+      const takerRatioVal = document.getElementById('of-taker-ratio-val');
+      const slopeVal = document.getElementById('of-slope-val');
+      const domRatioVal = document.getElementById('of-dom-ratio-val');
+      const stackedCount = document.getElementById('of-stacked-count');
+      const thesisText = document.getElementById('of-thesis-text');
+
+      if (pill && div.divergence) {
+        pill.innerText = div.divergence.replace(/_/g, ' ');
+        if (div.divergence.includes('BULLISH')) {
+          pill.className = 'pill-badge mint';
+        } else if (div.divergence.includes('BEARISH')) {
+          pill.className = 'pill-badge tangerine';
+        } else {
+          pill.className = 'pill-badge cyan';
+        }
+      }
+
+      if (netDeltaVal) {
+        const delta = Number(cvd.net_delta || 0);
+        netDeltaVal.innerText = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} Vol`;
+        netDeltaVal.style.color = delta >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
+      }
+
+      if (deltaPct) {
+        const pct = Number(cvd.delta_percent || 0);
+        deltaPct.innerText = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}% Delta`;
+        deltaPct.style.color = pct >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
+      }
+
+      if (takerRatioVal) {
+        takerRatioVal.innerText = `${Number(cvd.delta_ratio || 1.0).toFixed(2)}x`;
+      }
+
+      if (slopeVal) {
+        slopeVal.innerText = (cvd.cvd_slope || 'NEUTRAL').replace(/_/g, ' ');
+        slopeVal.style.color = (cvd.cvd_slope || '').includes('BUY') ? 'var(--color-mint)' : ((cvd.cvd_slope || '').includes('SELL') ? 'var(--color-tangerine)' : 'var(--color-cyan)');
+      }
+
+      if (domRatioVal) {
+        const dRatio = Number(dom.imbalance_ratio || 1.0);
+        domRatioVal.innerText = `${dRatio.toFixed(2)}x ${dRatio >= 1.0 ? 'BID' : 'ASK'}`;
+        domRatioVal.style.color = dRatio >= 1.2 ? 'var(--color-mint)' : (dRatio <= 0.8 ? 'var(--color-tangerine)' : 'var(--color-text)');
+      }
+
+      if (stackedCount) {
+        const bCount = dom.stacked_bids_count || 0;
+        const aCount = dom.stacked_asks_count || 0;
+        stackedCount.innerText = `${bCount} Stacked Bids | ${aCount} Stacked Asks`;
+      }
+
+      if (thesisText && div.reason) {
+        thesisText.innerHTML = `<b>${div.absorption_type || 'ORDER_FLOW'}:</b> ${div.reason}`;
       }
     }
 

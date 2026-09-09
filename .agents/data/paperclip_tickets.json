@@ -1,5 +1,432 @@
 [
   {
+    "ticket_id": "TCK-20260909-1701",
+    "symbol": "XRPUSDT",
+    "side": "LONG",
+    "strategy": "Akademi Quantitative Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-09 13:13:21",
+    "updated_at": "2026-09-09 13:13:35",
+    "payload": {
+      "entry": 1.436,
+      "sl": 1.4078,
+      "tp": 1.4924,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.7,
+      "thesis": "ADJUST_RISK: Setup XRPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)). Alokasi modal disarankan dipangkas ke 70%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.4078.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 1.4078,
+        "tp_price": 1.4924,
+        "rr_ratio": 2.0,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 62,
+        "bear_score": 38,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.42x Bids/Asks) menahan tekanan jual di bawah entry.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.",
+        "bear_critique": " \u2022 Aset XRPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (62% vs 38%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 1.4078,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-09 20:13:29"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-09 20:13:29",
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 62% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 50,
+          "desired_scale": 0.8,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah. | Margin bebas terbatas (60%)."
+        },
+        "neutral": {
+          "score": 62,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 62.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 61,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.25,
+            "neutral": 0.4,
+            "conservative": 0.35
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "XRP",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 13:13:21",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup XRPUSDT (LONG) teridentifikasi via Akademi Quantitative Setup."
+      },
+      {
+        "timestamp": "2026-09-09 13:13:29",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-09 13:13:35",
+        "agent": "head_of_execution",
+        "stage": "EXECUTING",
+        "note": "Order terpasang di Binance Futures @ $1.4360 (873.4 lot)"
+      }
+    ],
+    "order_id": 3498528300
+  },
+  {
+    "ticket_id": "TCK-20260909-2992",
+    "symbol": "ZECUSDT",
+    "side": "LONG",
+    "strategy": "Akademi Quantitative Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-09 13:12:52",
+    "updated_at": "2026-09-09 13:13:04",
+    "payload": {
+      "entry": 1262.8,
+      "sl": 1256.5522,
+      "tp": 1275.2956,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.7,
+      "thesis": "ADJUST_RISK: Setup ZECUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Liquidation Hunt active: \u26a1 [LIQUIDATION HUNT ALPHA] ZEC LONG DI-BOOST (+15% Konfluensi): Eksploitasi short squeeze pada posisi ritel yang panik short (FR: -0.0196% | L/S: 0.41)., Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)). Alokasi modal disarankan dipangkas ke 70%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "Liquidation Hunt active: \u26a1 [LIQUIDATION HUNT ALPHA] ZEC LONG DI-BOOST (+15% Konfluensi): Eksploitasi short squeeze pada posisi ritel yang panik short (FR: -0.0196% | L/S: 0.41).",
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1,256.5522.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "ZECUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 1256.5522,
+        "tp_price": 1275.2956,
+        "rr_ratio": 2.0,
+        "strategy": "5m Order Flow CVD Absorption Scalp",
+        "bull_score": 60,
+        "bear_score": 40,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.59x Bids/Asks) menahan tekanan jual di bawah entry.",
+        "bear_critique": " \u2022 Aset ZECUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 1256.5522,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-09 20:12:58"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-09 20:12:58",
+        "symbol": "ZECUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 60% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 65,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 62,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 62.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 66,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.25,
+            "neutral": 0.4,
+            "conservative": 0.35
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "ZEC",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 13:12:52",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup ZECUSDT (LONG) teridentifikasi via Akademi Quantitative Setup."
+      },
+      {
+        "timestamp": "2026-09-09 13:12:58",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-09 13:13:04",
+        "agent": "head_of_execution",
+        "stage": "EXECUTING",
+        "note": "Order terpasang di Binance Futures @ $1,262.8000 (3.9 lot)"
+      }
+    ],
+    "order_id": 2964655135
+  },
+  {
+    "ticket_id": "TCK-20260909-7093",
+    "symbol": "BNBUSDT",
+    "side": "BUY",
+    "strategy": "Mulham Rectangle",
+    "created_by": "market_eyes_screener",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-09 12:57:47",
+    "updated_at": "2026-09-09 12:57:47",
+    "payload": {},
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Chairman User",
+      "authorized_at": "2026-09-09 12:57:47",
+      "note": "Disetujui."
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 12:57:47",
+        "agent": "market_eyes_screener",
+        "stage": "DISCOVERED",
+        "note": "Setup BNBUSDT (BUY) teridentifikasi via Mulham Rectangle."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:47",
+        "agent": "chief_risk_officer",
+        "stage": "PENDING_BOARD",
+        "note": "Portofolio padat, butuh otorisasi Dewan Direksi."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:47",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Disetujui. oleh Chairman User."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260909-7070",
+    "symbol": "BTCUSDT",
+    "side": "BUY",
+    "strategy": "20 EMA Pullback Scalper (M5)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "trade_journaler_autopsy",
+    "stage": "CLOSED",
+    "priority": "HIGH",
+    "created_at": "2026-09-09 12:57:47",
+    "updated_at": "2026-09-09 12:57:47",
+    "payload": {
+      "price": 89500.0,
+      "sl": 88900.0,
+      "tp": 91300.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 12:57:47",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BTCUSDT (BUY) teridentifikasi via 20 EMA Pullback Scalper (M5)."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:47",
+        "agent": "scalper_specialists",
+        "stage": "DEBATING",
+        "note": "Debat Bull vs Bear dimulai."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:47",
+        "agent": "head_of_strategies",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: APPROVED_BALANCED (1.00x)"
+      },
+      {
+        "timestamp": "2026-09-09 12:57:47",
+        "agent": "chief_risk_officer",
+        "stage": "EXECUTING",
+        "note": "Order dipasang di Binance Futures."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:47",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Trade mencapai TP1 +2.0R, sisa runner bebas risiko."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260909-4831",
+    "symbol": "BNBUSDT",
+    "side": "BUY",
+    "strategy": "Mulham Rectangle",
+    "created_by": "market_eyes_screener",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-09 12:57:44",
+    "updated_at": "2026-09-09 12:57:44",
+    "payload": {},
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Chairman User",
+      "authorized_at": "2026-09-09 12:57:44",
+      "note": "Disetujui."
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 12:57:44",
+        "agent": "market_eyes_screener",
+        "stage": "DISCOVERED",
+        "note": "Setup BNBUSDT (BUY) teridentifikasi via Mulham Rectangle."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:44",
+        "agent": "chief_risk_officer",
+        "stage": "PENDING_BOARD",
+        "note": "Portofolio padat, butuh otorisasi Dewan Direksi."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:44",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Disetujui. oleh Chairman User."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260909-4808",
+    "symbol": "BTCUSDT",
+    "side": "BUY",
+    "strategy": "20 EMA Pullback Scalper (M5)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "trade_journaler_autopsy",
+    "stage": "CLOSED",
+    "priority": "HIGH",
+    "created_at": "2026-09-09 12:57:44",
+    "updated_at": "2026-09-09 12:57:44",
+    "payload": {
+      "price": 89500.0,
+      "sl": 88900.0,
+      "tp": 91300.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 12:57:44",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BTCUSDT (BUY) teridentifikasi via 20 EMA Pullback Scalper (M5)."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:44",
+        "agent": "scalper_specialists",
+        "stage": "DEBATING",
+        "note": "Debat Bull vs Bear dimulai."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:44",
+        "agent": "head_of_strategies",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: APPROVED_BALANCED (1.00x)"
+      },
+      {
+        "timestamp": "2026-09-09 12:57:44",
+        "agent": "chief_risk_officer",
+        "stage": "EXECUTING",
+        "note": "Order dipasang di Binance Futures."
+      },
+      {
+        "timestamp": "2026-09-09 12:57:44",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Trade mencapai TP1 +2.0R, sisa runner bebas risiko."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260909-9034",
     "symbol": "BNBUSDT",
     "side": "BUY",

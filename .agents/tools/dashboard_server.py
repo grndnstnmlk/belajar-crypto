@@ -576,6 +576,22 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/orderflow":
+            try:
+                import orderflow_cvd_scalper
+                sym = params.get("symbol", ["BTC"])[0]
+                data = orderflow_cvd_scalper.get_orderflow_summary(sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+            return
+
         elif path == "/api/klines":
             sym = params.get("symbol", ["BTC"])[0]
             bar = params.get("bar", ["1H"])[0]

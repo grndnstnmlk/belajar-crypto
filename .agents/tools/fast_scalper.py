@@ -1,15 +1,13 @@
 """
-Fast Scalper Engine (5m / 15m High-Frequency Protocol)
-Designed for short-duration trades (15 to 35 minutes completion) using:
+Fast Scalper Engine (5m / 15m High-Frequency Protocol for Crypto)
+Focused exclusively on Institutional Liquidity, SMC Traps, and Structural Retests:
 1. 5m ICT Rejection Block & 50% Mean Threshold Bounce
-2. 5m 4H-Range Breakout & Re-Entry Failure (YouTube Scalper Strategy)
-3. 5m Inverse Fair Value Gap (IFVG) Liquidity Scalp (YouTube Manipulation Strategy)
-4. 5m 15m-Key-Level Rectangle Break & Retest (YouTube Mulham Sniper Strategy)
-5. 5m 20-EMA Dynamic Pullback Trap Scalp (YouTube Trader DNA 90% Win Rate Strategy)
-6. 5m Akademi Crypto High Win-Rate Blueprint (EMA 9/21 + Stoch Pocket)
-7. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Scalp)
-8. 5m VWAP ±2σ Extreme Mean-Reversion Scalp
-9. 5m Volume Surge Momentum Breakout
+2. 5m 4H-Range Breakout & Re-Entry Failure (Failed Auction Scalp)
+3. 5m Inverse Fair Value Gap (IFVG) Liquidity Scalp (Role Reversal)
+4. 5m 15m-Key-Level Rectangle Break & Retest (Mulham Sniper Strategy)
+5. 5m 20-EMA Dynamic Pullback Trap Scalp (Trend-Following Pullback)
+6. 5m Session Liquidity Sweep & Micro-FVG (Smart Money Hunt)
+
 Includes Fast Breakeven (+0.60R), Scale-Out (+1.25R), and 20-Minute Anti-Stall Time-Stop.
 """
 
@@ -1213,56 +1211,63 @@ def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
 def scan_symbol_scalp(symbol):
     """
     Runs fast scalp strategies on a single symbol. Returns the best signal if found.
+    Focuses exclusively on Elite Institutional Crypto Micro-Structure & Liquidity Trap setups:
+    1. ICT Rejection Block 50% Mean Threshold
+    2. 4H Range Breakout & Re-Entry Failure (Failed Auction)
+    3. Inverse FVG (IFVG) Liquidity Scalp
+    4. 15m Key Level Rectangle Break & Retest (Mulham Sniper)
+    5. 20-EMA Dynamic Pullback Trap (Trend Following)
+    6. 5m Liquidity Sweep & Micro-FVG (Smart Money Trap)
+    
+    [DEACTIVATED / SISISIHKAN]:
+    - Volume Surge Momentum (High False Positive / Exhaustion Dump Trap)
+    - Blind VWAP ±2σ Mean-Reversion (Band-Riding Trend Runover Risk)
+    - EMA 9/21 + Stochastic Cross (Lagging Oscillator Whipsaw in 5m Chop)
     """
     candles = fetch_scalp_candles(symbol, bar="5m", limit=60)
     if len(candles) < 25:
         return None
 
-    # Priority 1: ICT Rejection Block Mean Threshold Bounce
+    # Priority 0: Order Flow CVD Divergence & DOM Stacked Imbalance Scalp
+    try:
+        import orderflow_cvd_scalper
+        s_of = orderflow_cvd_scalper.scan_5m_orderflow_cvd_scalp(symbol, candles)
+        if s_of:
+            return s_of
+    except Exception:
+        pass
+
+    # Priority 1: ICT Rejection Block Mean Threshold Bounce (Pure Wick Manipulation Trap)
     s_rb = scan_rejection_block_scalp(symbol, candles)
     if s_rb:
         return s_rb
 
-    # Priority 2: 4H Range Breakout & Re-Entry Failure (YouTube Scalper Strategy)
+    # Priority 2: 4H Range Breakout & Re-Entry Failure (Failed Auction / Macro Fakeout)
     s_4h = scan_4h_range_reentry_scalp(symbol, candles)
     if s_4h:
         return s_4h
 
-    # Priority 3: 5m Inverse FVG (IFVG) Liquidity Scalp (YouTube Manipulation Strategy)
+    # Priority 3: 5m Inverse FVG (IFVG) Liquidity Scalp (Institutional Role Reversal)
     s_ifvg = scan_5m_inverse_fvg_scalp(symbol, candles)
     if s_ifvg:
         return s_ifvg
 
-    # Priority 4: 15m Key Level Rectangle Break & Retest (YouTube Mulham Sniper Strategy)
+    # Priority 4: 15m Key Level Rectangle Break & Retest (Mulham Sniper Structural Retest)
     s_rect = scan_15m_rectangle_break_retest_scalp(symbol, candles)
     if s_rect:
         return s_rect
 
-    # Priority 5: 5m 20-EMA Dynamic Pullback Trap (YouTube Trader DNA Strategy)
+    # Priority 5: 5m 20-EMA Dynamic Pullback Trap (Trend-Following Discount Entry)
     s_ema = scan_5m_20ema_pullback_trap_scalp(symbol, candles)
     if s_ema:
         return s_ema
 
-    # Priority 6: 5m Akademi Crypto High Win-Rate Blueprint (EMA 9/21 + Stoch Pocket)
-    s_ac = scan_5m_akademi_crypto_scalp(symbol, candles)
-    if s_ac:
-        return s_ac
+    # Priority 6: Liquidity Sweep & Micro-FVG (Smart Money BSL/SSL Hunt)
+    s_sweep = scan_5m_liquidity_sweep_fvg(symbol, candles)
+    if s_sweep:
+        return s_sweep
 
-    # Priority 7: Liquidity Sweep & Micro FVG
-    s1 = scan_5m_liquidity_sweep_fvg(symbol, candles)
-    if s1:
-        return s1
-
-    # Priority 8: VWAP ±2σ Extreme Mean-Reversion
-    s2 = scan_5m_vwap_mean_reversion(symbol, candles)
-    if s2:
-        return s2
-
-    # Priority 9: Volume Surge Momentum
-    s3 = scan_5m_volume_surge_breakout(symbol, candles)
-    if s3:
-        return s3
-
+    # Note: Volume Surge, VWAP ±2σ, and Stoch MA Crossover are intentionally bypassed.
     return None
 
 def scan_all_scalp_opportunities(symbols=None):
@@ -1283,9 +1288,9 @@ def scan_all_scalp_opportunities(symbols=None):
 
 if __name__ == "__main__":
     print("=" * 65)
-    print("       ⚡ FAST SCALPER ENGINE (5m / 15m Protocol)")
+    print("       ⚡ FAST SCALPER ENGINE (5m / 15m Institutional Crypto)")
     print("=" * 65)
-    print("Memindai setup scalping kilat (Liquidity Sweep, VWAP 2σ, Volume Surge)...")
+    print("Memindai peluang scalping likuiditas institusional (Rejection Block, 4H Fakeout, IFVG, Mulham 15m)...")
     setups = scan_all_scalp_opportunities()
     if not setups:
         print("Tidak ada setup scalping 5m yang valid saat ini. Menunggu konfirmasi likuiditas.")

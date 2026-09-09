@@ -888,6 +888,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                 "is_mean_reversion_or_sweep": s.get("is_mean_reversion_or_sweep", True),
                 "macro_aligned": s.get("macro_aligned", True),
                 "strategy": s["strategy"],
+                "orderflow_metrics": s.get("orderflow_metrics", {}),
                 "reason": f"⚡ SCALP [{s['strategy']}]: {s['reason']} (Target: {s['target_duration']})"
             })
 

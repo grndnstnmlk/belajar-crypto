@@ -46,8 +46,8 @@ GEMINI_API_KEY=your_gemini_api_key_here
 Trading desk memiliki 3 mode eksekusi yang dapat diganti sewaktu-waktu melalui CLI maupun Telegram:
 
 | Mode | Timeframe | Fokus Strategi | Alokasi Risiko | Target R:R | Karakteristik |
-| :--- | :---: | :--- | :---: | :---: | :--- |
-| **`SCALP`** | **5m** (Mikro) | Rejection Block, 4H-Range Re-entry, Inverse FVG (IFVG), 15m Rectangle Break & Retest, 20-EMA Pullback Trap, Akademi Crypto EMA 9/21 + Stoch, Liquidity Sweep, VWAP $\pm 2\sigma$, Volume Surge | **0.35% – 0.50%** (Micro-Kelly) | **1:1.50 – 1:2.50** | Eksekusi cepat, durasi 15–35 menit, Micro-BE (+0.60R), Time-Stop 20 menit |
+| :--- | :---: | :--- | :--- | :---: | :--- |
+| **`SCALP`** | **5m** (Mikro) | 5 Setup Elite Kripto: ICT Rejection Block (50% Mean Threshold), 4H-Range Breakout Re-entry (Fakeout), Inverse FVG (IFVG), 15m Key-Level Rectangle Break & Retest (Mulham), 20-EMA Pullback Trap, Liquidity Sweep | **0.35% – 0.50%** (Micro-Kelly) | **1:1.80 – 1:2.50** | Eksekusi cepat 15–35 menit, Micro-BE (+0.60R), Scale-Out TP1 (+1.25R, 60%), 20-min Anti-Stall Time-Stop |
 | **`HYBRID`** *(Default)* | **5m + 1H** | Dual Engine: Menangkap Swing 1H sekaligus Scalp 5m | **0.50% s/d 1.05%** | **1:2.00 – 1:3.50** | Fleksibel: Eksekusi scalp kilat ke slot kosong saat menunggu setup swing matang |
 | **`SWING`** | **1H & 4H** (Makro) | SMC, Wyckoff Accumulation, Volume Profile VAH/VAL, FVG Retest | **1.05% – 1.50%** | **1:3.00 – 1:5.00+** | Menunggangi ekspansi tren besar multi-jam/hari, proteksi Chandelier Trailing |
 
@@ -206,6 +206,14 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
     * **Papan Delegasi Tiket Tugas (Kanban Pipeline)**: Setiap setup yang terdeteksi dibuatkan tiket unik (`TCK-...`) dan berpindah secara transparan melalui 5 tahap: `DISCOVERED` ➡️ `DEBATING` ➡️ `RISK_AUDIT` ➡️ `PENDING_BOARD` (bila berisiko tinggi) ➡️ `EXECUTED / CLOSED`.
     * **Pintu Otorisasi Dewan Direksi (*Board Approval Gate*)**: Setup yang memicu kriteria risiko ekstrem (portofolio padat $\ge 3$ posisi, *Extreme Fear/Greed*, atau alokasi $\ge 1.25\times$) akan ditahan di tahap `PENDING_BOARD` dan meminta persetujuan manusia via tombol **[SETUJUI] / [TOLAK]** di Web Dashboard atau Telegram (`/board_approve <id>`).
     * **Penjadwalan Heartbeat & Zero-Cost Quota Guard**: Setiap agen bekerja berdasarkan siklus denyut (*heartbeat*) terukur untuk menghemat CPU dan melindungi kuota gratisan Google Gemini (15 RPM / 1.500 req/hari), menjamin operasional **100% Gratis (Rp 0)**.
+
+11. **Order Flow, CVD Divergence & DOM Footprint Micro-Scalping**:
+    * **Cumulative Volume Delta (CVD) Engine**: Mengurai setiap transaksi pasar (*market taker orders*) via Binance Futures `aggTrades` untuk mendeteksi tekanan beli/jual agresif secara real-time (`Delta = Taker Buy - Taker Sell`).
+    * **Deteksi Institutional Absorption**:
+      * 🟢 **Bullish Absorption**: Harga membentuk *Lower Low*, namun CVD membentuk *Higher Low* $\rightarrow$ Sinyal bahwa aksi jual agresif ritel telah diserap penuh oleh limit order institusional (*Smart Money Bids*).
+      * 🔴 **Bearish Absorption**: Harga membentuk *Higher High*, namun CVD membentuk *Lower High* $\rightarrow$ Sinyal bahwa aksi beli FOMO ritel sedang ditampung oleh dinding jual institusional (*Smart Money Asks*).
+    * **Depth of Market (DOM) Stacked Imbalance**: Memindai kedalaman orderbook L2 50-level untuk mendeteksi dinding likuiditas $\ge 3.0\times$ dominan.
+    * **Eksekusi Sinyal Mandiri**: Sinyal `5m Order Flow CVD Absorption Scalp` (Target R:R 1:2.0) langsung masuk antrean eksekusi desk dengan Stop Loss sangat tipis di balik sumbu *absorption*.
 
 ---
 
