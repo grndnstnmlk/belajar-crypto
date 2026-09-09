@@ -568,6 +568,36 @@ def notify_pnl_summary(balance_usd, active_positions, is_demo=True):
     lines.append(f"\n🕒 <i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
     return send_telegram_msg("\n".join(lines))
 
+def notify_pending_board_approval(setup, ticket, reasons):
+    """
+    Sends urgent Telegram alert with inline buttons when a trade setup is escalated to Human Board.
+    """
+    t_id = ticket.get("ticket_id", "TCK-UNKNOWN") if ticket else "TCK-UNKNOWN"
+    sym = setup.get("symbol", "BTCUSDT")
+    side = setup.get("side", "BUY")
+    price = setup.get("price", 0.0)
+    strat = setup.get("strategy_name", "Quantitative Scalp")
+    reasons_text = "\n".join([f"  • {r}" for r in reasons])
+
+    msg = (
+        f"👑 <b>[ESKALASI OTORISASI DEWAN DIREKSI]</b>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"Tiket: <code>{t_id}</code>\n"
+        f"Aset : <b>{sym} ({side})</b> @ ${price:,.4f}\n"
+        f"Strategi : <i>{strat}</i>\n\n"
+        f"⚠️ <b>Pemicu Otorisasi Dewan:</b>\n"
+        f"{reasons_text}\n\n"
+        f"<i>Silakan tinjau dan klik tombol persetujuan di bawah ini:</i>"
+    )
+    inline_kb = [
+        [
+            {"text": "✅ SETUJUI SEKARANG", "callback_data": f"boardappr_{t_id}"},
+            {"text": "❌ TOLAK / VETO", "callback_data": f"boardrej_{t_id}"}
+        ]
+    ]
+    return send_telegram_msg(msg, reply_markup={"inline_keyboard": inline_kb})
+
+
 def notify_daily_executive_briefing(user_email=None, is_demo=True):
     """
     Daily Executive Quant Briefing:
@@ -848,6 +878,16 @@ class TelegramCommandListener(threading.Thread):
             self._handle_command("/evolve", sender_chat_id)
         elif data == "refresh_genome":
             self._handle_command("/genome", sender_chat_id)
+        elif data.startswith("boardappr_"):
+            t_id = data.replace("boardappr_", "")
+            self._handle_command(f"/board_approve {t_id}", sender_chat_id)
+        elif data.startswith("boardrej_"):
+            t_id = data.replace("boardrej_", "")
+            self._handle_command(f"/board_reject {t_id}", sender_chat_id)
+        elif data == "refresh_firm":
+            self._handle_command("/firm", sender_chat_id)
+        elif data == "refresh_tickets":
+            self._handle_command("/tickets", sender_chat_id)
 
     def _handle_command(self, cmd_text, chat_id):
         # Lazy import sibling tools to avoid circular dependencies
@@ -1368,6 +1408,99 @@ class TelegramCommandListener(threading.Thread):
                 send_telegram_msg(agenda_msg, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
             except Exception as e:
                 send_telegram_msg(f"⚠️ Gagal memuat kalender berita: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+
+        elif command in ["/firm", "/paperclip", "🏢 paperclip firm"]:
+            try:
+                import paperclip_orchestrator
+                summary = paperclip_orchestrator.get_firm_summary()
+                q = summary.get("quota_tracker", {})
+                cb = summary.get("circuit_breaker_active", False)
+                cb_str = "🚨 AKTIF (PAUSED)" if cb else "✅ NORMAL (RUNNING)"
+                counts = summary.get("stage_counts", {})
+                
+                msg = (
+                    f"🏢 <b>PAPERCLIP AUTONOMOUS TRADING FIRM</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━\n"
+                    f"• <b>Status Operasional</b>: {cb_str}\n"
+                    f"• <b>Free Tier Quota</b>: <code>{q.get('free_requests_used', 0)} / {q.get('free_requests_limit', 1500)} req</code> (100% Rp 0)\n"
+                    f"• <b>Agen Terdaftar</b>: <b>{len(summary.get('org_chart', []))} Agen</b>\n\n"
+                    f"📋 <b>Papan Delegasi Tiket (Kanban)</b>:\n"
+                    f"  🔍 Discovered : <b>{counts.get('DISCOVERED', 0)}</b>\n"
+                    f"  ⚔️ Debating   : <b>{counts.get('DEBATING', 0)}</b>\n"
+                    f"  🛡️ Risk Audit : <b>{counts.get('RISK_AUDIT', 0)}</b>\n"
+                    f"  👑 Pending Board : <b>{counts.get('PENDING_BOARD', 0)}</b> ⚠️\n"
+                    f"  ⚡ Executed   : <b>{counts.get('EXECUTED', 0) + counts.get('CLOSED', 0)}</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━\n"
+                    f"<i>Gunakan <code>/tickets</code> untuk melihat tiket aktif.</i>"
+                )
+                inline_kb = [
+                    [
+                        {"text": "📋 Cek Tiket", "callback_data": "refresh_tickets"},
+                        {"text": "🔄 Refresh Firm", "callback_data": "refresh_firm"}
+                    ]
+                ]
+                send_telegram_msg(msg, chat_id_override=chat_id, reply_markup={"inline_keyboard": inline_kb})
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat data Paperclip Firm: {e}", chat_id_override=chat_id)
+
+        elif command in ["/tickets", "📋 daftar tiket"]:
+            try:
+                import paperclip_orchestrator
+                tickets = paperclip_orchestrator.load_tickets()
+                active_t = [t for t in tickets if t.get("stage") != "CLOSED" and t.get("stage") != "VETOED"][:5]
+                if not active_t:
+                    send_telegram_msg("📋 <b>Tidak ada tiket aktif di pipeline saat ini.</b>", chat_id_override=chat_id)
+                else:
+                    msg = "📋 <b>DAFTAR TIKET AKTIF (PAPERCLIP KANBAN)</b>\n━━━━━━━━━━━━━━━━━━\n"
+                    for t in active_t:
+                        stg = t.get("stage")
+                        msg += (
+                            f"• <b>{t['ticket_id']}</b>: {t['symbol']} ({t['side']})\n"
+                            f"  Strategi : <i>{t.get('strategy', '-')}</i>\n"
+                            f"  Tahap    : <code>{stg}</code>\n"
+                        )
+                        if stg == "PENDING_BOARD":
+                            msg += f"  👉 <i>Gunakan: /board_approve {t['ticket_id']} atau /board_reject {t['ticket_id']}</i>\n"
+                        msg += "──────────────────\n"
+                    send_telegram_msg(msg, chat_id_override=chat_id)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal memuat tiket: {e}", chat_id_override=chat_id)
+
+        elif command == "/board_approve" and len(parts) > 1:
+            t_id = parts[1]
+            try:
+                import paperclip_orchestrator
+                t = paperclip_orchestrator.board_approve_ticket(t_id, board_user=f"Telegram ({chat_id})", note="Disetujui via Telegram")
+                if t:
+                    send_telegram_msg(f"👑 <b>[DISETUJUI DEWAN DIREKSI]</b>\nTiket <code>{t_id}</code> disetujui! Sinyal diteruskan ke Execution Desk.", chat_id_override=chat_id)
+                else:
+                    send_telegram_msg(f"⚠️ Tiket <code>{t_id}</code> tidak ditemukan.", chat_id_override=chat_id)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal menyetujui tiket: {e}", chat_id_override=chat_id)
+
+        elif command == "/board_reject" and len(parts) > 1:
+            t_id = parts[1]
+            try:
+                import paperclip_orchestrator
+                t = paperclip_orchestrator.board_reject_ticket(t_id, board_user=f"Telegram ({chat_id})", reason="Ditolak via Telegram")
+                if t:
+                    send_telegram_msg(f"🚫 <b>[DITOLAK DEWAN DIREKSI]</b>\nTiket <code>{t_id}</code> telah diveto.", chat_id_override=chat_id)
+                else:
+                    send_telegram_msg(f"⚠️ Tiket <code>{t_id}</code> tidak ditemukan.", chat_id_override=chat_id)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal menolak tiket: {e}", chat_id_override=chat_id)
+
+        elif command in ["/halt", "/circuit_breaker"]:
+            try:
+                import paperclip_orchestrator
+                res = paperclip_orchestrator.toggle_circuit_breaker(reason=f"Telegram switch by {chat_id}")
+                act = res.get("circuit_breaker_active", False)
+                if act:
+                    send_telegram_msg("🚨 <b>SAKLAR DARURAT DIAKTIFKAN!</b>\nSeluruh aktivitas eksekusi agen dipause.", chat_id_override=chat_id)
+                else:
+                    send_telegram_msg("▶️ <b>SAKLAR DARURAT DINONAKTIFKAN!</b>\nAktivitas agen kembali beroperasi normal.", chat_id_override=chat_id)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal mengubah saklar darurat: {e}", chat_id_override=chat_id)
 
         elif command == "/close":
             positions = trading_desk.get_active_positions(self.user_email, self.is_demo)

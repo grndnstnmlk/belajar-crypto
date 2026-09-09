@@ -195,6 +195,18 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
    * **Social Buzz & Virality Index**: Memindai token pencarian terpopuler (*trending search*) global via CoinGecko untuk mendeteksi siklus *organic expansion* vs *retail FOMO climax*.
    * **Dukungan Perintah Telegram**: Ketik `/sentiment` atau `/narrative` di bot Telegram kapan saja untuk menerima laporan sentimen pasar dan rotasi sektor terkini secara instan dari ponsel Anda.
 
+10. **Paperclip Autonomous Trading Firm Architecture & Board Governance**:
+    * Terinspirasi dari platform orkestrasi multi-agent **Paperclip AI** ([paperclipai/paperclip](https://github.com/paperclipai/paperclip)), sistem trading dirombak menjadi kantor prop trading otonom dengan struktur hierarki resmi.
+    * **Struktur Rantai Komando (Org Chart)**:
+      * 👑 **Dewan Direksi (Anda / Manusia)**: Memegang hak veto tertinggi, otorisasi sinyal berisiko tinggi (*Human-In-The-Loop*), dan saklar pemutus darurat (*Circuit Breaker*).
+      * 🧠 **Chief Risk Officer & Fund Manager**: Mengawasi seluruh departemen, menyintesis Tri-Perspective Risk, dan mengatur batas margin portofolio.
+      * 📊 **Departemen Riset & Intel**: *Market Eyes Screener*, *Sentiment Narrative Scanner*, dan *DEX On-Chain Auditor*.
+      * ⚔️ **Departemen Strategi & Debat**: *Bull vs Bear Debaters* dan *Akademi Scalper Specialists* (Mulham, 20 EMA, 4H, Inverse FVG).
+      * ⚡ **Desk Eksekusi & Operasi**: *Binance Order Router* dan *Trade Journaler & Autopsy Auditor*.
+    * **Papan Delegasi Tiket Tugas (Kanban Pipeline)**: Setiap setup yang terdeteksi dibuatkan tiket unik (`TCK-...`) dan berpindah secara transparan melalui 5 tahap: `DISCOVERED` ➡️ `DEBATING` ➡️ `RISK_AUDIT` ➡️ `PENDING_BOARD` (bila berisiko tinggi) ➡️ `EXECUTED / CLOSED`.
+    * **Pintu Otorisasi Dewan Direksi (*Board Approval Gate*)**: Setup yang memicu kriteria risiko ekstrem (portofolio padat $\ge 3$ posisi, *Extreme Fear/Greed*, atau alokasi $\ge 1.25\times$) akan ditahan di tahap `PENDING_BOARD` dan meminta persetujuan manusia via tombol **[SETUJUI] / [TOLAK]** di Web Dashboard atau Telegram (`/board_approve <id>`).
+    * **Penjadwalan Heartbeat & Zero-Cost Quota Guard**: Setiap agen bekerja berdasarkan siklus denyut (*heartbeat*) terukur untuk menghemat CPU dan melindungi kuota gratisan Google Gemini (15 RPM / 1.500 req/hari), menjamin operasional **100% Gratis (Rp 0)**.
+
 ---
 
 ## 7. Skrip Diagnostik & Scanner Mandiri

@@ -267,6 +267,13 @@ def get_dashboard_feed_data(force_refresh=False):
     except Exception:
         feed["sentiment_narrative"] = {}
 
+    # Paperclip Autonomous Trading Firm Telemetry
+    try:
+        import paperclip_orchestrator
+        feed["paperclip_summary"] = paperclip_orchestrator.get_firm_summary()
+    except Exception:
+        feed["paperclip_summary"] = {}
+
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     _feed_cache = feed
@@ -551,6 +558,24 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/paperclip/firm":
+            import paperclip_orchestrator
+            data = paperclip_orchestrator.get_firm_summary()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/paperclip/tickets":
+            import paperclip_orchestrator
+            data = paperclip_orchestrator.load_tickets()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
         elif path == "/api/klines":
             sym = params.get("symbol", ["BTC"])[0]
             bar = params.get("bar", ["1H"])[0]
@@ -809,6 +834,46 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": True, "new_trades": count, "total_trades": total}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/paperclip/action":
+            try:
+                import paperclip_orchestrator
+                action_type = payload.get("action")
+                ticket_id = payload.get("ticket_id")
+                note = payload.get("note", "Dashboard Board Action")
+                user = payload.get("user", "Chairman (Web Board)")
+
+                res = {"success": False, "error": "Unknown action"}
+                if action_type == "board_approve" and ticket_id:
+                    t = paperclip_orchestrator.board_approve_ticket(ticket_id, board_user=user, note=note)
+                    res = {"success": True, "ticket": t}
+                elif action_type == "board_reject" and ticket_id:
+                    t = paperclip_orchestrator.board_reject_ticket(ticket_id, board_user=user, reason=note)
+                    res = {"success": True, "ticket": t}
+                elif action_type == "toggle_circuit_breaker":
+                    cb = paperclip_orchestrator.toggle_circuit_breaker(reason=note)
+                    res = {"success": True, "circuit_breaker": cb}
+                elif action_type == "create_ticket":
+                    sym = payload.get("symbol", "SOLUSDT")
+                    strat = payload.get("strategy", "Mulham Rectangle Scalper (M15)")
+                    side = payload.get("side", "BUY")
+                    t = paperclip_orchestrator.create_ticket(sym, strat, side, created_by=user, payload=payload.get("payload", {}))
+                    res = {"success": True, "ticket": t}
+                elif action_type == "trigger_heartbeat":
+                    agent_id = payload.get("agent_id", "market_eyes_screener")
+                    paperclip_orchestrator.record_agent_heartbeat(agent_id)
+                    res = {"success": True, "agent_id": agent_id}
+
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
             except Exception as e:
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json; charset=utf-8")

@@ -770,6 +770,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
         export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
         return
 
+    # Check if firm execution is paused via Paperclip Circuit Breaker
+    try:
+        import paperclip_orchestrator
+        fstate = paperclip_orchestrator.load_firm_state()
+        if fstate.get("circuit_breaker_active"):
+            print(f"\n[Paperclip Circuit Breaker] 🚨 Trading Desk DIJEDA oleh Dewan Direksi ({fstate.get('circuit_breaker_reason')}). Melewatkan pembukaan order baru.")
+            export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
+            return
+    except Exception:
+        pass
+
     print(f"\n[1. RISK OFFICER AUDIT]")
     print(f" * Saldo Dompet Futures : ${balance_usd:,.2f} USDT (Margin Bebas Tersedia: ${available_usd:,.2f} USDT)")
     print(f" * Posisi Aktif Saat Ini: {len(active_positions)} / {max_open_positions} max")
@@ -1008,7 +1019,22 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
             print(f" * Take Profit: ${best['tp']:,.4f}")
             print(f" * R:R Ratio  : 1 : {best['rr']:.2f}")
 
-            # 4. AI Senior Quant Risk Officer Pre-Trade Sanity Audit
+            # 4A. Create Paperclip Task Ticket (Paperclip Control Plane)
+            paperclip_ticket = None
+            try:
+                import paperclip_orchestrator
+                paperclip_ticket = paperclip_orchestrator.create_ticket(
+                    symbol=best["symbol"],
+                    strategy=best.get("strategy_name", "Akademi Quantitative Setup"),
+                    side=best.get("side", "BUY"),
+                    created_by="scalper_specialists" if best.get("is_scalp") else "market_eyes_screener",
+                    payload={"entry": best["price"], "sl": best["sl"], "tp": best["tp"], "rr": best.get("rr", 0.0)}
+                )
+                print(f" * 🏢 [Paperclip Ticket]: {paperclip_ticket['ticket_id']} [DISCOVERED]")
+            except Exception:
+                pass
+
+            # 4B. AI Senior Quant Risk Officer Pre-Trade Sanity Audit
             ai_audit = None
             try:
                 import ai_risk_officer
@@ -1050,6 +1076,20 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                 print(f" * 🤖 AI Officer: {ai_audit['decision']} ({ai_audit['confidence']}%) via {ai_audit.get('provider', 'AI')}")
                 print(f"   Thesis     : {ai_audit['thesis']}")
 
+                if paperclip_ticket:
+                    try:
+                        import paperclip_orchestrator
+                        paperclip_orchestrator.escalate_ticket(
+                            ticket_id=paperclip_ticket["ticket_id"],
+                            next_stage="RISK_AUDIT",
+                            assigned_to="chief_risk_officer",
+                            note=f"Audit risiko CRO: {ai_audit['decision']} ({ai_audit['confidence']}%)",
+                            agent_id="chief_risk_officer",
+                            data_update={"risk_result": ai_audit}
+                        )
+                    except Exception:
+                        pass
+
                 if ai_audit.get("adversarial_debate"):
                     deb = ai_audit["adversarial_debate"]
                     print(f" * 🐂 vs 🐻 [Tauric Debate]: Bull {deb.get('bull_score')}% vs Bear {deb.get('bear_score')}% | Arbiter: {deb.get('verdict')} ({deb.get('winner')})")
@@ -1072,6 +1112,18 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                     print(f" * 🧭 [Narrative Radar]: {nar.get('sector_icon')} {nar.get('sector_title')} ({lead_badge} | {nar.get('relative_strength_vs_btc'):+.1f}% vs BTC)")
 
                 if ai_audit["decision"] == "VETO":
+                    if paperclip_ticket:
+                        try:
+                            import paperclip_orchestrator
+                            paperclip_orchestrator.escalate_ticket(
+                                ticket_id=paperclip_ticket["ticket_id"],
+                                next_stage="VETOED",
+                                assigned_to="chief_risk_officer",
+                                note=f"Veto: {ai_audit['thesis']}",
+                                agent_id="chief_risk_officer"
+                            )
+                        except Exception:
+                            pass
                     print(f" 🚨 [AI OFFICER VETO] Setup {best['symbol']} diveto oleh AI: {ai_audit['thesis']}")
                     try:
                         telegram_notifier.notify_ai_officer_veto(best, ai_audit)
@@ -1082,6 +1134,29 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                     scale = float(ai_audit.get("suggested_risk_scale", 0.7))
                     effective_risk_pct = max(0.5, effective_risk_pct * scale)
                     print(f" ⚠️ [AI RISK ADJUST] Risiko disesuaikan oleh AI ke {scale*100:.0f}% ({effective_risk_pct:.2f}% modal)")
+
+                # Check Human Board of Directors Escalation Criteria
+                try:
+                    import paperclip_orchestrator
+                    esc = paperclip_orchestrator.evaluate_board_escalation_criteria(best, ai_ctx, ai_audit)
+                    if esc.get("requires_board_approval"):
+                        reasons_str = "; ".join(esc["escalation_reasons"])
+                        print(f" 👑 [ESKALASI DEWAN DIREKSI] Setup {best['symbol']} ditahan di Kanban: {reasons_str}")
+                        if paperclip_ticket:
+                            paperclip_orchestrator.escalate_ticket(
+                                ticket_id=paperclip_ticket["ticket_id"],
+                                next_stage="PENDING_BOARD",
+                                assigned_to="board_of_directors",
+                                note=f"Eskalasi Dewan Direksi: {reasons_str}",
+                                agent_id="chief_risk_officer"
+                            )
+                        try:
+                            telegram_notifier.notify_pending_board_approval(best, paperclip_ticket, esc["escalation_reasons"])
+                        except Exception:
+                            pass
+                        continue
+                except Exception:
+                    pass
             except Exception as e:
                 print(f" * [AI Officer Note] Heuristic bypass: {e}")
 
@@ -1186,6 +1261,21 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                 "entryPrice": best["price"],
                 "markPrice": best["price"]
             })
+
+            # Escalate Paperclip Ticket to EXECUTING
+            if paperclip_ticket:
+                try:
+                    import paperclip_orchestrator
+                    paperclip_orchestrator.escalate_ticket(
+                        ticket_id=paperclip_ticket["ticket_id"],
+                        next_stage="EXECUTING",
+                        assigned_to="head_of_execution",
+                        note=f"Order terpasang di Binance Futures @ ${best['price']:,.4f} ({qty} lot)",
+                        agent_id="head_of_execution",
+                        data_update={"order_id": order_res.get("orderId")}
+                    )
+                except Exception:
+                    pass
 
             # Send Instant Telegram Push Notification
             try:
