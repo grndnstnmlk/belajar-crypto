@@ -1,107 +1,5 @@
 [
   {
-    "timestamp": "2026-09-09 19:28:52",
-    "symbol": "NEARUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 75,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 61,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 44,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 19:30:16",
-    "symbol": "NEARUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 75,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 67% menunjukkan dorongan positif moderat."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 64,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 64.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 45,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 19:35:45",
-    "symbol": "ETHUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 75,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 65% menunjukkan dorongan positif moderat."
-    },
-    "conservative": {
-      "score": 65,
-      "desired_scale": 1.0,
-      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-    },
-    "neutral": {
-      "score": 63,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 64.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_BALANCED",
-      "composite_risk_score": 66,
-      "allocated_risk_scale": 1.0,
-      "stop_loss_profile": "ATR_TRAILING",
-      "regime_weights": {
-        "aggressive": 0.25,
-        "neutral": 0.4,
-        "conservative": 0.35
-      },
-      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-    }
-  },
-  {
     "timestamp": "2026-09-09 19:37:22",
     "symbol": "NEARUSDT",
     "side": "SHORT",
@@ -1697,6 +1595,108 @@
         "conservative": 0.6
       },
       "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 03:48:24",
+    "symbol": "BNBUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 15,
+      "desired_scale": 0.45,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan. | Margin bebas terbatas (54%)."
+    },
+    "neutral": {
+      "score": 65,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "BLOCKED_RISK_LIMIT",
+      "composite_risk_score": 36,
+      "allocated_risk_scale": 0.0,
+      "stop_loss_profile": "NONE",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 03:49:41",
+    "symbol": "BNBUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 15,
+      "desired_scale": 0.45,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan. | Margin bebas terbatas (54%)."
+    },
+    "neutral": {
+      "score": 65,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "BLOCKED_RISK_LIMIT",
+      "composite_risk_score": 36,
+      "allocated_risk_scale": 0.0,
+      "stop_loss_profile": "NONE",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 03:50:41",
+    "symbol": "BNBUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 66% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 64,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 64.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 67,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.25,
+        "neutral": 0.4,
+        "conservative": 0.35
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
     }
   }
 ]

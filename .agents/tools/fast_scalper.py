@@ -29,17 +29,18 @@ TOOLS_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(os.path.dirname(TOOLS_DIR), "data")
 sys.path.insert(0, TOOLS_DIR)
 
+import market_radar
 import market_eyes
 
 DEFAULT_SCALP_SYMBOLS = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "SUI", "LINK", "AVAX", "NEAR"]
 
 def get_15m_context(symbol):
     """
-    Fetches 15m trend bias and VWAP to align 5m scalping direction.
+    Fetches 15m trend bias and VWAP to align 5m scalping direction via cached radar.
     """
     try:
         sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
-        raw = market_eyes.fetch_candles(sym_clean, bar="15m", limit=40)
+        raw = market_radar.fetch_candles(sym_clean, bar="15m", limit=40)
         if not raw or len(raw) < 25:
             return {"bias": "NEUTRAL", "trend": "NEUTRAL"}
         
@@ -61,11 +62,13 @@ def get_15m_context(symbol):
 
 def fetch_scalp_candles(symbol="BTC", bar="5m", limit=100):
     """
-    Fetches latest candles for fast scalping from Binance via market_eyes.
+    Fetches latest candles for fast scalping from Binance via high-speed cached market_radar.
     Returns chronologically sorted list: oldest to newest.
     """
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
-    raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar, limit=limit)
+    raw_candles = market_radar.fetch_candles(sym_clean, bar=bar, limit=limit)
+    if not raw_candles:
+        raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar, limit=limit)
     if not raw_candles:
         return []
 

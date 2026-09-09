@@ -296,6 +296,20 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
     * **Agent Skill Standard (`.agents/skills/crypto-quant-macro/SKILL.md`)**:
       * Tersedia sebagai plugin skill berstandar internasional yang dapat dipanggil langsung oleh AI Agent.
 
+17. **Multi-Source Market Data Fallback Adapter (Zero Single-Point-of-Failure)**:
+    * Terinspirasi oleh direktori kurasi API publik global **`public-apis/public-apis`** untuk memberikan redundansi data bursa tingkat tinggi (*High Availability*).
+    * **Hierarki Failover Kripto 3 Lapis**:
+      1. 🥇 **Primary**: Binance Public Vision Gateway (`data-api.binance.vision`).
+      2. 🥈 **Secondary 1**: CoinPaprika Public Free API (`api.coinpaprika.com` - No Auth).
+      3. 🥉 **Secondary 2**: CoinGecko Free API (`api.coingecko.com`).
+      4. 🛡️ **Deterministic Memory Baseline**: Jika seluruh koneksi eksternal terputus.
+    * **Forex & Stablecoin Peg Monitor (Frankfurter API)**:
+      * Mengambil kurs USD/EUR/GBP langsung dari Bank Sentral Eropa (ECB) via *Frankfurter Open API*.
+    * **In-Memory Cache (15s TTL)**:
+      * Mencegah pemblokiran *rate-limit* dengan eksekusi kueri berlatensi rendah (< 400ms).
+    * **Endpoint REST Terbuka**:
+      * `GET /api/adapter/multisource?symbol=BTC` — Mengembalikan harga konsensus, jejak failover (*failover trace*), dan metrik latensi.
+
 ---
 
 ## 7. Skrip Diagnostik & Scanner Mandiri
@@ -321,7 +335,7 @@ python .agents/tools/rejection_block_engine.py
 # 6. Status Portofolio dan Ringkasan Posisi Terbuka
 python .agents/tools/trading_desk.py status
 
-# 7. Audit Kesehatan Sistem Total (41 Poin Uji Operasional)
+# 7. Audit Kesehatan Sistem Total (43 Poin Uji Operasional)
 python scratch/total_system_debug.py
 ```
 

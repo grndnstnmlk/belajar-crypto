@@ -4,6 +4,7 @@ Bridges Autonomous Binance Trading Desk with Telegram Bot API.
 Provides instant trade notifications, PnL summaries, and remote command listener.
 """
 
+import hashlib
 import html
 import json
 import os
@@ -15,6 +16,32 @@ import time
 import urllib.parse
 import urllib.request
 from datetime import datetime
+
+# Message Deduplication Cache (prevents duplicate broadcasts within 4s)
+_sent_message_cache = {}
+_cache_lock = threading.Lock()
+_DEDUP_WINDOW_SECONDS = 4.0
+
+def _check_and_register_dedup(target_chat, text):
+    with _cache_lock:
+        now = time.time()
+        # Clean expired cache entries older than 30s
+        expired = [k for k, v in _sent_message_cache.items() if now - v.get("ts", 0) > 30.0]
+        for k in expired:
+            _sent_message_cache.pop(k, None)
+
+        msg_hash = hashlib.md5(f"{target_chat}:{text}".encode("utf-8")).hexdigest()
+        last_entry = _sent_message_cache.get(msg_hash)
+        if last_entry and (now - last_entry.get("ts", 0)) < _DEDUP_WINDOW_SECONDS:
+            return True, last_entry.get("response"), msg_hash
+        return False, None, msg_hash
+
+def _save_dedup_response(msg_hash, response):
+    with _cache_lock:
+        _sent_message_cache[msg_hash] = {
+            "ts": time.time(),
+            "response": response
+        }
 
 # Ensure UTF-8 output on Windows console
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
@@ -150,12 +177,18 @@ def setup_bot_commands():
 def send_telegram_msg(text, parse_mode="HTML", chat_id_override=None, reply_markup=None):
     """
     Sends a message via Telegram Bot API with optional ReplyKeyboardMarkup or InlineKeyboardMarkup.
+    Includes thread-safe sliding window deduplication to prevent accidental double-broadcasts.
     """
     token, default_chat_id = get_telegram_config()
     target_chat = chat_id_override or default_chat_id
 
     if not token or not target_chat:
         return None
+
+    # Check for duplicate message within recent sliding window
+    is_dup, cached_res, msg_hash = _check_and_register_dedup(target_chat, text)
+    if is_dup:
+        return cached_res or {"ok": True, "description": "deduplicated"}
 
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {
@@ -173,7 +206,9 @@ def send_telegram_msg(text, parse_mode="HTML", chat_id_override=None, reply_mark
         req = urllib.request.Request(url, data=data, headers=HEADERS, method="POST")
         with urllib.request.urlopen(req, timeout=10, context=SSL_CTX) as response:
             res_body = response.read().decode("utf-8")
-            return json.loads(res_body)
+            res_json = json.loads(res_body)
+            _save_dedup_response(msg_hash, res_json)
+            return res_json
     except Exception as e:
         print(f"[Telegram Notifier] Failed to send message: {e}")
         return None

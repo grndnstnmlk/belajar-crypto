@@ -56,6 +56,33 @@ import macro_news_shield
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
 
+PID_FILE = os.path.join(DATA_DIR, "trading_desk.pid")
+
+def acquire_single_instance_lock():
+    """Ensures only ONE instance of trading_desk daemon runs at any time, terminating stale instances."""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    my_pid = os.getpid()
+    if os.path.exists(PID_FILE):
+        try:
+            with open(PID_FILE, "r") as f:
+                content = f.read().strip()
+                if content:
+                    old_pid = int(content)
+                    if old_pid != my_pid:
+                        try:
+                            import subprocess
+                            subprocess.run(f"taskkill /F /PID {old_pid}", shell=True, capture_output=True)
+                            time.sleep(0.5)
+                        except Exception:
+                            pass
+        except Exception:
+            pass
+    try:
+        with open(PID_FILE, "w") as f:
+            f.write(str(my_pid))
+    except Exception:
+        pass
+
 def ensure_dashboard_daemon():
     """Checks if Dashboard HTTP server is running on port 5000; starts it if not."""
     try:
@@ -1451,6 +1478,7 @@ def main():
     if args.command == "status":
         show_desk_status(args.user, is_demo)
     elif args.command == "run":
+        acquire_single_instance_lock()
         ensure_dashboard_daemon()
         if getattr(args, "mode", None):
             state = telegram_notifier.load_desk_state()
