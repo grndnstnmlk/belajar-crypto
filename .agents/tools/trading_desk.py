@@ -1071,7 +1071,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                 import paperclip_orchestrator
                 paperclip_ticket = paperclip_orchestrator.create_ticket(
                     symbol=best["symbol"],
-                    strategy=best.get("strategy_name", "Akademi Quantitative Setup"),
+                    strategy=best.get("strategy_name", "Quantitative Confluence Setup"),
                     side=best.get("side", "BUY"),
                     created_by="scalper_specialists" if best.get("is_scalp") else "market_eyes_screener",
                     payload={"entry": best["price"], "sl": best["sl"], "tp": best["tp"], "rr": best.get("rr", 0.0)}

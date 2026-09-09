@@ -1217,8 +1217,25 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     daemon_threads = True
     allow_reuse_address = True
 
+def kill_stale_port_holder(port):
+    """Kills any previous stale process listening on the dashboard port."""
+    try:
+        import subprocess
+        out = subprocess.check_output(f'netstat -ano | findstr :{port}', shell=True).decode('utf-8', errors='ignore')
+        my_pid = os.getpid()
+        for line in out.splitlines():
+            if "LISTENING" in line:
+                parts = line.strip().split()
+                pid = int(parts[-1])
+                if pid != my_pid:
+                    subprocess.run(f"taskkill /F /PID {pid}", shell=True, capture_output=True)
+                    time.sleep(0.5)
+    except Exception:
+        pass
+
 def run_server(port=PORT):
     os.chdir(ROOT_DIR)
+    kill_stale_port_holder(port)
     try:
         with ThreadedTCPServer(("", port), MissionControlHandler) as httpd:
             print("=" * 65)
@@ -1229,8 +1246,10 @@ def run_server(port=PORT):
             httpd.serve_forever()
     except OSError as e:
         if "Address already in use" in str(e) or e.errno == 10048:
-            print(f"Port {port} sedang digunakan. Mencoba port {port+1}...")
-            run_server(port + 1)
+            kill_stale_port_holder(port)
+            time.sleep(1)
+            with ThreadedTCPServer(("", port), MissionControlHandler) as httpd:
+                httpd.serve_forever()
         else:
             raise e
 
