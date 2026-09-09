@@ -271,6 +271,19 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
     * **Web Viewer & Keyboard Shortcut**:
       * Tekan <kbd>5</kbd> di dashboard atau klik tab **🧠 Agent Memory** untuk melihat bank memori, metrik retensi, profil koin, dan menjalankan uji refleksi kognitif interaktif.
 
+15. **OpenViking Hierarchical Tiered Context Engine (`L0/L1/L2`)**:
+    * Terinspirasi oleh filosofi context-tiering dari **OpenViking** (`openviking.ai` by ByteDance/Volcengine) untuk mengeliminasi LLM token bloat (>90% token reduction) dan mencapai pemuatan konteks kognitif sub-detik (<5ms).
+    * **Hierarki Konteks 3 Lapis**:
+      * ⚡ **L0 (< 50 tokens) — Ultra-Compact Metadata Header**: Digunakan untuk loop eksekusi cepat frekuensi tinggi (`symbol`, `retention_score`, `total_memories`, `active_rules_count`).
+      * 🧠 **L1 (< 150 tokens) — Tactical Heuristic Synopsis**: Digunakan untuk prompt AI Co-Pilot & Risk Officer harian. Menyajikan *Cognitive Multiplier*, *Coin Personality Profile*, dan *Top-3 Relevant Lessons* tanpa membanjiri jendela token.
+      * 📚 **L2 (Full Context) — Deep Analytical Audit**: Digunakan untuk audit investigasi penuh, autopsi mendalam paska-likuidasi, dan backtesting kuantitatif komprehensif.
+    * **Integrasi 3 Pilar Inti Bersih**:
+      1. 🎯 **Pilar 1 (`market_radar.py`)**: Pemindaian pasar multi-indikator single-pass (<5ms) dengan cache kline cerdas (10s TTL).
+      2. 🛡️ **Pilar 2 (`nautilus_risk_engine.py`)**: Gatekeeper risiko pra-eksekusi, drawdown circuit breaker, dan adaptive Kelly sizing.
+      3. 🧠 **Pilar 3 (`agent_memory_engine.py`)**: Episodic trade memory & refleksi kognitif hierarkis OpenViking.
+    * **API Endpoint Terbuka**:
+      * `GET /api/memory/tiered?symbol=BTCUSDT&tier=L1` — Mengembalikan payload terstruktur dan formatted markdown prompt instan.
+
 ---
 
 ## 7. Skrip Diagnostik & Scanner Mandiri
@@ -296,7 +309,7 @@ python .agents/tools/rejection_block_engine.py
 # 6. Status Portofolio dan Ringkasan Posisi Terbuka
 python .agents/tools/trading_desk.py status
 
-# 7. Audit Kesehatan Sistem Total (30 Poin Uji Operasional)
+# 7. Audit Kesehatan Sistem Total (37 Poin Uji Operasional)
 python scratch/total_system_debug.py
 ```
 

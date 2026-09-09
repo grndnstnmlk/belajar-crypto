@@ -234,6 +234,25 @@ def validate_pre_trade_order(
             adjusted_scale = min(adjusted_scale, 0.60)
             warnings.append(f"High-Beta Altcoin Cluster: Sudah ada {len(same_dir_alts)} posisi {side.upper()} aktif. Risiko dipangkas ke 60%.")
 
+    # 6. Check FRED Macro Liquidity Regime & Time-Series Volatility
+    macro_info = {}
+    vol_info = {}
+    try:
+        import fred_macro_intel
+        macro_info = fred_macro_intel.get_macro_liquidity_regime()
+        m_mul = macro_info.get("macro_multiplier", 1.0)
+        adjusted_scale *= m_mul
+    except Exception:
+        pass
+
+    try:
+        import timeseries_quant_forecaster
+        vol_info = timeseries_quant_forecaster.get_asset_volatility_profile(clean_sym)
+        v_mul = vol_info.get("risk_multiplier", 1.0)
+        adjusted_scale *= v_mul
+    except Exception:
+        pass
+
     is_approved = len(rejection_reasons) == 0
 
     return {
@@ -254,6 +273,9 @@ def validate_pre_trade_order(
             "daily_drawdown_info": dd_info,
             "active_positions_count": len(open_positions),
             "high_beta_alts_count": len(high_beta_alts),
+            "macro_liquidity_regime": macro_info.get("regime", "NEUTRAL"),
+            "parkinson_volatility_pct": vol_info.get("parkinson_volatility_pct", 0.0),
+            "var_95_pct": vol_info.get("var_95_pct", 0.0),
             "cognitive_memory_active": bool(memory_engine)
         }
     }
