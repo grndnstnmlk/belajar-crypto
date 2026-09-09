@@ -255,8 +255,20 @@ def simulate_walk_forward_trades(candles, symbol="BTC", starting_balance=5000.0,
             if hit_tp:
                 exit_price = tp
                 pnl_r = (tp - entry) / r_dist if side == "LONG" else (entry - tp) / r_dist
-                pnl_usd = risk_usd * pnl_r
-                equity += pnl_usd
+                gross_pnl_usd = risk_usd * pnl_r
+                
+                # High-Fidelity Nautilus Research-to-Live Parity Simulation
+                # Notional position size
+                notional_usd = (risk_usd / (r_dist / entry)) if r_dist > 0 else (risk_usd * 10.0)
+                entry_fee = notional_usd * 0.0005  # 0.05% Taker entry
+                exit_fee = notional_usd * (exit_price / entry) * 0.0002  # 0.02% Maker Limit TP
+                slippage = notional_usd * 0.00025  # 0.025% entry slippage
+                funding_cost = notional_usd * 0.0001 * max(1.0, (i - active_trade.get("entry_idx", i)) / 8.0)
+                
+                total_friction = entry_fee + exit_fee + slippage + funding_cost
+                net_pnl_usd = gross_pnl_usd - total_friction
+                equity += net_pnl_usd
+
                 trades.append({
                     "trade_num": len(trades) + 1,
                     "symbol": symbol,
@@ -267,7 +279,12 @@ def simulate_walk_forward_trades(candles, symbol="BTC", starting_balance=5000.0,
                     "entry_price": entry,
                     "exit_price": exit_price,
                     "pnl_r": round(pnl_r, 2),
-                    "pnl_usd": round(pnl_usd, 2),
+                    "gross_pnl_usd": round(gross_pnl_usd, 2),
+                    "total_fee_usd": round(entry_fee + exit_fee, 2),
+                    "slippage_usd": round(slippage, 2),
+                    "funding_cost_usd": round(funding_cost, 2),
+                    "pnl_usd": round(net_pnl_usd, 2),
+                    "net_pnl_usd": round(net_pnl_usd, 2),
                     "exit_reason": "TAKE_PROFIT_HIT",
                     "strategy": active_trade["strategy"],
                     "equity": round(equity, 2)
@@ -288,8 +305,19 @@ def simulate_walk_forward_trades(candles, symbol="BTC", starting_balance=5000.0,
                     pnl_r = -1.0
                     exit_reason = "STOP_LOSS_HIT (-1R)"
 
-                pnl_usd = risk_usd * pnl_r
-                equity += pnl_usd
+                gross_pnl_usd = risk_usd * pnl_r
+                
+                # High-Fidelity Nautilus Research-to-Live Parity Simulation
+                notional_usd = (risk_usd / (r_dist / entry)) if r_dist > 0 else (risk_usd * 10.0)
+                entry_fee = notional_usd * 0.0005  # 0.05% Taker entry
+                exit_fee = notional_usd * (exit_price / entry) * 0.0005  # 0.05% Taker Stop Market exit
+                slippage = notional_usd * 0.0005  # 0.025% entry + 0.025% stop exit slippage
+                funding_cost = notional_usd * 0.0001 * max(1.0, (i - active_trade.get("entry_idx", i)) / 8.0)
+
+                total_friction = entry_fee + exit_fee + slippage + funding_cost
+                net_pnl_usd = gross_pnl_usd - total_friction
+                equity += net_pnl_usd
+
                 trades.append({
                     "trade_num": len(trades) + 1,
                     "symbol": symbol,
@@ -300,7 +328,12 @@ def simulate_walk_forward_trades(candles, symbol="BTC", starting_balance=5000.0,
                     "entry_price": entry,
                     "exit_price": exit_price,
                     "pnl_r": round(pnl_r, 2),
-                    "pnl_usd": round(pnl_usd, 2),
+                    "gross_pnl_usd": round(gross_pnl_usd, 2),
+                    "total_fee_usd": round(entry_fee + exit_fee, 2),
+                    "slippage_usd": round(slippage, 2),
+                    "funding_cost_usd": round(funding_cost, 2),
+                    "pnl_usd": round(net_pnl_usd, 2),
+                    "net_pnl_usd": round(net_pnl_usd, 2),
                     "exit_reason": exit_reason,
                     "strategy": active_trade["strategy"],
                     "equity": round(equity, 2)
@@ -327,6 +360,7 @@ def simulate_walk_forward_trades(candles, symbol="BTC", starting_balance=5000.0,
                     "strategy": signal["strategy"],
                     "entry_time": current_candle["time"],
                     "entry_ts": current_candle.get("ts", 0),
+                    "entry_idx": i,
                     "breakeven_locked": False,
                     "trailing_r_locked": 0.0,
                     "highest_r": 0.0
@@ -574,9 +608,12 @@ def run_backtest(symbol="BTC", bar="1H", num_candles=800, starting_balance=5000.
 def calculate_metrics(trades, starting_balance=5000.0):
     if not trades:
         return {
-            "total_trades": 0, "win_rate": 0.0, "win_plus_be_rate": 0.0,
+            "total_trades": 0, "wins": 0, "breakevens": 0, "losses": 0,
+            "win_rate": 0.0, "win_plus_be_rate": 0.0,
             "profit_factor": 0.0, "expectancy_r": 0.0, "max_drawdown_pct": 0.0,
-            "sharpe_ratio": 0.0, "sortino_ratio": 0.0
+            "sharpe_ratio": 0.0, "sortino_ratio": 0.0,
+            "gross_pnl_usd": 0.0, "total_fees_usd": 0.0, "total_slippage_usd": 0.0,
+            "net_pnl_usd": 0.0, "research_to_live_parity_score": 100.0
         }
 
     wins = [t for t in trades if t["pnl_r"] > 0]
@@ -617,6 +654,12 @@ def calculate_metrics(trades, starting_balance=5000.0):
     downside_dev = math.sqrt(downside_variance)
     sortino = round((avg_return / downside_dev) * math.sqrt(252), 2)
 
+    tot_fees = sum(t.get("total_fee_usd", 0.0) for t in trades)
+    tot_slip = sum(t.get("slippage_usd", 0.0) for t in trades)
+    gross_pnl = sum(t.get("gross_pnl_usd", t.get("pnl_usd", 0.0)) for t in trades)
+    net_pnl = sum(t.get("net_pnl_usd", t.get("pnl_usd", 0.0)) for t in trades)
+    parity_score = round((net_pnl / gross_pnl * 100.0), 1) if gross_pnl > 0 else 100.0
+
     return {
         "total_trades": len(trades),
         "wins": len(wins),
@@ -628,7 +671,12 @@ def calculate_metrics(trades, starting_balance=5000.0):
         "expectancy_r": expectancy_r,
         "max_drawdown_pct": round(max_dd_pct, 2),
         "sharpe_ratio": sharpe,
-        "sortino_ratio": sortino
+        "sortino_ratio": sortino,
+        "gross_pnl_usd": round(gross_pnl, 2),
+        "total_fees_usd": round(tot_fees, 2),
+        "total_slippage_usd": round(tot_slip, 2),
+        "net_pnl_usd": round(net_pnl, 2),
+        "research_to_live_parity_score": parity_score
     }
 
 def run_monte_carlo(trades, num_simulations=1000, starting_balance=5000.0):
@@ -737,6 +785,13 @@ def print_backtest_report(result):
     print(f"Maximum Drawdown    : {m['max_drawdown_pct']}%")
     print(f"Sharpe Ratio (Risk) : {m['sharpe_ratio']}")
     print(f"Sortino Ratio       : {m['sortino_ratio']}")
+    print("-------------------------------------------------------")
+    print("🏛️ NAUTILUS RESEARCH-TO-LIVE PARITY (REAL FRICTION):")
+    print(f" * Gross PnL (Kotor): {'+' if m.get('gross_pnl_usd', 0)>=0 else ''}${m.get('gross_pnl_usd', 0):,.2f} USDT")
+    print(f" * Total Komisi Fee : -${m.get('total_fees_usd', 0):,.2f} USDT (Binance Taker 0.05% / Maker 0.02%)")
+    print(f" * Slippage Drag    : -${m.get('total_slippage_usd', 0):,.2f} USDT")
+    print(f" * Net Return Riil  : {'+' if m.get('net_pnl_usd', 0)>=0 else ''}${m.get('net_pnl_usd', 0):,.2f} USDT")
+    print(f" * Parity Retention : {m.get('research_to_live_parity_score', 100.0)}% edge preserved")
     print("-------------------------------------------------------")
     print(f"🎲 MONTE CARLO STRESS TEST ({mc['simulations']:,} Permutasi Acak):")
     print(f" * Median Drawdown  : {mc['median_drawdown_pct']}%")

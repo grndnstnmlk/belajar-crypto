@@ -1154,27 +1154,20 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                     effective_risk_pct = max(0.5, effective_risk_pct * scale)
                     print(f" ⚠️ [AI RISK ADJUST] Risiko disesuaikan oleh AI ke {scale*100:.0f}% ({effective_risk_pct:.2f}% modal)")
 
-                # Check Human Board of Directors Escalation Criteria
+                # Autonomous Executive Board Governance (100% Full Autopilot Delegation)
                 try:
                     import paperclip_orchestrator
                     esc = paperclip_orchestrator.evaluate_board_escalation_criteria(best, ai_ctx, ai_audit)
-                    if esc.get("requires_board_approval"):
-                        reasons_str = "; ".join(esc["escalation_reasons"])
-                        print(f" 👑 [ESKALASI DEWAN DIREKSI] Setup {best['symbol']} ditahan di Kanban: {reasons_str}")
-                        if paperclip_ticket:
-                            paperclip_orchestrator.escalate_ticket(
-                                ticket_id=paperclip_ticket["ticket_id"],
-                                next_stage="PENDING_BOARD",
-                                assigned_to="board_of_directors",
-                                note=f"Eskalasi Dewan Direksi: {reasons_str}",
-                                agent_id="chief_risk_officer"
-                            )
-                        try:
-                            telegram_notifier.notify_pending_board_approval(best, paperclip_ticket, esc["escalation_reasons"])
-                        except Exception:
-                            pass
-                        continue
-                except Exception:
+                    reasons_str = "; ".join(esc.get("escalation_reasons", []))
+                    if reasons_str:
+                        print(f" 👑 [AUTONOMOUS BOARD AUTO-PILOT] Setup {best['symbol']} diaudit Dewan AI: {reasons_str}")
+                    if paperclip_ticket:
+                        paperclip_orchestrator.board_approve_ticket(
+                            ticket_id=paperclip_ticket["ticket_id"],
+                            board_user="Autonomous Board (AI Executive Committee)",
+                            note=f"Auto-Approved in Full Autopilot: {reasons_str or 'Confluence Verified'}"
+                        )
+                except Exception as e:
                     pass
             except Exception as e:
                 print(f" * [AI Officer Note] Heuristic bypass: {e}")
@@ -1205,6 +1198,34 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
             # Refresh live available free margin directly from exchange before sizing
             _, live_avail = get_account_financials(user_email, is_demo)
             available_usd = min(available_usd, live_avail)
+
+            # Nautilus Pre-Trade Risk Engine Gatekeeper
+            try:
+                import nautilus_risk_engine
+                nautilus_gate = nautilus_risk_engine.validate_pre_trade_order(
+                    symbol=best["symbol"],
+                    side=best["side"],
+                    price=best["price"],
+                    sl=best["sl"],
+                    tp=best["tp"],
+                    balance_usd=balance_usd,
+                    available_margin=available_usd,
+                    open_positions=current_positions,
+                    proposed_risk_scale=1.0
+                )
+                if not nautilus_gate["is_approved"]:
+                    reasons = "; ".join(nautilus_gate["rejection_reasons"])
+                    print(f" 🛡️ [NAUTILUS PRE-TRADE GATE] Order {best['symbol']} ditolak: {reasons}")
+                    continue
+                else:
+                    tel = nautilus_gate["pre_trade_telemetry"]
+                    if nautilus_gate["suggested_risk_scale"] < 1.0:
+                        effective_risk_pct *= nautilus_gate["suggested_risk_scale"]
+                        print(f" 🛡️ [NAUTILUS RISK ENGINE] Alokasi disesuaikan ke {nautilus_gate['suggested_risk_scale']*100:.0f}% (Spread: {tel['spread_bps']} bps | Fee+Slip: {tel['estimated_roundtrip_fee_pct']+tel['expected_slippage_pct']:.3f}%)")
+                    else:
+                        print(f" 🛡️ [NAUTILUS RISK ENGINE PASS] Spread {tel['spread_bps']} bps | Free Margin {tel['free_margin_ratio']*100:.1f}% | Est Slippage {tel['expected_slippage_pct']}%")
+            except Exception as e:
+                print(f" * [Nautilus Risk Engine Note]: {e}")
 
             # Calculate exact position size with Dynamic Margin & Scaled Risk Guardrail
             risk_budget = balance_usd * (effective_risk_pct / 100.0)

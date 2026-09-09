@@ -1,651 +1,5 @@
 [
   {
-    "timestamp": "2026-09-09 01:45:04",
-    "symbol": "BTCUSDT",
-    "side": "BUY",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 95,
-      "desired_scale": 1.2,
-      "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 67% menunjukkan dorongan positif moderat. | ADX momentum kuat (28.0) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 65,
-      "desired_scale": 1.0,
-      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-    },
-    "neutral": {
-      "score": 58,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 58.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_BALANCED",
-      "composite_risk_score": 74,
-      "allocated_risk_scale": 1.0,
-      "stop_loss_profile": "ATR_TRAILING",
-      "regime_weights": {
-        "aggressive": 0.4,
-        "neutral": 0.35,
-        "conservative": 0.25
-      },
-      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 01:45:08",
-    "symbol": "SOLUSDT",
-    "side": "BUY",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 95,
-      "desired_scale": 1.25,
-      "thesis": "R:R asimetris tinggi 1:3.33 menawarkan potensi keuntungan substansial. | Keyakinan Bull 75% mengonfirmasi dominasi pembeli institusional. | ADX momentum kuat (30.0) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 65,
-      "desired_scale": 1.0,
-      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-    },
-    "neutral": {
-      "score": 62,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 62.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_OPTIMAL",
-      "composite_risk_score": 75,
-      "allocated_risk_scale": 1.14,
-      "stop_loss_profile": "RUNNER_EXPANSION",
-      "regime_weights": {
-        "aggressive": 0.4,
-        "neutral": 0.35,
-        "conservative": 0.25
-      },
-      "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.14x diizinkan dengan runner expansion."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 01:45:09",
-    "symbol": "ETHUSDT",
-    "side": "BUY",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 75,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 60% menunjukkan dorongan positif moderat."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 56,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 56.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 43,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 01:45:09",
-    "symbol": "DOGEUSDT",
-    "side": "BUY",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 65,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional."
-    },
-    "conservative": {
-      "score": 5,
-      "desired_scale": 0.1,
-      "thesis": "Peringatan konsentrasi arah: sudah ada 4 posisi sepihak terbuka. | Kritik Bear moderat (50%); diperlukan stop loss ketat. | Margin bebas kritis (25%); prioritas preservasi kas."
-    },
-    "neutral": {
-      "score": 52,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 52.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "BLOCKED_RISK_LIMIT",
-      "composite_risk_score": 25,
-      "allocated_risk_scale": 0.0,
-      "stop_loss_profile": "NONE",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 5%). Penambahan posisi DOGEUSDT ditolak demi perlindungan modal."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 01:45:16",
-    "symbol": "BTCUSDT",
-    "side": "BUY",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 95,
-      "desired_scale": 1.2,
-      "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 67% menunjukkan dorongan positif moderat. | ADX momentum kuat (28.0) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 65,
-      "desired_scale": 1.0,
-      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-    },
-    "neutral": {
-      "score": 58,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 58.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_BALANCED",
-      "composite_risk_score": 74,
-      "allocated_risk_scale": 1.0,
-      "stop_loss_profile": "ATR_TRAILING",
-      "regime_weights": {
-        "aggressive": 0.4,
-        "neutral": 0.35,
-        "conservative": 0.25
-      },
-      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 01:45:26",
-    "symbol": "LINKUSDT",
-    "side": "LONG",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 40,
-      "desired_scale": 0.85,
-      "thesis": "R:R 1:0.67 tergolong tipis untuk setup agresif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.5,
-      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah. | Skeptisisme Bear tinggi (72%) mendeteksi potensi jebakan likuiditas / dinding resisten."
-    },
-    "neutral": {
-      "score": 43,
-      "desired_scale": 0.5,
-      "half_kelly_pct": 0.5,
-      "thesis": "Probabilitas kemenangan model: 43.2%. | Half-Kelly fraksional optimal: 0.50% per trade. | Normalisasi volatilitas menyarankan skala lot 0.50x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 37,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.25,
-        "neutral": 0.4,
-        "conservative": 0.35
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 01:45:44",
-    "symbol": "BTCUSDT",
-    "side": "BUY",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 85,
-      "desired_scale": 1.2,
-      "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 66% menunjukkan dorongan positif moderat."
-    },
-    "conservative": {
-      "score": 65,
-      "desired_scale": 1.0,
-      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-    },
-    "neutral": {
-      "score": 58,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 58.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_BALANCED",
-      "composite_risk_score": 70,
-      "allocated_risk_scale": 1.0,
-      "stop_loss_profile": "ATR_TRAILING",
-      "regime_weights": {
-        "aggressive": 0.4,
-        "neutral": 0.35,
-        "conservative": 0.25
-      },
-      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 02:16:22",
-    "symbol": "SOPHUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 90,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat. | ADX momentum kuat (34.1) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 65,
-      "desired_scale": 1.0,
-      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-    },
-    "neutral": {
-      "score": 61,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_BALANCED",
-      "composite_risk_score": 73,
-      "allocated_risk_scale": 1.0,
-      "stop_loss_profile": "ATR_TRAILING",
-      "regime_weights": {
-        "aggressive": 0.4,
-        "neutral": 0.35,
-        "conservative": 0.25
-      },
-      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 02:20:32",
-    "symbol": "DOGEUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 55,
-      "desired_scale": 0.85,
-      "thesis": "R:R 1:1.95 tergolong tipis untuk setup agresif. | ADX momentum kuat (34.1) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 59,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 59.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 41,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 02:39:24",
-    "symbol": "SOPHUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 90,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 62% menunjukkan dorongan positif moderat. | ADX momentum kuat (34.1) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 65,
-      "desired_scale": 1.0,
-      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-    },
-    "neutral": {
-      "score": 62,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 62.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_BALANCED",
-      "composite_risk_score": 73,
-      "allocated_risk_scale": 1.0,
-      "stop_loss_profile": "ATR_TRAILING",
-      "regime_weights": {
-        "aggressive": 0.4,
-        "neutral": 0.35,
-        "conservative": 0.25
-      },
-      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 02:42:29",
-    "symbol": "WLDUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 90,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat. | ADX momentum kuat (34.1) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 61,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 46,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 02:46:37",
-    "symbol": "SOLUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 90,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 57% menunjukkan dorongan positif moderat. | ADX momentum kuat (34.1) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 60,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 46,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 03:01:23",
-    "symbol": "XRPUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 80,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | ADX momentum kuat (34.2) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 58,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 58.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 44,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 03:09:31",
-    "symbol": "SOPHUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 90,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat. | ADX momentum kuat (34.2) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 61,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 46,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 03:33:08",
-    "symbol": "WLDUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 90,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat. | ADX momentum kuat (33.8) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 61,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 46,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 03:54:11",
-    "symbol": "WLDUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 90,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat. | ADX momentum kuat (33.8) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 61,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 46,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 04:23:16",
-    "symbol": "SOPHUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 95,
-      "desired_scale": 1.2,
-      "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 62% menunjukkan dorongan positif moderat. | ADX momentum kuat (33.4) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 62,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 62.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 47,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 04:37:30",
-    "symbol": "SUIUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 90,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat. | ADX momentum kuat (33.4) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 65,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 47,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
-    "timestamp": "2026-09-09 04:59:29",
-    "symbol": "ETHUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 90,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 69% menunjukkan dorongan positif moderat. | ADX momentum kuat (33.5) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 30,
-      "desired_scale": 0.65,
-      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
-    },
-    "neutral": {
-      "score": 65,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 65.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_DEFENSIVE",
-      "composite_risk_score": 47,
-      "allocated_risk_scale": 0.55,
-      "stop_loss_profile": "TIGHT_BREAKEVEN",
-      "regime_weights": {
-        "aggressive": 0.15,
-        "neutral": 0.25,
-        "conservative": 0.6
-      },
-      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
-    }
-  },
-  {
     "timestamp": "2026-09-09 10:07:27",
     "symbol": "ZECUSDT",
     "side": "LONG",
@@ -1697,6 +1051,652 @@
         "conservative": 0.35
       },
       "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:20:58",
+    "symbol": "NEARUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 65,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 67,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.25,
+        "neutral": 0.4,
+        "conservative": 0.35
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:25:17",
+    "symbol": "SOLUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 63% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 63,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 63.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 66,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.25,
+        "neutral": 0.4,
+        "conservative": 0.35
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:25:31",
+    "symbol": "PROMUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 65,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional."
+    },
+    "conservative": {
+      "score": 30,
+      "desired_scale": 0.65,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
+    },
+    "neutral": {
+      "score": 58,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 58.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_DEFENSIVE",
+      "composite_risk_score": 42,
+      "allocated_risk_scale": 0.55,
+      "stop_loss_profile": "TIGHT_BREAKEVEN",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:27:34",
+    "symbol": "SUIUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 30,
+      "desired_scale": 0.65,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
+    },
+    "neutral": {
+      "score": 65,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_DEFENSIVE",
+      "composite_risk_score": 45,
+      "allocated_risk_scale": 0.55,
+      "stop_loss_profile": "TIGHT_BREAKEVEN",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:29:34",
+    "symbol": "BTCUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 66% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 64,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 64.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 66,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:31:40",
+    "symbol": "ETHUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 30,
+      "desired_scale": 0.65,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
+    },
+    "neutral": {
+      "score": 65,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_DEFENSIVE",
+      "composite_risk_score": 45,
+      "allocated_risk_scale": 0.55,
+      "stop_loss_profile": "TIGHT_BREAKEVEN",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:33:42",
+    "symbol": "PROMUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 30,
+      "desired_scale": 0.65,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
+    },
+    "neutral": {
+      "score": 61,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_DEFENSIVE",
+      "composite_risk_score": 44,
+      "allocated_risk_scale": 0.55,
+      "stop_loss_profile": "TIGHT_BREAKEVEN",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:37:41",
+    "symbol": "SUIUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 66% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 30,
+      "desired_scale": 0.65,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
+    },
+    "neutral": {
+      "score": 64,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 64.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_DEFENSIVE",
+      "composite_risk_score": 45,
+      "allocated_risk_scale": 0.55,
+      "stop_loss_profile": "TIGHT_BREAKEVEN",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:39:45",
+    "symbol": "ZECUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 62% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 62,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 62.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 66,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.25,
+        "neutral": 0.4,
+        "conservative": 0.35
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:39:55",
+    "symbol": "XRPUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 30,
+      "desired_scale": 0.65,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
+    },
+    "neutral": {
+      "score": 60,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_DEFENSIVE",
+      "composite_risk_score": 44,
+      "allocated_risk_scale": 0.55,
+      "stop_loss_profile": "TIGHT_BREAKEVEN",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:42:01",
+    "symbol": "PROMUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 30,
+      "desired_scale": 0.65,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
+    },
+    "neutral": {
+      "score": 61,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_DEFENSIVE",
+      "composite_risk_score": 44,
+      "allocated_risk_scale": 0.55,
+      "stop_loss_profile": "TIGHT_BREAKEVEN",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:44:20",
+    "symbol": "PROMUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 61,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 65,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.25,
+        "neutral": 0.4,
+        "conservative": 0.35
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:44:34",
+    "symbol": "XRPUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 30,
+      "desired_scale": 0.65,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
+    },
+    "neutral": {
+      "score": 60,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_DEFENSIVE",
+      "composite_risk_score": 44,
+      "allocated_risk_scale": 0.55,
+      "stop_loss_profile": "TIGHT_BREAKEVEN",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:46:41",
+    "symbol": "SUIUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 66% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 64,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 64.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 66,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:48:46",
+    "symbol": "DOGEUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 64% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 63,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 63.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 66,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:50:56",
+    "symbol": "DOGEUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 65,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 58,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 58.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 63,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:52:31",
+    "symbol": "SOLUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 66% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 64,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 64.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 66,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:54:09",
+    "symbol": "ETHUSDT",
+    "side": "SHORT",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 63% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 65,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 63,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 63.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 66,
+      "allocated_risk_scale": 1.0,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+    }
+  },
+  {
+    "timestamp": "2026-09-10 02:55:40",
+    "symbol": "XRPUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 30,
+      "desired_scale": 0.65,
+      "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan."
+    },
+    "neutral": {
+      "score": 60,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_DEFENSIVE",
+      "composite_risk_score": 44,
+      "allocated_risk_scale": 0.55,
+      "stop_loss_profile": "TIGHT_BREAKEVEN",
+      "regime_weights": {
+        "aggressive": 0.15,
+        "neutral": 0.25,
+        "conservative": 0.6
+      },
+      "synthesis": "APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke 0.55x dengan kunci Break-Even cepat di +0.6R."
     }
   }
 ]

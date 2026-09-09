@@ -3,81 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Akademi Crypto — Visual Mission Control (Dub Dark Edition)</title>
+  <title>Akademi Crypto — Visual Mission Control (GSAP Chalkboard Edition)</title>
   <meta name="description" content="Autonomous Binance Futures Trading Desk Visual Mission Control with TradingView Lightweight Charts, SMC Structural Trailing, 2D Compass Matrix, Directional Heat, and Trade Journal Analytics.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Geist+Mono:wght@400;500;600&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <!-- TradingView Lightweight Charts CDN -->
   <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
 
   <style>
     /* ==========================================================================
-       DUB DARK EDITION DESIGN SYSTEM TOKENS
-       "Editorial Precision, Hairline Ash Borders, Electric Blue Voltage"
+       GSAP DESIGN SYSTEM TOKENS
+       "Animated chalkboard in a design studio. Near-black wall, warm cream chalk,
+       and five color-coded highlighters — one for each discipline."
        ========================================================================== */
     :root {
-      /* Base Surfaces */
-      --color-canvas: #0a0a0a;
-      --color-paper: #141414;
-      --color-card: #0f0f0f;
-      --color-card-subtle: #121212;
-      --color-hover: #181818;
+      /* Primary GSAP Colors */
+      --color-just-black: #0e100f;
+      --color-surface-cream: #fffce1;
+      --color-surface-50: #7c7c6f;
+      --color-surface-25: #42433d;
+      --color-off-black: #191919;
+      --color-shockingly-green: #0ae448;
+      --gradient-shockingly-green: linear-gradient(114.41deg, #0ae448 20.74%, #abff84 65.5%);
+      --color-light-green: #abff84;
+      --color-orangey: #ff8709;
+      --color-pink: #fec5fb;
+      --color-lilac: #9d95ff;
+      --color-blue: #00bae2;
+      --color-core-green: #dfffd1;
+      --color-lipstick-pink: #f100cb;
+
+      /* Surface Mapping */
+      --color-canvas: var(--color-just-black);
+      --color-paper: var(--color-off-black);
+      --color-card: var(--color-off-black);
+      --color-card-subtle: #21221e;
+      --color-hover: #262723;
 
       /* Structural Hairline Borders */
-      --color-ash: #262626;
-      --color-smoke: #383838;
-      --color-pebble: #4a4a4a;
+      --color-ash: var(--color-surface-25);
+      --color-smoke: #585951;
+      --color-pebble: var(--color-surface-50);
 
       /* Typography Tokens */
-      --color-text: #f5f5f5;
-      --color-text-dim: #a3a3a3;
-      --color-text-faint: #666666;
+      --color-text: var(--color-surface-cream);
+      --color-text-dim: var(--color-surface-50);
+      --color-text-faint: #4e4f48;
 
-      /* Signature Voltage Accents */
-      --color-electric-blue: #3b82f6;
-      --color-electric-blue-dim: rgba(59, 130, 246, 0.12);
-      --color-deep-sapphire: #1d4ed8;
+      /* 5-Discipline Taxonomy Accents */
+      --color-mint: var(--color-shockingly-green);
+      --color-mint-dim: rgba(10, 228, 72, 0.12);
+      --color-tangerine: var(--color-orangey);
+      --color-tangerine-dim: rgba(255, 135, 9, 0.14);
+      --color-lavender: var(--color-lilac);
+      --color-lavender-dim: rgba(157, 149, 255, 0.14);
+      --color-cyan: var(--color-blue);
+      --color-cyan-dim: rgba(0, 186, 226, 0.14);
+      --color-electric-blue: var(--color-blue);
+      --color-electric-blue-dim: rgba(0, 186, 226, 0.14);
 
-      /* Feature Pill Accents (9999px) */
-      --color-mint: #4ade80;
-      --color-mint-dim: rgba(34, 197, 94, 0.12);
-      --color-tangerine: #fb923c;
-      --color-tangerine-dim: rgba(234, 88, 12, 0.14);
-      --color-lavender: #c084fc;
-      --color-lavender-dim: rgba(139, 92, 246, 0.14);
-      --color-cyan: #22d3ee;
-      --color-cyan-dim: rgba(6, 182, 212, 0.14);
-
-      /* Typography Families */
-      --font-display: 'Plus Jakarta Sans', 'Space Grotesk', -apple-system, sans-serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      /* Typography Families (Mori substitute: Inter Tight / DM Sans) */
+      --font-mori: 'Inter Tight', 'DM Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-display: var(--font-mori);
+      --font-body: var(--font-mori);
       --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
 
-      /* Radii */
+      /* Radii (GSAP Outlined Geometry: 8px Cards, 100px Ghost Buttons, 9999px Pills) */
+      --radius-cards: 8px;
+      --radius-card: 8px;
+      --radius-buttons: 100px;
+      --radius-btn: 100px;
+      --radius-pills: 9999px;
       --radius-pill: 9999px;
-      --radius-card: 12px;
-      --radius-btn: 8px;
-      --radius-input: 6px;
-      --radius-modal: 16px;
+      --radius-smalltags: 8px;
+      --radius-input: 8px;
+      --radius-modal: 12px;
+
+      /* Spacing Scale */
+      --spacing-8: 8px;
+      --spacing-12: 12px;
+      --spacing-16: 16px;
+      --spacing-20: 20px;
+      --spacing-24: 24px;
+      --spacing-32: 32px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     html, body {
       height: 100%;
-      background: var(--color-canvas);
-      color: var(--color-text);
-      font-family: var(--font-body);
-      font-size: 13px;
+      background: var(--color-just-black);
+      color: var(--color-surface-cream);
+      font-family: var(--font-mori);
+      font-size: 14px;
+      line-height: 1.25;
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-      background-size: 20px 20px;
+      /* Subtle animated chalkboard texture */
+      background-image: radial-gradient(rgba(255, 252, 225, 0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
     }
 
     .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-    .display { font-family: var(--font-display); }
+    .display { font-family: var(--font-mori); letter-spacing: -0.02em; }
 
     /* Main Container */
     #app {
@@ -89,18 +118,18 @@
     }
 
     /* ==========================================================================
-       DUB MINIMAL EXECUTIVE HEADER & NAV
+       GSAP MINIMAL STUDIO HEADER & OUTLINED CONTROLS
        ========================================================================== */
     header {
-      height: 56px;
-      background: rgba(10, 10, 10, 0.88);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--color-ash);
+      height: 60px;
+      background: rgba(14, 16, 15, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--color-surface-25);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 18px;
+      padding: 0 20px;
       flex-shrink: 0;
       z-index: 100;
     }
@@ -112,154 +141,188 @@
     }
 
     .brand-title {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
-      letter-spacing: -0.3px;
-      color: var(--color-text);
+      letter-spacing: -0.02em;
+      color: var(--color-surface-cream);
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
     .brand-mark {
-      width: 8px;
-      height: 8px;
-      background: var(--color-electric-blue);
-      border-radius: var(--radius-pill);
-      box-shadow: 0 0 10px var(--color-electric-blue);
+      width: 9px;
+      height: 9px;
+      background: var(--color-shockingly-green);
+      border-radius: var(--radius-pills);
+      box-shadow: 0 0 12px var(--color-shockingly-green);
     }
 
     .pill-badge {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 3px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: var(--radius-pills);
+      font-size: 10.5px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.3px;
+      background: transparent;
+      border: 1px solid var(--color-surface-25);
+      color: var(--color-surface-cream);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    .pill-badge.mint { background: var(--color-mint-dim); color: var(--color-mint); border: 1px solid rgba(74, 222, 128, 0.25); }
-    .pill-badge.tangerine { background: var(--color-tangerine-dim); color: var(--color-tangerine); border: 1px solid rgba(251, 146, 60, 0.25); }
-    .pill-badge.blue { background: var(--color-electric-blue-dim); color: var(--color-electric-blue); border: 1px solid rgba(59, 130, 246, 0.25); }
-    .pill-badge.cyan { background: var(--color-cyan-dim); color: var(--color-cyan); border: 1px solid rgba(34, 211, 238, 0.25); }
-    .pill-badge.lavender { background: var(--color-lavender-dim); color: var(--color-lavender); border: 1px solid rgba(192, 132, 252, 0.25); }
+    .pill-badge.gsap { border-color: rgba(10, 228, 72, 0.4); color: var(--color-shockingly-green); }
+    .pill-badge.core-green { border-color: rgba(171, 255, 132, 0.35); color: var(--color-light-green); }
+    .pill-badge.mint { border-color: rgba(10, 228, 72, 0.4); color: var(--color-shockingly-green); }
+    .pill-badge.tangerine { border-color: rgba(255, 135, 9, 0.4); color: var(--color-orangey); }
+    .pill-badge.pink { border-color: rgba(254, 197, 251, 0.4); color: var(--color-pink); }
+    .pill-badge.lilac { border-color: rgba(157, 149, 255, 0.4); color: var(--color-lilac); }
+    .pill-badge.blue { border-color: rgba(0, 186, 226, 0.4); color: var(--color-blue); }
+    .pill-badge.cyan { border-color: rgba(0, 186, 226, 0.4); color: var(--color-blue); }
+    .pill-badge.ash { border-color: var(--color-surface-25); color: var(--color-surface-50); }
 
-    /* Segmented Navigation Tabs */
+    /* Segmented Navigation Tabs (Ghost Outlined Pills) */
     .segmented-tabs {
       display: flex;
       align-items: center;
-      background: var(--color-paper);
-      border: 1px solid var(--color-ash);
-      border-radius: var(--radius-pill);
+      background: var(--color-off-black);
+      border: 1px solid var(--color-surface-25);
+      border-radius: var(--radius-buttons);
       padding: 3px;
-      gap: 2px;
+      gap: 3px;
+      flex-shrink: 0;
     }
 
     .tab-btn {
       background: transparent;
-      border: none;
-      color: var(--color-text-dim);
-      padding: 6px 14px;
-      border-radius: var(--radius-pill);
+      border: 1px solid transparent;
+      color: var(--color-surface-50);
+      padding: 5px 12px;
+      border-radius: var(--radius-buttons);
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-      font-family: inherit;
+      gap: 5px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: var(--font-mori);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .tab-btn:hover {
-      color: var(--color-text);
-      background: rgba(255, 255, 255, 0.04);
+      color: var(--color-surface-cream);
+      background: rgba(255, 252, 225, 0.04);
     }
 
     .tab-btn.active {
-      background: var(--color-card);
-      color: var(--color-text);
+      background: var(--color-just-black);
+      color: var(--color-surface-cream);
       font-weight: 600;
-      border: 1px solid var(--color-ash);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--color-surface-cream);
     }
 
     .tab-btn.active .tab-icon {
-      color: var(--color-electric-blue);
+      color: var(--color-shockingly-green);
     }
 
     /* Header Actions Right */
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
+      flex-shrink: 0;
     }
 
     .equity-capsule {
       display: flex;
       align-items: baseline;
-      gap: 6px;
-      padding: 4px 12px;
-      background: var(--color-paper);
-      border: 1px solid var(--color-ash);
-      border-radius: var(--radius-btn);
+      gap: 5px;
+      padding: 4px 10px;
+      background: var(--color-off-black);
+      border: 1px solid var(--color-surface-25);
+      border-radius: var(--radius-buttons);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .equity-label {
       font-size: 10px;
       text-transform: uppercase;
-      color: var(--color-text-dim);
+      color: var(--color-surface-50);
       letter-spacing: 0.5px;
     }
 
     .equity-val {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 600;
-      color: var(--color-text);
+      color: var(--color-surface-cream);
     }
 
+    /* Outlined Cream Pill Button (GSAP Default Interactive Control) */
     .btn {
-      background: var(--color-card);
-      border: 1px solid var(--color-ash);
-      color: var(--color-text);
-      padding: 6px 12px;
-      border-radius: var(--radius-btn);
-      font-size: 12px;
-      font-weight: 500;
+      background: transparent;
+      border: 1px solid var(--color-surface-cream);
+      color: var(--color-surface-cream);
+      padding: 5px 12px;
+      border-radius: var(--radius-buttons);
+      font-size: 11.5px;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-      font-family: inherit;
+      gap: 5px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: var(--font-mori);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .btn:hover {
-      background: var(--color-hover);
-      border-color: var(--color-smoke);
+      border-color: rgba(255, 252, 225, 0.7);
+      background: rgba(255, 252, 225, 0.06);
+      transform: translateY(-1px);
     }
 
-    .btn-primary {
-      background: #000000;
-      color: #ffffff;
-      border: 1px solid var(--color-smoke);
+    /* Gradient-Stroked Primary CTA Pill (Get GSAP / Active Mode) */
+    .btn-gradient-cta, #mode-badge-btn {
+      background: transparent;
+      border: 1.5px solid transparent !important;
+      border-radius: var(--radius-buttons);
+      background-image: linear-gradient(var(--color-just-black), var(--color-just-black)), var(--gradient-shockingly-green) !important;
+      background-origin: border-box !important;
+      background-clip: padding-box, border-box !important;
+      color: var(--color-surface-cream) !important;
+      font-weight: 600;
+      padding: 5px 12px;
+      box-shadow: 0 0 12px rgba(10, 228, 72, 0.15);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
-    .btn-primary:hover {
-      background: #111111;
-      border-color: var(--color-pebble);
+
+    .btn-gradient-cta:hover, #mode-badge-btn:hover {
+      box-shadow: 0 0 20px rgba(10, 228, 72, 0.3);
+      transform: translateY(-1px);
     }
 
     .btn-danger {
-      background: var(--color-tangerine-dim);
-      color: var(--color-tangerine);
-      border: 1px solid rgba(251, 146, 60, 0.3);
+      background: transparent;
+      border: 1px solid var(--color-orangey);
+      color: var(--color-orangey);
+      border-radius: var(--radius-buttons);
     }
     .btn-danger:hover {
-      background: var(--color-tangerine);
-      color: #000;
+      background: rgba(255, 135, 9, 0.1);
+      color: var(--color-surface-cream);
+      border-color: var(--color-orangey);
     }
 
     /* ==========================================================================
@@ -269,7 +332,7 @@
       display: none;
       flex: 1;
       overflow: hidden;
-      height: calc(100vh - 56px);
+      height: calc(100vh - 60px);
     }
 
     .tab-pane.active {
@@ -297,7 +360,7 @@
     }
 
     .panel-header {
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-bottom: 1px solid var(--color-ash);
       font-size: 11px;
       font-weight: 600;
@@ -316,7 +379,7 @@
     }
 
     .watch-item {
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-bottom: 1px solid var(--color-ash);
       cursor: pointer;
       display: flex;
@@ -331,7 +394,7 @@
 
     .watch-item.active {
       background: var(--color-paper);
-      border-left: 3px solid var(--color-electric-blue);
+      border-left: 3px solid var(--color-shockingly-green);
     }
 
     .watch-sym-title {
@@ -360,7 +423,7 @@
     }
 
     .chart-toolbar {
-      padding: 10px 16px;
+      padding: 8px 14px;
       border-bottom: 1px solid var(--color-ash);
       display: flex;
       align-items: center;
@@ -371,27 +434,27 @@
     .symbol-title-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .symbol-name {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--color-text);
-      letter-spacing: -0.3px;
+      letter-spacing: -0.02em;
     }
 
     .symbol-price-display {
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 600;
-      color: var(--color-mint);
+      color: var(--color-shockingly-green);
     }
 
     .timeframe-pills {
       display: flex;
       background: var(--color-canvas);
       border: 1px solid var(--color-ash);
-      border-radius: var(--radius-pill);
+      border-radius: var(--radius-buttons);
       padding: 2px;
       gap: 2px;
     }
@@ -400,11 +463,13 @@
       background: transparent;
       border: none;
       color: var(--color-text-dim);
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: var(--radius-buttons);
+      font-size: 10.5px;
       font-weight: 500;
       cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
     }
 
     .tf-btn.active {
@@ -422,27 +487,27 @@
 
     .chart-legend {
       position: absolute;
-      top: 12px;
-      left: 12px;
+      top: 10px;
+      left: 10px;
       z-index: 10;
-      background: rgba(15, 15, 15, 0.85);
+      background: rgba(25, 25, 25, 0.88);
       border: 1px solid var(--color-ash);
-      border-radius: var(--radius-btn);
-      padding: 6px 12px;
-      font-size: 11px;
+      border-radius: var(--radius-buttons);
+      padding: 4px 12px;
+      font-size: 10.5px;
       display: flex;
-      gap: 14px;
+      gap: 12px;
       backdrop-filter: blur(8px);
     }
 
     .legend-indicator {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       color: var(--color-text-dim);
     }
 
-    .legend-bar { width: 12px; height: 3px; border-radius: 2px; }
+    .legend-bar { width: 10px; height: 3px; border-radius: 2px; }
 
     .chart-footer-metrics {
       display: grid;
@@ -452,23 +517,23 @@
     }
 
     .metric-brick {
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-right: 1px solid var(--color-ash);
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
     }
     .metric-brick:last-child { border-right: none; }
 
     .metric-brick-label {
-      font-size: 10px;
+      font-size: 9.5px;
       color: var(--color-text-dim);
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
 
     .metric-brick-val {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       color: var(--color-text);
     }
@@ -490,15 +555,15 @@
       gap: 12px;
     }
 
-    /* Dub Style Position Card */
+    /* GSAP Style Position Card */
     .pos-card {
       background: var(--color-card);
       border: 1px solid var(--color-ash);
       border-radius: var(--radius-card);
-      padding: 14px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
       transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
       cursor: pointer;
       position: relative;
@@ -507,13 +572,12 @@
     .pos-card:hover {
       border-color: var(--color-smoke);
       background: var(--color-card-subtle);
-      transform: translateY(-1px);
     }
 
     .pos-card.active {
-      border-color: var(--color-electric-blue) !important;
-      background: rgba(59, 130, 246, 0.05) !important;
-      box-shadow: 0 0 0 1px var(--color-electric-blue), 0 4px 14px rgba(59, 130, 246, 0.15);
+      border-color: var(--color-shockingly-green) !important;
+      background: rgba(10, 228, 72, 0.04) !important;
+      box-shadow: none;
     }
 
     .pos-card-head {
@@ -523,7 +587,7 @@
     }
 
     .pos-card-sym {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       color: var(--color-text);
       display: flex;
@@ -535,11 +599,11 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      padding: 6px 0;
+      padding: 4px 0;
     }
 
     .pos-pnl-val {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
     }
 
@@ -550,22 +614,22 @@
     .smc-progress-box {
       background: var(--color-paper);
       border: 1px solid var(--color-ash);
-      border-radius: var(--radius-btn);
-      padding: 8px 10px;
+      border-radius: 6px;
+      padding: 6px 9px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .smc-label-row {
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--color-text-dim);
     }
 
     .smc-progress-bar {
-      height: 4px;
+      height: 3px;
       background: var(--color-ash);
       border-radius: 2px;
       position: relative;
@@ -582,14 +646,15 @@
 
     .pos-card-actions {
       display: flex;
-      gap: 8px;
-      margin-top: 4px;
+      gap: 6px;
+      margin-top: 3px;
     }
 
     .pos-card-actions .btn {
       flex: 1;
       justify-content: center;
-      font-size: 11px;
+      font-size: 10.5px;
+      padding: 4px 8px;
     }
 
     /* ==========================================================================
@@ -654,7 +719,7 @@
       height: 260px;
       background: var(--color-paper);
       border: 1px solid var(--color-ash);
-      border-radius: var(--radius-btn);
+      border-radius: var(--radius-card);
       position: relative;
       overflow: hidden;
     }
@@ -672,23 +737,29 @@
 
     .matrix-quadrant {
       position: absolute;
-      padding: 10px 14px;
+      padding: 8px 12px;
       font-size: 11px;
       font-weight: 600;
-      color: var(--color-text-faint);
+      color: var(--color-surface-50);
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
+      max-width: 47%;
+      box-sizing: border-box;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .quad-tl { top: 0; left: 0; }
-    .quad-tr { top: 0; right: 0; text-align: right; }
-    .quad-bl { bottom: 0; left: 0; }
-    .quad-br { bottom: 0; right: 0; text-align: right; }
+    .quad-tl { top: 8px; left: 8px; }
+    .quad-tr { top: 8px; right: 8px; text-align: right; align-items: flex-end; }
+    .quad-bl { bottom: 8px; left: 8px; }
+    .quad-br { bottom: 8px; right: 8px; text-align: right; align-items: flex-end; }
 
     .matrix-quadrant.active {
-      color: var(--color-text);
-      background: rgba(59, 130, 246, 0.08);
-      border-radius: 6px;
+      color: var(--color-surface-cream);
+      background: rgba(10, 228, 72, 0.08);
+      border: 1px solid rgba(10, 228, 72, 0.4);
+      box-shadow: 0 0 16px rgba(10, 228, 72, 0.12);
     }
 
     .matrix-dot {
@@ -713,7 +784,7 @@
     .heat-bar-wrapper {
       background: var(--color-paper);
       border: 1px solid var(--color-ash);
-      border-radius: var(--radius-btn);
+      border-radius: var(--radius-card);
       padding: 12px;
       display: flex;
       flex-direction: column;
@@ -1064,19 +1135,18 @@
 </head>
 <body>
   <div id="app">
-    <!-- Dub Minimal Executive Header -->
+    <!-- GSAP Minimal Studio Header -->
     <header>
       <div class="brand-cluster">
         <div class="brand-mark"></div>
         <div class="brand-title display">
-          <span>AKADEMI</span><span style="color:var(--color-electric-blue);">CRYPTO</span>
+          <span>AKADEMI</span><span style="color:var(--color-shockingly-green); text-shadow:0 0 10px rgba(10,228,72,0.3);">CRYPTO</span>
         </div>
-        <span class="pill-badge blue">DUB OBSIDIAN</span>
-        <span class="pill-badge mint" id="header-status-pill">● AUTOPILOT ACTIVE</span>
+        <span class="pill-badge core-green" id="header-status-pill">● AUTOPILOT ACTIVE</span>
         <span class="pill-badge blue" id="header-regime-pill" style="font-size:10px; cursor:help;" title="Rezim Pasar Kuantitatif (ADX & Multi-EMA)">● BTC REGIME: DETECTING</span>
       </div>
 
-      <!-- Segmented View Tabs -->
+      <!-- Segmented Outlined Ghost Tabs -->
       <div class="segmented-tabs">
         <button class="tab-btn active" onclick="switchView('terminal')" id="tab-terminal">
           <span class="tab-icon">🖥️</span> Terminal
@@ -1085,32 +1155,36 @@
           <span class="tab-icon">🧭</span> Market Intelligence
         </button>
         <button class="tab-btn" onclick="switchView('journal')" id="tab-journal">
-          <span class="tab-icon">📖</span> Trade Journal & Analytics
-          <span class="pill-badge mint mono" style="font-size:9.5px; padding:1px 6px;">5 Sep</span>
+          <span class="tab-icon">📖</span> Trade Journal
+          <span class="pill-badge pink mono" style="font-size:9.5px; padding:1px 6px;" id="header-journal-badge">Hari Ini</span>
         </button>
         <button class="tab-btn" onclick="switchView('paperclip')" id="tab-paperclip">
           <span class="tab-icon">🏢</span> Paperclip Firm
-          <span class="pill-badge blue mono" style="font-size:9px; padding:1px 5px;" id="header-pending-board-badge">CONTROL PLANE</span>
+          <span class="pill-badge lilac mono" style="font-size:9px; padding:1px 5px;" id="header-pending-board-badge">CONTROL PLANE</span>
         </button>
       </div>
 
-      <!-- Right Metric Pill & Controls -->
+      <!-- Right Metric Pill & Ghost Controls -->
       <div class="header-actions">
         <div class="equity-capsule">
           <span class="equity-label">Equity</span>
           <span class="equity-val mono" id="header-equity">$5,250.28</span>
         </div>
 
-        <button class="btn" id="mode-badge-btn" onclick="toggleTradingMode()" title="Ganti Mode Trading (HYBRID: 5m Scalp + 1H Swing | SCALP: 5m | SWING: 1H)" style="border-color:var(--color-electric-blue); box-shadow:0 0 10px rgba(59, 130, 246, 0.2);">
+        <button class="btn btn-gradient-cta" id="mode-badge-btn" onclick="toggleTradingMode()" title="Ganti Mode Trading (HYBRID: 5m Scalp + 1H Swing | SCALP: 5m | SWING: 1H)">
           <span id="mode-text">🤖 HYBRID (5m+1H)</span>
         </button>
 
-        <button class="btn" onclick="openBacktestModal()" title="Jalankan Simulasi Quant">
+        <button class="btn" onclick="openBacktestModal()" title="Jalankan Simulasi Quant [B]">
           🔬 Backtest
         </button>
 
-        <button class="btn" onclick="openAiModal()" title="Konsultasi Tanya Jawab AI Senior Quant Officer" style="border-color:rgba(59,130,246,0.5); color:var(--color-electric-blue);">
+        <button class="btn" onclick="openAiModal()" title="Konsultasi Tanya Jawab AI Senior Quant Officer [A]" style="border-color:var(--color-lilac); color:var(--color-lilac);">
           🤖 Tanya AI
+        </button>
+
+        <button class="btn" onclick="openShortcutsModal()" title="Panduan Keyboard Shortcuts [?]">
+          <span class="mono" style="font-size:10px;">⌨️ [?]</span>
         </button>
 
         <button class="btn" id="pause-btn" onclick="togglePause()">
@@ -1286,7 +1360,7 @@
                 </div>
               </div>
 
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:12px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5;">
                 💡 <b>Perisai Likuidasi Simultan:</b> Agent membatasi ekspansi posisi searah (maks 2 Long atau 2 Short) untuk mencegah risiko <i>flash dump</i> Bitcoin menyeret seluruh portofolio secara bersamaan.
               </div>
             </div>
@@ -1306,7 +1380,7 @@
                 <span style="font-size:12px; color:var(--color-text-dim);">Spread Harga Coinbase vs Binance:</span>
                 <span class="mono" id="cb-spread-val" style="font-size:18px; font-weight:700; color:var(--color-mint);">+0.045%</span>
               </div>
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:12px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5;">
                 🏛️ <b>Arus Dana Institusi AS:</b> Ketika harga Bitcoin di Coinbase lebih mahal dari Binance (Premium Positif), ini menandakan akumulasi spot institusional skala besar di Amerika Serikat.
               </div>
             </div>
@@ -1323,11 +1397,11 @@
 
             <div style="display:flex; flex-direction:column; gap:12px;">
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Taker Long/Short</span>
                   <div class="mono" id="deriv-ls-ratio" style="font-size:15px; font-weight:700; margin-top:4px;">1.12 : 1.0</div>
                 </div>
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Likuidasi 4 Jam</span>
                   <div class="mono" id="deriv-liq-val" style="font-size:15px; font-weight:700; color:var(--color-tangerine); margin-top:4px;">$12.4M</div>
                 </div>
@@ -1346,7 +1420,7 @@
 
             <div style="display:flex; flex-direction:column; gap:14px;">
               <!-- Dual Color Depth Gauge Track -->
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:12px; display:flex; flex-direction:column; gap:8px;">
                 <div style="display:flex; justify-content:space-between; font-size:12px;">
                   <span>Kedalaman Book (±2.0%)</span>
                   <span class="mono" id="dom-ratio-label">Ratio: 1.00x</span>
@@ -1364,11 +1438,11 @@
 
               <!-- Top Walls Card -->
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Tembok Bid Terbesar (Support)</span>
                   <div class="mono" id="dom-bid-wall" style="font-size:13px; font-weight:700; color:var(--color-mint); margin-top:4px;">-</div>
                 </div>
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Tembok Ask Terbesar (Resist)</span>
                   <div class="mono" id="dom-ask-wall" style="font-size:13px; font-weight:700; color:var(--color-tangerine); margin-top:4px;">-</div>
                 </div>
@@ -1388,21 +1462,21 @@
             <div style="display:flex; flex-direction:column; gap:12px;">
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
                 <!-- CVD Delta -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Taker Net Delta</span>
                   <div class="mono" id="of-net-delta-val" style="font-size:15px; font-weight:700; color:var(--color-mint); margin-top:3px;">+14.2 BTC</div>
                   <div class="mono" id="of-delta-pct" style="font-size:10.5px; margin-top:2px; color:var(--color-mint);">+28.4% Delta</div>
                 </div>
 
                 <!-- Taker Ratio -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Buy/Sell Taker Ratio</span>
                   <div class="mono" id="of-taker-ratio-val" style="font-size:15px; font-weight:700; color:var(--color-text); margin-top:3px;">1.42x</div>
                   <div class="mono" id="of-slope-val" style="font-size:10.5px; margin-top:2px; color:var(--color-cyan);">BUY EXPANSION</div>
                 </div>
 
                 <!-- DOM Imbalance -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">DOM Stack Imbalance</span>
                   <div class="mono" id="of-dom-ratio-val" style="font-size:15px; font-weight:700; color:var(--color-mint); margin-top:3px;">1.85x BID</div>
                   <div id="of-stacked-count" style="font-size:10.5px; margin-top:2px; color:var(--color-text-dim);">3 Stacked Levels</div>
@@ -1410,7 +1484,7 @@
               </div>
 
               <!-- Order Flow Thesis & Absorption Callout -->
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:11px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5; display:flex; align-items:flex-start; gap:8px;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:11px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5; display:flex; align-items:flex-start; gap:8px;">
                 <span style="font-size:15px; margin-top:1px;">🛡️</span>
                 <span id="of-thesis-text">Memuat analisis Order Flow & Cumulative Volume Delta (CVD)...</span>
               </div>
@@ -1429,21 +1503,21 @@
             <div style="display:flex; flex-direction:column; gap:12px;">
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
                 <!-- OR High -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Opening Range High</span>
                   <div class="mono" id="orb-high-val" style="font-size:14.5px; font-weight:700; color:var(--color-mint); margin-top:3px;">-</div>
                   <div id="orb-high-sub" style="font-size:10px; margin-top:2px; color:var(--color-text-dim);">Breakout Trigger</div>
                 </div>
 
                 <!-- OR Midpoint -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">OR Mid (SL Pivot)</span>
                   <div class="mono" id="orb-mid-val" style="font-size:14.5px; font-weight:700; color:var(--color-cyan); margin-top:3px;">-</div>
                   <div id="orb-span-pct" style="font-size:10px; margin-top:2px; color:var(--color-text-dim);">Range: 0.00%</div>
                 </div>
 
                 <!-- OR Low -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Opening Range Low</span>
                   <div class="mono" id="orb-low-val" style="font-size:14.5px; font-weight:700; color:var(--color-tangerine); margin-top:3px;">-</div>
                   <div id="orb-low-sub" style="font-size:10px; margin-top:2px; color:var(--color-text-dim);">Breakdown Trigger</div>
@@ -1451,7 +1525,7 @@
               </div>
 
               <!-- ORB Live Status Callout -->
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:11px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5; display:flex; align-items:flex-start; gap:8px;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:11px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5; display:flex; align-items:flex-start; gap:8px;">
                 <span style="font-size:15px; margin-top:1px;" id="orb-status-icon">🕒</span>
                 <span id="orb-status-text">Memuat rentang Opening Range (ORB V4.1) untuk London / NY / Daily Open...</span>
               </div>
@@ -1484,7 +1558,7 @@
                   </tbody>
                 </table>
               </div>
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px; font-size:11px; color:var(--color-text-dim); line-height:1.4;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px; font-size:11px; color:var(--color-text-dim); line-height:1.4;">
                 🧲 <b>Prinsip Akademi Crypto:</b> Pasar bergerak seperti magnet mencari kolam likuiditas (BSL/SSL). Order Book wall dan leverage stop hunts menciptakan gaya gravitasi harga sebelum reversal.
               </div>
             </div>
@@ -1502,21 +1576,21 @@
             <div style="display:flex; flex-direction:column; gap:12px;">
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
                 <!-- DXY -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">US Dollar Index (DXY)</span>
                   <div class="mono" id="macro-dxy-val" style="font-size:15px; font-weight:700; color:var(--color-text); margin-top:3px;">--</div>
                   <div class="mono" id="macro-dxy-sub" style="font-size:10.5px; margin-top:2px; color:var(--color-mint);">0.00%</div>
                 </div>
 
                 <!-- US 10Y Yield -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">US 10Y Yield (^TNX)</span>
                   <div class="mono" id="macro-10y-val" style="font-size:15px; font-weight:700; color:var(--color-text); margin-top:3px;">--</div>
                   <div class="mono" id="macro-10y-sub" style="font-size:10.5px; margin-top:2px; color:var(--color-text-dim);">0.00%</div>
                 </div>
 
                 <!-- Fear & Greed -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Fear & Greed Index</span>
                   <div class="mono" id="macro-fng-val" style="font-size:15px; font-weight:700; color:var(--color-mint); margin-top:3px;">50 / 100</div>
                   <div id="macro-fng-label" style="font-size:10.5px; margin-top:2px; color:var(--color-text-dim);">Neutral</div>
@@ -1524,7 +1598,7 @@
               </div>
 
               <!-- Macro Thesis Box -->
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px; font-size:11.5px; color:var(--color-text-dim); display:flex; align-items:center; gap:8px;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px; font-size:11.5px; color:var(--color-text-dim); display:flex; align-items:center; gap:8px;">
                 <span style="font-size:16px;">🏛️</span>
                 <span id="macro-thesis-text">Sinyal makro global seimbang. DXY dan Yield obligasi dalam rentang wajar.</span>
               </div>
@@ -1543,28 +1617,28 @@
             <div style="display:flex; flex-direction:column; gap:12px;">
               <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
                 <!-- VaR 95% -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">VaR 95% (1-Hari)</span>
                   <div class="mono" id="quant-var95-val" style="font-size:15px; font-weight:700; color:var(--color-tangerine); margin-top:3px;">$0.00</div>
                   <div style="font-size:10px; color:var(--color-text-dim); margin-top:2px;">Batas Rugi Harian</div>
                 </div>
 
                 <!-- CVaR / Expected Shortfall -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">CVaR 95% (Tail Risk)</span>
                   <div class="mono" id="quant-cvar-val" style="font-size:15px; font-weight:700; color:var(--color-electric-blue); margin-top:3px;">$0.00</div>
                   <div style="font-size:10px; color:var(--color-text-dim); margin-top:2px;">Expected Shortfall</div>
                 </div>
 
                 <!-- Sharpe & Sortino -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Sharpe / Sortino</span>
                   <div class="mono" id="quant-sharpe-val" style="font-size:15px; font-weight:700; color:var(--color-mint); margin-top:3px;">0.00 / 0.00</div>
                   <div style="font-size:10px; color:var(--color-text-dim); margin-top:2px;">Risk-Adjusted Alpha</div>
                 </div>
 
                 <!-- Kelly Sizing -->
-                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px;">
                   <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Half-Kelly Optimal</span>
                   <div class="mono" id="quant-kelly-val" style="font-size:15px; font-weight:700; color:var(--color-text); margin-top:3px;">0.00%</div>
                   <div style="font-size:10px; color:var(--color-text-dim); margin-top:2px;">Max Risk / Trade</div>
@@ -1572,7 +1646,7 @@
               </div>
 
               <!-- Portfolio VaR Bar -->
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px; display:flex; justify-content:space-between; align-items:center; font-size:11.5px;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px; display:flex; justify-content:space-between; align-items:center; font-size:11.5px;">
                 <span>Eksposur Posisi Aktif: <b class="mono" id="quant-active-exposure" style="color:var(--color-text);">$0.00</b></span>
                 <span>Beban VaR 95% Portofolio: <b class="mono" id="quant-port-var-cap" style="color:var(--color-mint);">0.00% dari Modal</b></span>
                 <span style="color:var(--color-text-dim);">Maks. Toleransi: <b class="mono" style="color:var(--color-tangerine);">8.0%</b></span>
@@ -1594,7 +1668,7 @@
 
             <div style="display:flex; flex-direction:column; gap:12px;">
               <!-- Debate Conviction Bar -->
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px 14px; display:flex; flex-direction:column; gap:6px;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px 14px; display:flex; flex-direction:column; gap:6px;">
                 <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600;">
                   <span style="color:var(--color-mint);" id="debate-bull-label">🐂 Bull Conviction: 70%</span>
                   <span class="mono" id="debate-target-label" style="color:var(--color-text-dim);">SOL/USDT (LONG)</span>
@@ -1609,7 +1683,7 @@
               <!-- Two Column Debate Arguments -->
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <!-- Bull Column -->
-                <div style="background:var(--color-paper); border:1px solid rgba(74, 222, 128, 0.25); border-radius:var(--radius-btn); padding:12px;">
+                <div style="background:var(--color-paper); border:1px solid rgba(74, 222, 128, 0.25); border-radius:var(--radius-card); padding:12px;">
                   <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
                     <span style="font-size:15px;">🐂</span>
                     <span style="font-size:12px; font-weight:700; color:var(--color-mint);">Bull Researcher (Thesis & Catalysts)</span>
@@ -1620,7 +1694,7 @@
                 </div>
 
                 <!-- Bear Column -->
-                <div style="background:var(--color-paper); border:1px solid rgba(251, 146, 60, 0.25); border-radius:var(--radius-btn); padding:12px;">
+                <div style="background:var(--color-paper); border:1px solid rgba(251, 146, 60, 0.25); border-radius:var(--radius-card); padding:12px;">
                   <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
                     <span style="font-size:15px;">🐻</span>
                     <span style="font-size:12px; font-weight:700; color:var(--color-tangerine);">Bear Researcher (Devil's Advocate)</span>
@@ -1632,7 +1706,7 @@
               </div>
 
               <!-- Arbiter Synthesis Box -->
-              <div style="background:linear-gradient(90deg, rgba(59,130,246,0.08), rgba(74,222,128,0.05)); border:1px solid rgba(59,130,246,0.3); border-radius:var(--radius-btn); padding:12px 14px;">
+              <div style="background:linear-gradient(90deg, rgba(59,130,246,0.08), rgba(74,222,128,0.05)); border:1px solid rgba(59,130,246,0.3); border-radius:var(--radius-card); padding:12px 14px;">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
                   <div style="display:flex; align-items:center; gap:6px;">
                     <span style="font-size:15px;">⚖️</span>
@@ -1665,7 +1739,7 @@
               <!-- 3-Perspective Cards (Aggressive, Neutral, Conservative) -->
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
                 <!-- 1. Aggressive Officer -->
-                <div style="background:var(--color-paper); border:1px solid rgba(74, 222, 128, 0.25); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+                <div style="background:var(--color-paper); border:1px solid rgba(74, 222, 128, 0.25); border-radius:var(--radius-card); padding:12px; display:flex; flex-direction:column; gap:8px;">
                   <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:6px;">
                       <span style="font-size:14px;">🟢</span>
@@ -1686,7 +1760,7 @@
                 </div>
 
                 <!-- 2. Neutral Officer -->
-                <div style="background:var(--color-paper); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+                <div style="background:var(--color-paper); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-card); padding:12px; display:flex; flex-direction:column; gap:8px;">
                   <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:6px;">
                       <span style="font-size:14px;">🔵</span>
@@ -1707,7 +1781,7 @@
                 </div>
 
                 <!-- 3. Conservative Officer -->
-                <div style="background:var(--color-paper); border:1px solid rgba(251, 146, 60, 0.25); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+                <div style="background:var(--color-paper); border:1px solid rgba(251, 146, 60, 0.25); border-radius:var(--radius-card); padding:12px; display:flex; flex-direction:column; gap:8px;">
                   <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:6px;">
                       <span style="font-size:14px;">🔴</span>
@@ -1729,7 +1803,7 @@
               </div>
 
               <!-- Fund Manager (Chief Risk Officer) Synthesis Box -->
-              <div style="background:linear-gradient(90deg, rgba(99,102,241,0.08), rgba(59,130,246,0.06)); border:1px solid rgba(99,102,241,0.3); border-radius:var(--radius-btn); padding:12px 14px;">
+              <div style="background:linear-gradient(90deg, rgba(99,102,241,0.08), rgba(59,130,246,0.06)); border:1px solid rgba(99,102,241,0.3); border-radius:var(--radius-card); padding:12px 14px;">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
                   <div style="display:flex; align-items:center; gap:6px;">
                     <span style="font-size:15px;">🏛️</span>
@@ -1763,7 +1837,7 @@
 
             <div style="display:grid; grid-template-columns: 1fr 1.2fr 1fr; gap:12px;">
               <!-- 1. Fear & Greed Radar -->
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:10px;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:12px; display:flex; flex-direction:column; gap:10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <span style="font-size:12px; font-weight:700; color:var(--color-text);">🎭 Crypto Fear & Greed</span>
                   <span class="mono" id="fng-score-val" style="font-size:15px; font-weight:800; color:var(--color-mint);">69/100</span>
@@ -1794,7 +1868,7 @@
               </div>
 
               <!-- 2. Narrative Sector Rotation Radar -->
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:8px;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:12px; display:flex; flex-direction:column; gap:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <span style="font-size:12px; font-weight:700; color:var(--color-text);">🏛️ Rotasi Modal 6 Sektor Narasi</span>
                   <span class="pill-badge mint" id="leading-sector-badge" style="font-size:9.5px; padding:2px 6px;">⚡ SOL/L1 LEADING</span>
@@ -1810,7 +1884,7 @@
               </div>
 
               <!-- 3. Social Virality & Catalyst Intelligence -->
-              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:12px; display:flex; flex-direction:column; gap:10px;">
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:12px; display:flex; flex-direction:column; gap:10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <span style="font-size:12px; font-weight:700; color:var(--color-text);">🔥 Social Buzz & Virality</span>
                   <span class="pill-badge blue mono" id="virality-stage-pill" style="font-size:9.5px; padding:2px 6px;">ORGANIC EXPANSION</span>
@@ -1844,23 +1918,23 @@
     <!-- VIEW 3: TRADE JOURNAL & QUANTITATIVE ANALYTICS -->
     <div class="tab-pane" id="view-journal">
       <div class="workspace-journal">
-        <!-- Prominent Filter Notification Banner for Tanggal 5 -->
-        <div id="journal-filter-banner" style="display:flex; align-items:center; justify-content:space-between; background:linear-gradient(90deg, rgba(59,130,246,0.12), rgba(74,222,128,0.06)); border:1px solid rgba(59,130,246,0.35); border-radius:var(--radius-card); padding:12px 18px; flex-wrap:wrap; gap:10px;">
+        <!-- Dynamic Date Filter Notification Banner -->
+        <div id="journal-filter-banner" style="display:flex; align-items:center; justify-content:space-between; background:linear-gradient(90deg, rgba(10,228,72,0.08), rgba(59,130,246,0.06)); border:1px solid rgba(10,228,72,0.25); border-radius:var(--radius-card); padding:12px 18px; flex-wrap:wrap; gap:10px;">
           <div style="display:flex; align-items:center; gap:12px;">
             <span style="font-size:22px;">📅</span>
             <div>
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                <span style="font-weight:700; color:var(--color-electric-blue); font-size:13.5px;" id="active-filter-label">Riwayat Trading: Tanggal 5 September 2026</span>
-                <span class="pill-badge mint" id="active-filter-badge" style="font-size:9.5px; padding:2px 8px;">82 TRANSAKSI</span>
+                <span style="font-weight:700; color:var(--color-surface-cream); font-size:13.5px;" id="active-filter-label">Riwayat Trading: Hari Ini</span>
+                <span class="pill-badge mint" id="active-filter-badge" style="font-size:9.5px; padding:2px 8px;">MEMUAT...</span>
               </div>
               <div class="mono" style="font-size:11.5px; color:var(--color-text-dim); margin-top:3px;" id="active-filter-summary">
-                Total Net Realized PnL: <b style="color:var(--color-mint); font-weight:700;">+$241.46 USDT</b> | Win Rate: <b style="color:var(--color-mint);">77.8%</b> (21 Menang, 6 Kalah) | 13 Sinyal Eksekusi Trading Desk
+                Memuat data riwayat transaksi...
               </div>
             </div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
-            <button class="btn" onclick="setJournalDateFilter('2026-09-05')" id="banner-btn-d5" style="font-size:11px; border-color:var(--color-electric-blue); color:var(--color-electric-blue); font-weight:600;">⭐ Tanggal 5 (Aktif)</button>
-            <button class="btn" onclick="setJournalDateFilter('all')" id="banner-btn-all" style="font-size:11px;">Tampilkan Semua (158)</button>
+            <button class="btn" onclick="setJournalDateFilter('today')" id="banner-btn-today" style="font-size:11px; border-color:var(--color-shockingly-green); color:var(--color-shockingly-green); font-weight:600;">⭐ Hari Ini (Aktif)</button>
+            <button class="btn" onclick="setJournalDateFilter('all')" id="banner-btn-all" style="font-size:11px;">Tampilkan Semua</button>
           </div>
         </div>
 
@@ -1868,27 +1942,27 @@
         <div class="scorecard-grid">
           <div class="scorecard-brick">
             <span class="scorecard-label">Win Rate %</span>
-            <span class="scorecard-val mono" id="sc-winrate" style="color:var(--color-mint);">77.8%</span>
+            <span class="scorecard-val mono" id="sc-winrate" style="color:var(--color-mint);">0.0%</span>
           </div>
           <div class="scorecard-brick">
             <span class="scorecard-label">Profit Factor</span>
-            <span class="scorecard-val mono" id="sc-pf">2.78</span>
+            <span class="scorecard-val mono" id="sc-pf">0.00</span>
           </div>
           <div class="scorecard-brick">
             <span class="scorecard-label">Math Expectancy</span>
-            <span class="scorecard-val mono" id="sc-expectancy">+$2.94</span>
+            <span class="scorecard-val mono" id="sc-expectancy">+$0.00</span>
           </div>
           <div class="scorecard-brick">
             <span class="scorecard-label">Payoff Ratio</span>
-            <span class="scorecard-val mono" id="sc-payoff">2.15</span>
+            <span class="scorecard-val mono" id="sc-payoff">0.00</span>
           </div>
           <div class="scorecard-brick">
             <span class="scorecard-label">Net Realized PnL</span>
-            <span class="scorecard-val mono" id="sc-netpnl" style="color:var(--color-mint);">+$241.46</span>
+            <span class="scorecard-val mono" id="sc-netpnl" style="color:var(--color-mint);">+$0.00</span>
           </div>
           <div class="scorecard-brick">
             <span class="scorecard-label">Total Transaksi</span>
-            <span class="scorecard-val mono" id="sc-totaltrades">82</span>
+            <span class="scorecard-val mono" id="sc-totaltrades">0</span>
           </div>
         </div>
 
@@ -1905,12 +1979,12 @@
             <!-- Date Filter Toolbar -->
             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
               <span style="font-size:11px; color:var(--color-text-dim); font-weight:600;">Pilih Tanggal:</span>
-              <button class="filter-chip active" id="chip-d5" onclick="setJournalDateFilter('2026-09-05')">⭐ Tanggal 5 (5 Sep)</button>
-              <button class="filter-chip" id="chip-d6" onclick="setJournalDateFilter('2026-09-06')">6 Sep</button>
-              <button class="filter-chip" id="chip-d7" onclick="setJournalDateFilter('2026-09-07')">7 Sep (Hari Ini)</button>
-              <button class="filter-chip" id="chip-all" onclick="setJournalDateFilter('all')">Semua</button>
+              <div id="journal-date-chips" style="display:inline-flex; gap:6px; flex-wrap:wrap;">
+                <button class="filter-chip active" id="chip-today" onclick="setJournalDateFilter('today')">⭐ Hari Ini</button>
+                <button class="filter-chip" id="chip-all" onclick="setJournalDateFilter('all')">Semua</button>
+              </div>
               
-              <input type="date" id="journal-date-picker" value="2026-09-05" onchange="setJournalDateFilter(this.value)" style="background:var(--color-paper); border:1px solid var(--color-ash); color:var(--color-text); border-radius:var(--radius-btn); padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
+              <input type="date" id="journal-date-picker" onchange="setJournalDateFilter(this.value)" style="background:var(--color-paper); border:1px solid var(--color-ash); color:var(--color-text); border-radius:var(--radius-buttons); padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
               
               <button class="btn" onclick="syncBinanceLedger()" style="font-size:11px; padding:4px 10px;" title="Tarik data terbaru dari Binance Futures API">🔄 Sinkronisasi Binance</button>
             </div>
@@ -1928,7 +2002,7 @@
             </div>
 
             <div style="display:flex; align-items:center; gap:8px;">
-              <input type="text" id="journal-search-input" onkeyup="filterJournalSearch(this.value)" placeholder="🔍 Cari Simbol (e.g. BNB, ETH) atau alasan..." style="background:var(--color-paper); border:1px solid var(--color-ash); color:var(--color-text); border-radius:var(--radius-btn); padding:6px 12px; font-size:11.5px; width:250px; font-family:var(--font-body);">
+              <input type="text" id="journal-search-input" onkeyup="filterJournalSearch(this.value)" placeholder="🔍 Cari Simbol (e.g. BNB, ETH) atau alasan..." style="background:var(--color-paper); border:1px solid var(--color-ash); color:var(--color-text); border-radius:var(--radius-card); padding:6px 12px; font-size:11.5px; width:250px; font-family:var(--font-body);">
             </div>
           </div>
 
@@ -2140,7 +2214,7 @@
           </select>
           <button class="btn btn-primary" onclick="runQuantBacktest()">Jalankan Simulasi</button>
         </div>
-        <div id="bt-results-area" style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:16px; min-height:200px; font-size:12px;">
+        <div id="bt-results-area" style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:16px; min-height:200px; font-size:12px;">
           Pilih parameter dan klik 'Jalankan Simulasi' untuk menguji algoritma pada data historis.
         </div>
       </div>
@@ -2174,9 +2248,77 @@
         </div>
 
         <!-- AI Output Box -->
-        <div id="ai-response-box" style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:16px; min-height:160px; font-size:12.5px; line-height:1.6; color:var(--color-text);">
+        <div id="ai-response-box" style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:16px; min-height:160px; font-size:12.5px; line-height:1.6; color:var(--color-text);">
           Ketik pertanyaan Anda di atas atau klik salah satu tombol cepat untuk mendapatkan pandangan kuantitatif dari AI Senior Quant Officer.
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Cheat Sheet Modal -->
+  <div class="modal-overlay" id="shortcuts-modal">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:14px; font-weight:700; color:var(--color-text);">⌨️ Keyboard Shortcuts & Mission Control Cheatsheet</span>
+          <span class="pill-badge mint mono">GSAP PRO</span>
+        </div>
+        <button class="btn" onclick="closeShortcutsModal()">✕ Tutup</button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:12px;">
+        <div style="font-size:11.5px; color:var(--color-text-dim);">
+          Navigasi cepat dan kendalikan seluruh stasiun trading otonom menggunakan tombol pintas keyboard:
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; font-size:11.5px;">
+          <tbody>
+            <tr style="border-bottom:1px solid var(--color-ash);">
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-shockingly-green);">1</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Terminal</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Beralih langsung ke Mission Control & TradingView Chart</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-ash);">
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-shockingly-green);">2</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Market Intelligence</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Kompas Likuiditas 2D, Order Flow, & Heat Exposure</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-ash);">
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-shockingly-green);">3</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Trade Journal</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Buku Besar Realized PnL & Trade Hari Ini</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-ash);">
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-shockingly-green);">4</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Paperclip Firm</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Hedge Fund Control Plane & Otorisasi Dewan</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-ash);">
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-cyan);">R</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Reload Chart</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Segarkan data candlestick klines & VWAP</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-ash);">
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-cyan);">S</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Sync Binance</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Tarik data riwayat transaksi tertutup terbaru</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-ash);">
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-lilac);">A</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Tanya AI</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Buka dialog konsultasi AI Senior Quant Officer</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-ash);">
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-lilac);">B</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Backtest</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Jalankan simulasi kuantitatif historis</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-tangerine);">ESC</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Tutup Dialog</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Menutup seluruh modal/popup yang aktif</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -2721,17 +2863,17 @@
             </div>
 
             ${p.ai_thesis ? `
-            <div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.2); border-radius:var(--radius-btn); padding:8px 10px; font-size:11px; color:var(--color-text-dim); line-height:1.4;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
-                <span style="color:var(--color-electric-blue); font-weight:700;">🤖 AI Officer Thesis:</span>
-                <span class="pill-badge blue" style="font-size:8.5px; padding:1px 5px;">${p.ai_confidence ? p.ai_confidence + '% CONF' : 'VERIFIED'}</span>
+            <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:6px; padding:6px 9px; font-size:10px; color:var(--color-text-dim); line-height:1.35;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                <span style="color:var(--color-shockingly-green); font-weight:700; font-size:10px;">🤖 AI Officer Thesis:</span>
+                <span class="pill-badge blue" style="font-size:8px; padding:1px 5px;">${p.ai_confidence ? p.ai_confidence + '% CONF' : 'VERIFIED'}</span>
               </div>
-              <i>"${p.ai_thesis}"</i>
+              <div style="color:var(--color-text); opacity:0.85; font-style:italic;">"${p.ai_thesis}"</div>
             </div>
             ` : ''}
 
             <div class="pos-card-actions" onclick="event.stopPropagation()">
-              ${!p.tp1_taken ? `<button class="btn" onclick="event.stopPropagation(); partialClosePosition('${p.symbol}')" style="border-color:rgba(59,130,246,0.5); color:var(--color-electric-blue);" title="Kunci Cuan 50% & Jadikan Sisa Posisi Bebas Risiko (Runner)">🎯 TP 50%</button>` : `<span class="pill-badge mint" style="font-size:9.5px; padding:4px 8px;">🎯 50% CASH LOCKED</span>`}
+              ${!p.tp1_taken ? `<button class="btn" onclick="event.stopPropagation(); partialClosePosition('${p.symbol}')" style="border-color:rgba(10,228,72,0.4); color:var(--color-shockingly-green);" title="Kunci Cuan 50% & Jadikan Sisa Posisi Bebas Risiko (Runner)">🎯 TP 50%</button>` : `<span class="pill-badge mint" style="font-size:9px; padding:3px 6px;">🎯 50% LOCKED</span>`}
               ${!p.breakeven_locked ? `<button class="btn" onclick="event.stopPropagation(); lockBreakeven('${p.symbol}')" title="Kunci Stop Loss ke Titik Impas">🛡️ Lock BE</button>` : ''}
               <button class="btn btn-danger" onclick="event.stopPropagation(); closeSinglePosition('${p.symbol}')">🔴 Tutup</button>
             </div>
@@ -3375,9 +3517,35 @@
     // ==========================================================================
     let rawJournalLedger = [];
     let rawJournalExecutions = [];
-    let selectedJournalDate = '2026-09-05'; // Default Tanggal 5 as commanded
+    let selectedJournalDate = 'today'; // Default to today dynamically
     let activeJournalSubTab = 'ledger';
     let journalSearchQuery = '';
+
+    function getTodayDateStr() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatDateDisplay(dateStr) {
+      if (!dateStr || dateStr === 'all') return 'Semua Transaksi';
+      const todayStr = getTodayDateStr();
+      if (dateStr === 'today' || dateStr === todayStr) {
+        const parts = todayStr.split('-');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const mIdx = parseInt(parts[1], 10) - 1;
+        return `Hari Ini (${parseInt(parts[2], 10)} ${months[mIdx] || parts[1]})`;
+      }
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const mIdx = parseInt(parts[1], 10) - 1;
+        return `${parseInt(parts[2], 10)} ${months[mIdx] || parts[1]}`;
+      }
+      return dateStr;
+    }
 
     async function loadJournalData() {
       try {
@@ -3387,34 +3555,85 @@
         rawJournalLedger = data.ledger || [];
         rawJournalExecutions = data.executions || [];
 
+        renderJournalDateChips();
         applyJournalFilters();
       } catch (e) {
         console.error("Error loading journal:", e);
       }
     }
 
+    function renderJournalDateChips() {
+      const todayStr = getTodayDateStr();
+      const dateCounts = {};
+
+      rawJournalLedger.forEach(t => {
+        if (t.closed_at) {
+          const d = t.closed_at.split(' ')[0];
+          if (d && d.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            dateCounts[d] = (dateCounts[d] || 0) + 1;
+          }
+        }
+      });
+
+      // Sort dates descending
+      const uniqueDates = Object.keys(dateCounts).sort((a, b) => b.localeCompare(a));
+      
+      const chipsContainer = document.getElementById('journal-date-chips');
+      if (chipsContainer) {
+        const todayCount = dateCounts[todayStr] || 0;
+        const isTodayActive = (selectedJournalDate === 'today' || selectedJournalDate === todayStr);
+
+        let html = `
+          <button class="filter-chip ${isTodayActive ? 'active' : ''}" id="chip-today" onclick="setJournalDateFilter('today')">
+            ⭐ Hari Ini (${todayCount})
+          </button>
+        `;
+
+        // Show up to 4 recent distinct dates
+        uniqueDates.filter(d => d !== todayStr).slice(0, 4).forEach(d => {
+          const count = dateCounts[d] || 0;
+          const isActive = (selectedJournalDate === d);
+          html += `
+            <button class="filter-chip ${isActive ? 'active' : ''}" id="chip-${d}" onclick="setJournalDateFilter('${d}')">
+              ${formatDateDisplay(d)} (${count})
+            </button>
+          `;
+        });
+
+        html += `
+          <button class="filter-chip ${selectedJournalDate === 'all' ? 'active' : ''}" id="chip-all" onclick="setJournalDateFilter('all')">
+            Semua (${rawJournalLedger.length})
+          </button>
+        `;
+
+        chipsContainer.innerHTML = html;
+      }
+
+      // Sync date picker
+      const picker = document.getElementById('journal-date-picker');
+      if (picker) {
+        picker.value = (selectedJournalDate === 'today' || selectedJournalDate === 'all') ? todayStr : selectedJournalDate;
+        picker.max = todayStr;
+      }
+
+      // Sync banner buttons
+      const bToday = document.getElementById('banner-btn-today');
+      const bAll = document.getElementById('banner-btn-all');
+      if (bToday) {
+        const todayCount = dateCounts[todayStr] || 0;
+        bToday.innerText = `⭐ Hari Ini (${todayCount > 0 ? todayCount : 'Aktif'})`;
+        bToday.style.borderColor = (selectedJournalDate === 'today' || selectedJournalDate === todayStr) ? 'var(--color-shockingly-green)' : 'var(--color-ash)';
+        bToday.style.color = (selectedJournalDate === 'today' || selectedJournalDate === todayStr) ? 'var(--color-shockingly-green)' : 'var(--color-text-dim)';
+      }
+      if (bAll) {
+        bAll.innerText = `Tampilkan Semua (${rawJournalLedger.length})`;
+        bAll.style.borderColor = (selectedJournalDate === 'all') ? 'var(--color-electric-blue)' : 'var(--color-ash)';
+      }
+    }
+
     function setJournalDateFilter(dateStr) {
       selectedJournalDate = dateStr;
-
-      // Update Chip UI
-      const chipMap = {
-        '2026-09-05': 'chip-d5',
-        '2026-09-06': 'chip-d6',
-        '2026-09-07': 'chip-d7',
-        'all': 'chip-all'
-      };
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      if (chipMap[dateStr]) {
-        const chip = document.getElementById(chipMap[dateStr]);
-        if (chip) chip.classList.add('active');
-      }
-
-      // Update date picker input
-      const picker = document.getElementById('journal-date-picker');
-      if (picker && dateStr !== 'all') {
-        picker.value = dateStr;
-      }
-
+      renderJournalDateChips();
       applyJournalFilters();
     }
 
@@ -3443,10 +3662,13 @@
     }
 
     function applyJournalFilters() {
+      const todayStr = getTodayDateStr();
+      const targetDate = (selectedJournalDate === 'today') ? todayStr : selectedJournalDate;
+
       // 1. Filter Closed Ledger Trades
       let filteredLedger = rawJournalLedger;
-      if (selectedJournalDate && selectedJournalDate !== 'all') {
-        filteredLedger = filteredLedger.filter(t => (t.closed_at || '').startsWith(selectedJournalDate) || (t.closed_at || '').includes(selectedJournalDate));
+      if (targetDate && targetDate !== 'all') {
+        filteredLedger = filteredLedger.filter(t => (t.closed_at || '').startsWith(targetDate));
       }
       if (journalSearchQuery) {
         filteredLedger = filteredLedger.filter(t => 
@@ -3458,8 +3680,8 @@
 
       // 2. Filter Bot Executions
       let filteredExecutions = rawJournalExecutions;
-      if (selectedJournalDate && selectedJournalDate !== 'all') {
-        filteredExecutions = filteredExecutions.filter(x => (x.timestamp || '').startsWith(selectedJournalDate) || (x.timestamp || '').includes(selectedJournalDate));
+      if (targetDate && targetDate !== 'all') {
+        filteredExecutions = filteredExecutions.filter(x => (x.timestamp || '').startsWith(targetDate));
       }
       if (journalSearchQuery) {
         filteredExecutions = filteredExecutions.filter(x => {
@@ -3513,21 +3735,25 @@
       if (countSubExec) countSubExec.innerText = filteredExecutions.length;
 
       if (elLabel && elBadge && elSummary) {
-        if (selectedJournalDate === '2026-09-05') {
-          elLabel.innerText = "Riwayat Trading: Tanggal 5 September 2026";
-          elBadge.innerText = `${totalTrades} TRANSAKSI`;
-          elBadge.className = "pill-badge mint";
-          elSummary.innerHTML = `Total Net Realized PnL: <b style="color:var(--color-mint); font-weight:700;">${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)} USDT</b> | Win Rate: <b style="color:var(--color-mint);">${winRate.toFixed(1)}%</b> (${wins.length} Menang, ${losses.length} Kalah) | <b>${filteredExecutions.length}</b> Sinyal Eksekusi Trading Desk`;
+        if (selectedJournalDate === 'today' || targetDate === todayStr) {
+          elLabel.innerText = `Riwayat Trading: Hari Ini (${formatDateDisplay(todayStr)})`;
+          elBadge.innerText = `${totalTrades} TRANSAKSI HARI INI`;
+          elBadge.className = totalTrades > 0 ? "pill-badge mint" : "pill-badge blue";
+          if (totalTrades > 0) {
+            elSummary.innerHTML = `Total Net Realized PnL: <b style="color:${netPnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)'}; font-weight:700;">${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)} USDT</b> | Win Rate: <b style="color:var(--color-mint);">${winRate.toFixed(1)}%</b> (${wins.length} Menang, ${losses.length} Kalah) | <b>${filteredExecutions.length}</b> Sinyal Eksekusi Trading Desk`;
+          } else {
+            elSummary.innerHTML = `Belum ada transaksi tertutup hari ini (${todayStr}). Transaksi yang sedang berlangsung dapat dipantau di panel <b>Posisi Aktif</b> atau klik chip tanggal sebelumnya di bawah.`;
+          }
         } else if (selectedJournalDate === 'all') {
           elLabel.innerText = "Riwayat Trading: Semua Transaksi";
           elBadge.innerText = `${totalTrades} TOTAL`;
           elBadge.className = "pill-badge blue";
-          elSummary.innerHTML = `Total Net Realized PnL: <b style="color:${netPnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)'}; font-weight:700;">${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)} USDT</b> | Win Rate: <b>${winRate.toFixed(1)}%</b> | <b>${filteredExecutions.length}</b> Sinyal Eksekusi Trading Desk`;
+          elSummary.innerHTML = `Total Net Realized PnL: <b style="color:${netPnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)'}; font-weight:700;">${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)} USDT</b> | Win Rate: <b>${winRate.toFixed(1)}%</b> (${wins.length} Menang, ${losses.length} Kalah) | <b>${filteredExecutions.length}</b> Sinyal Eksekusi Trading Desk`;
         } else {
-          elLabel.innerText = `Riwayat Trading: Tanggal ${selectedJournalDate}`;
+          elLabel.innerText = `Riwayat Trading: Tanggal ${formatDateDisplay(targetDate)}`;
           elBadge.innerText = `${totalTrades} TRANSAKSI`;
           elBadge.className = "pill-badge cyan";
-          elSummary.innerHTML = `Total Net Realized PnL: <b style="color:${netPnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)'}; font-weight:700;">${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)} USDT</b> | Win Rate: <b>${winRate.toFixed(1)}%</b> | <b>${filteredExecutions.length}</b> Sinyal Eksekusi Trading Desk`;
+          elSummary.innerHTML = `Total Net Realized PnL: <b style="color:${netPnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)'}; font-weight:700;">${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)} USDT</b> | Win Rate: <b>${winRate.toFixed(1)}%</b> (${wins.length} Menang, ${losses.length} Kalah) | <b>${filteredExecutions.length}</b> Sinyal Eksekusi Trading Desk`;
         }
       }
 
@@ -3535,7 +3761,8 @@
       const tbodyLedger = document.getElementById('ledger-table-body');
       if (tbodyLedger) {
         if (filteredLedger.length > 0) {
-          tbodyLedger.innerHTML = filteredLedger.map(t => {
+          const sortedLedger = [...filteredLedger].sort((a, b) => (b.closed_at || '').localeCompare(a.closed_at || ''));
+          tbodyLedger.innerHTML = sortedLedger.map(t => {
             const pnl = Number(t.net_pnl_usd || t.pnl_usd || 0);
             const pnlColor = pnl >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
             const sidePill = (t.side || '').toUpperCase() === 'LONG' || (t.side || '').toUpperCase() === 'BUY'
@@ -3556,7 +3783,10 @@
             `;
           }).join('');
         } else {
-          tbodyLedger.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--color-text-dim);">Tidak ada transaksi pada filter tanggal ini.</td></tr>`;
+          const emptyMsg = (selectedJournalDate === 'today' || targetDate === todayStr)
+            ? `Belum ada transaksi tertutup hari ini (${todayStr}). Transaksi yang sedang berlangsung dapat dipantau di panel Posisi Aktif.`
+            : `Tidak ada riwayat transaksi pada filter tanggal ini.`;
+          tbodyLedger.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--color-text-dim);">${emptyMsg}</td></tr>`;
         }
       }
 
@@ -3564,9 +3794,10 @@
       const tbodyExec = document.getElementById('ledger-executions-body');
       if (tbodyExec) {
         if (filteredExecutions.length > 0) {
-          tbodyExec.innerHTML = filteredExecutions.map(x => {
+          const sortedExec = [...filteredExecutions].sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
+          tbodyExec.innerHTML = sortedExec.map(x => {
             const t = x.trade || {};
-            const isLong = (t.side || '').toUpperCase() === 'LONG';
+            const isLong = (t.side || '').toUpperCase() === 'LONG' || (t.side || '').toUpperCase() === 'BUY';
             const sidePill = isLong
               ? `<span class="pill-badge mint" style="font-size:9px; padding:2px 6px;">LONG</span>`
               : `<span class="pill-badge tangerine" style="font-size:9px; padding:2px 6px;">SHORT</span>`;
@@ -3727,6 +3958,16 @@
     function closeAiModal() {
       document.getElementById('ai-modal').classList.remove('active');
     }
+
+    function openShortcutsModal() {
+      document.getElementById('shortcuts-modal').classList.add('active');
+    }
+    function closeShortcutsModal() {
+      document.getElementById('shortcuts-modal').classList.remove('active');
+    }
+    function closeAllModals() {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+    }
     function setAiQuery(q) {
       document.getElementById('ai-query-input').value = q;
       sendAiQuery();
@@ -3777,18 +4018,43 @@
     async function runQuantBacktest() {
       const sym = document.getElementById('bt-symbol').value;
       const area = document.getElementById('bt-results-area');
-      area.innerHTML = `Menjalankan simulasi kuantitatif untuk ${sym} klines...`;
+      area.innerHTML = `⏳ Menjalankan simulasi kuantitatif presisi tinggi (Nautilus Fee & Slippage Model) untuk ${sym} klines...`;
       try {
         const res = await fetch(`/api/backtest?symbol=${sym}&bar=1H&limit=500`);
         const data = await res.json();
+        const m = data.metrics || {};
+        const mc = data.monte_carlo || {};
+        const oa = data.overfitting_audit || {};
+        const gross = m.gross_pnl_usd !== undefined ? m.gross_pnl_usd : (data.total_pnl_usd || 0);
+        const fees = m.total_fees_usd || 0;
+        const slip = m.total_slippage_usd || 0;
+        const net = m.net_pnl_usd !== undefined ? m.net_pnl_usd : (data.total_pnl_usd || 0);
+        const netColor = net >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
+
         area.innerHTML = `
           <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:12px;">
-            <div style="background:var(--color-card); padding:10px; border-radius:6px;">Total Trade: <b>${data.total_trades || 0}</b></div>
-            <div style="background:var(--color-card); padding:10px; border-radius:6px;">Win Rate: <b style="color:var(--color-mint);">${data.win_rate || 0}%</b></div>
-            <div style="background:var(--color-card); padding:10px; border-radius:6px;">Profit Factor: <b>${data.profit_factor || 0}</b></div>
-            <div style="background:var(--color-card); padding:10px; border-radius:6px;">Net PnL: <b style="color:${(data.net_pnl_usd||0)>=0?'var(--color-mint)':'var(--color-tangerine)'};">$${(data.net_pnl_usd||0).toFixed(2)}</b></div>
+            <div style="background:var(--color-card); padding:10px; border-radius:var(--radius-card);">Total Trade: <b>${m.total_trades || 0}</b></div>
+            <div style="background:var(--color-card); padding:10px; border-radius:var(--radius-card);">Win Rate: <b style="color:var(--color-mint);">${m.win_rate || 0}%</b></div>
+            <div style="background:var(--color-card); padding:10px; border-radius:var(--radius-card);">Profit Factor: <b>${m.profit_factor || 0}</b></div>
+            <div style="background:var(--color-card); padding:10px; border-radius:var(--radius-card);">Net PnL Riil: <b style="color:${netColor};">${net >= 0 ? '+' : ''}$${Number(net).toFixed(2)}</b></div>
           </div>
-          <div style="font-size:11px; color:var(--color-text-dim);">Simulasi selesai pada 500 candlestick 1H historis.</div>
+
+          <div style="background:var(--color-card); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:12px; margin-bottom:12px; display:flex; flex-direction:column; gap:6px;">
+            <div style="font-size:11.5px; font-weight:700; color:var(--color-text); display:flex; justify-content:space-between;">
+              <span>🏛️ Nautilus Research-to-Live Parity (Biaya & Friksi Bursa Nyata):</span>
+              <span class="pill-badge mint mono" style="font-size:9.5px;">${m.research_to_live_parity_score || 100}% Parity Retention</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; font-size:11px; margin-top:4px;">
+              <div>Gross PnL (Kotor): <b class="mono" style="color:var(--color-text);">${gross >= 0 ? '+' : ''}$${Number(gross).toFixed(2)}</b></div>
+              <div>Total Fee (0.05%/0.02%): <b class="mono" style="color:var(--color-tangerine);">-$${Number(fees).toFixed(2)}</b></div>
+              <div>Slippage Drag: <b class="mono" style="color:var(--color-tangerine);">-$${Number(slip).toFixed(2)}</b></div>
+            </div>
+          </div>
+
+          <div style="font-size:11px; color:var(--color-text-dim); display:flex; justify-content:space-between;">
+            <span>Simulasi selesai pada ${data.candles_analyzed || 500} candlestick 1H historis.</span>
+            <span>Max DD: <b class="mono" style="color:var(--color-tangerine);">${m.max_drawdown_pct || 0}%</b> | Sharpe: <b class="mono">${m.sharpe_ratio || 0}</b></span>
+          </div>
         `;
       } catch (e) {
         area.innerHTML = `⚠️ Gagal menjalankan backtest: ${e.message}`;
@@ -4119,6 +4385,62 @@
       if (urlParams.get('date')) {
         setJournalDateFilter(urlParams.get('date'));
       }
+
+      // Keyboard Shortcut Navigator
+      window.addEventListener('keydown', (e) => {
+        const tag = (e.target.tagName || '').toUpperCase();
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+          if (e.key === 'Escape') closeAllModals();
+          return;
+        }
+
+        switch (e.key) {
+          case '1':
+            e.preventDefault();
+            switchView('terminal');
+            break;
+          case '2':
+            e.preventDefault();
+            switchView('intel');
+            break;
+          case '3':
+            e.preventDefault();
+            switchView('journal');
+            break;
+          case '4':
+            e.preventDefault();
+            switchView('paperclip');
+            break;
+          case 'r':
+          case 'R':
+            e.preventDefault();
+            refreshChartData();
+            showToast('🔄 Refreshing chart & VWAP...');
+            break;
+          case 's':
+          case 'S':
+            e.preventDefault();
+            syncBinanceLedger();
+            break;
+          case 'a':
+          case 'A':
+            e.preventDefault();
+            openAiModal();
+            break;
+          case 'b':
+          case 'B':
+            e.preventDefault();
+            openBacktestModal();
+            break;
+          case '?':
+            e.preventDefault();
+            openShortcutsModal();
+            break;
+          case 'Escape':
+            closeAllModals();
+            break;
+        }
+      });
     });
   </script>
 </body>

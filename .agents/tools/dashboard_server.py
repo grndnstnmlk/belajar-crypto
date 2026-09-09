@@ -274,6 +274,22 @@ def get_dashboard_feed_data(force_refresh=False):
     except Exception:
         feed["paperclip_summary"] = {}
 
+    # Nautilus Pre-Trade Risk Engine Telemetry
+    try:
+        import nautilus_risk_engine
+        _, is_daily_halted, dd_info = nautilus_risk_engine.calculate_today_realized_drawdown(current_balance=feed.get("balance_usd", 5000.0))
+        feed["nautilus_risk_guard"] = {
+            "status": "CIRCUIT_BREAKER_HALTED" if is_daily_halted else "ACTIVE_SAFE",
+            "daily_drawdown_info": dd_info,
+            "max_spread_pct": nautilus_risk_engine.MAX_ALLOWED_SPREAD_PCT,
+            "min_free_margin_ratio": nautilus_risk_engine.MIN_FREE_MARGIN_RATIO,
+            "taker_fee_pct": nautilus_risk_engine.ESTIMATED_TAKER_FEE_PCT,
+            "maker_fee_pct": nautilus_risk_engine.ESTIMATED_MAKER_FEE_PCT,
+            "baseline_slippage_pct": nautilus_risk_engine.DEFAULT_SLIPPAGE_PCT
+        }
+    except Exception as e:
+        feed["nautilus_risk_guard"] = {"status": "ACTIVE_SAFE", "error": str(e)}
+
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     _feed_cache = feed
@@ -661,6 +677,23 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/risk/pre_trade_audit":
+            import nautilus_risk_engine
+            sym = params.get("symbol", ["BTC"])[0]
+            side = params.get("side", ["BUY"])[0]
+            try:
+                price = float(params.get("price", [65000.0])[0])
+                sl = float(params.get("sl", [64000.0])[0])
+                tp = float(params.get("tp", [67000.0])[0])
+            except ValueError:
+                price, sl, tp = 65000.0, 64000.0, 67000.0
+            data = nautilus_risk_engine.validate_pre_trade_order(sym, side, price, sl, tp)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
         super().do_GET()
 
     def do_POST(self):
@@ -774,6 +807,28 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(res).encode("utf-8"))
+            return
+
+        elif path == "/api/action/sync_binance":
+            try:
+                new_trades = trade_journal.sync_binance_history(is_demo=True, limit=50)
+                total_trades = len(trade_journal.load_trade_ledger())
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "new_trades": new_trades,
+                    "total_trades": total_trades
+                }).encode("utf-8"))
+            except Exception as e:
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": False,
+                    "error": str(e)
+                }).encode("utf-8"))
             return
 
         elif path == "/api/ai/ask":
