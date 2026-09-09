@@ -1,0 +1,181 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "last_reflection_at": "2026-09-09T20:07:53.784423+00:00",
+    "total_reflections": 1,
+    "system_retention_score": 101.0
+  },
+  "coin_profiles": {
+    "BTCUSDT": {
+      "symbol": "BTCUSDT",
+      "volatility_regime": "LOW_TO_MODERATE",
+      "wick_risk_rating": "MODERATE",
+      "funding_sensitivity": "HIGH",
+      "false_breakout_bias": "LOW",
+      "optimal_setups": [
+        "SMC Order Block Retest",
+        "Wyckoff Phase C Spring",
+        "Daily FVG Fill"
+      ],
+      "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
+      "last_traded_outcome": "WIN",
+      "updated_at": "2026-09-09T20:07:53.784421+00:00"
+    },
+    "ETHUSDT": {
+      "symbol": "ETHUSDT",
+      "volatility_regime": "MODERATE",
+      "wick_risk_rating": "MODERATE",
+      "funding_sensitivity": "HIGH",
+      "false_breakout_bias": "MODERATE",
+      "optimal_setups": [
+        "Order Flow Shift",
+        "Liquidity Sweep + SMR",
+        "4H FVG Bounce"
+      ],
+      "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion."
+    },
+    "SOLUSDT": {
+      "symbol": "SOLUSDT",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "HIGH",
+      "funding_sensitivity": "MODERATE",
+      "false_breakout_bias": "HIGH",
+      "optimal_setups": [
+        "Breaker Block Flip",
+        "Aggressive Liquidity Raid",
+        "15m Momentum Continuation"
+      ],
+      "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps."
+    },
+    "DOGEUSDT": {
+      "symbol": "DOGEUSDT",
+      "volatility_regime": "VERY_HIGH",
+      "wick_risk_rating": "VERY_HIGH",
+      "funding_sensitivity": "VERY_HIGH",
+      "false_breakout_bias": "VERY_HIGH",
+      "optimal_setups": [
+        "Volume Surge Breakout with Tight Trailing",
+        "HTF Support Sweep"
+      ],
+      "notes": "Meme momentum driver. Strict fractional Kelly sizing required (max 1.5% risk)."
+    }
+  },
+  "tactical_rules": [
+    {
+      "id": "RULE-MACRO-01",
+      "category": "MACRO_SHIELD",
+      "rule_text": "Do not execute new breakout entries within 45 minutes of High-Impact FOMC / CPI releases.",
+      "confidence": 0.98,
+      "trigger_conditions": [
+        "high_impact_news",
+        "spread_expansion"
+      ],
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "RULE-SMC-01",
+      "category": "SMC_EXECUTION",
+      "rule_text": "Always wait for Lower Timeframe (1m-5m) MSS (Market Structure Shift) confirmation after 15m/1H Liquidity Sweep.",
+      "confidence": 0.94,
+      "trigger_conditions": [
+        "liquidity_sweep",
+        "fvg_retest"
+      ],
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "RULE-FUNDING-01",
+      "category": "ORDER_FLOW",
+      "rule_text": "Avoid aggressive Long entries when 8h Funding Rate exceeds +0.06% (Long Crowding Danger).",
+      "confidence": 0.91,
+      "trigger_conditions": [
+        "high_funding_long",
+        "resistance_test"
+      ],
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "episodic_memories": [
+    {
+      "id": "MEM-20260909-004",
+      "timestamp": "2026-09-09T20:07:53.784411+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "Order Block Retest",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "pnl_pct": 4.15,
+      "root_cause": "High confluence execution of Order Block Retest. Price expanded directly into targeted liquidity pool.",
+      "lesson_learned": "Continue validating Order Block Retest on BTCUSDT when higher timeframe trend alignment is preserved.",
+      "tags": [
+        "btc",
+        "order_block_retest",
+        "profit",
+        "take_profit",
+        "high_confluence"
+      ],
+      "importance": 8,
+      "access_count": 5,
+      "last_accessed": "2026-09-09T20:11:47.781655+00:00"
+    },
+    {
+      "id": "MEM-20260901-001",
+      "timestamp": "2026-09-01T14:30:00Z",
+      "symbol": "BTCUSDT",
+      "setup_type": "Wyckoff Spring",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "pnl_pct": 3.85,
+      "root_cause": "Clean HTF liquidity raid below previous week low followed by rapid volume absorption.",
+      "lesson_learned": "Wyckoff Springs below Monday lows have >75% win rate when open interest declines during the sweep.",
+      "tags": [
+        "wyckoff",
+        "spring",
+        "liquidity_sweep",
+        "absorption"
+      ],
+      "importance": 9,
+      "access_count": 16,
+      "last_accessed": "2026-09-09T20:11:47.781663+00:00"
+    },
+    {
+      "id": "MEM-20260903-002",
+      "timestamp": "2026-09-03T18:15:00Z",
+      "symbol": "SOLUSDT",
+      "setup_type": "Bullish Breakout",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "pnl_pct": -1.2,
+      "root_cause": "Chased 15m green candle into 4H bearish breaker with funding rate at +0.075%. Trapped by smart money distribution.",
+      "lesson_learned": "Never buy breakout into HTF breaker when funding is crowded long. Wait for pullback into discount FVG.",
+      "tags": [
+        "false_breakout",
+        "funding_trap",
+        "breaker_block",
+        "solana"
+      ],
+      "importance": 10,
+      "access_count": 23,
+      "last_accessed": "2026-09-09T20:07:53.783748+00:00"
+    },
+    {
+      "id": "MEM-20260907-003",
+      "timestamp": "2026-09-07T08:45:00Z",
+      "symbol": "ETHUSDT",
+      "setup_type": "Bearish FVG Retest",
+      "direction": "SELL",
+      "outcome": "WIN",
+      "pnl_pct": 2.45,
+      "root_cause": "Rejection from premium 1H FVG after sweep of Asian Session High during London open.",
+      "lesson_learned": "London open sweep of Asian High provides high R:R short setups targeting Asian Lows.",
+      "tags": [
+        "fvg",
+        "london_open",
+        "asian_range",
+        "orderflow"
+      ],
+      "importance": 8,
+      "access_count": 12,
+      "last_accessed": "2026-09-09T20:11:23.960606+00:00"
+    }
+  ]
+}

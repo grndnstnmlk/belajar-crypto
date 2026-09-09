@@ -29,6 +29,15 @@ TOOLS_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(os.path.dirname(TOOLS_DIR), "data")
 LEDGER_FILE = os.path.join(DATA_DIR, "trade_journal_ledger.json")
 
+# Cognitive Memory Engine Integration
+try:
+    from agent_memory_engine import memory_engine
+except ImportError:
+    try:
+        from .agent_memory_engine import memory_engine
+    except Exception:
+        memory_engine = None
+
 # Pre-Trade Safety Parameters (Institutional Defaults)
 MAX_ALLOWED_SPREAD_PCT = 0.05      # 0.05% max bid/ask spread (5 bps)
 MIN_FREE_MARGIN_RATIO = 0.30       # Minimum 30% available free margin buffer
@@ -127,17 +136,20 @@ def validate_pre_trade_order(
     available_margin=3500.0,
     open_positions=None,
     orderbook_depth=None,
-    proposed_risk_scale=1.0
+    proposed_risk_scale=1.0,
+    setup_type="SMC Order Block Retest",
+    market_conditions=None
 ):
     """
-    Nautilus Pre-Trade Gatekeeper:
-    Executes high-speed pre-flight risk checks before order reaches Binance API.
+    Nautilus Pre-Trade Gatekeeper & Cognitive Memory Gate:
+    Executes high-speed pre-flight risk checks and memory recall before order reaches Binance API.
     
     Returns a comprehensive dict:
     {
         "is_approved": bool,
         "rejection_reasons": list[str],
         "adjusted_risk_scale": float,
+        "memory_context": dict,
         "pre_trade_telemetry": dict
     }
     """
@@ -145,6 +157,23 @@ def validate_pre_trade_order(
     rejection_reasons = []
     warnings = []
     adjusted_scale = float(proposed_risk_scale)
+    memory_ctx = {}
+
+    # 0. Cognitive Memory Pre-Trade Recall
+    if memory_engine:
+        try:
+            memory_ctx = memory_engine.query_pre_trade_context(
+                symbol=symbol,
+                setup_type=setup_type,
+                market_conditions=market_conditions
+            )
+            # Apply memory confidence multiplier
+            mem_multiplier = memory_ctx.get("confidence_multiplier", 1.0)
+            adjusted_scale *= mem_multiplier
+            for mem_warn in memory_ctx.get("warnings", []):
+                warnings.append(f"🧠 [Memory Guard]: {mem_warn}")
+        except Exception as e:
+            warnings.append(f"Memory lookup notice: {e}")
 
     # 1. Check Daily Drawdown Circuit Breaker
     _, is_daily_halted, dd_info = calculate_today_realized_drawdown(current_balance=balance_usd)
@@ -205,6 +234,7 @@ def validate_pre_trade_order(
         "rejection_reasons": rejection_reasons,
         "warnings": warnings,
         "suggested_risk_scale": round(adjusted_scale, 2),
+        "memory_context": memory_ctx,
         "pre_trade_telemetry": {
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
             "spread_pct": spread_info["spread_pct"],
@@ -214,7 +244,8 @@ def validate_pre_trade_order(
             "free_margin_ratio": round(free_margin_ratio, 3),
             "daily_drawdown_info": dd_info,
             "active_positions_count": len(open_positions),
-            "high_beta_alts_count": len(high_beta_alts)
+            "high_beta_alts_count": len(high_beta_alts),
+            "cognitive_memory_active": bool(memory_engine)
         }
     }
 

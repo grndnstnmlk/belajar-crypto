@@ -371,6 +371,13 @@ def get_market_intelligence_data():
     except Exception as e:
         sentiment_intel = {"error": str(e)}
 
+    # Agent Cognitive Memory Engine (rohitg00/agentmemory)
+    try:
+        import agent_memory_engine
+        memory_summary = agent_memory_engine.memory_engine.get_memory_summary()
+    except Exception as e:
+        memory_summary = {"error": str(e)}
+
     return {
         "compass": compass,
         "heat": heat,
@@ -382,6 +389,7 @@ def get_market_intelligence_data():
         "rejection_block": rb_intel,
         "active_scalps": active_scalps,
         "sentiment_narrative": sentiment_intel,
+        "agent_memory": memory_summary,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
@@ -694,6 +702,41 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/memory/insights":
+            try:
+                import agent_memory_engine
+                q_sym = params.get("symbol", [None])[0]
+                q_query = params.get("query", [None])[0]
+                
+                if q_query or q_sym:
+                    results = agent_memory_engine.memory_engine.hybrid_search(
+                        query=q_query or f"{q_sym or ''} setup analysis",
+                        symbol=q_sym,
+                        limit=6
+                    )
+                    data = {
+                        "success": True,
+                        "query": q_query,
+                        "symbol": q_sym,
+                        "results": results,
+                        "summary": agent_memory_engine.memory_engine.get_memory_summary()
+                    }
+                else:
+                    data = {
+                        "success": True,
+                        "summary": agent_memory_engine.memory_engine.get_memory_summary()
+                    }
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         super().do_GET()
 
     def do_POST(self):
@@ -706,6 +749,21 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             payload = json.loads(post_body.decode("utf-8"))
         except Exception:
             payload = {}
+
+        if path == "/api/memory/reflect":
+            try:
+                import agent_memory_engine
+                reflection = agent_memory_engine.memory_engine.reflect_on_closed_trade(payload)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "reflection": reflection}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
 
         if path == "/api/action/close":
             sym = payload.get("symbol")

@@ -64,6 +64,7 @@ def record_closed_trade(trade_entry):
     """
     Appends a verified closed trade into the journal ledger.
     Guarantees no duplicate entries using trade_id or symbol+timestamp.
+    Triggers autonomous cognitive post-mortem reflection in Agent Memory Engine.
     """
     trades = load_journal()
     t_id = trade_entry.get("id") or f"{trade_entry.get('symbol')}-{trade_entry.get('closed_at')}"
@@ -79,6 +80,14 @@ def record_closed_trade(trade_entry):
     trades.sort(key=lambda x: str(x.get("closed_at", "")), reverse=False)
     save_journal(trades)
     print(f"📖 [Trade Journal] Logged trade {trade_entry.get('symbol')} ({trade_entry.get('side')}) | Net PnL: ${trade_entry.get('net_pnl_usd', trade_entry.get('pnl_usd', 0)):+,.2f}")
+
+    # Autonomous Cognitive Post-Mortem Reflection Hook
+    try:
+        from agent_memory_engine import memory_engine
+        reflection = memory_engine.reflect_on_closed_trade(trade_entry)
+        print(f"🧠 [Memory Engine] Cognitive Reflection Logged ({reflection.get('outcome')}): {reflection.get('lesson_learned')}")
+    except Exception as m_err:
+        pass
 
 def sync_binance_history(user_email="dxmade@gmail.com", is_demo=True, limit=50):
     """

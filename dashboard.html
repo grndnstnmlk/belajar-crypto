@@ -1131,6 +1131,78 @@
       justify-content: space-between;
       gap: 10px;
     }
+
+    /* Agent Memory Bank Styles (rohitg00/agentmemory) */
+    .memory-container {
+      padding: 20px 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .memory-header-bar {
+      background: var(--color-paper);
+      border: 1px solid var(--color-ash);
+      border-radius: var(--radius-card);
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .memory-main-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 20px;
+    }
+    @media (max-width: 1100px) {
+      .memory-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .memory-card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .reflection-card {
+      background: var(--color-card);
+      border: 1px solid var(--color-ash);
+      border-radius: var(--radius-card);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reflection-card:hover {
+      border-color: var(--color-smoke);
+      background: var(--color-card-subtle);
+    }
+    .coin-profile-card {
+      background: var(--color-card);
+      border: 1px solid var(--color-ash);
+      border-radius: var(--radius-card);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .decay-track {
+      height: 4px;
+      background: var(--color-ash);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    .decay-fill {
+      height: 100%;
+      background: var(--color-mint);
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
   </style>
 </head>
 <body>
@@ -1161,6 +1233,10 @@
         <button class="tab-btn" onclick="switchView('paperclip')" id="tab-paperclip">
           <span class="tab-icon">🏢</span> Paperclip Firm
           <span class="pill-badge lilac mono" style="font-size:9px; padding:1px 5px;" id="header-pending-board-badge">CONTROL PLANE</span>
+        </button>
+        <button class="tab-btn" onclick="switchView('memory')" id="tab-memory">
+          <span class="tab-icon">🧠</span> Agent Memory
+          <span class="pill-badge mint mono" style="font-size:9px; padding:1px 5px;" id="header-memory-retention-badge">98.4%</span>
         </button>
       </div>
 
@@ -2191,6 +2267,110 @@
 
       </div>
     </div>
+
+    <!-- VIEW 5: AGENT MEMORY & COGNITIVE REFLECTION ENGINE -->
+    <div class="tab-pane" id="view-memory">
+      <div class="memory-container">
+        <!-- Memory Header & Retention Bar -->
+        <div class="memory-header-bar">
+          <div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:22px;">🧠</span>
+              <span class="display" style="font-size:18px; font-weight:800; letter-spacing:0.5px; color:var(--color-text);">
+                AGENT MEMORY & COGNITIVE ENGINE
+              </span>
+              <span class="pill-badge blue mono" style="font-size:10px;">PERSISTENT CROSS-SESSION</span>
+              <span class="pill-badge mint mono" id="memory-system-retention-pill">● RETENTION SCORE: 98.4%</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--color-text-dim); margin-top:4px;">
+              Engine Memori Kognitif Otonom (rohitg00/agentmemory): Refleksi Post-Mortem Perdagangan, Knowledge Graph Perilaku Aset, & Peluruhan Waktu Ebbinghaus.
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <div style="background:var(--color-card); border:1px solid var(--color-ash); border-radius:var(--radius-pill); padding:6px 14px; font-size:11px; display:flex; align-items:center; gap:8px;">
+              <span style="color:var(--color-mint); font-weight:700;">⏳ Half-Life:</span>
+              <span class="mono" style="color:var(--color-text);">30 Hari (Tau)</span>
+            </div>
+            <div style="background:var(--color-card); border:1px solid var(--color-ash); border-radius:var(--radius-pill); padding:6px 14px; font-size:11px; display:flex; align-items:center; gap:8px;">
+              <span style="color:var(--color-cyan); font-weight:700;">📖 Memori:</span>
+              <span class="mono" id="memory-total-count-badge" style="color:var(--color-text);">3 Episodik</span>
+            </div>
+            <button class="btn" onclick="triggerManualReflection()" style="border-color:var(--color-lilac); color:var(--color-lilac);" title="Jalankan refleksi evaluasi mandiri">
+              ⚡ Refleksi Uji Coba
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Memory Hybrid Search Bar -->
+        <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:280px;">
+            <span style="font-size:16px;">🔍</span>
+            <input type="text" id="memory-search-input" placeholder="Cari ingatan setup, koin, atau jebakan market (e.g. false breakout, spring, SOL)..." style="flex:1; background:var(--color-card); border:1px solid var(--color-ash); color:var(--color-text); border-radius:var(--radius-card); padding:8px 14px; font-size:12px; font-family:var(--font-body);" onkeydown="if(event.key==='Enter') executeMemorySearch()">
+            <button class="btn btn-primary" onclick="executeMemorySearch()" style="padding:7px 16px; font-size:11.5px;">Cari Memori</button>
+          </div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="filter-chip active" onclick="filterMemoryBySymbol('ALL', this)">SEMUA</button>
+            <button class="filter-chip" onclick="filterMemoryBySymbol('BTCUSDT', this)">BTC</button>
+            <button class="filter-chip" onclick="filterMemoryBySymbol('ETHUSDT', this)">ETH</button>
+            <button class="filter-chip" onclick="filterMemoryBySymbol('SOLUSDT', this)">SOL</button>
+            <button class="filter-chip" onclick="filterMemoryBySymbol('DOGEUSDT', this)">DOGE</button>
+          </div>
+        </div>
+
+        <!-- Main 2-Column Grid -->
+        <div class="memory-main-grid">
+          <!-- Left Column: Episodic Trade Reflections -->
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:16px;">📜</span>
+                <span style="font-size:13px; font-weight:700; color:var(--color-text);">REFLEKSI POST-MORTEM PERDAGANGAN (EPISODIC MEMORIES)</span>
+              </div>
+              <span class="pill-badge blue mono" style="font-size:9px;" id="memory-retrieved-count-pill">HYBRID BM25 + TF-IDF</span>
+            </div>
+
+            <div class="memory-card-list" id="memory-reflections-container">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+
+          <!-- Right Column: Coin Personality Knowledge Graph & Tactical Rules -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            <!-- Coin Personality Knowledge Graph -->
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:16px;">🪙</span>
+                  <span style="font-size:13px; font-weight:700; color:var(--color-text);">KNOWLEDGE GRAPH PERILAKU KOIN (PROFILES)</span>
+                </div>
+                <span class="pill-badge mint mono" style="font-size:9px;">4 ASET UTAMA</span>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:10px;" id="memory-coin-profiles-container">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+
+            <!-- Active Tactical Heuristic Rules -->
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:16px;">🛡️</span>
+                  <span style="font-size:13px; font-weight:700; color:var(--color-text);">ATURAN HEURISTIK TAKTIS (TACTICAL RULES)</span>
+                </div>
+                <span class="pill-badge cyan mono" style="font-size:9px;">GUARDRAILS</span>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:10px;" id="memory-tactical-rules-container">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   <!-- Toast Notification Container -->
@@ -2293,6 +2473,11 @@
               <td style="padding:8px 6px; color:var(--color-text-dim);">Hedge Fund Control Plane & Otorisasi Dewan</td>
             </tr>
             <tr style="border-bottom:1px solid var(--color-ash);">
+              <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-shockingly-green);">5</kbd></td>
+              <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Agent Memory</td>
+              <td style="padding:8px 6px; color:var(--color-text-dim);">Bank Memori Persisten & Refleksi Post-Mortem</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-ash);">
               <td style="padding:8px 6px;"><kbd style="background:var(--color-card); border:1px solid var(--color-smoke); border-radius:4px; padding:2px 8px; font-family:var(--font-mono); color:var(--color-cyan);">R</kbd></td>
               <td style="padding:8px 6px; color:var(--color-text); font-weight:600;">Reload Chart</td>
               <td style="padding:8px 6px; color:var(--color-text-dim);">Segarkan data candlestick klines & VWAP</td>
@@ -2357,6 +2542,8 @@
         loadJournalData();
       } else if (tabId === 'paperclip') {
         loadPaperclipFirmData();
+      } else if (tabId === 'memory') {
+        loadAgentMemoryData();
       } else if (tabId === 'terminal') {
         setTimeout(() => {
           if (chartInstance) {
@@ -4367,6 +4554,182 @@
       }
     }
 
+    // =========================================================================
+    // Agent Memory & Cognitive Reflection Engine (rohitg00/agentmemory)
+    // =========================================================================
+    let currentMemoryFilterSymbol = 'ALL';
+    let currentMemorySearchQuery = '';
+
+    async function loadAgentMemoryData(query='', symbol='') {
+      try {
+        let url = '/api/memory/insights';
+        const params = [];
+        if (symbol && symbol !== 'ALL') params.push(`symbol=${symbol}`);
+        if (query) params.push(`query=${encodeURIComponent(query)}`);
+        if (params.length > 0) url += '?' + params.join('&');
+
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success && data.summary) {
+          renderAgentMemory(data.summary, data.results);
+        }
+      } catch (e) {
+        console.warn("Could not load agent memory data:", e);
+      }
+    }
+
+    function renderAgentMemory(summary, queryResults=null) {
+      if (!summary) return;
+      
+      // Update badges
+      const retScore = summary.meta ? summary.meta.system_retention_score : 98.4;
+      const retPill = document.getElementById('memory-system-retention-pill');
+      const headerRetBadge = document.getElementById('header-memory-retention-badge');
+      if (retPill) retPill.innerText = `● RETENTION SCORE: ${retScore}%`;
+      if (headerRetBadge) headerRetBadge.innerText = `${retScore}%`;
+
+      const totCountBadge = document.getElementById('memory-total-count-badge');
+      if (totCountBadge) totCountBadge.innerText = `${summary.total_episodic_memories || 0} Episodik`;
+
+      // Render Episodic Memories
+      const refContainer = document.getElementById('memory-reflections-container');
+      if (refContainer) {
+        const listToRender = queryResults ? queryResults.map(r => r.memory) : (summary.recent_reflections || []);
+        if (listToRender.length === 0) {
+          refContainer.innerHTML = `<div style="text-align:center; padding:30px; color:var(--color-text-dim); font-size:12px;">Tidak ada memori yang cocok dengan pencarian.</div>`;
+        } else {
+          refContainer.innerHTML = listToRender.map(m => {
+            const isWin = (m.outcome || '').toUpperCase() === 'WIN';
+            const isLoss = (m.outcome || '').toUpperCase() === 'LOSS';
+            const outcomeBadgeClass = isWin ? 'mint' : (isLoss ? 'tangerine' : 'blue');
+            const pnlSign = (m.pnl_pct || 0) >= 0 ? '+' : '';
+            const pnlColor = (m.pnl_pct || 0) >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
+            const retentionPct = Math.round((m.retention_weight || 0.95) * 100);
+
+            const tagsHtml = (m.tags || []).map(t => `<span class="pill-badge mono" style="font-size:8.5px; padding:1px 5px; background:rgba(255,255,255,0.05);">${t}</span>`).join(' ');
+
+            return `
+              <div class="reflection-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="mono" style="font-size:11px; font-weight:700; color:var(--color-text);">${m.symbol || 'ASSET'}</span>
+                    <span class="pill-badge blue mono" style="font-size:9px; padding:1px 6px;">${m.setup_type || 'Setup'}</span>
+                    <span class="pill-badge ${outcomeBadgeClass} mono" style="font-size:9px; padding:1px 6px;">${m.outcome || 'CLOSED'} <span style="color:${pnlColor}; font-weight:700;">${pnlSign}${m.pnl_pct || 0}%</span></span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="mono" style="font-size:9.5px; color:var(--color-text-dim);">${(m.timestamp || '').slice(0, 10)}</span>
+                    <span class="pill-badge mint mono" style="font-size:8.5px; padding:1px 5px;" title="Bobot Retensi Ebbinghaus">w(t) ${retentionPct}%</span>
+                  </div>
+                </div>
+
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:6px; padding:10px; font-size:11.5px; line-height:1.45; display:flex; flex-direction:column; gap:6px;">
+                  <div>
+                    <span style="color:var(--color-tangerine); font-weight:700;">🔍 Akar Penyebab (Root Cause):</span>
+                    <span style="color:var(--color-text-dim); margin-left:4px;">${m.root_cause || '-'}</span>
+                  </div>
+                  <div>
+                    <span style="color:var(--color-mint); font-weight:700;">💡 Pelajaran & Kaidah:</span>
+                    <span style="color:var(--color-text); margin-left:4px;">${m.lesson_learned || '-'}</span>
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--color-text-dim);">
+                  <div style="display:flex; gap:4px; flex-wrap:wrap;">${tagsHtml}</div>
+                  <div class="mono" style="font-size:9px;">Akses: ${m.access_count || 1}x | Imp: ${m.importance || 5}/10</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // Render Coin Profiles
+      const coinContainer = document.getElementById('memory-coin-profiles-container');
+      if (coinContainer && summary.coin_profiles) {
+        coinContainer.innerHTML = Object.values(summary.coin_profiles).map(p => {
+          const wickColor = p.wick_risk_rating === 'HIGH' || p.wick_risk_rating === 'VERY_HIGH' ? 'tangerine' : 'blue';
+          const falseBrkColor = p.false_breakout_bias === 'HIGH' || p.false_breakout_bias === 'VERY_HIGH' ? 'tangerine' : 'mint';
+          const setupsList = (p.optimal_setups || []).map(s => `• ${s}`).join('<br>');
+
+          return `
+            <div class="coin-profile-card">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="mono" style="font-size:13px; font-weight:800; color:var(--color-text);">${p.symbol}</span>
+                  <span class="pill-badge blue mono" style="font-size:9px; padding:1px 5px;">${p.volatility_regime || 'MODERATE'}</span>
+                </div>
+                <div style="display:flex; gap:4px;">
+                  <span class="pill-badge ${wickColor} mono" style="font-size:8.5px; padding:1px 5px;">Wick: ${p.wick_risk_rating || 'MED'}</span>
+                  <span class="pill-badge ${falseBrkColor} mono" style="font-size:8.5px; padding:1px 5px;">Fakeout: ${p.false_breakout_bias || 'LOW'}</span>
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--color-text-dim); line-height:1.4;">
+                ${p.notes || ''}
+              </div>
+              <div style="background:var(--color-paper); border-radius:4px; padding:6px 8px; font-size:10.5px; color:var(--color-cyan); line-height:1.3;">
+                <b>Setup Unggulan:</b><br>${setupsList || '-'}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Tactical Rules
+      const rulesContainer = document.getElementById('memory-tactical-rules-container');
+      if (rulesContainer && summary.tactical_rules) {
+        rulesContainer.innerHTML = summary.tactical_rules.map(r => {
+          return `
+            <div style="background:var(--color-card); border:1px solid var(--color-ash); border-radius:var(--radius-card); padding:10px 14px; display:flex; flex-direction:column; gap:4px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="pill-badge cyan mono" style="font-size:9px; padding:1px 6px;">${r.category}</span>
+                <span class="mono" style="font-size:9.5px; color:var(--color-mint); font-weight:700;">${Math.round(r.confidence * 100)}% Confidence</span>
+              </div>
+              <div style="font-size:11.5px; color:var(--color-text); font-weight:600; line-height:1.4; margin-top:2px;">
+                ${r.rule_text}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function executeMemorySearch() {
+      const input = document.getElementById('memory-search-input');
+      const query = input ? input.value.trim() : '';
+      currentMemorySearchQuery = query;
+      loadAgentMemoryData(query, currentMemoryFilterSymbol);
+    }
+
+    function filterMemoryBySymbol(sym, btn) {
+      currentMemoryFilterSymbol = sym;
+      document.querySelectorAll('#view-memory .filter-chip').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      loadAgentMemoryData(currentMemorySearchQuery, sym);
+    }
+
+    async function triggerManualReflection() {
+      try {
+        const res = await fetch('/api/memory/reflect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            symbol: 'SOLUSDT',
+            setup: '15m FVG Bounce',
+            direction: 'BUY',
+            pnl_pct: 3.25,
+            exit_reason: 'TAKE_PROFIT'
+          })
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast(`🧠 Refleksi Kognitif Baru Dicatat: ${d.reflection.lesson_learned}`);
+          loadAgentMemoryData(currentMemorySearchQuery, currentMemoryFilterSymbol);
+        }
+      } catch (e) {
+        showToast(`⚠️ Error: ${e.message}`);
+      }
+    }
+
     // Startup
     document.addEventListener('DOMContentLoaded', () => {
       initChart();
@@ -4374,13 +4737,16 @@
       fetchDashboardFeed();
       setInterval(fetchDashboardFeed, 4000);
 
-      // Preload journal data so it is instant
+      // Preload journal & memory data so it is instant
       loadJournalData();
+      loadAgentMemoryData();
 
       // Check URL parameters (e.g. ?tab=journal or ?date=2026-09-05)
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('tab') === 'journal' || urlParams.get('view') === 'journal') {
         switchView('journal');
+      } else if (urlParams.get('tab') === 'memory' || urlParams.get('view') === 'memory') {
+        switchView('memory');
       }
       if (urlParams.get('date')) {
         setJournalDateFilter(urlParams.get('date'));
@@ -4410,6 +4776,10 @@
           case '4':
             e.preventDefault();
             switchView('paperclip');
+            break;
+          case '5':
+            e.preventDefault();
+            switchView('memory');
             break;
           case 'r':
           case 'R':
