@@ -45,6 +45,7 @@ import coinglass_derivatives
 import trade_journal
 import liquidity_heatmap
 import ai_risk_officer
+import market_radar
 
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
@@ -56,71 +57,16 @@ HEADERS = {
 
 _feed_cache = None
 _last_feed_fetch_time = 0
-_watchlist_cache = []
-_last_watchlist_time = 0
 
 def get_live_watchlist_rs():
     """
     Fetches real-time market prices & calculates Relative Strength (RS vs BTC)
-    for top liquid crypto assets on the RS RADAR watchlist.
+    using unified single-pass market_radar cache.
     """
-    global _watchlist_cache, _last_watchlist_time
-    now = time.time()
-    if _watchlist_cache and (now - _last_watchlist_time) < 5.0:
-        return _watchlist_cache
-
-    target_coins = ["BTC", "ETH", "SOL", "LINK", "BNB", "DOGE", "ADA", "SUI", "AVAX", "XRP"]
-    target_pairs = {c + "USDT": c for c in target_coins}
-
     try:
-        url = "https://data-api.binance.vision/api/v3/ticker/24hr"
-        req = urllib.request.Request(url, headers=HEADERS)
-        with urllib.request.urlopen(req, context=SSL_CTX, timeout=4) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-
-        tickers = {}
-        for item in data:
-            pair = item.get("symbol")
-            if pair in target_pairs:
-                coin = target_pairs[pair]
-                tickers[coin] = {
-                    "price": float(item.get("lastPrice", 0)),
-                    "change_24h": float(item.get("priceChangePercent", 0)),
-                    "high_24h": float(item.get("highPrice", 0)),
-                    "low_24h": float(item.get("lowPrice", 0)),
-                    "volume_usd": float(item.get("quoteVolume", 0))
-                }
-
-        btc_change = tickers.get("BTC", {}).get("change_24h", 0.0)
-
-        watchlist = []
-        for coin in target_coins:
-            t = tickers.get(coin, {"price": 0.0, "change_24h": 0.0})
-            price = t["price"]
-            change = t["change_24h"]
-            # Relative Strength vs BTC
-            rs_score = round(change - btc_change, 2) if coin != "BTC" else round(change, 2)
-            watchlist.append({
-                "symbol": coin,
-                "pair": f"{coin}USDT",
-                "price": price,
-                "change_24h": round(change, 2),
-                "rs_score": rs_score,
-                "is_leader": rs_score >= 0,
-            })
-
-        # Rank by RS score (Leader -> Laggard)
-        watchlist.sort(key=lambda x: x["rs_score"], reverse=True)
-        for idx, item in enumerate(watchlist):
-            item["rs_rank"] = idx + 1
-
-        _watchlist_cache = watchlist
-        _last_watchlist_time = now
-        return watchlist
-    except Exception as e:
-        if _watchlist_cache:
-            return _watchlist_cache
-        # Fallback list with zero-safe defaults
+        return market_radar.get_live_watchlist_rs()
+    except Exception:
+        target_coins = ["BTC", "ETH", "SOL", "LINK", "BNB", "DOGE", "ADA", "SUI", "AVAX", "XRP"]
         return [
             {"symbol": c, "pair": f"{c}USDT", "price": 0.0, "change_24h": 0.0, "rs_score": 0.0, "is_leader": True, "rs_rank": i+1}
             for i, c in enumerate(target_coins)
@@ -416,7 +362,7 @@ def get_journal_data():
 
 def get_chart_data(symbol="BTC", bar="1H"):
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
-    raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar, limit=120)
+    raw_candles = market_radar.fetch_candles(sym_clean, bar=bar, limit=120)
 
     if not raw_candles or len(raw_candles) < 5:
         return {"error": "Failed to fetch candlestick feed"}
@@ -726,6 +672,34 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                         "success": True,
                         "summary": agent_memory_engine.memory_engine.get_memory_summary()
                     }
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/memory/tiered":
+            try:
+                import agent_memory_engine
+                q_sym = params.get("symbol", ["BTC"])[0]
+                q_tier = params.get("tier", ["L1"])[0]
+                q_setup = params.get("setup", ["SMC Order Block Retest"])[0]
+                
+                tiered_data = agent_memory_engine.memory_engine.get_tiered_context(symbol=q_sym, tier=q_tier, setup_type=q_setup)
+                prompt_text = agent_memory_engine.memory_engine.format_prompt_context(symbol=q_sym, setup_type=q_setup, max_tier=q_tier)
+                
+                data = {
+                    "success": True,
+                    "symbol": q_sym,
+                    "tier": q_tier,
+                    "context": tiered_data,
+                    "formatted_prompt": prompt_text
+                }
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()

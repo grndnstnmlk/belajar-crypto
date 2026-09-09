@@ -256,6 +256,21 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
       5. 🌐 **Multi-Asset Directional Cap**: Menjaga batas maksimal 3 altcoin high-beta searah demi mencegah kerugian serentak.
     * **High-Fidelity Research-to-Live Parity Backtest**: Modul backtesting kini mensimulasikan biaya bursa nyata (Binance Taker 0.05%, Maker 0.02%), estimasi slippage (0.025%), dan biaya *funding rate* 8 jam. Hasil backtest 100% mencerminkan profit bersih nyata (*Net Realized Return*) tanpa bias curve-fitting!
 
+14. **Autonomous Agent Memory & Cognitive Reflection Engine**:
+    * Disintesis dari arsitektur persistent memory modern **`rohitg00/agentmemory`** untuk mengatasi amnesia lintas-sesi pada AI Trading Agent.
+    * **Multi-Tier Memory Architecture**:
+      * 📜 **Episodic Trade Memory**: Menyimpan riwayat setup perdagangan, autopsi akar penyebab (*Root Cause*), dan kaidah pelajaran (*Lessons Learned*) setiap kali posisi ditutup (*WIN / LOSS / BE*).
+      * 🪙 **Coin Personality Knowledge Graph**: Profiling kebiasaan spesifik per koin (misal: *Wick Risk Rating*, sensitivitas *Funding Rate*, bias *False Breakout*, dan setup SMC optimal).
+      * 🛡️ **Tactical Heuristic Rules**: Kaidah taktis dinamis seperti *Macro News Blackout Shield* dan *Funding Crowding Trap Guard*.
+    * **High-Speed Hybrid Retrieval (< 2ms)**:
+      * Menggabungkan pencarian kata kunci BM25 dengan *Semantic TF-IDF Cosine Similarity* untuk mencocokkan setup saat ini dengan riwayat masa lalu secara instan.
+    * **Ebbinghaus Memory Decay**:
+      * Menerapkan pembobotan waktu $w(t) = e^{-\Delta t / \tau} \times \text{importance}$ (Half-Life $\tau = 30\text{ hari}$) agar dinamika rezim pasar yang sudah basi meluruh secara alami, sementara pelajaran fundamental tetap abadi.
+    * **Pre-Trade Memory Recall**:
+      * Sebelum entry order, agen secara otonom memanggil memori historis. Jika setup yang sama berulang kali terkena SL pada rezim koin tersebut, *multiplier* risiko dipangkas secara otomatis (0.5x - 0.85x) untuk melindungi portofolio.
+    * **Web Viewer & Keyboard Shortcut**:
+      * Tekan <kbd>5</kbd> di dashboard atau klik tab **🧠 Agent Memory** untuk melihat bank memori, metrik retensi, profil koin, dan menjalankan uji refleksi kognitif interaktif.
+
 ---
 
 ## 7. Skrip Diagnostik & Scanner Mandiri

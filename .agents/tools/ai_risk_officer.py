@@ -632,10 +632,19 @@ def answer_trader_query(user_query, portfolio_context=None):
     provider = creds.get("provider", "fallback_quant")
 
     ctx = portfolio_context or {}
-    bal = ctx.get("balance_usd", 5000.0)
-    pos_count = len(ctx.get("positions", []))
-    mode = ctx.get("mode", "SWING")
-    news = ctx.get("news_shield", {}).get("status", "SAFE")
+    # OpenViking Tiered Context Extraction (L1)
+    memory_context_text = ""
+    try:
+        from agent_memory_engine import memory_engine
+        target_sym = "BTC"
+        for word in user_query.upper().split():
+            clean_w = word.replace("$", "").replace("/", "").replace("USDT", "").strip()
+            if clean_w in ["BTC", "ETH", "SOL", "DOGE", "LINK", "BNB", "XRP", "ADA", "SUI", "AVAX"]:
+                target_sym = clean_w
+                break
+        memory_context_text = memory_engine.format_prompt_context(symbol=target_sym, max_tier="L1")
+    except Exception:
+        pass
 
     if provider != "fallback_quant":
         prompt = f"""
@@ -645,6 +654,8 @@ def answer_trader_query(user_query, portfolio_context=None):
 - Operating Mode: {mode} (Big-Profit Focus)
 - Macro News Shield: {news}
 - Active Positions Detail: {json.dumps(ctx.get('positions', []))}
+
+{memory_context_text}
 
 [USER QUESTION]
 "{user_query}"

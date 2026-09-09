@@ -175,14 +175,23 @@ def validate_pre_trade_order(
         except Exception as e:
             warnings.append(f"Memory lookup notice: {e}")
 
-    # 1. Check Daily Drawdown Circuit Breaker
+    # 1. Check Macro News Blackout Shield
+    try:
+        import macro_news_shield
+        is_blk, blk_reason, _ = macro_news_shield.audit_news_blackout(buffer_minutes=25)
+        if is_blk:
+            rejection_reasons.append(f"📰 Macro News Blackout Aktif: {blk_reason}")
+    except Exception:
+        pass
+
+    # 2. Check Daily Drawdown Circuit Breaker
     _, is_daily_halted, dd_info = calculate_today_realized_drawdown(current_balance=balance_usd)
     if is_daily_halted:
         rejection_reasons.append(
             f"🚨 Daily Drawdown Circuit Breaker Aktif: Kerugian hari ini mencapai {dd_info['drawdown_pct']}% (Batas: {MAX_DAILY_DRAWDOWN_PCT}%)."
         )
 
-    # 2. Check Margin Headroom & Free Margin Buffer
+    # 3. Check Margin Headroom & Free Margin Buffer
     free_margin_ratio = available_margin / balance_usd if balance_usd > 0 else 0.0
     if free_margin_ratio < MIN_FREE_MARGIN_RATIO:
         rejection_reasons.append(
