@@ -1237,6 +1237,15 @@ def scan_symbol_scalp(symbol):
     except Exception:
         pass
 
+    # Priority 0.5: 5m/15m Opening Range Breakout (ORB V4.1 - London / NY / Daily Open Momentum)
+    try:
+        import orb_scalper
+        s_orb = orb_scalper.scan_5m_orb_scalp(symbol, candles)
+        if s_orb:
+            return s_orb
+    except Exception:
+        pass
+
     # Priority 1: ICT Rejection Block Mean Threshold Bounce (Pure Wick Manipulation Trap)
     s_rb = scan_rejection_block_scalp(symbol, candles)
     if s_rb:

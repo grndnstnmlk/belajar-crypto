@@ -215,6 +215,19 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
     * **Depth of Market (DOM) Stacked Imbalance**: Memindai kedalaman orderbook L2 50-level untuk mendeteksi dinding likuiditas $\ge 3.0\times$ dominan.
     * **Eksekusi Sinyal Mandiri**: Sinyal `5m Order Flow CVD Absorption Scalp` (Target R:R 1:2.0) langsung masuk antrean eksekusi desk dengan Stop Loss sangat tipis di balik sumbu *absorption*.
 
+12. **5m/15m Opening Range Breakout (ORB V4.1) Momentum Scalper**:
+    * **Konsep TradeX Labs & Akademi Crypto Session Liquidity**: Mengkapitalisasi ledakan volatilitas dan momentum ekspansi harga setelah jendela penemuan harga 15 menit pertama (*Opening Range Discovery Window*) pada pembukaan sesi global.
+    * **Jadwal Sesi Utama (WIB)**:
+      * 🇬🇧 **London Open ORB**: 14:00 - 14:15 WIB (07:00 UTC) $\rightarrow$ Hunting Window: 14:15 - 15:30 WIB.
+      * 🇺🇸 **New York Early / US Pre-Market ORB**: 19:30 - 19:45 WIB $\rightarrow$ Hunting Window: 19:45 - 21:00 WIB.
+      * 🇺🇸 **Wall Street Cash Open ORB**: 20:30 - 20:45 WIB $\rightarrow$ Hunting Window: 20:45 - 22:00 WIB.
+      * 🌐 **Daily Crypto 00:00 UTC Open ORB**: 07:00 - 07:15 WIB $\rightarrow$ Hunting Window: 07:15 - 08:30 WIB.
+      * 🔄 **Dynamic Rolling 15m Inter-Session Fallback**: Memindai konsolidasi 15m dinamis saat di luar jam sesi utama.
+    * **Aturan Sinyal & Eksekusi**:
+      * 🟢 **Bullish ORB Breakout**: Body candle 5m ditutup tegas di atas $OR_{High}$ + Order Flow CVD Delta Positif $\rightarrow$ **LONG** (Target 1:2.0 R:R). Stop Loss diletakkan di $OR_{Mid}$ (Midpoint) atau sumbu terendah candle penembus.
+      * 🔴 **Bearish ORB Breakdown**: Body candle 5m ditutup tegas di bawah $OR_{Low}$ + Order Flow CVD Delta Negatif $\rightarrow$ **SHORT** (Target 1:2.0 R:R). Stop Loss diletakkan di $OR_{Mid}$ atau sumbu tertinggi candle penembus.
+    * **Prop Firm Safety Guard**: Maksimal 1 trade per sesi per aset koin (`1 Trade / Session / Symbol`) untuk mencegah over-trading saat pasar berkonsolidasi.
+
 ---
 
 ## 7. Skrip Diagnostik & Scanner Mandiri
@@ -225,16 +238,22 @@ Anda dapat menjalankan skrip-skrip independen kapan saja untuk inspeksi cepat:
 # 1. Pemindai Scalping 5m Kilat (10 Koin)
 python .agents/tools/fast_scalper.py
 
-# 2. Analisis Lengkap Intelijen Institusional untuk BTC (atau ETH / SOL)
+# 2. Pemindai Opening Range Breakout (ORB V4.1) untuk BTC / ETH / SOL
+python .agents/tools/orb_scalper.py BTC
+
+# 3. Analisis Lengkap Intelijen Order Flow CVD & DOM Footprint
+python .agents/tools/orderflow_cvd_scalper.py BTC
+
+# 4. Analisis Lengkap Intelijen Institusional untuk BTC (atau ETH / SOL)
 python .agents/tools/market_eyes.py --symbol BTC
 
-# 3. Deteksi ICT Rejection Block & 50% Mean Threshold
+# 5. Deteksi ICT Rejection Block & 50% Mean Threshold
 python .agents/tools/rejection_block_engine.py
 
-# 4. Status Portofolio dan Ringkasan Posisi Terbuka
+# 6. Status Portofolio dan Ringkasan Posisi Terbuka
 python .agents/tools/trading_desk.py status
 
-# 5. Audit Kesehatan Sistem Total (26 Poin Uji Operasional)
+# 7. Audit Kesehatan Sistem Total (30 Poin Uji Operasional)
 python scratch/total_system_debug.py
 ```
 

@@ -56,6 +56,24 @@ import macro_news_shield
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
 
+def ensure_dashboard_daemon():
+    """Checks if Dashboard HTTP server is running on port 5000; starts it if not."""
+    try:
+        req = urllib.request.Request("http://localhost:5000/api/feed", headers={"User-Agent": "TradingDeskDaemonCheck/1.0"})
+        with urllib.request.urlopen(req, timeout=2) as resp:
+            if resp.status == 200:
+                return
+    except Exception:
+        pass
+
+    try:
+        import subprocess
+        srv_script = os.path.join(TOOLS_DIR, "dashboard_server.py")
+        subprocess.Popen([sys.executable, "-u", srv_script], cwd=PROJECT_ROOT)
+        time.sleep(1.5)
+    except Exception:
+        pass
+
 def load_genome():
     if os.path.exists(GENOME_FILE):
         try:

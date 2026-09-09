@@ -1417,6 +1417,47 @@
             </div>
           </div>
 
+          <!-- 5m/15m OPENING RANGE BREAKOUT (ORB V4.1) MATRIX -->
+          <div class="intel-card">
+            <div class="intel-card-header">
+              <div class="intel-card-title">
+                <span>⚡ 5m/15m Opening Range Breakout (ORB V4.1)</span>
+              </div>
+              <span class="pill-badge blue mono" id="orb-session-pill">SESSION: DETECTING</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                <!-- OR High -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Opening Range High</span>
+                  <div class="mono" id="orb-high-val" style="font-size:14.5px; font-weight:700; color:var(--color-mint); margin-top:3px;">-</div>
+                  <div id="orb-high-sub" style="font-size:10px; margin-top:2px; color:var(--color-text-dim);">Breakout Trigger</div>
+                </div>
+
+                <!-- OR Midpoint -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">OR Mid (SL Pivot)</span>
+                  <div class="mono" id="orb-mid-val" style="font-size:14.5px; font-weight:700; color:var(--color-cyan); margin-top:3px;">-</div>
+                  <div id="orb-span-pct" style="font-size:10px; margin-top:2px; color:var(--color-text-dim);">Range: 0.00%</div>
+                </div>
+
+                <!-- OR Low -->
+                <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:10px;">
+                  <span style="font-size:10px; color:var(--color-text-dim); text-transform:uppercase;">Opening Range Low</span>
+                  <div class="mono" id="orb-low-val" style="font-size:14.5px; font-weight:700; color:var(--color-tangerine); margin-top:3px;">-</div>
+                  <div id="orb-low-sub" style="font-size:10px; margin-top:2px; color:var(--color-text-dim);">Breakdown Trigger</div>
+                </div>
+              </div>
+
+              <!-- ORB Live Status Callout -->
+              <div style="background:var(--color-paper); border:1px solid var(--color-ash); border-radius:var(--radius-btn); padding:11px; font-size:11.5px; color:var(--color-text-dim); line-height:1.5; display:flex; align-items:flex-start; gap:8px;">
+                <span style="font-size:15px; margin-top:1px;" id="orb-status-icon">🕒</span>
+                <span id="orb-status-text">Memuat rentang Opening Range (ORB V4.1) untuk London / NY / Daily Open...</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Top Liquidity Clusters (Magnet Likuidasi Institusional) -->
           <div class="intel-card">
             <div class="intel-card-header">
@@ -2964,8 +3005,73 @@
         } catch (e) {
           console.warn("Could not load orderflow data:", e);
         }
+
+        // 12. 5m/15m Opening Range Breakout (ORB V4.1) Scanner
+        try {
+          const orbRes = await fetch(`/api/orb?symbol=${activeSymbol || 'BTC'}`);
+          const orbData = await orbRes.json();
+          if (orbData) {
+            renderOrbCard(orbData);
+          }
+        } catch (e) {
+          console.warn("Could not load ORB data:", e);
+        }
       } catch (e) {
         console.error("Error loading intelligence:", e);
+      }
+    }
+
+    function renderOrbCard(data) {
+      if (!data) return;
+      const sess = data.session || {};
+      const pill = document.getElementById('orb-session-pill');
+      const highVal = document.getElementById('orb-high-val');
+      const midVal = document.getElementById('orb-mid-val');
+      const lowVal = document.getElementById('orb-low-val');
+      const spanPct = document.getElementById('orb-span-pct');
+      const statusIcon = document.getElementById('orb-status-icon');
+      const statusText = document.getElementById('orb-status-text');
+
+      if (pill && sess.session_code) {
+        const pLabel = sess.phase === 'ESTABLISHING_RANGE' ? 'ESTABLISHING (0-15m)' : (sess.phase === 'HUNTING_BREAKOUT' ? 'HUNTING BREAKOUT' : 'COOLDOWN');
+        pill.innerText = `${sess.session_label || sess.session_code}: ${pLabel}`;
+        if (sess.phase === 'HUNTING_BREAKOUT') {
+          pill.className = 'pill-badge mint mono';
+        } else if (sess.phase === 'ESTABLISHING_RANGE') {
+          pill.className = 'pill-badge blue mono';
+        } else {
+          pill.className = 'pill-badge ash mono';
+        }
+      }
+
+      const formatP = (v) => {
+        if (v === undefined || v === null || isNaN(v)) return '-';
+        return Number(v) < 1 ? Number(v).toFixed(4) : Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      };
+
+      if (highVal) highVal.innerText = `$${formatP(data.or_high)}`;
+      if (midVal) midVal.innerText = `$${formatP(data.or_mid)}`;
+      if (lowVal) lowVal.innerText = `$${formatP(data.or_low)}`;
+      if (spanPct && data.range_pct !== undefined) spanPct.innerText = `Range Span: ${data.range_pct}%`;
+
+      if (statusText) {
+        if (data.has_setup && data.setup) {
+          const s = data.setup;
+          if (statusIcon) statusIcon.innerText = s.side === 'LONG' ? '🚀' : '🔻';
+          statusText.innerHTML = `<b style="color:${s.side === 'LONG' ? 'var(--color-mint)' : 'var(--color-tangerine)'};">${s.side} ORB SETUP DETECTED:</b> Entry @ $${formatP(s.entry)} | SL @ $${formatP(s.sl)} | TP @ $${formatP(s.tp)} (2R). <i>${s.reason || ''}</i>`;
+        } else if (data.rel_position === 'INSIDE_OPENING_RANGE') {
+          if (statusIcon) statusIcon.innerText = '⏳';
+          statusText.innerHTML = `<b>Di Dalam Rentang (Inside OR):</b> Harga saat ini ($${formatP(data.current_price)}) berkonsolidasi di dalam batas OR [$${formatP(data.or_low)} - $${formatP(data.or_high)}]. Menunggu konfirmasi breakout candle 5m.`;
+        } else if (data.rel_position === 'ABOVE_OR_HIGH') {
+          if (statusIcon) statusIcon.innerText = '📈';
+          statusText.innerHTML = `<b>Di Atas OR High:</b> Harga ($${formatP(data.current_price)}) berada di atas OR High ($${formatP(data.or_high)}). Memindai konfirmasi candle penutupan body untuk entri Long.`;
+        } else if (data.rel_position === 'BELOW_OR_LOW') {
+          if (statusIcon) statusIcon.innerText = '📉';
+          statusText.innerHTML = `<b>Di Bawah OR Low:</b> Harga ($${formatP(data.current_price)}) berada di bawah OR Low ($${formatP(data.or_low)}). Memindai konfirmasi candle penutupan body untuk entri Short.`;
+        } else {
+          if (statusIcon) statusIcon.innerText = '🕒';
+          statusText.innerText = `Opening Range terpantau. Menunggu penutupan 15m awal untuk aktivasi breakout window.`;
+        }
       }
     }
 
