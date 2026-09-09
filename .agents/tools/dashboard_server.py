@@ -743,6 +743,22 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path == "/api/adapter/multisource":
+            try:
+                import multi_source_adapter
+                q_sym = params.get("symbol", ["BTC"])[0]
+                adapter_data = multi_source_adapter.get_multi_source_summary(q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "adapter_summary": adapter_data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         super().do_GET()
 
     def do_POST(self):

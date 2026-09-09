@@ -282,7 +282,19 @@ Begitu order terisi di bursa, posisi Anda dikawal 24/7 secara otomatis oleh **Tr
       2. 🛡️ **Pilar 2 (`nautilus_risk_engine.py`)**: Gatekeeper risiko pra-eksekusi, drawdown circuit breaker, dan adaptive Kelly sizing.
       3. 🧠 **Pilar 3 (`agent_memory_engine.py`)**: Episodic trade memory & refleksi kognitif hierarkis OpenViking.
     * **API Endpoint Terbuka**:
-      * `GET /api/memory/tiered?symbol=BTCUSDT&tier=L1` — Mengembalikan payload terstruktur dan formatted markdown prompt instan.
+16. **Scientific Quant Volatility & FRED Macro Intelligence Integration**:
+    * Terinspirasi oleh standar **`k-dense-ai/scientific-agent-skills`** (`agentskills.io` / `agent-plugins.org`) untuk memperkuat riset kuantitatif saintifik & intelijen likuiditas makro.
+    * **Pilar Makro Global (`fred_macro_intel.py`)**:
+      * Memantau *Dollar Index (DXY)*, *US 10-Year Treasury Yield*, dan *Federal Reserve Net Liquidity*.
+      * Mengkalkulasi *Macro Multiplier* (0.85x – 1.20x) untuk modulasi sizing trading otomatis.
+      * Endpoint: `GET /api/macro/fred`.
+    * **Pilar Kuantitatif Deret Waktu (`timeseries_quant_forecaster.py`)**:
+      * **Parkinson High-Low Volatility**: Estimasi volatilitas berbasis jalur harga kontinu yang jauh lebih akurat untuk pasar kripto frekuensi tinggi.
+      * **Value-at-Risk (VaR 95% & VaR 99%)** dan **Expected Shortfall (CVaR)**: Kalkulasi risiko ekor (*tail risk*) parametrik dan empiris.
+      * **Dynamic Stop-Loss Buffer**: Mengalibrasi jarak penyangga *structural stop* berdasarkan rezim volatilitas aset saat ini.
+      * Endpoint: `GET /api/quant/volatility?symbol=BTC&bar=1h`.
+    * **Agent Skill Standard (`.agents/skills/crypto-quant-macro/SKILL.md`)**:
+      * Tersedia sebagai plugin skill berstandar internasional yang dapat dipanggil langsung oleh AI Agent.
 
 ---
 
@@ -309,7 +321,7 @@ python .agents/tools/rejection_block_engine.py
 # 6. Status Portofolio dan Ringkasan Posisi Terbuka
 python .agents/tools/trading_desk.py status
 
-# 7. Audit Kesehatan Sistem Total (37 Poin Uji Operasional)
+# 7. Audit Kesehatan Sistem Total (41 Poin Uji Operasional)
 python scratch/total_system_debug.py
 ```
 

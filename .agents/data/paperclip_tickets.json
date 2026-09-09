@@ -1,5 +1,477 @@
 [
   {
+    "ticket_id": "TCK-20260909-8115",
+    "symbol": "BNBUSDT",
+    "side": "SHORT",
+    "strategy": "Akademi Quantitative Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "chief_risk_officer",
+    "stage": "VETOED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-09 20:47:18",
+    "updated_at": "2026-09-09 20:47:24",
+    "payload": {
+      "entry": 734.7,
+      "sl": 745.5517,
+      "tp": 712.9966,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "VETO",
+      "confidence": 85,
+      "suggested_risk_scale": 0.0,
+      "thesis": "VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal.",
+      "key_risks": [
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)",
+        "Blocked by Tri-Perspective Fund Manager"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $745.5517.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 745.5517,
+        "tp_price": 712.9966,
+        "rr_ratio": 2.0,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 68,
+        "bear_score": 32,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.64x Bids/Asks) menekan harga ke bawah.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset BNBUSDT berada dalam 3 besar rotasi sektor (\ud83d\udc51 Macro Heavyweights).",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (68% vs 32%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 745.5517,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-10 03:47:23"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-10 03:47:24",
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 15,
+          "desired_scale": 0.45,
+          "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan. | Margin bebas terbatas (54%)."
+        },
+        "neutral": {
+          "score": 65,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "BLOCKED_RISK_LIMIT",
+          "composite_risk_score": 36,
+          "allocated_risk_scale": 0.0,
+          "stop_loss_profile": "NONE",
+          "regime_weights": {
+            "aggressive": 0.15,
+            "neutral": 0.25,
+            "conservative": 0.6
+          },
+          "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BNB",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 2,
+        "is_leading_sector": false,
+        "sector_24h_avg": -1.06,
+        "relative_strength_vs_btc": -0.7,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 20:47:18",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BNBUSDT (SHORT) teridentifikasi via Akademi Quantitative Setup."
+      },
+      {
+        "timestamp": "2026-09-09 20:47:24",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: VETO (85%)"
+      },
+      {
+        "timestamp": "2026-09-09 20:47:24",
+        "agent": "chief_risk_officer",
+        "stage": "VETOED",
+        "note": "Veto: VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260909-3289",
+    "symbol": "BNBUSDT",
+    "side": "SHORT",
+    "strategy": "Akademi Quantitative Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "chief_risk_officer",
+    "stage": "VETOED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-09 20:46:13",
+    "updated_at": "2026-09-09 20:46:19",
+    "payload": {
+      "entry": 734.62,
+      "sl": 745.5517,
+      "tp": 712.7566,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "VETO",
+      "confidence": 85,
+      "suggested_risk_scale": 0.0,
+      "thesis": "VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal.",
+      "key_risks": [
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)",
+        "Blocked by Tri-Perspective Fund Manager"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $745.5517.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 745.5517,
+        "tp_price": 712.7566,
+        "rr_ratio": 2.0,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 68,
+        "bear_score": 32,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.59x Bids/Asks) menekan harga ke bawah.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset BNBUSDT berada dalam 3 besar rotasi sektor (\ud83d\udc51 Macro Heavyweights).",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (68% vs 32%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 745.5517,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-10 03:46:18"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-10 03:46:19",
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 15,
+          "desired_scale": 0.45,
+          "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan. | Margin bebas terbatas (54%)."
+        },
+        "neutral": {
+          "score": 65,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "BLOCKED_RISK_LIMIT",
+          "composite_risk_score": 36,
+          "allocated_risk_scale": 0.0,
+          "stop_loss_profile": "NONE",
+          "regime_weights": {
+            "aggressive": 0.15,
+            "neutral": 0.25,
+            "conservative": 0.6
+          },
+          "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BNB",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 2,
+        "is_leading_sector": false,
+        "sector_24h_avg": -1.02,
+        "relative_strength_vs_btc": -0.7,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 20:46:13",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BNBUSDT (SHORT) teridentifikasi via Akademi Quantitative Setup."
+      },
+      {
+        "timestamp": "2026-09-09 20:46:19",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: VETO (85%)"
+      },
+      {
+        "timestamp": "2026-09-09 20:46:19",
+        "agent": "chief_risk_officer",
+        "stage": "VETOED",
+        "note": "Veto: VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260909-1572",
+    "symbol": "BNBUSDT",
+    "side": "SHORT",
+    "strategy": "Akademi Quantitative Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "chief_risk_officer",
+    "stage": "VETOED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-09 20:43:11",
+    "updated_at": "2026-09-09 20:43:17",
+    "payload": {
+      "entry": 735.18,
+      "sl": 745.5517,
+      "tp": 714.4366,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "VETO",
+      "confidence": 85,
+      "suggested_risk_scale": 0.0,
+      "thesis": "VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal.",
+      "key_risks": [
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)",
+        "Blocked by Tri-Perspective Fund Manager"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $745.5517.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 745.5517,
+        "tp_price": 714.4366,
+        "rr_ratio": 2.0,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 68,
+        "bear_score": 32,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.65x Bids/Asks) menekan harga ke bawah.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset BNBUSDT berada dalam 3 besar rotasi sektor (\ud83d\udc51 Macro Heavyweights).",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (68% vs 32%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 745.5517,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-10 03:43:16"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-10 03:43:17",
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 15,
+          "desired_scale": 0.45,
+          "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan. | Margin bebas terbatas (54%)."
+        },
+        "neutral": {
+          "score": 65,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "BLOCKED_RISK_LIMIT",
+          "composite_risk_score": 36,
+          "allocated_risk_scale": 0.0,
+          "stop_loss_profile": "NONE",
+          "regime_weights": {
+            "aggressive": 0.15,
+            "neutral": 0.25,
+            "conservative": 0.6
+          },
+          "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BNB",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 2,
+        "is_leading_sector": false,
+        "sector_24h_avg": -1.07,
+        "relative_strength_vs_btc": -0.69,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 20:43:11",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BNBUSDT (SHORT) teridentifikasi via Akademi Quantitative Setup."
+      },
+      {
+        "timestamp": "2026-09-09 20:43:17",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: VETO (85%)"
+      },
+      {
+        "timestamp": "2026-09-09 20:43:17",
+        "agent": "chief_risk_officer",
+        "stage": "VETOED",
+        "note": "Veto: VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260909-8177",
+    "symbol": "BNBUSDT",
+    "side": "SHORT",
+    "strategy": "Akademi Quantitative Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "chief_risk_officer",
+    "stage": "VETOED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-09 20:38:18",
+    "updated_at": "2026-09-09 20:38:24",
+    "payload": {
+      "entry": 735.41,
+      "sl": 745.5517,
+      "tp": 715.1266,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "VETO",
+      "confidence": 85,
+      "suggested_risk_scale": 0.0,
+      "thesis": "VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal.",
+      "key_risks": [
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)",
+        "Blocked by Tri-Perspective Fund Manager"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $745.5517.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 745.5517,
+        "tp_price": 715.1266,
+        "rr_ratio": 2.0,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 68,
+        "bear_score": 32,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.58x Bids/Asks) menekan harga ke bawah.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset BNBUSDT berada dalam 3 besar rotasi sektor (\ud83d\udc51 Macro Heavyweights).",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (68% vs 32%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 745.5517,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-10 03:38:23"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-10 03:38:24",
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 68% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 15,
+          "desired_scale": 0.45,
+          "thesis": "Portofolio memiliki 2 posisi searah; batasi eksposur tambahan. | Margin bebas terbatas (54%)."
+        },
+        "neutral": {
+          "score": 65,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "BLOCKED_RISK_LIMIT",
+          "composite_risk_score": 36,
+          "allocated_risk_scale": 0.0,
+          "stop_loss_profile": "NONE",
+          "regime_weights": {
+            "aggressive": 0.15,
+            "neutral": 0.25,
+            "conservative": 0.6
+          },
+          "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BNB",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 2,
+        "is_leading_sector": false,
+        "sector_24h_avg": -0.95,
+        "relative_strength_vs_btc": -0.68,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-09 20:38:18",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BNBUSDT (SHORT) teridentifikasi via Akademi Quantitative Setup."
+      },
+      {
+        "timestamp": "2026-09-09 20:38:24",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: VETO (85%)"
+      },
+      {
+        "timestamp": "2026-09-09 20:38:24",
+        "agent": "chief_risk_officer",
+        "stage": "VETOED",
+        "note": "Veto: VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 15%). Penambahan posisi BNBUSDT ditolak demi perlindungan modal."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260909-6157",
     "symbol": "NEARUSDT",
     "side": "SHORT",
