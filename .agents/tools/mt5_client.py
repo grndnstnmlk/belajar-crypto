@@ -96,33 +96,45 @@ def get_account_summary() -> Dict[str, Any]:
 def resolve_symbol_name(raw_symbol: str) -> Optional[str]:
     """
     Finds the exact symbol name supported by the connected broker.
-    E.g., 'BTC' -> 'BTCUSD', 'BTCUSDT', 'Bitcoin'
+    E.g., 'BTC' -> 'BTCUSD', 'BTCUSDT', 'Bitcoin', 'BTC'
     'GOLD' -> 'XAUUSD', 'GOLD'
     """
     if not ensure_mt5_connected():
         return None
         
     clean = raw_symbol.upper().replace("-", "").replace("/", "").replace("_", "").strip()
+    base = clean
+    for suffix in ["USDT", "PERP", "BUSD", "USD"]:
+        if base.endswith(suffix) and len(base) > len(suffix):
+            base = base[:-len(suffix)]
+            break
     
     # Priority candidates
     candidates = [
         clean,
+        base,
+        f"{base}USD",
+        f"{base}USDT",
         f"{clean}USD",
         f"{clean}USDT",
-        f"{clean}m",  # Micro accounts
+        f"{base}m",
+        f"{base}.m",
+        f"{clean}m",
         f"{clean}.a",
         f"{clean}_pro",
     ]
     
-    if clean in ["BTC", "BTCUSDT"]:
-        candidates = ["BTCUSD", "BTCUSDT", "BTCUSD.m", "Bitcoin", "BTC"] + candidates
-    elif clean in ["ETH", "ETHUSDT"]:
-        candidates = ["ETHUSD", "ETHUSDT", "ETHUSD.m", "Ethereum", "ETH"] + candidates
-    elif clean in ["GOLD", "XAU"]:
+    if base in ["BTC"]:
+        candidates = ["BTCUSD", "BTCUSDT", "BTC", "BTCUSD.m", "Bitcoin"] + candidates
+    elif base in ["ETH"]:
+        candidates = ["ETHUSD", "ETHUSDT", "ETH", "ETHUSD.m", "Ethereum"] + candidates
+    elif base in ["SOL"]:
+        candidates = ["SOLUSD", "SOLUSDT", "SOL", "SOLUSD.m"] + candidates
+    elif base in ["GOLD", "XAU"]:
         candidates = ["XAUUSD", "GOLD", "XAUUSD.m", "XAUUSDT"] + candidates
-    elif clean in ["DOW", "US30", "DJI"]:
+    elif base in ["DOW", "US30", "DJI"]:
         candidates = ["US30", "DJ30", "WS30", "US30.cash"] + candidates
-    elif clean in ["NAS", "USTEC", "NQ", "NAS100"]:
+    elif base in ["NAS", "USTEC", "NQ", "NAS100"]:
         candidates = ["USTEC", "NAS100", "US100", "NQ100"] + candidates
 
     for c in candidates:
@@ -135,8 +147,16 @@ def resolve_symbol_name(raw_symbol: str) -> Optional[str]:
     # Search in all broker symbols
     all_syms = mt5.symbols_get()
     if all_syms:
+        # First check exact symbol match
         for s in all_syms:
-            if clean in s.name.upper():
+            s_name = s.name.upper()
+            if s_name in [clean, base, f"{base}USD", f"{base}USDT"]:
+                mt5.symbol_select(s.name, True)
+                return s.name
+        # Then check substring
+        for s in all_syms:
+            s_name = s.name.upper()
+            if clean in s_name or (len(base) >= 3 and s_name.startswith(base)):
                 mt5.symbol_select(s.name, True)
                 return s.name
                 
@@ -192,11 +212,24 @@ def calculate_lot_size(symbol: str, risk_usd: float, sl_points: float) -> float:
         
     raw_lot = risk_usd / (sl_points * cost_per_point_per_lot)
     
-    # Clamp to step & min/max
+    # Clamp to step & min/max with Institutional Max Notional Cap (Max 2.5x Equity)
     step = info.volume_step if info.volume_step > 0 else 0.01
     vol_min = info.volume_min if info.volume_min > 0 else 0.01
     vol_max = info.volume_max if info.volume_max > 0 else 100.0
     
+    try:
+        ensure_mt5_connected()
+        acc = mt5.account_info()
+        equity = float(acc.equity) if acc and acc.equity > 0 else 100000.0
+        max_notional = equity * 2.5  # Max 2.5x leverage notional
+        tick = mt5.symbol_info_tick(sym)
+        ref_price = float(tick.bid if tick and tick.bid > 0 else (getattr(info, "bid", 0) or getattr(info, "last", 0) or 1000.0))
+        contract_size = float(getattr(info, "trade_contract_size", 1.0) or 1.0)
+        max_lots_by_notional = max_notional / max(1.0, ref_price * contract_size)
+        vol_max = min(vol_max, max_lots_by_notional)
+    except Exception:
+        pass
+
     lot = round(raw_lot / step) * step
     lot = max(vol_min, min(lot, vol_max))
     return round(lot, 2)
@@ -232,14 +265,41 @@ def place_signal_order(
     digits = info.digits
     point = info.point
     
-    # Calculate SL and TP prices if not explicitly provided
-    if sl_price is None or sl_price <= 0:
-        default_dist = price * 0.012  # 1.2% default SL
-        sl_price = round(price - default_dist if is_buy else price + default_dist, digits)
-        
-    if tp_price is None or tp_price <= 0:
+    min_stop_dist = max(getattr(info, "trade_stops_level", 10) * point, point * 10, price * 0.001)
+
+    # Normalize SL and TP if price scales differ between crypto and broker ticker
+    if sl_price is not None and sl_price > 0:
+        scale_ratio_sl = abs(sl_price - price) / price
+        if scale_ratio_sl > 0.20:
+            sl_pct = min(0.04, max(0.008, scale_ratio_sl))
+            sl_price = price * (1.0 - sl_pct) if is_buy else price * (1.0 + sl_pct)
+    else:
+        default_dist = max(price * 0.012, min_stop_dist * 2)
+        sl_price = price - default_dist if is_buy else price + default_dist
+
+    if tp_price is not None and tp_price > 0:
+        scale_ratio_tp = abs(tp_price - price) / price
+        if scale_ratio_tp > 0.35:
+            tp_pct = min(0.10, max(0.015, scale_ratio_tp))
+            tp_price = price * (1.0 + tp_pct) if is_buy else price * (1.0 - tp_pct)
+    else:
         r_dist = abs(price - sl_price)
-        tp_price = round(price + (r_dist * 2.0) if is_buy else price - (r_dist * 2.0), digits)
+        tp_price = price + (r_dist * 2.0) if is_buy else price - (r_dist * 2.0)
+
+    # Ensure stops strictly adhere to broker stop level & side rules
+    if is_buy:
+        if sl_price >= price - min_stop_dist:
+            sl_price = price - min_stop_dist
+        if tp_price <= price + min_stop_dist:
+            tp_price = price + min_stop_dist
+    else:
+        if sl_price <= price + min_stop_dist:
+            sl_price = price + min_stop_dist
+        if tp_price >= price - min_stop_dist:
+            tp_price = price - min_stop_dist
+
+    sl_price = round(sl_price, digits)
+    tp_price = round(tp_price, digits)
 
     sl_points = abs(price - sl_price) / point if point > 0 else 100
     

@@ -280,11 +280,14 @@ def send_telegram_photo(photo_path, caption=None, chat_id=None):
     body.extend(f'Content-Disposition: form-data; name="chat_id"\r\n\r\n'.encode("utf-8"))
     body.extend(f"{target_chat}\r\n".encode("utf-8"))
 
-    # Field: caption
+    # Field: caption (Strict 1024 char limit for Telegram sendPhoto)
     if caption:
+        safe_caption = caption
+        if len(safe_caption) > 1020:
+            safe_caption = safe_caption[:1015] + "..."
         body.extend(f"--{boundary}\r\n".encode("utf-8"))
         body.extend(f'Content-Disposition: form-data; name="caption"\r\n\r\n'.encode("utf-8"))
-        body.extend(f"{caption}\r\n".encode("utf-8"))
+        body.extend(f"{safe_caption}\r\n".encode("utf-8"))
 
         body.extend(f"--{boundary}\r\n".encode("utf-8"))
         body.extend(f'Content-Disposition: form-data; name="parse_mode"\r\n\r\n'.encode("utf-8"))
@@ -311,6 +314,40 @@ def send_telegram_photo(photo_path, caption=None, chat_id=None):
         with urllib.request.urlopen(req, timeout=18, context=SSL_CTX) as resp:
             raw_res = resp.read().decode("utf-8")
             return json.loads(raw_res)
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode("utf-8", errors="ignore")
+        print(f"[Telegram Photo Warning] sendPhoto failed ({e.code}): {err_body}. Retrying photo without HTML parse_mode...")
+        try:
+            # Fallback 1: Resend photo with pure clean plain text (no parse_mode)
+            clean_caption = re.sub(r"<[^>]+>", "", caption)[:1000] if caption else None
+            fb_body = bytearray()
+            fb_body.extend(f"--{boundary}\r\n".encode("utf-8"))
+            fb_body.extend(f'Content-Disposition: form-data; name="chat_id"\r\n\r\n'.encode("utf-8"))
+            fb_body.extend(f"{target_chat}\r\n".encode("utf-8"))
+            if clean_caption:
+                fb_body.extend(f"--{boundary}\r\n".encode("utf-8"))
+                fb_body.extend(f'Content-Disposition: form-data; name="caption"\r\n\r\n'.encode("utf-8"))
+                fb_body.extend(f"{clean_caption}\r\n".encode("utf-8"))
+            fb_body.extend(f"--{boundary}\r\n".encode("utf-8"))
+            fb_body.extend(f'Content-Disposition: form-data; name="photo"; filename="{filename}"\r\n'.encode("utf-8"))
+            fb_body.extend(b"Content-Type: image/png\r\n\r\n")
+            fb_body.extend(file_bytes)
+            fb_body.extend(b"\r\n")
+            fb_body.extend(f"--{boundary}--\r\n".encode("utf-8"))
+            
+            fb_headers = {
+                "User-Agent": "TelegramTradingDeskBot/1.0",
+                "Content-Type": f"multipart/form-data; boundary={boundary}",
+                "Content-Length": str(len(fb_body))
+            }
+            req_fb = urllib.request.Request(url, data=fb_body, headers=fb_headers, method="POST")
+            with urllib.request.urlopen(req_fb, timeout=18, context=SSL_CTX) as fb_resp:
+                return json.loads(fb_resp.read().decode("utf-8"))
+        except Exception as fb_err:
+            print(f"[Telegram Photo Error] Fallback sendPhoto failed: {fb_err}")
+            if caption:
+                telegram_notifier.send_telegram_msg(caption, chat_id_override=target_chat)
+            return None
     except Exception as e:
         print(f"[Telegram Photo Error] Failed to upload chart image: {e}")
         # Fallback to plain text caption

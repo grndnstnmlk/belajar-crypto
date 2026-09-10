@@ -353,17 +353,124 @@ def get_autoresearch_summary():
         "last_mutation": genome.get("mutation_history", [])[-1] if genome.get("mutation_history") else None
     }
 
+def record_closed_trade_and_check_evolution(trade_entry):
+    """
+    Appends newly closed trade to paper portfolio (if not already logged)
+    and checks if an autoresearch cycle / reflection mutation should trigger.
+    """
+    portfolio = load_json(PORTFOLIO_FILE, {"cash_balance": 10000, "positions": [], "trade_history": []})
+    history = portfolio.get("trade_history", [])
+    history.append(trade_entry)
+    portfolio["trade_history"] = history
+    save_json(PORTFOLIO_FILE, portfolio)
+    print(f"🧬 [Autonomous Evolution Tracker] Recorded closed trade {trade_entry.get('symbol')} (PnL: ${trade_entry.get('pnl_usd', 0):+,.2f})")
+
+    # Check autoresearch keep-or-revert cycle
+    all_trades = get_all_trade_records()
+    if len(all_trades) >= 3 and len(all_trades) % 3 == 0:
+        print(f"🧬 [Autonomous Reflection Trigger] Threshold reached ({len(all_trades)} trades). Running autoresearch cycle...")
+        evolve_agent()
+
+def format_telegram_genome_status():
+    genome = load_json(GENOME_FILE, get_default_genome())
+    stats = analyze_performance()
+
+    gen = genome.get("generation", 1)
+    fitness = genome.get("fitness_score", 85.0)
+    params = genome.get("parameters", {})
+    min_rr = params.get("min_risk_reward", 2.0)
+    max_risk = params.get("max_risk_per_trade_pct", 1.5)
+
+    lines = [
+        f"🧬 <b>STATUS QUANT GENOME (GENERASI {gen})</b>",
+        f"<i>Kecerdasan Evolusi Mandiri & ATLAS Autoresearch</i>",
+        f"━━━━━━━━━━━━━━━━━━",
+        f"🏆 <b>Fitness Score:</b> <code>{fitness}/100.0</code>",
+        f"⚖️ <b>Min R:R Filter:</b> <code>1 : {min_rr}</code>",
+        f"🛡️ <b>Max Risk/Trade:</b> <code>{max_risk}% modal</code>",
+        f"⚡ <b>Max Funding Rate:</b> <code>{params.get('max_funding_rate_threshold', 0.02)}%</code>",
+        f"━━━━━━━━━━━━━━━━━━"
+    ]
+
+    if stats:
+        lines.append(f"📊 <b>Performa Historis:</b>")
+        lines.append(f"• Total Trade: <code>{stats['total_trades']}</code>")
+        lines.append(f"• Win Rate: <code>{stats['win_rate']:.1f}%</code>")
+        lines.append(f"• Profit Factor: <code>{stats['profit_factor']:.2f}</code>")
+        lines.append(f"• Rolling Sharpe: <code>{stats.get('rolling_sharpe', 0):.2f}</code>")
+        lines.append(f"• Net PnL: <code>{'+' if stats['net_pnl']>=0 else ''}${stats['net_pnl']:,.2f}</code>\n")
+
+    exp = genome.get("active_experiment", {})
+    if exp and exp.get("status") == "EVALUATING":
+        lines.append(f"🔬 <b>Eksperimen Aktif (Gen {exp.get('test_generation')}):</b>")
+        lines.append(f"• Status: <code>{exp.get('status')}</code>")
+        lines.append(f"• Hipotesis: <i>{exp.get('hypothesis')}</i>\n")
+
+    mutations = genome.get("mutation_history", [])
+    if mutations:
+        last = mutations[-1]
+        lines.append(f"🔬 <b>Mutasi Terakhir (Gen {last.get('generation')}):</b>")
+        lines.append(f"• Tindakan: <code>{last.get('action')}</code>")
+        lines.append(f"• Hipotesis: <i>{last.get('hypothesis')}</i>")
+
+    lines.append("\n━━━━━━━━━━━━━━━━━━")
+    lines.append("<i>💡 Agent otomatis menguji & mengoptimasi strategi melalui siklus Karpathy Autoresearch.</i>")
+    return "\n".join(lines)
+
+def show_genome_status():
+    genome = load_json(GENOME_FILE, get_default_genome())
+    print("\n=======================================================")
+    print(f"       🧬 AGENT QUANT GENOME: GENERATION {genome['generation']}")
+    print("=======================================================")
+    print(f"Agent Fitness Score       : {genome['fitness_score']} / 100.0")
+    print(f"Min Risk-to-Reward (R:R)  : 1 : {genome['parameters']['min_risk_reward']}")
+    print(f"Max Risk Per Trade        : {genome['parameters']['max_risk_per_trade_pct']}% of balance")
+    print(f"Max Perp Funding Rate     : {genome['parameters']['max_funding_rate_threshold']}%")
+    print(f"Require FVG Confluence    : {genome['parameters']['require_fvg_confluence']}")
+    print("-------------------------------------------------------")
+    print("Genetic Decision Weights  :")
+    for k, v in genome["parameters"]["weights"].items():
+        print(f"  * {k:<22}: {v*100:.0f}%")
+    print("-------------------------------------------------------")
+    print(f"Mutation History ({len(genome['mutation_history'])} events):")
+    for m in reversed(genome["mutation_history"][-3:]):
+        print(f"  [Gen-{m['generation']} | {m['timestamp']}] {m['action']}")
+        print(f"    -> {m['hypothesis']}")
+    print("=======================================================\n")
+
+def inject_sample_data():
+    """Generates realistic paper trade logs for testing the evolutionary loop."""
+    sample_trades = [
+        {"id": "POS-101", "symbol": "BTC-USDT", "side": "LONG", "entry_price": 75000, "exit_price": 78000, "amount_usd": 1000, "pnl_usd": 40.0, "pnl_pct": 4.0, "reason": "HIT_TP", "closed_at": "2026-09-01 10:00:00"},
+        {"id": "POS-102", "symbol": "SOL-USDT", "side": "LONG", "entry_price": 102.5, "exit_price": 98.0, "amount_usd": 600, "pnl_usd": -26.34, "pnl_pct": -4.39, "reason": "HIT_SL", "closed_at": "2026-09-01 14:30:00"},
+        {"id": "POS-103", "symbol": "ETH-USDT", "side": "SHORT", "entry_price": 2450, "exit_price": 2490, "amount_usd": 800, "pnl_usd": -13.06, "pnl_pct": -1.63, "reason": "HIT_SL", "closed_at": "2026-09-02 09:15:00"},
+        {"id": "POS-104", "symbol": "SOL-USDT", "side": "LONG", "entry_price": 96.0, "exit_price": 93.5, "amount_usd": 500, "pnl_usd": -13.02, "pnl_pct": -2.60, "reason": "HIT_SL", "closed_at": "2026-09-02 16:45:00"},
+        {"id": "POS-105", "symbol": "BTC-USDT", "side": "LONG", "entry_price": 76200, "exit_price": 79500, "amount_usd": 1200, "pnl_usd": 51.96, "pnl_pct": 4.33, "reason": "HIT_TP", "closed_at": "2026-09-02 21:00:00"}
+    ]
+    portfolio = load_json(PORTFOLIO_FILE, {"cash_balance": 10000, "positions": [], "trade_history": []})
+    portfolio["trade_history"] = sample_trades
+    save_json(PORTFOLIO_FILE, portfolio)
+    print("Sample trade history (5 trades: 2 Wins, 3 Losses) successfully injected into paper_portfolio.json.")
+
 def evolve_agent():
-    return run_karpathy_autoresearch_cycle()
+    mutated, decision = run_karpathy_autoresearch_cycle()
+    genome = load_json(GENOME_FILE, get_default_genome())
+    return mutated, genome.get("generation", 1)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ATLAS Karpathy Autoresearch Self-Improving Engine")
     sub = parser.add_subparsers(dest="command")
+    sub.add_parser("status", help="Show current Agent Genome, Generation, and Parameters")
     sub.add_parser("audit", help="Audit performance metrics and rolling Sharpe")
     sub.add_parser("evolve", help="Run Karpathy Autoresearch Keep-or-Revert cycle")
+    sub.add_parser("sample-data", help="Inject realistic sample paper trade history for testing")
     args = parser.parse_args()
 
-    if args.command == "evolve":
-        run_karpathy_autoresearch_cycle()
+    if args.command == "status":
+        show_genome_status()
+    elif args.command == "evolve":
+        evolve_agent()
+    elif args.command == "sample-data":
+        inject_sample_data()
     else:
         analyze_performance()

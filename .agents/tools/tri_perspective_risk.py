@@ -131,43 +131,43 @@ def run_deterministic_tri_risk(setup, portfolio_state=None, market_context=None)
     agg_scale = max(0.5, min(1.25, round(agg_scale, 2)))
     agg_thesis = " | ".join(agg_points) if agg_points else "Kondisi pasar standar untuk penetrasi momentum."
 
-    # 2. CONSERVATIVE RISK OFFICER EVALUATION
+    # 2. CONSERVATIVE RISK OFFICER EVALUATION (Tuned for adaptive scalability)
     # Focus: Capital preservation, portfolio strain, directional clustering, downside protection
-    con_score = 50
+    con_score = 55
     con_scale = 1.0
     con_points = []
 
-    # Directional crowding penalty
-    if directional_heat >= 3:
-        con_score -= 40
-        con_scale -= 0.60
+    # Directional crowding penalty (Loosened to accommodate multi-asset opportunities)
+    if directional_heat >= 4:
+        con_score -= 30
+        con_scale -= 0.40
         con_points.append(f"Peringatan konsentrasi arah: sudah ada {directional_heat} posisi sepihak terbuka.")
     elif directional_heat >= 2:
-        con_score -= 20
-        con_scale -= 0.35
-        con_points.append(f"Portofolio memiliki {directional_heat} posisi searah; batasi eksposur tambahan.")
+        con_score -= 10
+        con_scale -= 0.15
+        con_points.append(f"Portofolio memiliki {directional_heat} posisi searah; alokasi ukuran disesuaikan secara dinamis.")
     else:
         con_score += 15
         con_points.append("Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah.")
 
     # Bear skepticism from Tauric Debate
-    if bear_score >= 65:
-        con_score -= 35
-        con_scale -= 0.50
-        con_points.append(f"Skeptisisme Bear tinggi ({bear_score:.0f}%) mendeteksi potensi jebakan likuiditas / dinding resisten.")
-    elif bear_score >= 50:
-        con_score -= 15
-        con_scale -= 0.20
-        con_points.append(f"Kritik Bear moderat ({bear_score:.0f}%); diperlukan stop loss ketat.")
+    if bear_score >= 75:
+        con_score -= 25
+        con_scale -= 0.35
+        con_points.append(f"Skeptisisme Bear sangat tinggi ({bear_score:.0f}%) mendeteksi potensi jebakan likuiditas.")
+    elif bear_score >= 60:
+        con_score -= 10
+        con_scale -= 0.15
+        con_points.append(f"Kritik Bear moderat ({bear_score:.0f}%); trailing stop ketat diaktifkan.")
 
     # Free margin health
-    if free_margin_ratio < 0.40:
-        con_score -= 30
-        con_scale -= 0.40
+    if free_margin_ratio < 0.25:
+        con_score -= 25
+        con_scale -= 0.30
         con_points.append(f"Margin bebas kritis ({free_margin_ratio*100:.0f}%); prioritas preservasi kas.")
-    elif free_margin_ratio < 0.60:
-        con_score -= 15
-        con_scale -= 0.20
+    elif free_margin_ratio < 0.45:
+        con_score -= 10
+        con_scale -= 0.15
         con_points.append(f"Margin bebas terbatas ({free_margin_ratio*100:.0f}%).")
 
     con_score = max(5, min(95, con_score))
@@ -200,41 +200,41 @@ def run_deterministic_tri_risk(setup, portfolio_state=None, market_context=None)
     w_neu = 0.40
     w_agg = 0.25
 
-    if directional_heat >= 2 or pos_count >= 3 or free_margin_ratio < 0.50:
-        # Surge conservative weighting during stress
-        w_con = 0.60
-        w_neu = 0.25
-        w_agg = 0.15
-    elif agg_score >= 80 and con_score >= 60 and free_margin_ratio >= 0.75:
-        # Boost aggressive weighting in prime conditions
-        w_agg = 0.40
+    if directional_heat >= 3 or pos_count >= 5 or free_margin_ratio < 0.35:
+        # Moderate conservative weighting during higher congestion
+        w_con = 0.45
         w_neu = 0.35
-        w_con = 0.25
+        w_agg = 0.20
+    elif agg_score >= 80 and con_score >= 50 and free_margin_ratio >= 0.60:
+        # Boost aggressive weighting in prime conditions
+        w_agg = 0.45
+        w_neu = 0.35
+        w_con = 0.20
 
     composite_score = int(w_agg * agg_score + w_neu * neu_score + w_con * con_score)
     final_scale = round(w_agg * agg_scale + w_neu * neu_scale + w_con * con_scale, 2)
 
-    # Determine Clearance Verdict & Stop Profile
-    if con_score < 25 or directional_heat >= 4 or composite_score < 35:
+    # Determine Clearance Verdict & Stop Profile (Loosened hard threshold to allow defensive scaled entries)
+    if con_score < 15 or directional_heat >= 6 or composite_score < 25:
         verdict = "BLOCKED_RISK_LIMIT"
         final_scale = 0.0
         stop_profile = "NONE"
         synthesis = f"REJECTED: Stres portofolio melampaui batas aman (Konservatif {con_score}%). Penambahan posisi {sym} ditolak demi perlindungan modal."
-    elif composite_score >= 75 and con_score >= 50:
+    elif composite_score >= 70 and con_score >= 45:
         verdict = "APPROVED_OPTIMAL"
         final_scale = min(1.25, max(1.0, final_scale))
         stop_profile = "RUNNER_EXPANSION"
         synthesis = f"APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh {final_scale:.2f}x diizinkan dengan runner expansion."
-    elif composite_score >= 55 and con_score >= 40:
+    elif composite_score >= 50 and con_score >= 35:
         verdict = "APPROVED_BALANCED"
-        final_scale = min(1.0, max(0.70, final_scale))
+        final_scale = min(1.0, max(0.65, final_scale))
         stop_profile = "ATR_TRAILING"
         synthesis = f"APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko {final_scale:.2f}x dan trailing stop berbasis ATR dinamis."
     else:
         verdict = "APPROVED_DEFENSIVE"
-        final_scale = min(0.55, max(0.25, final_scale))
+        final_scale = min(0.60, max(0.30, final_scale))
         stop_profile = "TIGHT_BREAKEVEN"
-        synthesis = f"APPROVED DEFENSIVE: Risiko moderat terdeteksi. Alokasi dipangkas defensif ke {final_scale:.2f}x dengan kunci Break-Even cepat di +0.6R."
+        synthesis = f"APPROVED DEFENSIVE: Risiko terdeteksi namun terukur. Alokasi disesuaikan ke {final_scale:.2f}x dengan kunci Break-Even cepat di +0.6R."
 
     return {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

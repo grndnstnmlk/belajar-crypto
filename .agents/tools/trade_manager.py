@@ -426,20 +426,37 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
     - Detects closed positions, extracts exact realized PnL from ledger, and notifies user.
     """
     meta = load_trade_metadata()
-    res = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=is_demo, user_email=user_email)
-    if res is None:
-        return
+    mt5_active_tickets = set()
+    try:
+        import mt5_client
+        if mt5_client.ensure_mt5_connected():
+            mt5_positions = mt5_client.get_open_positions()
+            for p in mt5_positions:
+                mt5_active_tickets.add(str(p.get("ticket")))
+                mt5_active_tickets.add(f"MT5_{p.get('ticket')}")
+    except Exception:
+        pass
 
-    active_positions = [p for p in res if float(p.get("positionAmt", 0)) != 0]
+    res = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=is_demo, user_email=user_email)
+    active_positions = [p for p in res if float(p.get("positionAmt", 0)) != 0] if res else []
     active_syms = {p["symbol"]: p for p in active_positions}
 
     # 1. Clean up positions that have been closed
     closed_syms = []
     for sym, t_info in meta.items():
-        if sym not in active_syms:
-            closed_syms.append(sym)
-            try:
-                # Fetch exact closed trade details directly from Binance Futures ledger
+        is_mt5_entry = sym.startswith("MT5_") or t_info.get("backend") == "MT5"
+        if is_mt5_entry:
+            if sym in mt5_active_tickets or str(t_info.get("ticket", "")) in mt5_active_tickets:
+                continue  # Still open in MT5
+        elif sym in active_syms:
+            continue  # Still open in Binance
+
+        closed_syms.append(sym)
+        try:
+            # Fetch exact closed trade details directly from exchange ledger
+            if is_mt5_entry:
+                details = {"success": False}
+            else:
                 details = fetch_closed_trade_details(
                     symbol=sym,
                     is_demo=is_demo,
@@ -448,130 +465,130 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     position_side=t_info.get("side", "BUY")
                 )
 
-                is_be = t_info.get("breakeven_locked", False)
-                trailing_r = float(t_info.get("trailing_r_locked", 0.0))
-                entry_p = float(t_info.get("entry_price", 0))
-                tp_p = float(t_info.get("tp", 0)) if t_info.get("tp") else 0.0
-                side = t_info.get("side", "BUY")
-                risk_b = float(t_info.get("risk_budget_usd", 20.0))
+            is_be = t_info.get("breakeven_locked", False)
+            trailing_r = float(t_info.get("trailing_r_locked", 0.0))
+            entry_p = float(t_info.get("entry_price", 0))
+            tp_p = float(t_info.get("tp", 0)) if t_info.get("tp") else 0.0
+            side = t_info.get("side", "BUY")
+            risk_b = float(t_info.get("risk_budget_usd", 20.0))
 
-                if details.get("success"):
-                    realized_pnl = float(details.get("realized_pnl", 0.0))
-                    commission = float(details.get("commission", 0.0))
-                    net_pnl = float(details.get("net_pnl", 0.0))
-                    exit_price = float(details.get("exit_price", 0.0)) or float(t_info.get("current_sl", entry_p))
-                    qty = float(details.get("quantity", 0.0)) or float(t_info.get("quantity", 0.0))
-                    order_type = details.get("order_type", "MARKET")
-                    close_time = details.get("close_time")
+            if details.get("success"):
+                realized_pnl = float(details.get("realized_pnl", 0.0))
+                commission = float(details.get("commission", 0.0))
+                net_pnl = float(details.get("net_pnl", 0.0))
+                exit_price = float(details.get("exit_price", 0.0)) or float(t_info.get("current_sl", entry_p))
+                qty = float(details.get("quantity", 0.0)) or float(t_info.get("quantity", 0.0))
+                order_type = details.get("order_type", "MARKET")
+                close_time = details.get("close_time")
+            else:
+                # Fallback approximation if Binance API ledger is delayed
+                exit_price = float(t_info.get("current_sl", entry_p))
+                qty = float(t_info.get("quantity", 0.0))
+                if is_be and trailing_r == 0:
+                    realized_pnl = 0.0
+                elif side == "BUY":
+                    realized_pnl = (exit_price - entry_p) * qty if (exit_price and entry_p and qty) else (risk_b * (trailing_r - 0.5) if trailing_r > 0 else -risk_b)
                 else:
-                    # Fallback approximation if Binance API ledger is delayed
-                    exit_price = float(t_info.get("current_sl", entry_p))
-                    qty = float(t_info.get("quantity", 0.0))
-                    if is_be and trailing_r == 0:
-                        realized_pnl = 0.0
-                    elif side == "BUY":
-                        realized_pnl = (exit_price - entry_p) * qty if (exit_price and entry_p and qty) else (risk_b * (trailing_r - 0.5) if trailing_r > 0 else -risk_b)
-                    else:
-                        realized_pnl = (entry_p - exit_price) * qty if (exit_price and entry_p and qty) else (risk_b * (trailing_r - 0.5) if trailing_r > 0 else -risk_b)
-                    commission = round(abs(realized_pnl) * 0.0008, 4)
-                    net_pnl = realized_pnl - commission
-                    order_type = "MARKET"
-                    close_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    realized_pnl = (entry_p - exit_price) * qty if (exit_price and entry_p and qty) else (risk_b * (trailing_r - 0.5) if trailing_r > 0 else -risk_b)
+                commission = round(abs(realized_pnl) * 0.0008, 4)
+                net_pnl = realized_pnl - commission
+                order_type = "MARKET"
+                close_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-                tp1_taken = t_info.get("tp1_taken", False)
-                tp1_cash = float(t_info.get("tp1_pnl_usd", 0.0))
+            tp1_taken = t_info.get("tp1_taken", False)
+            tp1_cash = float(t_info.get("tp1_pnl_usd", 0.0))
 
-                # Total trade net accounting (Runner realized + TP1 already realized)
-                total_realized_trade = realized_pnl + (tp1_cash if tp1_taken else 0.0)
-                total_net_trade = net_pnl + (tp1_cash if tp1_taken else 0.0)
+            # Total trade net accounting (Runner realized + TP1 already realized)
+            total_realized_trade = realized_pnl + (tp1_cash if tp1_taken else 0.0)
+            total_net_trade = net_pnl + (tp1_cash if tp1_taken else 0.0)
 
-                # Formulate intelligent exit reason
-                if order_type in ["TAKE_PROFIT", "TAKE_PROFIT_MARKET"] or (tp_p > 0 and ((side == "BUY" and exit_price >= tp_p * 0.998) or (side == "SELL" and exit_price <= tp_p * 1.002))):
-                    exit_reason = f"🎯 Full Take Profit Hit (+${total_realized_trade:,.2f} USDT)"
-                elif is_be and tp1_taken:
-                    if trailing_r > 0:
-                        exit_reason = f"🎯 Trailing Runner Locked (+{trailing_r:.1f}R | Total Profit: +${total_realized_trade:,.2f} USDT)"
-                    else:
-                        exit_reason = f"🛡️ Free Runner Exited at BE (Total Profit: +${total_realized_trade:,.2f} USDT via TP1)"
-                elif order_type in ["STOP_MARKET", "STOP"]:
-                    if is_be and trailing_r > 0:
-                        exit_reason = f"🎯 Trailing Stop Locked (+{trailing_r:.1f}R | +${total_realized_trade:,.2f} USDT)"
-                    elif is_be:
-                        exit_reason = "🛡️ Breakeven Auto-Lock Filled (Free Roll Protected)"
-                    elif t_info.get("capital_shield_locked"):
-                        exit_reason = f"🛡️ Capital Shield Triggered (-${abs(total_realized_trade):,.2f} USDT | 80% Saved)"
-                    else:
-                        exit_reason = f"🛑 Stop Loss Filled (-${abs(total_realized_trade):,.2f} USDT)"
-                elif is_be and abs(realized_pnl) < 1.0:
-                    exit_reason = f"🛡️ Breakeven Exit ({f'+${tp1_cash:,.2f} via TP1' if tp1_taken else '+0.0R Protected'})"
-                elif total_realized_trade > 0:
-                    exit_reason = f"🟢 Profit Locked (+${total_realized_trade:,.2f} USDT)"
-                elif total_realized_trade < 0:
-                    exit_reason = f"🔴 Stop Loss Hit / Position Exited (-${abs(total_realized_trade):,.2f} USDT)"
+            # Formulate intelligent exit reason
+            if order_type in ["TAKE_PROFIT", "TAKE_PROFIT_MARKET"] or (tp_p > 0 and ((side == "BUY" and exit_price >= tp_p * 0.998) or (side == "SELL" and exit_price <= tp_p * 1.002))):
+                exit_reason = f"🎯 Full Take Profit Hit (+${total_realized_trade:,.2f} USDT)"
+            elif is_be and tp1_taken:
+                if trailing_r > 0:
+                    exit_reason = f"🎯 Trailing Runner Locked (+{trailing_r:.1f}R | Total Profit: +${total_realized_trade:,.2f} USDT)"
                 else:
-                    exit_reason = "⚪ Position Exited at Breakeven"
+                    exit_reason = f"🛡️ Free Runner Exited at BE (Total Profit: +${total_realized_trade:,.2f} USDT via TP1)"
+            elif order_type in ["STOP_MARKET", "STOP"]:
+                if is_be and trailing_r > 0:
+                    exit_reason = f"🎯 Trailing Stop Locked (+{trailing_r:.1f}R | +${total_realized_trade:,.2f} USDT)"
+                elif is_be:
+                    exit_reason = "🛡️ Breakeven Auto-Lock Filled (Free Roll Protected)"
+                elif t_info.get("capital_shield_locked"):
+                    exit_reason = f"🛡️ Capital Shield Triggered (-${abs(total_realized_trade):,.2f} USDT | 80% Saved)"
+                else:
+                    exit_reason = f"🛑 Stop Loss Filled (-${abs(total_realized_trade):,.2f} USDT)"
+            elif is_be and abs(realized_pnl) < 1.0:
+                exit_reason = f"🛡️ Breakeven Exit ({f'+${tp1_cash:,.2f} via TP1' if tp1_taken else '+0.0R Protected'})"
+            elif total_realized_trade > 0:
+                exit_reason = f"🟢 Profit Locked (+${total_realized_trade:,.2f} USDT)"
+            elif total_realized_trade < 0:
+                exit_reason = f"🔴 Stop Loss Hit / Position Exited (-${abs(total_realized_trade):,.2f} USDT)"
+            else:
+                exit_reason = "⚪ Position Exited at Breakeven"
 
-                print(f"🏁 [CLOSED POSITION AUDIT] {sym} closed: Realized PnL: {total_realized_trade:+.2f} USDT (Net: {total_net_trade:+.2f}) | Reason: {exit_reason}")
+            print(f"🏁 [CLOSED POSITION AUDIT] {sym} closed: Realized PnL: {total_realized_trade:+.2f} USDT (Net: {total_net_trade:+.2f}) | Reason: {exit_reason}")
 
-                # Notify Telegram of closed position with 100% verified accounting data
-                telegram_notifier.notify_trade_closed(
-                    symbol=sym,
-                    pnl_usd=total_realized_trade,
-                    exit_reason=exit_reason,
-                    is_demo=is_demo,
-                    net_pnl_usd=total_net_trade,
-                    commission_usd=commission,
-                    entry_price=entry_p,
-                    exit_price=exit_price,
-                    qty=qty,
-                    side=side,
-                    close_time=close_time
-                )
+            # Notify Telegram of closed position with 100% verified accounting data
+            telegram_notifier.notify_trade_closed(
+                symbol=sym,
+                pnl_usd=total_realized_trade,
+                exit_reason=exit_reason,
+                is_demo=is_demo,
+                net_pnl_usd=total_net_trade,
+                commission_usd=commission,
+                entry_price=entry_p,
+                exit_price=exit_price,
+                qty=qty,
+                side=side,
+                close_time=close_time
+            )
 
-                # Autonomous Genetic Evolution Trigger with accurate ledger values
-                import self_improve
-                pos_amount_usd = (entry_p * qty) if (entry_p and qty) else (risk_b * 5.0)
-                pnl_pct_calc = (realized_pnl / pos_amount_usd * 100.0) if pos_amount_usd > 0 else 0.0
+            # Autonomous Genetic Evolution Trigger with accurate ledger values
+            import self_improve
+            pos_amount_usd = (entry_p * qty) if (entry_p and qty) else (risk_b * 5.0)
+            pnl_pct_calc = (realized_pnl / pos_amount_usd * 100.0) if pos_amount_usd > 0 else 0.0
 
-                self_improve.record_closed_trade_and_check_evolution({
+            self_improve.record_closed_trade_and_check_evolution({
+                "id": f"BINANCE-{sym}-{int(time.time())}",
+                "symbol": sym,
+                "side": side,
+                "entry_price": entry_p,
+                "exit_price": exit_price,
+                "amount_usd": round(pos_amount_usd, 2),
+                "pnl_usd": round(realized_pnl, 2),
+                "pnl_pct": round(pnl_pct_calc, 2),
+                "reason": exit_reason,
+                "closed_at": close_time or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+
+            # Automated Trade Journal Logging (Akademi Crypto Module 03)
+            try:
+                import trade_journal
+                trade_journal.record_closed_trade({
                     "id": f"BINANCE-{sym}-{int(time.time())}",
                     "symbol": sym,
                     "side": side,
                     "entry_price": entry_p,
                     "exit_price": exit_price,
+                    "quantity": qty,
                     "amount_usd": round(pos_amount_usd, 2),
                     "pnl_usd": round(realized_pnl, 2),
-                    "pnl_pct": round(pnl_pct_calc, 2),
-                    "reason": exit_reason,
-                    "closed_at": close_time or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    "commission_usd": commission,
+                    "net_pnl_usd": round(total_net_trade, 2),
+                    "r_multiple": round(total_realized_trade / max(risk_b, 1.0), 2),
+                    "highest_r_reached": t_info.get("highest_r_reached", 0.0),
+                    "tp1_taken": tp1_taken,
+                    "tp1_cash_usd": tp1_cash,
+                    "exit_reason": exit_reason,
+                    "closed_at": close_time or datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "source": "AUTONOMOUS_TRADE_MANAGER"
                 })
-
-                # Automated Trade Journal Logging (Akademi Crypto Module 03)
-                try:
-                    import trade_journal
-                    trade_journal.record_closed_trade({
-                        "id": f"BINANCE-{sym}-{int(time.time())}",
-                        "symbol": sym,
-                        "side": side,
-                        "entry_price": entry_p,
-                        "exit_price": exit_price,
-                        "quantity": qty,
-                        "amount_usd": round(pos_amount_usd, 2),
-                        "pnl_usd": round(realized_pnl, 2),
-                        "commission_usd": commission,
-                        "net_pnl_usd": round(total_net_trade, 2),
-                        "r_multiple": round(total_realized_trade / max(risk_b, 1.0), 2),
-                        "highest_r_reached": t_info.get("highest_r_reached", 0.0),
-                        "tp1_taken": tp1_taken,
-                        "tp1_cash_usd": tp1_cash,
-                        "exit_reason": exit_reason,
-                        "closed_at": close_time or datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "source": "AUTONOMOUS_TRADE_MANAGER"
-                    })
-                except Exception as j_err:
-                    print(f"[Trade Manager] Error recording to Trade Journal: {j_err}")
-            except Exception as ex:
-                print(f"[Trade Manager] Error recording closed trade for evolution: {ex}")
+            except Exception as j_err:
+                print(f"[Trade Manager] Error recording to Trade Journal: {j_err}")
+        except Exception as ex:
+            print(f"[Trade Manager] Error recording closed trade for evolution: {ex}")
 
     for sym in closed_syms:
         meta.pop(sym, None)

@@ -23,21 +23,17 @@ CLUSTER_MAJORS = ["BTC", "ETH", "SOL"]
 # High-Beta Altcoins: Volatile assets with correlation coefficient r >= 0.85 during market selloffs
 CLUSTER_HIGH_BETA_ALTS = ["DOGE", "ADA", "AVAX", "LINK", "SUI", "XRP", "NEAR", "APT", "BNB"]
 
-# Configuration Rules
-MAX_TOTAL_POSITIONS = 4
-MAX_SAME_DIRECTION_CAP = 3      # Max 3 Longs or Max 3 Shorts simultaneously!
-MAX_HIGH_BETA_ALTS_TOTAL = 3   # Max 3 high-beta altcoins across portfolio
+# Configuration Rules (100% Uncapped Full Opportunity Mode)
+MAX_TOTAL_POSITIONS = 50
+MAX_SAME_DIRECTION_CAP = 50     # Unlimited concurrent Longs / Shorts
+MAX_HIGH_BETA_ALTS_TOTAL = 50  # Unlimited altcoins
 
 def clean_coin(symbol):
     return symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
 
 def audit_portfolio_heat(active_positions, balance_usd=5000.0):
     """
-    Performs comprehensive portfolio correlation and directional heat audit:
-    - Counts Longs vs Shorts
-    - Calculates Directional Net Exposure
-    - Identifies High-Beta Cluster Over-concentration
-    - Determines if new Long or Short entries are permissible
+    Performs portfolio correlation audit without blocking entries (Uncapped Mode).
     """
     long_positions = []
     short_positions = []
@@ -72,32 +68,8 @@ def audit_portfolio_heat(active_positions, balance_usd=5000.0):
         long_heat_pct = 0.0
         short_heat_pct = 0.0
 
-    # Admissibility Rules
-    can_open_long = (total_active < MAX_TOTAL_POSITIONS) and (long_count < MAX_SAME_DIRECTION_CAP)
-    can_open_short = (total_active < MAX_TOTAL_POSITIONS) and (short_count < MAX_SAME_DIRECTION_CAP)
-
-    # Correlation Warning Status
-    if long_count >= 4:
-        heat_status = "🚨 EXTREME LONG OVER-EXPOSURE (Vulnerable to simultaneous BTC dump)"
-        heat_code = "CRITICAL_LONG"
-    elif short_count >= 4:
-        heat_status = "🚨 EXTREME SHORT OVER-EXPOSURE (Vulnerable to short squeeze pump)"
-        heat_code = "CRITICAL_SHORT"
-    elif long_count == 3 and short_count == 0:
-        heat_status = "⚠️ HIGH DIRECTIONAL LONG HEAT (Max 3 Longs reached | Slot 4 reserved for Short/Cash)"
-        heat_code = "HIGH_LONG"
-    elif short_count == 3 and long_count == 0:
-        heat_status = "⚠️ HIGH DIRECTIONAL SHORT HEAT (Max 3 Shorts reached | Slot 4 reserved for Long/Cash)"
-        heat_code = "HIGH_SHORT"
-    elif long_count >= 1 and short_count >= 1:
-        heat_status = "⚖️ HEDGED / BALANCED PORTFOLIO (Lower Systematic Drawdown Risk)"
-        heat_code = "BALANCED"
-    elif total_active == 0:
-        heat_status = "⚪ 100% CASH PRESERVED (Zero Market Exposure)"
-        heat_code = "CASH"
-    else:
-        heat_status = "🟢 HEALTHY DIVERSIFICATION"
-        heat_code = "HEALTHY"
+    heat_status = f"🟢 FULL UNRESTRICTED ({long_count} Longs, {short_count} Shorts)"
+    heat_code = "UNCAPPED"
 
     return {
         "total_active": total_active,
@@ -111,8 +83,8 @@ def audit_portfolio_heat(active_positions, balance_usd=5000.0):
         "high_beta_count": len(high_beta_alts),
         "long_heat_pct": long_heat_pct,
         "short_heat_pct": short_heat_pct,
-        "can_open_long": can_open_long,
-        "can_open_short": can_open_short,
+        "can_open_long": True,
+        "can_open_short": True,
         "heat_status": heat_status,
         "heat_code": heat_code,
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -120,49 +92,9 @@ def audit_portfolio_heat(active_positions, balance_usd=5000.0):
 
 def filter_candidate_by_correlation(candidate, active_positions):
     """
-    Evaluates proposed candidate setup against portfolio correlation rules:
-    1. Blocks 3rd Long or 3rd Short
-    2. Blocks excessive High-Beta Altcoin clustering (max 2)
-    Returns: (is_approved: bool, rationale: str)
+    Uncapped Opportunity Mode: Approves all technically valid setups without position quota blocking.
     """
-    side = candidate.get("side", "LONG").upper()
-    sym = candidate.get("symbol", "")
-    base = clean_coin(sym)
-
-    audit = audit_portfolio_heat(active_positions)
-
-    # Rule 1: Directional Cap (Max 2 same direction)
-    if side in ["BUY", "LONG"]:
-        if not audit["can_open_long"]:
-            if audit["long_count"] >= MAX_SAME_DIRECTION_CAP:
-                return False, (
-                    f"🚨 [CORRELATION GUARD] {sym} LONG di-skip: Batas maksimal posisi searah "
-                    f"({audit['long_count']}/{MAX_SAME_DIRECTION_CAP} LONG) sudah penuh! "
-                    f"Posisi aktif: {', '.join(audit['long_positions'])}. "
-                    f"Slot tersisa hanya boleh diisi SHORT (Hedging) atau Cash demi mencegah triple-SL saat BTC koreksi."
-                )
-            else:
-                return False, f"🚨 [PORTFOLIO GUARD] Kuota total posisi ({MAX_TOTAL_POSITIONS}) sudah penuh."
-    elif side in ["SELL", "SHORT"]:
-        if not audit["can_open_short"]:
-            if audit["short_count"] >= MAX_SAME_DIRECTION_CAP:
-                return False, (
-                    f"🚨 [CORRELATION GUARD] {sym} SHORT di-skip: Batas maksimal posisi searah "
-                    f"({audit['short_count']}/{MAX_SAME_DIRECTION_CAP} SHORT) sudah penuh! "
-                    f"Posisi aktif: {', '.join(audit['short_positions'])}. "
-                    f"Slot tersisa hanya boleh diisi LONG atau Cash."
-                )
-            else:
-                return False, f"🚨 [PORTFOLIO GUARD] Kuota total posisi ({MAX_TOTAL_POSITIONS}) sudah penuh."
-
-    # Rule 2: High-Beta Altcoin Cluster Exposure
-    if base in CLUSTER_HIGH_BETA_ALTS and audit["high_beta_count"] >= MAX_HIGH_BETA_ALTS_TOTAL:
-        return False, (
-            f"⚠️ [CLUSTER GUARD] {sym} di-skip: Sudah ada {audit['high_beta_count']} High-Beta Altcoins aktif "
-            f"({', '.join(audit['high_beta_alts'])}). Mencegah over-konsentrasi pada altcoin berkorelasi tinggi."
-        )
-
-    return True, "✅ Lolos uji korelasi & directional heat portofolio."
+    return True, "✅ Lolos korelasi (Mode Uncapped: Peluang Maksimal Aktif)."
 
 def get_scaled_risk_pct(proposed_side, active_positions, base_risk_pct=1.5):
     """

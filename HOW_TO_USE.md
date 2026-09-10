@@ -78,18 +78,29 @@ python .agents/tools/trading_desk.py run --mode HYBRID --interval 1
 python .agents/tools/trading_desk.py run --mode SWING --interval 15
 ```
 
-### D. Backend Eksekusi: MetaTrader 5 (MT5) vs Binance Futures
-* **MetaTrader 5 (MT5 Demo - Default Aktif)**:
-  * Menggunakan saldo virtual `$100,000.00 USD` di terminal MT5.
-  * Mendukung multi-aset: **Forex (`EURUSD`, `GBPUSD`, `USDJPY`)**, **Komoditas (`XAUUSD`/Gold)**, dan **Crypto (`BTCUSD`, `ETHUSD`)**.
-  * Pastikan tombol **Algo Trading** di aplikasi MT5 berwarna HIJAU.
+### D. Backend Eksekusi: Dual (Binance + MT5), MetaTrader 5, atau Binance Saja
+Trading Desk kini mendukung 3 mode eksekusi backend:
+
+* **1. Mode Dual Simultan (`--backend BOTH` - Default Aktif)**:
+  * Mengeksekusi order secara bersamaan ke **Binance Futures** dan **MetaTrader 5**.
+  * Sizing dihitung otomatis proporsional sesuai modal masing-masing akun (misal: ~$4.6k di Binance USDT + $100k di MT5 Demo).
   ```powershell
-  # Autopilot ke MT5 Demo (Dual-Engine 1-Menit Loop)
-  python .agents/tools/trading_desk.py run --mode HYBRID --interval 1
+  python .agents/tools/trading_desk.py run --mode HYBRID --backend BOTH --interval 1
   ```
 
-* **Binance Futures Testnet**:
-  * Untuk beralih ke Binance Futures, cukup set environment variable `EXECUTION_BACKEND=BINANCE`.
+* **2. MetaTrader 5 Saja (`--backend MT5`)**:
+  * Menggunakan saldo virtual `$100,000.00 USD` di terminal MT5.
+  * Mendukung multi-aset: **Forex (`EURUSD`, `GBPUSD`)**, **Komoditas (`XAUUSD`/Gold)**, dan **Crypto (`BTCUSD`, `ETHUSD`)**.
+  * Pastikan tombol **Algo Trading** di aplikasi MT5 berwarna HIJAU.
+  ```powershell
+  python .agents/tools/trading_desk.py run --mode HYBRID --backend MT5 --interval 1
+  ```
+
+* **3. Binance Futures Saja (`--backend BINANCE`)**:
+  * Mengeksekusi hanya ke akun Binance Futures Demo/Live.
+  ```powershell
+  python .agents/tools/trading_desk.py run --mode HYBRID --backend BINANCE --interval 1
+  ```
 
 ### E. Melalui File Batch Windows (.bat)
 * Jalankan `start_autopilot.bat` untuk menyalakan daemon desk autopilot.

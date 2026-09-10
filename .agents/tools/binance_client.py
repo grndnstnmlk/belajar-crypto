@@ -522,8 +522,8 @@ def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is
     avg_price = 0.0
     res = None
 
-    # 2. Execution Logic (Limit Chase vs Market)
-    if exec_mode.upper() == "LIMIT_CHASE":
+    # 2. Execution Logic (LIMIT_SNIPER / LIMIT_MAKER / LIMIT_CHASE / MARKET)
+    if exec_mode.upper() in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER", "LIMIT_CHASE"]:
         is_safe, depth_info = check_order_book_depth(sym_clean, formatted_qty, side_clean, is_demo=is_demo)
         best_price = depth_info.get("best_bid" if side_clean == "BUY" else "best_ask")
         if best_price:
@@ -536,25 +536,30 @@ def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is
                 "quantity": str(formatted_qty),
                 "price": price_str
             }
-            print(f"⏳ [LIMIT CHASE] Menempatkan Maker Order @ ${price_str} (Potensi Hemat Fee 60%)...")
+            print(f"⏳ [MAKER SNIPER] Menempatkan Pending Limit Order @ ${price_str} (Fee Hemat 60% / Zero Slippage)...")
             limit_res = send_signed_request("/fapi/v1/order", method="POST", params=limit_params, is_demo=is_demo, user_email=user_email)
             if limit_res and limit_res.get("orderId"):
                 chase_id = limit_res.get("orderId")
-                for _ in range(4):
-                    time.sleep(0.75)
+                for _ in range(6):
+                    time.sleep(0.8)
                     q_res = send_signed_request("/fapi/v1/order", method="GET", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
                     if q_res and q_res.get("status") == "FILLED":
                         res = q_res
                         order_id = chase_id
                         avg_price = float(res.get("avgPrice", 0) or res.get("price", 0) or best_price)
-                        print(f"🎉 [MAKER FILL SUKSES] Order terisi di antrean Maker @ ${avg_price:,.4f}!")
+                        print(f"🎉 [MAKER FILL SUKSES] Order terisi tepat di level kalkulasi @ ${avg_price:,.4f}!")
                         break
 
                 if not order_id:
-                    print("⚠️ [LIMIT CHASE UNFILLED] 3s belum terisi. Membatalkan Maker Order & mengonversi ke Market...")
-                    send_signed_request("/fapi/v1/order", method="DELETE", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
+                    if exec_mode.upper() in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER"]:
+                        print(f"⚡ [MAKER SNIPER SKIP/CANCEL] Harga tidak menyentuh kalkulasi ${price_str}. Membatalkan antrean tanpa biaya fee...")
+                        send_signed_request("/fapi/v1/order", method="DELETE", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
+                        return None
+                    else:
+                        print("⚠️ [LIMIT CHASE UNFILLED] 4s belum terisi. Membatalkan Maker Order & mengonversi ke Market...")
+                        send_signed_request("/fapi/v1/order", method="DELETE", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
 
-    if not order_id:
+    if not order_id and exec_mode.upper() not in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER"]:
         order_params = {
             "symbol": sym_clean,
             "side": side_clean,
@@ -569,6 +574,8 @@ def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is
         order_id = res.get("orderId")
         avg_price = float(res.get("avgPrice", 0) or res.get("price", 0) or 0)
         print(f"\n✅ ORDER UTAMA TERISI! Order ID: {order_id} @ ${avg_price:,.4f}")
+    elif not order_id:
+        return None
 
     # Cancel previous conflicting algo orders for this symbol before placing fresh SL/TP
     if sl or tp:
