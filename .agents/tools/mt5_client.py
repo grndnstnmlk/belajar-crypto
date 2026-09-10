@@ -261,42 +261,47 @@ def place_signal_order(
         
     is_buy = side.upper() in ["BUY", "LONG"]
     order_type = mt5.ORDER_TYPE_BUY if is_buy else mt5.ORDER_TYPE_SELL
-    price = tick.ask if is_buy else tick.bid
+    ask = tick.ask
+    bid = tick.bid
+    price = ask if is_buy else bid
     digits = info.digits
-    point = info.point
+    point = info.point if info.point > 0 else 0.01
     
-    min_stop_dist = max(getattr(info, "trade_stops_level", 10) * point, point * 10, price * 0.001)
+    stops_level_pts = getattr(info, "trade_stops_level", 0) or 0
+    min_stop_dist = max(stops_level_pts * point, point * 20, price * 0.0015)
 
     # Normalize SL and TP if price scales differ between crypto and broker ticker
     if sl_price is not None and sl_price > 0:
-        scale_ratio_sl = abs(sl_price - price) / price
-        if scale_ratio_sl > 0.20:
-            sl_pct = min(0.04, max(0.008, scale_ratio_sl))
+        scale_ratio_sl = abs(sl_price - price) / max(price, 0.0001)
+        if scale_ratio_sl > 0.15:
+            # Scalp default: 0.8% - 1.5% SL
+            sl_pct = 0.012
             sl_price = price * (1.0 - sl_pct) if is_buy else price * (1.0 + sl_pct)
     else:
         default_dist = max(price * 0.012, min_stop_dist * 2)
         sl_price = price - default_dist if is_buy else price + default_dist
 
     if tp_price is not None and tp_price > 0:
-        scale_ratio_tp = abs(tp_price - price) / price
-        if scale_ratio_tp > 0.35:
-            tp_pct = min(0.10, max(0.015, scale_ratio_tp))
-            tp_price = price * (1.0 + tp_pct) if is_buy else price * (1.0 - tp_pct)
+        scale_ratio_tp = abs(tp_price - price) / max(price, 0.0001)
+        if scale_ratio_tp > 0.25:
+            # Scalp default: 3.0R (3.6% TP)
+            r_dist = abs(price - sl_price)
+            tp_price = price + (r_dist * 3.0) if is_buy else price - (r_dist * 3.0)
     else:
         r_dist = abs(price - sl_price)
-        tp_price = price + (r_dist * 2.0) if is_buy else price - (r_dist * 2.0)
+        tp_price = price + (r_dist * 3.0) if is_buy else price - (r_dist * 3.0)
 
-    # Ensure stops strictly adhere to broker stop level & side rules
+    # Ensure stops strictly adhere to broker stop level & bid/ask side rules
     if is_buy:
-        if sl_price >= price - min_stop_dist:
-            sl_price = price - min_stop_dist
-        if tp_price <= price + min_stop_dist:
-            tp_price = price + min_stop_dist
+        if sl_price >= bid - min_stop_dist:
+            sl_price = bid - min_stop_dist
+        if tp_price <= ask + min_stop_dist:
+            tp_price = ask + min_stop_dist
     else:
-        if sl_price <= price + min_stop_dist:
-            sl_price = price + min_stop_dist
-        if tp_price >= price - min_stop_dist:
-            tp_price = price - min_stop_dist
+        if sl_price <= ask + min_stop_dist:
+            sl_price = ask + min_stop_dist
+        if tp_price >= bid - min_stop_dist:
+            tp_price = bid - min_stop_dist
 
     sl_price = round(sl_price, digits)
     tp_price = round(tp_price, digits)

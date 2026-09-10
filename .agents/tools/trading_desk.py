@@ -833,7 +833,7 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
 
     return candidates
 
-def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50, symbols=None):
+def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50, symbols=None, leverage=None):
     genome = load_genome()
     params = genome.get("parameters", {})
     min_rr = params.get("min_risk_reward", 2.0)
@@ -1374,13 +1374,16 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     if b_avail <= 0:
                         b_avail = b_equity
 
+                    # Dynamic Leverage based on desk mode or user flag
+                    active_leverage = leverage if leverage else (20 if desk_mode == "SCALP" else 5)
+
                     b_risk_budget = b_equity * (effective_risk_pct / 100.0)
                     b_pos_usd = b_risk_budget / max(sl_pct, 0.005)
-                    
-                    # Guardrails: Max 2.0x equity, max per-slot notional, max 70% available margin at 5x leverage
-                    b_pos_usd = min(b_pos_usd, b_equity * 2.0)
+
+                    # Guardrails: Max 2.5x equity notional, max per-slot notional, max 70% available margin
+                    b_pos_usd = min(b_pos_usd, b_equity * 2.5)
                     b_pos_usd = min(b_pos_usd, (b_equity / max(1, max_open_positions)) * 4.0)
-                    b_pos_usd = min(b_pos_usd, b_avail * 0.70 * 5.0)
+                    b_pos_usd = min(b_pos_usd, b_avail * 0.70 * float(active_leverage))
 
                     raw_b_qty = b_pos_usd / best["price"]
                     qty_str = binance_client.format_qty_precision(best["symbol"], raw_b_qty, is_demo=is_demo)
@@ -1391,17 +1394,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                         b_qty = adj_qty
 
                     # Check final margin requirement
-                    b_margin_req = (b_qty * best["price"]) / 5.0
+                    b_margin_req = (b_qty * best["price"]) / float(active_leverage)
                     if b_margin_req > b_avail or b_margin_req < 1.0:
-                        print(f" ⚠️ [Binance Margin Guard] Margin dibutuhkan (${b_margin_req:,.2f}) tidak sesuai saldo tersedia (${b_avail:,.2f}). Melewatkan eksekusi Binance.")
+                        print(f" ⚠️ [Binance Margin Guard] Margin dibutuhkan (${b_margin_req:,.2f} @ {active_leverage}x) tidak sesuai saldo tersedia (${b_avail:,.2f}). Melewatkan eksekusi Binance.")
                     else:
                         exec_mode = "LIMIT_SNIPER"
-                        print(f"[Mengirimkan Order ke Binance Futures (Mode: {exec_mode} | Qty: {b_qty} | Margin: ${b_margin_req:,.2f})...]")
+                        print(f"[Mengirimkan Order ke Binance Futures (Mode: {exec_mode} | Qty: {b_qty} | Leverage: {active_leverage}x | Margin: ${b_margin_req:,.2f})...]")
                         b_order_res = binance_client.place_futures_order(
                             symbol=best["symbol"],
                             side=best["side"],
                             quantity=b_qty,
-                            leverage=5,
+                            leverage=active_leverage,
                             sl=best["sl"],
                             tp=best["tp"],
                             is_demo=is_demo,
@@ -1411,7 +1414,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                         if b_order_res and b_order_res.get("orderId"):
                             order_id = b_order_res.get("orderId")
                             qty = b_qty
-                            print(f"✅ Order Binance Futures Berhasil! Order ID #{order_id} | Qty: {b_qty}")
+                            print(f"✅ Order Binance Futures Berhasil! Order ID #{order_id} | Qty: {b_qty} @ {active_leverage}x")
                             exec_success = True
                             executed_backends.append("Binance Futures")
                             _LAST_FINANCIALS_CACHE["binance_available"] = max(0.0, b_avail - b_margin_req)
@@ -1595,6 +1598,7 @@ def main():
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 1 menit untuk HYBRID/SCALP, 15 menit untuk SWING)")
     run_p.add_argument("--max-positions", type=int, default=50, help="Batas maksimal posisi aktif bersamaan (default: 50 - Uncapped)")
+    run_p.add_argument("--leverage", type=int, default=None, help="Leverage Binance Futures (default: 20x untuk SCALP, 5x untuk HYBRID/SWING)")
     run_p.add_argument("--user", type=str, default=None, help="Email akun (misal: dxmade@gmail.com)")
     run_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo Testnet)")
 
@@ -1625,18 +1629,20 @@ def main():
 
         syms = [s.strip().upper() for s in args.symbols.split(",") if s.strip()] if getattr(args, "symbols", None) else None
         max_pos = getattr(args, "max_positions", 50)
+        lev_val = getattr(args, "leverage", None)
         w_str = ", ".join(syms) if syms else ", ".join(DEFAULT_WATCHLIST)
         if args.once:
-            run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms)
+            run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val)
         else:
             cur_mode = telegram_notifier.get_desk_mode().upper()
             sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode == "HYBRID" else max(15, args.interval * 60))
-            print(f"Memulai Autonomous Trading Desk Daemon (Watchlist: {w_str} | Mode: {cur_mode} | Interval: {sleep_sec}s | Max Positions: {max_pos} [Uncapped])... Tekan Ctrl+C untuk berhenti.")
+            lev_str = f" | Leverage: {lev_val}x" if lev_val else f" | Leverage: {'20x' if cur_mode == 'SCALP' else '5x'}"
+            print(f"Memulai Autonomous Trading Desk Daemon (Watchlist: {w_str} | Mode: {cur_mode}{lev_str} | Interval: {sleep_sec}s | Max Positions: {max_pos} [Uncapped])... Tekan Ctrl+C untuk berhenti.")
             # Start background Telegram interactive remote control listener thread
             telegram_notifier.start_command_listener(args.user, is_demo=is_demo)
             try:
                 while True:
-                    run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms)
+                    run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val)
                     cur_mode = telegram_notifier.get_desk_mode().upper()
                     sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode == "HYBRID" else max(15, args.interval * 60))
                     print(f"⚡ [FAST AUTOPILOT] Desk tidur {sleep_sec} detik sebelum pemindaian berikutnya...")
