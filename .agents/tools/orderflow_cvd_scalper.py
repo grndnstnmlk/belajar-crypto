@@ -428,7 +428,7 @@ def scan_5m_orderflow_cvd_scalp(symbol: str, candles_5m: list = None) -> dict:
         r_dist = entry - sl
 
         if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.035):
-            tp = round(entry + (r_dist * 2.0), 4)
+            tp = round(entry + (r_dist * 3.0), 4)
             return {
                 "symbol": symbol,
                 "side": "LONG",
@@ -437,7 +437,7 @@ def scan_5m_orderflow_cvd_scalp(symbol: str, candles_5m: list = None) -> dict:
                 "sl": sl,
                 "tp": tp,
                 "r_dist": round(r_dist, 4),
-                "rr_ratio": 2.0,
+                "rr_ratio": 3.0,
                 "is_scalp": True,
                 "is_mean_reversion_or_sweep": True,
                 "macro_aligned": True,
@@ -466,7 +466,7 @@ def scan_5m_orderflow_cvd_scalp(symbol: str, candles_5m: list = None) -> dict:
         r_dist = sl - entry
 
         if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.035):
-            tp = round(entry - (r_dist * 2.0), 4)
+            tp = round(entry - (r_dist * 3.0), 4)
             return {
                 "symbol": symbol,
                 "side": "SHORT",
@@ -475,7 +475,7 @@ def scan_5m_orderflow_cvd_scalp(symbol: str, candles_5m: list = None) -> dict:
                 "sl": sl,
                 "tp": tp,
                 "r_dist": round(r_dist, 4),
-                "rr_ratio": 2.0,
+                "rr_ratio": 3.0,
                 "is_scalp": True,
                 "is_mean_reversion_or_sweep": True,
                 "macro_aligned": True,

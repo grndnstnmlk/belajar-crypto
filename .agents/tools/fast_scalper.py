@@ -109,12 +109,182 @@ def fetch_scalp_candles(symbol="BTC", bar="5m", limit=100):
     return parsed
 
 # =====================================================================
-# STRATEGY 1: 5m Liquidity Sweep & Micro-FVG (Smart Money Scalp)
+# HTF LIQUIDITY ANCHORS (Craig Percoco Morning Routine Engine)
+# =====================================================================
+def fetch_htf_liquidity_anchors(symbol):
+    """
+    Craig Percoco Institutional HTF Liquidity Anchor Mapper:
+    1. Fetches Previous Day High (PDH) and Previous Day Low (PDL) from 1D candles.
+    2. Calculates Asian Session Range (Asian High / Asian Low from 00:00 - 07:00 UTC).
+    """
+    try:
+        from datetime import timezone
+        sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
+        # Daily candle for PDH/PDL
+        raw_1d = market_eyes.fetch_candles(sym_clean, bar="1d", limit=4)
+        pdh, pdl = None, None
+        if raw_1d and len(raw_1d) >= 2:
+            prev_d = raw_1d[-2]  # Completed previous day
+            pdh = float(prev_d[2])
+            pdl = float(prev_d[3])
+
+        # 1H candles to extract latest Asian session range
+        raw_1h = market_eyes.fetch_candles(sym_clean, bar="1h", limit=28)
+        asian_h, asian_l = None, None
+        if raw_1h and len(raw_1h) >= 12:
+            asian_candles = []
+            for c in raw_1h:
+                ts = int(c[0]) / 1000.0
+                dt_utc = datetime.fromtimestamp(ts, tz=timezone.utc)
+                if 0 <= dt_utc.hour < 7:
+                    asian_candles.append(c)
+            if asian_candles:
+                recent_asian = asian_candles[-7:]
+                asian_h = max(float(c[2]) for c in recent_asian)
+                asian_l = min(float(c[3]) for c in recent_asian)
+
+        return {
+            "pdh": pdh,
+            "pdl": pdl,
+            "asian_high": asian_h,
+            "asian_low": asian_l
+        }
+    except Exception:
+        return None
+
+# =====================================================================
+# STRATEGY 0: Craig Percoco Morning Routine (Asian Range & PDH/PDL Sweep 3R)
+# Reference: Craig Percoco "If You Only Have $50 To Trade With, Do This Every Morning"
+# =====================================================================
+def scan_craig_percoco_morning_routine_scalp(symbol, candles_5m, anchors=None):
+    """
+    Craig Percoco Morning Routine Strategy:
+    1. Maps HTF Key Levels: PDH, PDL, Asian High, Asian Low.
+    2. Identifies a 5m liquidity sweep (Turtle Soup / Purge) outside the range.
+    3. Confirms rejection wick (>=35% candle range) and displacement back inside.
+    4. Confirms 5m Micro-FVG / Market Structure Shift retest.
+    5. Sets tight Stop Loss at sweep wick extreme.
+    6. Sets Take Profit at strict 1:3.0 R:R (3R) or opposing liquidity pool.
+    """
+    if len(candles_5m) < 20:
+        return None
+
+    if anchors is None:
+        anchors = fetch_htf_liquidity_anchors(symbol)
+
+    if not anchors:
+        return None
+
+    pdh = anchors.get("pdh")
+    pdl = anchors.get("pdl")
+    asian_h = anchors.get("asian_high")
+    asian_l = anchors.get("asian_low")
+
+    # Pool of high-liquidity resistance levels (Buy-Side Liquidity)
+    bsl_levels = [l for l in [pdh, asian_h] if l is not None]
+    # Pool of high-liquidity support levels (Sell-Side Liquidity)
+    ssl_levels = [l for l in [pdl, asian_l] if l is not None]
+
+    if not bsl_levels and not ssl_levels:
+        return None
+
+    curr = candles_5m[-1]
+    prev = candles_5m[-2]
+    curr_c = curr["close"]
+    curr_o = curr["open"]
+    curr_h = curr["high"]
+    curr_l = curr["low"]
+
+    prev_o = prev["open"]
+    prev_c = prev["close"]
+    prev_h = prev["high"]
+    prev_l = prev["low"]
+    prev_range = max(prev_h - prev_l, 0.00001)
+
+    # --- CASE 1: BULLISH SELL-SIDE LIQUIDITY SWEEP (SSL / ASIAN LOW / PDL) -> LONG ENTRY ---
+    for lvl in ssl_levels:
+        swept_ssl = (prev_l < lvl) or (curr_l < lvl)
+        reclaimed_ssl = (curr_c > lvl)
+        lower_wick = min(prev_o, prev_c) - prev_l
+        has_rejection_wick = (lower_wick / prev_range) >= 0.30 or (curr_c > curr_o and (curr_c - curr_l) / max(curr_h - curr_l, 0.0001) >= 0.50)
+
+        if swept_ssl and reclaimed_ssl and has_rejection_wick:
+            sweep_extreme_low = min(prev_l, curr_l)
+            entry = curr_c
+            sl = round(sweep_extreme_low * 0.9990, 4)
+            r_dist = entry - sl
+
+            if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.045):
+                # Strict 1:3.0 R:R (3R Target)
+                tp = round(entry + (r_dist * 3.0), 4)
+                lvl_name = "PDL" if lvl == pdl else "Asian Session Low"
+                return {
+                    "symbol": symbol,
+                    "side": "LONG",
+                    "strategy": "5m Craig Percoco Morning Routine (SSL Sweep & FVG)",
+                    "entry": entry,
+                    "sl": sl,
+                    "tp": tp,
+                    "r_dist": round(r_dist, 4),
+                    "rr_ratio": 3.0,
+                    "is_scalp": True,
+                    "is_mean_reversion_or_sweep": True,
+                    "macro_aligned": True,
+                    "timeframe": "5m",
+                    "target_duration": "15-45 menit",
+                    "reason": (
+                        f"Craig Percoco Morning Setup: Swept {lvl_name} (${lvl:,.2f}) down to ${sweep_extreme_low:,.2f} "
+                        f"with displacement rejection & reclaimed ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 3R (${tp:,.2f})."
+                    )
+                }
+
+    # --- CASE 2: BEARISH BUY-SIDE LIQUIDITY SWEEP (BSL / ASIAN HIGH / PDH) -> SHORT ENTRY ---
+    for lvl in bsl_levels:
+        swept_bsl = (prev_h > lvl) or (curr_h > lvl)
+        reclaimed_bsl = (curr_c < lvl)
+        upper_wick = prev_h - max(prev_o, prev_c)
+        has_rejection_wick = (upper_wick / prev_range) >= 0.30 or (curr_c < curr_o and (curr_h - curr_c) / max(curr_h - curr_l, 0.0001) >= 0.50)
+
+        if swept_bsl and reclaimed_bsl and has_rejection_wick:
+            sweep_extreme_high = max(prev_h, curr_h)
+            entry = curr_c
+            sl = round(sweep_extreme_high * 1.0010, 4)
+            r_dist = sl - entry
+
+            if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.045):
+                # Strict 1:3.0 R:R (3R Target)
+                tp = round(entry - (r_dist * 3.0), 4)
+                if tp > 0:
+                    lvl_name = "PDH" if lvl == pdh else "Asian Session High"
+                    return {
+                        "symbol": symbol,
+                        "side": "SHORT",
+                        "strategy": "5m Craig Percoco Morning Routine (BSL Sweep & FVG)",
+                        "entry": entry,
+                        "sl": sl,
+                        "tp": tp,
+                        "r_dist": round(r_dist, 4),
+                        "rr_ratio": 3.0,
+                        "is_scalp": True,
+                        "is_mean_reversion_or_sweep": True,
+                        "macro_aligned": True,
+                        "timeframe": "5m",
+                        "target_duration": "15-45 menit",
+                        "reason": (
+                            f"Craig Percoco Morning Setup: Swept {lvl_name} (${lvl:,.2f}) up to ${sweep_extreme_high:,.2f} "
+                            f"with displacement rejection & reclaimed ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 3R (${tp:,.2f})."
+                        )
+                    }
+
+    return None
+
+# =====================================================================
+# STRATEGY 1: 5m Liquidity Sweep & Micro-FVG (Smart Money Scalp 3R)
 # =====================================================================
 def scan_5m_liquidity_sweep_fvg(symbol, candles_5m):
     """
     Detects liquidity sweep of recent 15-candle high/low followed by rejection wick
-    and formation of a 5m Fair Value Gap (FVG).
+    and formation of a 5m Fair Value Gap (FVG). Target 3R minimum.
     """
     if len(candles_5m) < 25:
         return None
@@ -122,16 +292,9 @@ def scan_5m_liquidity_sweep_fvg(symbol, candles_5m):
     recent = candles_5m[-20:-1]  # Reference swing range before current candle
     current = candles_5m[-1]
     prev = candles_5m[-2]
-    prev2 = candles_5m[-3]
 
     highest_high = max(c["high"] for c in recent)
     lowest_low = min(c["low"] for c in recent)
-
-    c_open = current["open"]
-    c_close = current["close"]
-    c_high = current["high"]
-    c_low = current["low"]
-    c_range = max(c_high - c_low, 0.00001)
 
     # Bullish Liquidity Sweep (Swept lowest_low, rejected, closed higher)
     if prev["low"] <= lowest_low and prev["close"] > lowest_low:
@@ -144,7 +307,7 @@ def scan_5m_liquidity_sweep_fvg(symbol, candles_5m):
             entry = current["close"]
             r_dist = entry - sl
             if r_dist > 0:
-                tp = round(entry + (r_dist * 1.8), 4)
+                tp = round(entry + (r_dist * 3.0), 4)
                 return {
                     "symbol": symbol,
                     "side": "LONG",
@@ -153,13 +316,13 @@ def scan_5m_liquidity_sweep_fvg(symbol, candles_5m):
                     "sl": sl,
                     "tp": tp,
                     "r_dist": round(r_dist, 4),
-                    "rr_ratio": 1.8,
+                    "rr_ratio": 3.0,
                     "is_scalp": True,
                     "is_mean_reversion_or_sweep": True,
                     "macro_aligned": True,
                     "timeframe": "5m",
                     "target_duration": "15-30 menit",
-                    "reason": f"Swept lowest low (${lowest_low:.2f}) with rejection wick and bullish displacement"
+                    "reason": f"Swept lowest low (${lowest_low:.2f}) with rejection wick and bullish displacement (Target 3R)"
                 }
 
     # Bearish Liquidity Sweep (Swept highest_high, rejected, closed lower)
@@ -171,7 +334,7 @@ def scan_5m_liquidity_sweep_fvg(symbol, candles_5m):
             entry = current["close"]
             r_dist = sl - entry
             if r_dist > 0:
-                tp = round(entry - (r_dist * 1.8), 4)
+                tp = round(entry - (r_dist * 3.0), 4)
                 return {
                     "symbol": symbol,
                     "side": "SHORT",
@@ -180,13 +343,13 @@ def scan_5m_liquidity_sweep_fvg(symbol, candles_5m):
                     "sl": sl,
                     "tp": tp,
                     "r_dist": round(r_dist, 4),
-                    "rr_ratio": 1.8,
+                    "rr_ratio": 3.0,
                     "is_scalp": True,
                     "is_mean_reversion_or_sweep": True,
                     "macro_aligned": True,
                     "timeframe": "5m",
                     "target_duration": "15-30 menit",
-                    "reason": f"Swept highest high (${highest_high:.2f}) with rejection wick and bearish displacement"
+                    "reason": f"Swept highest high (${highest_high:.2f}) with rejection wick and bearish displacement (Target 3R)"
                 }
 
     return None
@@ -485,7 +648,7 @@ def scan_4h_range_reentry_scalp(symbol, candles_5m, range_4h=None):
                 
                 # Check stop width sanity (0.10% to 5.0%)
                 if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.050):
-                    tp = round(entry - (r_dist * 2.0), 4)
+                    tp = round(entry - (r_dist * 3.0), 4)
                     if tp > 0:
                         return {
                             "symbol": symbol,
@@ -495,7 +658,7 @@ def scan_4h_range_reentry_scalp(symbol, candles_5m, range_4h=None):
                             "sl": sl,
                             "tp": tp,
                             "r_dist": round(r_dist, 4),
-                            "rr_ratio": 2.0,
+                            "rr_ratio": 3.0,
                             "is_scalp": True,
                             "is_mean_reversion_or_sweep": True,
                             "macro_aligned": True,
@@ -504,7 +667,7 @@ def scan_4h_range_reentry_scalp(symbol, candles_5m, range_4h=None):
                             "reason": (
                                 f"4H Range High (${r_high:,.2f}) Fakeout Failure: 5m candle body pushed outside "
                                 f"to ${fakeout_high:,.2f} then closed back inside at ${entry:,.2f}. "
-                                f"Targeting 2R reversal back into range."
+                                f"Targeting 3R reversal back into range."
                             )
                         }
 
@@ -525,7 +688,7 @@ def scan_4h_range_reentry_scalp(symbol, candles_5m, range_4h=None):
                 
                 # Check stop width sanity (0.10% to 5.0%)
                 if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.050):
-                    tp = round(entry + (r_dist * 2.0), 4)
+                    tp = round(entry + (r_dist * 3.0), 4)
                     return {
                         "symbol": symbol,
                         "side": "LONG",
@@ -534,7 +697,7 @@ def scan_4h_range_reentry_scalp(symbol, candles_5m, range_4h=None):
                         "sl": sl,
                         "tp": tp,
                         "r_dist": round(r_dist, 4),
-                        "rr_ratio": 2.0,
+                        "rr_ratio": 3.0,
                         "is_scalp": True,
                         "is_mean_reversion_or_sweep": True,
                         "macro_aligned": True,
@@ -543,7 +706,7 @@ def scan_4h_range_reentry_scalp(symbol, candles_5m, range_4h=None):
                         "reason": (
                             f"4H Range Low (${r_low:,.2f}) Fakeout Failure: 5m candle body pushed outside "
                             f"to ${fakeout_low:,.2f} then closed back inside at ${entry:,.2f}. "
-                            f"Targeting 2R reversal back into range."
+                            f"Targeting 3R reversal back into range."
                         )
                     }
 
@@ -618,7 +781,7 @@ def scan_5m_inverse_fvg_scalp(symbol, candles_5m):
        - Bullish FVG broken downwards by close < fvg_low  -> Bearish IFVG
     3. Confirms Retest / Price Acceptance within the IFVG boundary.
     4. Places Stop Loss at manipulation sweep extreme.
-    5. Sets strict 1:2.0 R:R Take Profit (2R).
+    5. Sets strict 1:3.0 R:R (3R).
     """
     if len(candles_5m) < 18:
         return None
@@ -660,7 +823,7 @@ def scan_5m_inverse_fvg_scalp(symbol, candles_5m):
                     r_dist = entry - sl
 
                     if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
-                        tp = round(entry + (r_dist * 2.0), 4)
+                        tp = round(entry + (r_dist * 3.0), 4)
                         return {
                             "symbol": symbol,
                             "side": "LONG",
@@ -669,7 +832,7 @@ def scan_5m_inverse_fvg_scalp(symbol, candles_5m):
                             "sl": sl,
                             "tp": tp,
                             "r_dist": round(r_dist, 4),
-                            "rr_ratio": 2.0,
+                            "rr_ratio": 3.0,
                             "is_scalp": True,
                             "is_mean_reversion_or_sweep": True,
                             "macro_aligned": True,
@@ -677,7 +840,7 @@ def scan_5m_inverse_fvg_scalp(symbol, candles_5m):
                             "target_duration": "15-30 menit",
                             "reason": (
                                 f"Bullish Inversion: Bearish FVG [${fvg_low:,.2f} - ${fvg_high:,.2f}] inverted by "
-                                f"displacement breakout. Retest confirmed at ${entry:,.2f} with sweep low @ ${sweep_low:,.2f}. Targeting 2R."
+                                f"displacement breakout. Retest confirmed at ${entry:,.2f} with sweep low @ ${sweep_low:,.2f}. Targeting 3R."
                             )
                         }
 
@@ -698,7 +861,7 @@ def scan_5m_inverse_fvg_scalp(symbol, candles_5m):
                     r_dist = sl - entry
 
                     if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
-                        tp = round(entry - (r_dist * 2.0), 4)
+                        tp = round(entry - (r_dist * 3.0), 4)
                         if tp > 0:
                             return {
                                 "symbol": symbol,
@@ -708,7 +871,7 @@ def scan_5m_inverse_fvg_scalp(symbol, candles_5m):
                                 "sl": sl,
                                 "tp": tp,
                                 "r_dist": round(r_dist, 4),
-                                "rr_ratio": 2.0,
+                                "rr_ratio": 3.0,
                                 "is_scalp": True,
                                 "is_mean_reversion_or_sweep": True,
                                 "macro_aligned": True,
@@ -716,7 +879,7 @@ def scan_5m_inverse_fvg_scalp(symbol, candles_5m):
                                 "target_duration": "15-30 menit",
                                 "reason": (
                                     f"Bearish Inversion: Bullish FVG [${fvg_low:,.2f} - ${fvg_high:,.2f}] inverted by "
-                                    f"displacement breakdown. Retest confirmed at ${entry:,.2f} with sweep high @ ${sweep_high:,.2f}. Targeting 2R."
+                                    f"displacement breakdown. Retest confirmed at ${entry:,.2f} with sweep high @ ${sweep_high:,.2f}. Targeting 3R."
                                 )
                             }
 
@@ -792,7 +955,7 @@ def scan_15m_rectangle_break_retest_scalp(symbol, candles_5m, levels_15m=None):
     2. Detects a 5m candle breaking cleanly through the 15m level.
     3. Defines the "Rectangle" zone encompassing the key level and breakout body.
     4. Confirms Retest + Rejection within the Rectangle (Role Reversal / S-to-R or R-to-S).
-    5. Sets invalidation Stop Loss just outside the Rectangle and Take Profit at strict 1:2.0 R:R (2R).
+    5. Sets invalidation Stop Loss just outside the Rectangle and Take Profit at strict 1:3.0 R:R (3R).
     """
     if len(candles_5m) < 18:
         return None
@@ -851,7 +1014,7 @@ def scan_15m_rectangle_break_retest_scalp(symbol, candles_5m, levels_15m=None):
                     r_dist = entry - sl
 
                     if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.045):
-                        tp = round(entry + (r_dist * 2.0), 4)
+                        tp = round(entry + (r_dist * 3.0), 4)
                         return {
                             "symbol": symbol,
                             "side": "LONG",
@@ -860,7 +1023,7 @@ def scan_15m_rectangle_break_retest_scalp(symbol, candles_5m, levels_15m=None):
                             "sl": sl,
                             "tp": tp,
                             "r_dist": round(r_dist, 4),
-                            "rr_ratio": 2.0,
+                            "rr_ratio": 3.0,
                             "is_scalp": True,
                             "is_mean_reversion_or_sweep": True,
                             "macro_aligned": True,
@@ -868,7 +1031,7 @@ def scan_15m_rectangle_break_retest_scalp(symbol, candles_5m, levels_15m=None):
                             "target_duration": "15-35 menit",
                             "reason": (
                                 f"15m Resistance (${R:,.2f}) broken & flipped to Support: Rectangle [${rect_bottom:,.2f} - ${rect_top:,.2f}] "
-                                f"retested with bullish rejection @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 2R (${tp:,.2f})."
+                                f"retested with bullish rejection @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 3R (${tp:,.2f})."
                             )
                         }
 
@@ -906,7 +1069,7 @@ def scan_15m_rectangle_break_retest_scalp(symbol, candles_5m, levels_15m=None):
                     r_dist = sl - entry
 
                     if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.045):
-                        tp = round(entry - (r_dist * 2.0), 4)
+                        tp = round(entry - (r_dist * 3.0), 4)
                         return {
                             "symbol": symbol,
                             "side": "SHORT",
@@ -915,7 +1078,7 @@ def scan_15m_rectangle_break_retest_scalp(symbol, candles_5m, levels_15m=None):
                             "sl": sl,
                             "tp": tp,
                             "r_dist": round(r_dist, 4),
-                            "rr_ratio": 2.0,
+                            "rr_ratio": 3.0,
                             "is_scalp": True,
                             "is_mean_reversion_or_sweep": True,
                             "macro_aligned": True,
@@ -923,7 +1086,7 @@ def scan_15m_rectangle_break_retest_scalp(symbol, candles_5m, levels_15m=None):
                             "target_duration": "15-35 menit",
                             "reason": (
                                 f"15m Support (${S:,.2f}) broken & flipped to Resistance: Rectangle [${rect_bottom:,.2f} - ${rect_top:,.2f}] "
-                                f"retested with bearish rejection @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 2R (${tp:,.2f})."
+                                f"retested with bearish rejection @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 3R (${tp:,.2f})."
                             )
                         }
 
@@ -983,7 +1146,7 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
        - LONG: Current candle closes back ABOVE 20 EMA with bullish body/wick.
        - SHORT: Current candle closes back BELOW 20 EMA with bearish body/wick.
     4. Places Stop Loss at the swing extreme of the pullback/rally.
-    5. Sets Take Profit at strict 1:2.0 R:R (2R).
+    5. Sets Take Profit at strict 1:3.0 R:R (3R).
     """
     if len(candles_5m) < 25:
         return None
@@ -1020,7 +1183,7 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
             r_dist = entry - sl
 
             if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
-                tp = round(entry + (r_dist * 2.0), 4)
+                tp = round(entry + (r_dist * 3.0), 4)
                 return {
                     "symbol": symbol,
                     "side": "LONG",
@@ -1029,7 +1192,7 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
                     "sl": sl,
                     "tp": tp,
                     "r_dist": round(r_dist, 4),
-                    "rr_ratio": 2.0,
+                    "rr_ratio": 3.0,
                     "is_scalp": True,
                     "is_mean_reversion_or_sweep": True,
                     "macro_aligned": True,
@@ -1037,7 +1200,7 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
                     "target_duration": "10-25 menit",
                     "reason": (
                         f"20-EMA Discount Trap: Price dipped below 20 EMA (${curr_ema20:,.2f}) to ${pullback_low:,.2f} "
-                        f"and reclaimed with bullish close @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 2R (${tp:,.2f})."
+                        f"and reclaimed with bullish close @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 3R (${tp:,.2f})."
                     )
                 }
 
@@ -1054,7 +1217,7 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
             r_dist = sl - entry
 
             if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
-                tp = round(entry - (r_dist * 2.0), 4)
+                tp = round(entry - (r_dist * 3.0), 4)
                 return {
                     "symbol": symbol,
                     "side": "SHORT",
@@ -1063,7 +1226,7 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
                     "sl": sl,
                     "tp": tp,
                     "r_dist": round(r_dist, 4),
-                    "rr_ratio": 2.0,
+                    "rr_ratio": 3.0,
                     "is_scalp": True,
                     "is_mean_reversion_or_sweep": True,
                     "macro_aligned": True,
@@ -1071,7 +1234,7 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
                     "target_duration": "10-25 menit",
                     "reason": (
                         f"20-EMA Premium Trap: Price rallied above 20 EMA (${curr_ema20:,.2f}) to ${rally_high:,.2f} "
-                        f"and rejected with bearish close @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 2R (${tp:,.2f})."
+                        f"and rejected with bearish close @ ${entry:,.2f}. SL @ ${sl:,.2f}, targeting 3R (${tp:,.2f})."
                     )
                 }
 
@@ -1172,7 +1335,7 @@ def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
             r_dist = round(entry - sl, 4)
 
             if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
-                tp = round(entry + (r_dist * 2.0), 4)
+                tp = round(entry + (r_dist * 3.0), 4)
                 return {
                     "symbol": symbol,
                     "side": "LONG",
@@ -1181,7 +1344,7 @@ def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
                     "sl": sl,
                     "tp": tp,
                     "r_dist": round(r_dist, 4),
-                    "rr_ratio": 2.0,
+                    "rr_ratio": 3.0,
                     "is_scalp": True,
                     "is_mean_reversion_or_sweep": True,
                     "macro_aligned": True,
@@ -1189,7 +1352,7 @@ def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
                     "target_duration": "15-30 menit",
                     "reason": (
                         f"Akademi Crypto Pocket Bounce: Tested EMA 9/21 dynamic pocket (${curr_ema21:,.2f}-${curr_ema9:,.2f}) "
-                        f"with Stoch %K @ {stoch['k']:.1f} (prev %K @ {stoch['prev_k']:.1f} Oversold Hook). Bullish close @ ${entry:,.2f}, targeting 2R (${tp:,.2f})."
+                        f"with Stoch %K @ {stoch['k']:.1f} (prev %K @ {stoch['prev_k']:.1f} Oversold Hook). Bullish close @ ${entry:,.2f}, targeting 3R (${tp:,.2f})."
                     )
                 }
 
@@ -1211,7 +1374,7 @@ def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
             r_dist = round(sl - entry, 4)
 
             if r_dist > 0 and (0.0010 <= (r_dist / entry) <= 0.040):
-                tp = round(entry - (r_dist * 2.0), 4)
+                tp = round(entry - (r_dist * 3.0), 4)
                 return {
                     "symbol": symbol,
                     "side": "SHORT",
@@ -1220,7 +1383,7 @@ def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
                     "sl": sl,
                     "tp": tp,
                     "r_dist": round(r_dist, 4),
-                    "rr_ratio": 2.0,
+                    "rr_ratio": 3.0,
                     "is_scalp": True,
                     "is_mean_reversion_or_sweep": True,
                     "macro_aligned": True,
@@ -1228,7 +1391,7 @@ def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
                     "target_duration": "15-30 menit",
                     "reason": (
                         f"Akademi Crypto Pocket Rejection: Tested EMA 9/21 dynamic pocket (${curr_ema9:,.2f}-${curr_ema21:,.2f}) "
-                        f"with Stoch %K @ {stoch['k']:.1f} (prev %K @ {stoch['prev_k']:.1f} Overbought Hook). Bearish close @ ${entry:,.2f}, targeting 2R (${tp:,.2f})."
+                        f"with Stoch %K @ {stoch['k']:.1f} (prev %K @ {stoch['prev_k']:.1f} Overbought Hook). Bearish close @ ${entry:,.2f}, targeting 3R (${tp:,.2f})."
                     )
                 }
 
@@ -1237,24 +1400,26 @@ def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
 def scan_symbol_scalp(symbol):
     """
     Runs fast scalp strategies on a single symbol. Returns the best signal if found.
-    Focuses exclusively on Elite Institutional Crypto Micro-Structure & Liquidity Trap setups:
-    1. ICT Rejection Block 50% Mean Threshold
-    2. 4H Range Breakout & Re-Entry Failure (Failed Auction)
-    3. Inverse FVG (IFVG) Liquidity Scalp
-    4. 15m Key Level Rectangle Break & Retest (Mulham Sniper)
-    5. 20-EMA Dynamic Pullback Trap (Trend Following)
-    6. 5m Liquidity Sweep & Micro-FVG (Smart Money Trap)
-    
-    [DEACTIVATED / SISISIHKAN]:
-    - Volume Surge Momentum (High False Positive / Exhaustion Dump Trap)
-    - Blind VWAP ±2σ Mean-Reversion (Band-Riding Trend Runover Risk)
-    - EMA 9/21 + Stochastic Cross (Lagging Oscillator Whipsaw in 5m Chop)
+    Focuses strictly on Craig Percoco Morning Routine + Institutional SMC Traps with >= 1:3.0 R:R:
+    1. Craig Percoco 5m Morning Routine (Asian Range & PDH/PDL Sweep + 3R) [TOP PRIORITY]
+    2. ICT Rejection Block 50% Mean Threshold (3R)
+    3. 4H Range Breakout & Re-Entry Failure (Failed Auction 3R)
+    4. Inverse FVG (IFVG) Liquidity Scalp (3R)
+    5. 15m Key Level Rectangle Break & Retest (Mulham Sniper 3R)
+    6. 20-EMA Dynamic Pullback Trap (3R)
+    7. 5m Liquidity Sweep & Micro-FVG (3R)
     """
     candles = fetch_scalp_candles(symbol, bar="5m", limit=60)
     if len(candles) < 25:
         return None
 
-    # Priority 0: Order Flow CVD Divergence & DOM Stacked Imbalance Scalp
+    # Priority 1 [CRAIG PERCOCO MORNING ROUTINE - TOP PRIORITY]:
+    # Asian Session Range + PDH/PDL Sweep with FVG Displacement (3R)
+    s_craig = scan_craig_percoco_morning_routine_scalp(symbol, candles)
+    if s_craig:
+        return s_craig
+
+    # Priority 1.5: Order Flow CVD Divergence & DOM Stacked Imbalance Scalp
     try:
         import orderflow_cvd_scalper
         s_of = orderflow_cvd_scalper.scan_5m_orderflow_cvd_scalp(symbol, candles)
@@ -1263,7 +1428,7 @@ def scan_symbol_scalp(symbol):
     except Exception:
         pass
 
-    # Priority 0.5: 5m/15m Opening Range Breakout (ORB V4.1 - London / NY / Daily Open Momentum)
+    # Priority 1.8: 5m/15m Opening Range Breakout (ORB V4.1)
     try:
         import orb_scalper
         s_orb = orb_scalper.scan_5m_orb_scalp(symbol, candles)
@@ -1272,32 +1437,32 @@ def scan_symbol_scalp(symbol):
     except Exception:
         pass
 
-    # Priority 1: ICT Rejection Block Mean Threshold Bounce (Pure Wick Manipulation Trap)
+    # Priority 2: ICT Rejection Block Mean Threshold Bounce (3R)
     s_rb = scan_rejection_block_scalp(symbol, candles)
     if s_rb:
         return s_rb
 
-    # Priority 2: 4H Range Breakout & Re-Entry Failure (Failed Auction / Macro Fakeout)
+    # Priority 3: 4H Range Breakout & Re-Entry Failure (Failed Auction 3R)
     s_4h = scan_4h_range_reentry_scalp(symbol, candles)
     if s_4h:
         return s_4h
 
-    # Priority 3: 5m Inverse FVG (IFVG) Liquidity Scalp (Institutional Role Reversal)
+    # Priority 4: 5m Inverse FVG (IFVG) Liquidity Scalp (3R)
     s_ifvg = scan_5m_inverse_fvg_scalp(symbol, candles)
     if s_ifvg:
         return s_ifvg
 
-    # Priority 4: 15m Key Level Rectangle Break & Retest (Mulham Sniper Structural Retest)
+    # Priority 5: 15m Key Level Rectangle Break & Retest (Mulham Sniper 3R)
     s_rect = scan_15m_rectangle_break_retest_scalp(symbol, candles)
     if s_rect:
         return s_rect
 
-    # Priority 5: 5m 20-EMA Dynamic Pullback Trap (Trend-Following Discount Entry)
+    # Priority 6: 5m 20-EMA Dynamic Pullback Trap (3R)
     s_ema = scan_5m_20ema_pullback_trap_scalp(symbol, candles)
     if s_ema:
         return s_ema
 
-    # Priority 6: Liquidity Sweep & Micro-FVG (Smart Money BSL/SSL Hunt)
+    # Priority 7: Liquidity Sweep & Micro-FVG (3R)
     s_sweep = scan_5m_liquidity_sweep_fvg(symbol, candles)
     if s_sweep:
         return s_sweep
