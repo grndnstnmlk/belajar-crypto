@@ -47,7 +47,23 @@ def get_macro_liquidity_regime() -> Dict[str, Any]:
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
     }
 
-    # Attempt to query live market proxies (Coinbase/Yahoo/Public Fed proxies)
+    # Attempt to query live market proxies via Open Quant Pipeline
+    try:
+        import open_quant_pipeline
+        pipeline = open_quant_pipeline.get_unified_quant_pipeline()
+        macro_assets = pipeline.get("macro_assets", {})
+        
+        macro_data["dxy_index"] = macro_assets.get("dxy_index", {}).get("value", macro_data["dxy_index"])
+        macro_data["us10y_yield"] = macro_assets.get("us10y_yield", {}).get("value", macro_data["us10y_yield"])
+        macro_data["regime"] = pipeline.get("regime", macro_data["regime"])
+        macro_data["macro_multiplier"] = pipeline.get("macro_multiplier", macro_data["macro_multiplier"])
+        macro_data["monetary_posture"] = pipeline.get("monetary_posture", macro_data["monetary_posture"])
+        macro_data["description"] = pipeline.get("thesis", macro_data["description"])
+        macro_data["onchain_tvl_billion"] = pipeline.get("onchain_intelligence", {}).get("total_defi_tvl_billion", 95.0)
+        macro_data["stablecoin_supply_billion"] = pipeline.get("onchain_intelligence", {}).get("stablecoin_supply_billion", 178.0)
+    except Exception:
+        pass
+
     try:
         req = urllib.request.Request(
             "https://api.binance.com/api/v3/ticker/price?symbol=USDCUSDT",
@@ -60,19 +76,8 @@ def get_macro_liquidity_regime() -> Dict[str, Any]:
     except Exception:
         macro_data["usdc_peg_health"] = "HEALTHY"
 
-    # Calculate overall macro multiplier (0.8x to 1.25x)
-    dxy = macro_data["dxy_index"]
-    us10y = macro_data["us10y_yield"]
-
-    if dxy < 103.0 and us10y < 4.0:
-        macro_data["regime"] = "HIGH_LIQUIDITY_BULLISH"
-        macro_data["macro_multiplier"] = 1.20
-    elif dxy > 106.0 or us10y > 4.60:
-        macro_data["regime"] = "MONETARY_TIGHTENING_DEFENSIVE"
-        macro_data["macro_multiplier"] = 0.85
-    else:
-        macro_data["regime"] = "NEUTRAL_EXPANSIONARY"
-        macro_data["macro_multiplier"] = 1.05
+    # Ensure updated timestamp
+    macro_data["updated_at"] = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
 
     with _FRED_LOCK:
         _FRED_CACHE = {

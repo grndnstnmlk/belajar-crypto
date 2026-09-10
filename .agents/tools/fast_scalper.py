@@ -62,10 +62,33 @@ def get_15m_context(symbol):
 
 def fetch_scalp_candles(symbol="BTC", bar="5m", limit=100):
     """
-    Fetches latest candles for fast scalping from Binance via high-speed cached market_radar.
+    Fetches latest candles for fast scalping from MT5 native feed or Binance cached radar.
     Returns chronologically sorted list: oldest to newest.
     """
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
+    
+    # 1. Attempt MT5 native candles if connected
+    try:
+        import mt5_client
+        if mt5_client.ensure_mt5_connected():
+            mt5_c = mt5_client.get_mt5_candles(sym_clean, timeframe=bar, count=limit)
+            if mt5_c and len(mt5_c) >= 20:
+                parsed = []
+                for c in mt5_c:
+                    parsed.append({
+                        "ts": int(c["time"] * 1000),
+                        "time": datetime.fromtimestamp(c["time"]).strftime("%Y-%m-%d %H:%M"),
+                        "open": float(c["open"]),
+                        "high": float(c["high"]),
+                        "low": float(c["low"]),
+                        "close": float(c["close"]),
+                        "volume": float(c["volume"])
+                    })
+                return parsed
+    except Exception:
+        pass
+
+    # 2. Fallback to high-speed cached market_radar / market_eyes
     raw_candles = market_radar.fetch_candles(sym_clean, bar=bar, limit=limit)
     if not raw_candles:
         raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar, limit=limit)

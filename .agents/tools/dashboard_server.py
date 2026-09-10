@@ -91,69 +91,119 @@ def get_dashboard_feed_data(force_refresh=False):
     meta = trade_manager.load_trade_metadata()
     state = telegram_notifier.load_desk_state()
 
-    # Get fresh positions and balance if available
+    # Get fresh positions and balance if available (Prioritize MT5 if connected)
     try:
-        balance = binance_client.send_signed_request("/fapi/v2/balance", method="GET", is_demo=True)
-        if balance:
-            for b in balance:
-                if b.get("asset") == "USDT":
-                    feed["balance_usd"] = float(b.get("balance", 0))
+        import mt5_client
+        mt5_acc = mt5_client.get_account_summary()
+        if mt5_acc.get("connected"):
+            feed["balance_usd"] = float(mt5_acc.get("balance", 100000.0))
+            feed["equity_usd"] = float(mt5_acc.get("equity", 100000.0))
+            feed["execution_backend"] = "MetaTrader 5 (Demo)"
+            feed["mt5_login"] = mt5_acc.get("login")
+            feed["mt5_server"] = mt5_acc.get("server")
+            
+            mt5_positions = mt5_client.get_open_positions()
+            if mt5_positions:
+                pos_list = []
+                for p in mt5_positions:
+                    sym = p["symbol"]
+                    amt = float(p["volume"])
+                    side = "LONG" if p["side"] == "BUY" else "SHORT"
+                    entry_p = float(p["price_open"])
+                    mark_p = float(p["price_current"])
+                    upnl = float(p["profit_usd"])
+                    ticket = p["ticket"]
+                    t_meta = meta.get(f"MT5_{ticket}", meta.get(sym, {}))
+                    init_sl = float(t_meta.get("initial_sl") or p["sl"] or (entry_p * 0.99 if side == "LONG" else entry_p * 1.01))
+                    r_dist = max(abs(entry_p - init_sl), entry_p * 0.001)
+                    gain = (mark_p - entry_p) if side == "LONG" else (entry_p - mark_p)
+                    r_mult = round(gain / r_dist, 2)
+                    
+                    pos_list.append({
+                        "symbol": sym,
+                        "side": side,
+                        "quantity": amt,
+                        "entry_price": entry_p,
+                        "mark_price": mark_p,
+                        "pnl_usd": upnl,
+                        "r_multiple": r_mult,
+                        "highest_r": t_meta.get("highest_r_reached", r_mult),
+                        "leverage": int(mt5_acc.get("leverage", 100)),
+                        "breakeven_locked": t_meta.get("breakeven_locked", False),
+                        "capital_shield_locked": False,
+                        "tp1_taken": False,
+                        "tp1_pnl_usd": 0.0,
+                        "is_runner": False,
+                        "trailing_r": t_meta.get("trailing_r_locked", 0.0),
+                        "sl": p["sl"],
+                        "tp": p["tp"],
+                        "ticket": ticket,
+                        "backend": "MT5"
+                    })
+                feed["positions"] = pos_list
+        else:
+            balance = binance_client.send_signed_request("/fapi/v2/balance", method="GET", is_demo=True)
+            if balance:
+                for b in balance:
+                    if b.get("asset") == "USDT":
+                        feed["balance_usd"] = float(b.get("balance", 0))
 
-        pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=True)
-        if pos:
-            active = [p for p in pos if float(p.get("positionAmt", 0)) != 0]
-            pos_list = []
-            for p in active:
-                sym = p["symbol"]
-                amt = float(p.get("positionAmt", 0))
-                side = "LONG" if amt > 0 else "SHORT"
-                entry_p = float(p.get("entryPrice", 0))
-                mark_p = float(p.get("markPrice", 0))
-                upnl = float(p.get("unRealizedProfit", 0))
-                t_meta = meta.get(sym, {})
-                r_dist = max(float(t_meta.get("r_distance", entry_p * 0.015)), 0.0001)
-                gain = (mark_p - entry_p) if side == "LONG" else (entry_p - mark_p)
-                r_mult = round(gain / r_dist, 2)
+            pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=True)
+            if pos:
+                active = [p for p in pos if float(p.get("positionAmt", 0)) != 0]
+                pos_list = []
+                for p in active:
+                    sym = p["symbol"]
+                    amt = float(p.get("positionAmt", 0))
+                    side = "LONG" if amt > 0 else "SHORT"
+                    entry_p = float(p.get("entryPrice", 0))
+                    mark_p = float(p.get("markPrice", 0))
+                    upnl = float(p.get("unRealizedProfit", 0))
+                    t_meta = meta.get(sym, {})
+                    r_dist = max(float(t_meta.get("r_distance", entry_p * 0.015)), 0.0001)
+                    gain = (mark_p - entry_p) if side == "LONG" else (entry_p - mark_p)
+                    r_mult = round(gain / r_dist, 2)
 
-                # Get candidate SMC structural stop
-                has_smc, smc_sl, smc_label = market_structure.get_protected_structural_stop(
-                    sym, "BUY" if side == "LONG" else "SELL", entry_p, t_meta.get("current_sl"), bar="15m"
-                )
+                    # Get candidate SMC structural stop
+                    has_smc, smc_sl, smc_label = market_structure.get_protected_structural_stop(
+                        sym, "BUY" if side == "LONG" else "SELL", entry_p, t_meta.get("current_sl"), bar="15m"
+                    )
 
-                pos_list.append({
-                    "symbol": sym,
-                    "side": side,
-                    "quantity": abs(amt),
-                    "entry_price": entry_p,
-                    "mark_price": mark_p,
-                    "pnl_usd": upnl,
-                    "r_multiple": r_mult,
-                    "highest_r": t_meta.get("highest_r_reached", 0.0),
-                    "leverage": int(p.get("leverage", 5)),
-                    "breakeven_locked": t_meta.get("breakeven_locked", False),
-                    "capital_shield_locked": t_meta.get("capital_shield_locked", False),
-                    "tp1_taken": t_meta.get("tp1_taken", False),
-                    "tp1_pnl_usd": t_meta.get("tp1_pnl_usd", 0.0),
-                    "is_runner": t_meta.get("is_runner", False),
-                    "trailing_r": t_meta.get("trailing_r_locked", 0.0),
-                    "sl": t_meta.get("current_sl"),
-                    "tp": t_meta.get("tp"),
-                    "structural_level": t_meta.get("structural_level") or smc_label,
-                    "candidate_smc_sl": smc_sl if has_smc else None,
-                    "has_candidate_smc": has_smc,
-                    "sweep_buffer_pct": round(market_structure.get_asset_sweep_buffer(sym) * 100.0, 1),
-                    "ai_thesis": t_meta.get("ai_thesis"),
-                    "ai_confidence": t_meta.get("ai_confidence"),
-                    "opened_at": t_meta.get("opened_at", "")
-                })
-            feed["positions"] = pos_list
+                    pos_list.append({
+                        "symbol": sym,
+                        "side": side,
+                        "quantity": abs(amt),
+                        "entry_price": entry_p,
+                        "mark_price": mark_p,
+                        "pnl_usd": upnl,
+                        "r_multiple": r_mult,
+                        "highest_r": t_meta.get("highest_r_reached", 0.0),
+                        "leverage": int(p.get("leverage", 5)),
+                        "breakeven_locked": t_meta.get("breakeven_locked", False),
+                        "capital_shield_locked": t_meta.get("capital_shield_locked", False),
+                        "tp1_taken": t_meta.get("tp1_taken", False),
+                        "tp1_pnl_usd": t_meta.get("tp1_pnl_usd", 0.0),
+                        "is_runner": t_meta.get("is_runner", False),
+                        "trailing_r": t_meta.get("trailing_r_locked", 0.0),
+                        "sl": t_meta.get("current_sl"),
+                        "tp": t_meta.get("tp"),
+                        "structural_level": t_meta.get("structural_level") or smc_label,
+                        "candidate_smc_sl": smc_sl if has_smc else None,
+                        "has_candidate_smc": has_smc,
+                        "sweep_buffer_pct": round(market_structure.get_asset_sweep_buffer(sym) * 100.0, 1),
+                        "ai_thesis": t_meta.get("ai_thesis"),
+                        "ai_confidence": t_meta.get("ai_confidence"),
+                        "opened_at": t_meta.get("opened_at", "")
+                    })
+                feed["positions"] = pos_list
+    except Exception:
+        pass
 
-            # Directional heat overview
-            bal_val = feed.get("balance_usd", 5000.0)
-            try:
-                feed["heat"] = portfolio_guard.audit_portfolio_heat(active, bal_val)
-            except Exception:
-                pass
+    # Directional heat overview
+    bal_val = feed.get("balance_usd", 100000.0)
+    try:
+        cur_pos = feed.get("positions", [])
+        feed["heat"] = portfolio_guard.audit_portfolio_heat(cur_pos, bal_val)
     except Exception:
         pass
 
@@ -233,8 +283,21 @@ def get_dashboard_feed_data(force_refresh=False):
             "maker_fee_pct": nautilus_risk_engine.ESTIMATED_MAKER_FEE_PCT,
             "baseline_slippage_pct": nautilus_risk_engine.DEFAULT_SLIPPAGE_PCT
         }
-    except Exception as e:
-        feed["nautilus_risk_guard"] = {"status": "ACTIVE_SAFE", "error": str(e)}
+    except Exception:
+        feed["nautilus_risk_guard"] = {"status": "ACTIVE_SAFE"}
+
+    # ATLAS GIC - Soros Reflexivity & Karpathy Autoresearch Telemetry
+    try:
+        import soros_reflexivity_engine
+        feed["soros_reflexivity"] = soros_reflexivity_engine.get_soros_reflexivity_index("BTC")
+    except Exception:
+        feed["soros_reflexivity"] = {}
+
+    try:
+        import self_improve
+        feed["autoresearch"] = self_improve.get_autoresearch_summary()
+    except Exception:
+        feed["autoresearch"] = {}
 
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -546,6 +609,21 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/pipeline/macro-onchain" or path == "/api/openbb/pipeline":
+            try:
+                import open_quant_pipeline
+                data = open_quant_pipeline.get_unified_quant_pipeline()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+            return
+
         elif path == "/api/orderflow":
             try:
                 import orderflow_cvd_scalper
@@ -759,6 +837,67 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path == "/api/quant/autoresearch":
+            try:
+                import self_improve
+                data = self_improve.get_autoresearch_summary()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/quant/reflexivity":
+            try:
+                import soros_reflexivity_engine
+                q_sym = params.get("symbol", ["BTC"])[0]
+                data = soros_reflexivity_engine.get_soros_reflexivity_index(q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "reflexivity": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/mt5/account":
+            try:
+                import mt5_client
+                data = mt5_client.get_account_summary()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "account": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/mt5/positions":
+            try:
+                import mt5_client
+                data = mt5_client.get_open_positions()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "positions": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         super().do_GET()
 
     def do_POST(self):
@@ -780,6 +919,53 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": True, "reflection": reflection}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/mt5/trade":
+            try:
+                import mt5_client
+                sym = payload.get("symbol", "BTC")
+                side = payload.get("side", "BUY")
+                vol = payload.get("volume")
+                risk = float(payload.get("risk_usd", 50.0))
+                sl = payload.get("sl")
+                tp = payload.get("tp")
+                comment = payload.get("comment", "BelajarKripto Desk")
+                
+                res = mt5_client.place_signal_order(
+                    symbol=sym,
+                    side=side,
+                    volume=vol,
+                    risk_usd=risk,
+                    sl_price=sl,
+                    tp_price=tp,
+                    comment=comment
+                )
+                self.send_response(200 if res.get("success") else 400)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/mt5/close":
+            try:
+                import mt5_client
+                ticket = int(payload.get("ticket", 0))
+                res = mt5_client.close_position_by_ticket(ticket)
+                self.send_response(200 if res.get("success") else 400)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
             except Exception as e:
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json; charset=utf-8")

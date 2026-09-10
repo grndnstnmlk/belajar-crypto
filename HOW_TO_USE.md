@@ -78,12 +78,18 @@ python .agents/tools/trading_desk.py run --mode HYBRID --interval 1
 python .agents/tools/trading_desk.py run --mode SWING --interval 15
 ```
 
-### D. Mode Demo Testnet vs Live Real Money
-* **Demo Testnet (Bebas Risiko)**: Default (tanpa flag tambahan). Menggunakan saldo virtual Binance Futures Testnet.
-* **Live Real Money**: Tambahkan argumen `--live`:
+### D. Backend Eksekusi: MetaTrader 5 (MT5) vs Binance Futures
+* **MetaTrader 5 (MT5 Demo - Default Aktif)**:
+  * Menggunakan saldo virtual `$100,000.00 USD` di terminal MT5.
+  * Mendukung multi-aset: **Forex (`EURUSD`, `GBPUSD`, `USDJPY`)**, **Komoditas (`XAUUSD`/Gold)**, dan **Crypto (`BTCUSD`, `ETHUSD`)**.
+  * Pastikan tombol **Algo Trading** di aplikasi MT5 berwarna HIJAU.
   ```powershell
-  python .agents/tools/trading_desk.py run --mode HYBRID --interval 1 --live
+  # Autopilot ke MT5 Demo (Dual-Engine 1-Menit Loop)
+  python .agents/tools/trading_desk.py run --mode HYBRID --interval 1
   ```
+
+* **Binance Futures Testnet**:
+  * Untuk beralih ke Binance Futures, cukup set environment variable `EXECUTION_BACKEND=BINANCE`.
 
 ### E. Melalui File Batch Windows (.bat)
 * Jalankan `start_autopilot.bat` untuk menyalakan daemon desk autopilot.

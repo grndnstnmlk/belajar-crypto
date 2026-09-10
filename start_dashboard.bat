@@ -4,7 +4,7 @@ color 0B
 
 echo ====================================================================
 echo        🖥️  AKADEMI CRYPTO - VISUAL MISSION CONTROL (PORT 5000)
-echo        Mode    : Binance Futures Testnet / Live
+echo        Backend : MetaTrader 5 (MT5 Demo) / Multi-Asset
 echo        URL     : http://localhost:5000
 echo ====================================================================
 echo.

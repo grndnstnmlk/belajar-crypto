@@ -46,12 +46,16 @@ sys.path.insert(0, TOOLS_DIR)
 import market_eyes
 import market_regime
 import binance_client
+import mt5_client
 import telegram_notifier
 import trade_manager
 import topdown_confluence
 import fast_scalper
 import session_filter
 import macro_news_shield
+
+# Execution Backend Switch: "MT5" (MetaTrader 5) or "BINANCE"
+EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "MT5")
 
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
@@ -309,6 +313,27 @@ def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, ge
         pass
 
 def get_active_positions(user_email=None, is_demo=True):
+    if EXECUTION_BACKEND == "MT5":
+        try:
+            mt5_pos = mt5_client.get_open_positions()
+            if mt5_pos:
+                res = []
+                for p in mt5_pos:
+                    res.append({
+                        "symbol": p["symbol"],
+                        "positionAmt": p["volume"] if p["side"] == "BUY" else -p["volume"],
+                        "entryPrice": p["price_open"],
+                        "markPrice": p["price_current"],
+                        "unRealizedProfit": p["profit_usd"],
+                        "ticket": p["ticket"],
+                        "leverage": 100,
+                        "backend": "MT5"
+                    })
+                return res
+            return []
+        except Exception:
+            pass
+
     res = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=is_demo, user_email=user_email)
     if not res:
         return []
@@ -317,9 +342,22 @@ def get_active_positions(user_email=None, is_demo=True):
 def get_account_financials(user_email=None, is_demo=True):
     """
     Mengambil total ekuitas (margin balance) dan margin bebas yang tersedia (availableBalance).
-    Menggunakan resilient memory cache untuk menghindari fallback sembarangan saat koneksi tersendat.
+    Mendukung MT5 sebagai primary backend saat aktif.
     """
     global _LAST_FINANCIALS_CACHE
+    if EXECUTION_BACKEND == "MT5":
+        try:
+            acc = mt5_client.get_account_summary()
+            if acc.get("connected"):
+                equity = float(acc.get("equity", 100000.0))
+                available = float(acc.get("margin_free", 100000.0))
+                _LAST_FINANCIALS_CACHE["equity"] = equity
+                _LAST_FINANCIALS_CACHE["available"] = available
+                _LAST_FINANCIALS_CACHE["last_updated"] = time.time()
+                return equity, available
+        except Exception:
+            pass
+
     res = binance_client.send_signed_request("/fapi/v2/account", method="GET", is_demo=is_demo, user_email=user_email)
     if res and isinstance(res, dict) and "totalMarginBalance" in res:
         equity = float(res.get("totalMarginBalance", 0) or res.get("totalWalletBalance", 0) or 0)
@@ -343,8 +381,8 @@ def get_account_financials(user_email=None, is_demo=True):
                     return eq, avail
 
     # Resilient fallback to last known valid cached figures
-    cached_eq = _LAST_FINANCIALS_CACHE.get("equity", 5160.20)
-    cached_avail = _LAST_FINANCIALS_CACHE.get("available", 4697.00)
+    cached_eq = _LAST_FINANCIALS_CACHE.get("equity", 100000.0 if EXECUTION_BACKEND == "MT5" else 5160.20)
+    cached_avail = _LAST_FINANCIALS_CACHE.get("available", 100000.0 if EXECUTION_BACKEND == "MT5" else 4697.00)
     return cached_eq, cached_avail
 
 def get_account_balance(user_email=None, is_demo=True):
@@ -1275,50 +1313,72 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=4, 
                 print(f" ⚠️ [Margin Guardrail] Sisa margin tersedia (${available_usd:,.2f}) tidak cukup untuk membuka posisi {best['symbol']} (Dibutuhkan: ${margin_required:,.2f}). Melewatkan eksekusi.")
                 continue
 
-            # Dynamic precision formatting from exchange info
-            raw_qty = pos_size_usd / best["price"]
-            qty_str = binance_client.format_qty_precision(best["symbol"], raw_qty, is_demo=is_demo)
-            qty = float(qty_str)
+            # Precision & Order Filter Validation
+            qty = 0.01
+            if EXECUTION_BACKEND != "MT5":
+                try:
+                    raw_qty = pos_size_usd / best["price"]
+                    qty_str = binance_client.format_qty_precision(best["symbol"], raw_qty, is_demo=is_demo)
+                    qty = float(qty_str)
 
-            # Check minNotional & order filters
-            is_valid, adjusted_qty, filter_msg = binance_client.validate_order_filters(best["symbol"], qty, best["price"], is_demo=is_demo)
-            if not is_valid:
-                print(f" ⚠️ [Exchange Filter Alignment] {filter_msg}. Menyesuaikan qty ke {adjusted_qty}...")
-                qty = adjusted_qty
-                pos_size_usd = qty * best["price"]
-                margin_required = pos_size_usd / 5.0
-                if margin_required > available_usd:
-                    print(f" ⚠️ [Margin Guardrail] Sisa margin (${available_usd:,.2f}) tidak cukup untuk adjusted qty (${margin_required:,.2f}). Melewatkan.")
-                    continue
+                    # Check minNotional & order filters
+                    is_valid, adjusted_qty, filter_msg = binance_client.validate_order_filters(best["symbol"], qty, best["price"], is_demo=is_demo)
+                    if not is_valid:
+                        print(f" ⚠️ [Exchange Filter Alignment] {filter_msg}. Menyesuaikan qty ke {adjusted_qty}...")
+                        qty = adjusted_qty
+                        pos_size_usd = qty * best["price"]
+                        margin_required = pos_size_usd / 5.0
+                        if margin_required > available_usd:
+                            print(f" ⚠️ [Margin Guardrail] Sisa margin (${available_usd:,.2f}) tidak cukup untuk adjusted qty (${margin_required:,.2f}). Melewatkan.")
+                            continue
 
-            # Check Order Book Depth Guard before dispatching order
-            is_safe_depth, depth_audit = binance_client.check_order_book_depth(
-                best["symbol"], qty, best["side"], is_demo=is_demo, max_slippage_pct=0.30
-            )
-            if not is_safe_depth:
-                print(f" ⚠️ [Order Book Liquidity Warning] {best['symbol']} spread ({depth_audit.get('spread_pct')}%) atau estimasi slippage ({depth_audit.get('slippage_pct')}%) tinggi.")
+                    # Check Order Book Depth Guard before dispatching order
+                    is_safe_depth, depth_audit = binance_client.check_order_book_depth(
+                        best["symbol"], qty, best["side"], is_demo=is_demo, max_slippage_pct=0.30
+                    )
+                    if not is_safe_depth:
+                        print(f" ⚠️ [Order Book Liquidity Warning] {best['symbol']} spread ({depth_audit.get('spread_pct')}%) atau estimasi slippage ({depth_audit.get('slippage_pct')}%) tinggi.")
+                except Exception as e:
+                    print(f" ⚠️ [Binance Filter Warning]: {e}")
 
-            print(f" * Position Size Budget: ${pos_size_usd:,.2f} ({qty} {best['base']}) | Margin Diperlukan: ${margin_required:,.2f} USDT")
+            print(f" * Position Size Budget: ${pos_size_usd:,.2f} ({best['base']}) | Margin Diperlukan: ${margin_required:,.2f} USDT")
             print(f" * Max Risk At SL      : ${risk_budget:,.2f} ({effective_risk_pct:.2f}% modal)")
 
-            # Execute via binance_client (Limit-Chase for Maker fee savings of 60%, with 3s auto-fallback to Market)
-            exec_mode = "LIMIT_CHASE"
-            print(f"[Mengirimkan Order ke Binance Futures (Mode: {exec_mode})...]")
-            order_res = binance_client.place_futures_order(
-                symbol=best["symbol"],
-                side=best["side"],
-                quantity=qty,
-                leverage=5,
-                sl=best["sl"],
-                tp=best["tp"],
-                is_demo=is_demo,
-                user_email=user_email,
-                exec_mode=exec_mode
-            )
+            # Execution routing based on active backend
+            if EXECUTION_BACKEND == "MT5":
+                print(f"[Mengirimkan Order Sinyal ke MetaTrader 5 (MT5 Demo)...]")
+                order_res = mt5_client.place_signal_order(
+                    symbol=best["symbol"],
+                    side=best["side"],
+                    risk_usd=risk_budget,
+                    sl_price=best["sl"],
+                    tp_price=best["tp"],
+                    comment=f"BK SMC {best['side']}"
+                )
+                if not order_res or not order_res.get("success"):
+                    print(f"⚠️ Eksekusi {best['symbol']} gagal di MT5: {order_res.get('error') if order_res else 'Unknown'}")
+                    continue
+                ticket = order_res.get("ticket")
+                print(f"✅ Order MT5 Berhasil Terpasang! Ticket #{ticket} | Qty/Lot: {order_res.get('volume')}")
+            else:
+                # Execute via binance_client (Limit-Chase for Maker fee savings of 60%, with 3s auto-fallback to Market)
+                exec_mode = "LIMIT_CHASE"
+                print(f"[Mengirimkan Order ke Binance Futures (Mode: {exec_mode})...]")
+                order_res = binance_client.place_futures_order(
+                    symbol=best["symbol"],
+                    side=best["side"],
+                    quantity=qty,
+                    leverage=5,
+                    sl=best["sl"],
+                    tp=best["tp"],
+                    is_demo=is_demo,
+                    user_email=user_email,
+                    exec_mode=exec_mode
+                )
 
-            if not order_res or not order_res.get("orderId"):
-                print(f"⚠️ Eksekusi {best['symbol']} gagal di bursa Binance. Melewatkan alert Telegram dan pendaftaran trade manager.")
-                continue
+                if not order_res or not order_res.get("orderId"):
+                    print(f"⚠️ Eksekusi {best['symbol']} gagal di bursa Binance. Melewatkan alert Telegram dan pendaftaran trade manager.")
+                    continue
 
             # Update available_usd and active_positions for subsequent orders in the same cycle
             available_usd = max(0.0, available_usd - margin_required)

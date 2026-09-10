@@ -253,6 +253,19 @@ def validate_pre_trade_order(
     except Exception:
         pass
 
+    # 7. Check Soros Reflexivity & Crowd Asymmetry (ATLAS GIC Innovation)
+    reflexivity_info = {}
+    try:
+        import soros_reflexivity_engine
+        is_r_veto, r_mul, reflexivity_info = soros_reflexivity_engine.evaluate_pre_trade_reflexivity(symbol, side)
+        adjusted_scale *= r_mul
+        if is_r_veto:
+            rejection_reasons.append(f"🌀 [Soros Reflexivity Veto]: Order terindikasi masuk ke jebakan likuidasi/crowded trap ({reflexivity_info.get('trap_side')}).")
+        elif r_mul != 1.0:
+            warnings.append(f"🌀 [Soros Reflexivity]: Penyesuaian bobot ({r_mul}x) karena {reflexivity_info.get('reflexive_regime')}.")
+    except Exception:
+        pass
+
     is_approved = len(rejection_reasons) == 0
 
     return {
@@ -276,6 +289,9 @@ def validate_pre_trade_order(
             "macro_liquidity_regime": macro_info.get("regime", "NEUTRAL"),
             "parkinson_volatility_pct": vol_info.get("parkinson_volatility_pct", 0.0),
             "var_95_pct": vol_info.get("var_95_pct", 0.0),
+            "reflexivity_regime": reflexivity_info.get("reflexive_regime", "EQUILIBRIUM_FLOW"),
+            "reflexivity_score": reflexivity_info.get("reflexivity_score", 50.0),
+            "reflexivity_multiplier": reflexivity_info.get("reflexivity_multiplier", 1.0),
             "cognitive_memory_active": bool(memory_engine)
         }
     }

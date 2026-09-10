@@ -1058,12 +1058,94 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
     save_trade_metadata(meta)
     return management_events
 
+def audit_and_manage_mt5_positions():
+    """
+    Audits active MT5 positions and applies Breakeven (+1R) and SMC Trailing stops.
+    """
+    try:
+        import mt5_client
+        positions = mt5_client.get_open_positions()
+        if not positions:
+            return []
+            
+        events = []
+        meta = load_trade_metadata()
+        
+        for p in positions:
+            ticket = str(p["ticket"])
+            sym = p["symbol"]
+            side = p["side"]
+            entry_p = p["price_open"]
+            curr_p = p["price_current"]
+            sl_p = p["sl"]
+            tp_p = p["tp"]
+            upnl = p["profit_usd"]
+            
+            t_meta = meta.get(f"MT5_{ticket}", {
+                "symbol": sym,
+                "ticket": p["ticket"],
+                "side": side,
+                "entry_price": entry_p,
+                "initial_sl": sl_p or (entry_p * 0.99 if side == "BUY" else entry_p * 1.01),
+                "current_sl": sl_p,
+                "tp": tp_p,
+                "breakeven_locked": False,
+                "trailing_r_locked": 0.0,
+                "highest_r_reached": 0.0,
+                "backend": "MT5"
+            })
+            
+            init_sl = float(t_meta.get("initial_sl") or (entry_p * 0.99 if side == "BUY" else entry_p * 1.01))
+            r_dist = max(abs(entry_p - init_sl), entry_p * 0.001)
+            gain = (curr_p - entry_p) if side == "BUY" else (entry_p - curr_p)
+            current_r = round(gain / r_dist, 2)
+            
+            if current_r > t_meta.get("highest_r_reached", 0.0):
+                t_meta["highest_r_reached"] = current_r
+                
+            # Rule 1: Auto Breakeven at +1.0R
+            if current_r >= 1.0 and not t_meta.get("breakeven_locked", False):
+                be_sl = entry_p + (r_dist * 0.05) if side == "BUY" else entry_p - (r_dist * 0.05)
+                res = mt5_client.modify_position_sl_tp(p["ticket"], new_sl=be_sl)
+                if res.get("success"):
+                    t_meta["breakeven_locked"] = True
+                    t_meta["current_sl"] = be_sl
+                    msg = f"🛡️ [MT5 Breakeven Locked] {sym} (#{p['ticket']}) reached +{current_r}R -> SL moved to {be_sl}"
+                    events.append(msg)
+                    try:
+                        telegram_notifier.notify_breakeven_locked(sym, be_sl, current_pnl=upnl, is_demo=True)
+                    except Exception:
+                        pass
+                        
+            # Rule 2: Trailing Stop at +2.0R+
+            elif current_r >= 2.0:
+                target_lock_r = 1.0 if current_r < 3.0 else (current_r - 1.0)
+                if target_lock_r > t_meta.get("trailing_r_locked", 0.0):
+                    trail_sl = entry_p + (r_dist * target_lock_r) if side == "BUY" else entry_p - (r_dist * target_lock_r)
+                    res = mt5_client.modify_position_sl_tp(p["ticket"], new_sl=trail_sl)
+                    if res.get("success"):
+                        t_meta["trailing_r_locked"] = target_lock_r
+                        t_meta["current_sl"] = trail_sl
+                        msg = f"🚀 [MT5 Trailing Stop] {sym} (#{p['ticket']}) reached +{current_r}R -> SL locked at +{target_lock_r}R ({trail_sl})"
+                        events.append(msg)
+                        try:
+                            telegram_notifier.notify_trailing_stop_updated(sym, target_lock_r, trail_sl, current_pnl=upnl, is_demo=True)
+                        except Exception:
+                            pass
+                            
+            meta[f"MT5_{ticket}"] = t_meta
+            
+        save_trade_metadata(meta)
+        return events
+    except Exception as e:
+        return []
+
 _FAST_WATCHER_THREAD = None
 
 class FastPositionWatcher(threading.Thread):
     """
     High-Frequency Fast Position Risk Daemon (8s poll interval).
-    Specifically monitors open Binance Futures positions to execute immediate Breakeven lock (+1.0R / +1.5R)
+    Specifically monitors open MT5 & Binance Futures positions to execute immediate Breakeven lock (+1.0R / +1.5R)
     and Take Profit 1 scale-out without waiting for the full CEO desk cycle.
     Automatically idles with zero overhead when no positions are active.
     """
@@ -1077,6 +1159,13 @@ class FastPositionWatcher(threading.Thread):
     def run(self):
         while self.running:
             try:
+                # 1. MT5 Positions Dynamic Management
+                mt5_events = audit_and_manage_mt5_positions()
+                if mt5_events:
+                    for ev in mt5_events:
+                        print(f"⚡ [Fast MT5 Position Watcher] {ev}")
+
+                # 2. Binance Futures Positions Dynamic Management
                 meta = load_trade_metadata()
                 if meta:
                     pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=self.is_demo, user_email=self.user_email)
