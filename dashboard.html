@@ -3010,7 +3010,7 @@
 
     function renderPositions(positions) {
       const countPill = document.getElementById('pos-header-count');
-      if (countPill) countPill.innerText = `${positions.length} / 4 MAX`;
+      if (countPill) countPill.innerText = `${positions.length} POSISI AKTIF`;
 
       const container = document.getElementById('positions-list');
       if (!positions || positions.length === 0) {
@@ -3038,6 +3038,7 @@
             <div class="pos-card-head">
               <div class="pos-card-sym">
                 <span>${p.symbol}</span>
+                <span class="pill-badge ${p.backend === 'MT5' ? 'blue' : 'gold'}" style="font-size:9px; padding:2px 6px;">${p.backend || 'BINANCE'}</span>
                 <span class="pill-badge ${isLong ? 'mint' : 'tangerine'}" style="font-size:10px; padding:2px 8px;">${p.side} ${p.leverage}x</span>
               </div>
               <div style="display:flex; gap:4px; align-items:center;">
@@ -3086,7 +3087,7 @@
             <div class="pos-card-actions" onclick="event.stopPropagation()">
               ${!p.tp1_taken ? `<button class="btn" onclick="event.stopPropagation(); partialClosePosition('${p.symbol}')" style="border-color:rgba(10,228,72,0.4); color:var(--color-shockingly-green);" title="Kunci Cuan 50% & Jadikan Sisa Posisi Bebas Risiko (Runner)">🎯 TP 50%</button>` : `<span class="pill-badge mint" style="font-size:9px; padding:3px 6px;">🎯 50% LOCKED</span>`}
               ${!p.breakeven_locked ? `<button class="btn" onclick="event.stopPropagation(); lockBreakeven('${p.symbol}')" title="Kunci Stop Loss ke Titik Impas">🛡️ Lock BE</button>` : ''}
-              <button class="btn btn-danger" onclick="event.stopPropagation(); closeSinglePosition('${p.symbol}')">🔴 Tutup</button>
+              <button class="btn btn-danger" onclick="event.stopPropagation(); closeSinglePosition('${p.symbol}', ${p.ticket || 'null'}, '${p.backend || 'BINANCE'}')">🔴 Tutup</button>
             </div>
           </div>
         `;
@@ -4092,18 +4093,21 @@
       }
     }
 
-    async function closeSinglePosition(symbol) {
-      if (!confirm(`Konfirmasi: Tutup posisi ${symbol} secara instan?`)) return;
+    async function closeSinglePosition(symbol, ticket, backend) {
+      const targetDesc = ticket ? `${symbol} (Ticket #${ticket})` : symbol;
+      if (!confirm(`Konfirmasi: Tutup posisi ${targetDesc} secara instan?`)) return;
       try {
         const res = await fetch('/api/action/close', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ symbol })
+          body: JSON.stringify({ symbol, ticket, backend })
         });
         const d = await res.json();
         if (d.success) {
-          showToast(`🔴 Posisi ${symbol} berhasil ditutup.`);
+          showToast(`🔴 Posisi ${targetDesc} berhasil ditutup.`);
           fetchDashboardFeed();
+        } else {
+          showToast(`⚠️ Gagal menutup ${targetDesc}: ${d.error || 'Unknown error'}`);
         }
       } catch (e) {
         showToast(`⚠️ Error: ${e.message}`);
@@ -4111,11 +4115,18 @@
     }
 
     async function closeAllPositions() {
-      if (!confirm("⚠️ PERINGATAN: Tutup SELURUH posisi aktif di Binance Futures?")) return;
+      if (!confirm("⚠️ PERINGATAN: Tutup SELURUH posisi aktif (Binance Futures & MT5)?")) return;
       try {
         const res = await fetch('/api/action/closeall', { method: 'POST' });
         const d = await res.json();
-        showToast(`🚨 Ditutup ${d.closed_count || 0} posisi.`);
+        if (d.closed_count > 0) {
+          showToast(`🚨 Berhasil menutup ${d.closed_count} posisi.`);
+        }
+        if (d.errors && d.errors.length > 0) {
+          showToast(`⚠️ Info penutupan: ${d.errors.join('; ')}`);
+        } else if (d.closed_count === 0) {
+          showToast(`ℹ️ Tidak ada posisi aktif yang dapat ditutup saat ini.`);
+        }
         fetchDashboardFeed();
       } catch (e) {
         showToast(`⚠️ Error: ${e.message}`);

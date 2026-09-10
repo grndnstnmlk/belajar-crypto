@@ -1,13 +1,13 @@
 @echo off
-title AKADEMI CRYPTO - 24/7 AUTONOMOUS AI TRADING DESK (METATRADER 5 DUAL-ENGINE)
+title AKADEMI CRYPTO - 24/7 AUTONOMOUS AI TRADING DESK (BINANCE FUTURES AUTONOMOUS)
 color 0A
 chcp 65001 >nul
 
-set EXECUTION_BACKEND=BOTH
+set EXECUTION_BACKEND=BINANCE
 
 echo ====================================================================
 echo   🤖 AKADEMI CRYPTO - AUTONOMOUS AI TRADING DESK (DUAL-BACKEND)
-echo   Backend   : ⚡ DUAL SIMULTANEOUS (Binance Futures + MetaTrader 5)
+echo   Backend   : ⚡ BINANCE FUTURES TESTNET/LIVE
 echo   Desk      : 🎯 HYBRID DESK (Craig Percoco Scalping 5m + HTF Swing 1H/4H)
 echo   Setup     : SMC Liquidity Sweeps, 3R Asymmetric Targets, Order Blocks
 echo   Interval  : Pemindaian Otomatis Terjadwal (Continuous Fast Daemon)

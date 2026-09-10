@@ -55,7 +55,7 @@ import session_filter
 import macro_news_shield
 
 # Execution Backend Switch: "BOTH" (Dual Binance + MT5), "MT5", or "BINANCE"
-EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BOTH").upper()
+EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
 
 # Top 10 High-Liquidity Crypto Assets on Binance Futures
 DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]

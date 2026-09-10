@@ -91,113 +91,127 @@ def get_dashboard_feed_data(force_refresh=False):
     meta = trade_manager.load_trade_metadata()
     state = telegram_notifier.load_desk_state()
 
-    # Get fresh positions and balance if available (Prioritize MT5 if connected)
+    # Fetch and combine positions from BOTH Binance Futures and MetaTrader 5
+    pos_list = []
+    binance_bal = 0.0
+    mt5_bal = 0.0
+
+    # 1. Fetch Binance Futures Positions & Balance
+    try:
+        balance = binance_client.send_signed_request("/fapi/v2/balance", method="GET", is_demo=True)
+        if balance and isinstance(balance, list):
+            for b in balance:
+                if b.get("asset") == "USDT":
+                    binance_bal = float(b.get("balance", 0))
+                    feed["binance_balance_usd"] = binance_bal
+                    break
+
+        b_pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=True)
+        if b_pos and isinstance(b_pos, list):
+            active_b = [p for p in b_pos if float(p.get("positionAmt", 0)) != 0]
+            for p in active_b:
+                sym = p["symbol"]
+                amt = float(p.get("positionAmt", 0))
+                side = "LONG" if amt > 0 else "SHORT"
+                entry_p = float(p.get("entryPrice", 0))
+                mark_p = float(p.get("markPrice", 0))
+                upnl = float(p.get("unRealizedProfit", 0))
+                t_meta = meta.get(sym, {})
+                r_dist = max(float(t_meta.get("r_distance", entry_p * 0.015)), 0.0001)
+                gain = (mark_p - entry_p) if side == "LONG" else (entry_p - mark_p)
+                r_mult = round(gain / r_dist, 2)
+
+                # Get candidate SMC structural stop
+                has_smc, smc_sl, smc_label = market_structure.get_protected_structural_stop(
+                    sym, "BUY" if side == "LONG" else "SELL", entry_p, t_meta.get("current_sl"), bar="15m"
+                )
+
+                pos_list.append({
+                    "symbol": sym,
+                    "side": side,
+                    "quantity": abs(amt),
+                    "entry_price": entry_p,
+                    "mark_price": mark_p,
+                    "pnl_usd": upnl,
+                    "r_multiple": r_mult,
+                    "highest_r": t_meta.get("highest_r_reached", 0.0),
+                    "leverage": int(p.get("leverage", 5)),
+                    "breakeven_locked": t_meta.get("breakeven_locked", False),
+                    "capital_shield_locked": t_meta.get("capital_shield_locked", False),
+                    "tp1_taken": t_meta.get("tp1_taken", False),
+                    "tp1_pnl_usd": t_meta.get("tp1_pnl_usd", 0.0),
+                    "is_runner": t_meta.get("is_runner", False),
+                    "trailing_r": t_meta.get("trailing_r_locked", 0.0),
+                    "sl": t_meta.get("current_sl"),
+                    "tp": t_meta.get("tp"),
+                    "structural_level": t_meta.get("structural_level") or smc_label,
+                    "candidate_smc_sl": smc_sl if has_smc else None,
+                    "has_candidate_smc": has_smc,
+                    "sweep_buffer_pct": round(market_structure.get_asset_sweep_buffer(sym) * 100.0, 1),
+                    "ai_thesis": t_meta.get("ai_thesis"),
+                    "ai_confidence": t_meta.get("ai_confidence"),
+                    "opened_at": t_meta.get("opened_at", ""),
+                    "backend": "BINANCE"
+                })
+    except Exception as e:
+        pass
+
+    # 2. Fetch MetaTrader 5 (MT5) Positions & Account (if running)
     try:
         import mt5_client
-        mt5_acc = mt5_client.get_account_summary()
-        if mt5_acc.get("connected"):
-            feed["balance_usd"] = float(mt5_acc.get("balance", 100000.0))
-            feed["equity_usd"] = float(mt5_acc.get("equity", 100000.0))
-            feed["execution_backend"] = "MetaTrader 5 (Demo)"
-            feed["mt5_login"] = mt5_acc.get("login")
-            feed["mt5_server"] = mt5_acc.get("server")
-            
-            mt5_positions = mt5_client.get_open_positions()
-            if mt5_positions:
-                pos_list = []
-                for p in mt5_positions:
-                    sym = p["symbol"]
-                    amt = float(p["volume"])
-                    side = "LONG" if p["side"] == "BUY" else "SHORT"
-                    entry_p = float(p["price_open"])
-                    mark_p = float(p["price_current"])
-                    upnl = float(p["profit_usd"])
-                    ticket = p["ticket"]
-                    t_meta = meta.get(f"MT5_{ticket}", meta.get(sym, {}))
-                    init_sl = float(t_meta.get("initial_sl") or p["sl"] or (entry_p * 0.99 if side == "LONG" else entry_p * 1.01))
-                    r_dist = max(abs(entry_p - init_sl), entry_p * 0.001)
-                    gain = (mark_p - entry_p) if side == "LONG" else (entry_p - mark_p)
-                    r_mult = round(gain / r_dist, 2)
-                    
-                    pos_list.append({
-                        "symbol": sym,
-                        "side": side,
-                        "quantity": amt,
-                        "entry_price": entry_p,
-                        "mark_price": mark_p,
-                        "pnl_usd": upnl,
-                        "r_multiple": r_mult,
-                        "highest_r": t_meta.get("highest_r_reached", r_mult),
-                        "leverage": int(mt5_acc.get("leverage", 100)),
-                        "breakeven_locked": t_meta.get("breakeven_locked", False),
-                        "capital_shield_locked": False,
-                        "tp1_taken": False,
-                        "tp1_pnl_usd": 0.0,
-                        "is_runner": False,
-                        "trailing_r": t_meta.get("trailing_r_locked", 0.0),
-                        "sl": p["sl"],
-                        "tp": p["tp"],
-                        "ticket": ticket,
-                        "backend": "MT5"
-                    })
-                feed["positions"] = pos_list
-        else:
-            balance = binance_client.send_signed_request("/fapi/v2/balance", method="GET", is_demo=True)
-            if balance:
-                for b in balance:
-                    if b.get("asset") == "USDT":
-                        feed["balance_usd"] = float(b.get("balance", 0))
+        if mt5_client.ensure_mt5_connected():
+            mt5_acc = mt5_client.get_account_summary()
+            if mt5_acc.get("connected"):
+                mt5_bal = float(mt5_acc.get("balance", 100000.0))
+                feed["mt5_balance_usd"] = mt5_bal
+                feed["mt5_equity_usd"] = float(mt5_acc.get("equity", 100000.0))
+                feed["mt5_login"] = mt5_acc.get("login")
+                feed["mt5_server"] = mt5_acc.get("server")
 
-            pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=True)
-            if pos:
-                active = [p for p in pos if float(p.get("positionAmt", 0)) != 0]
-                pos_list = []
-                for p in active:
-                    sym = p["symbol"]
-                    amt = float(p.get("positionAmt", 0))
-                    side = "LONG" if amt > 0 else "SHORT"
-                    entry_p = float(p.get("entryPrice", 0))
-                    mark_p = float(p.get("markPrice", 0))
-                    upnl = float(p.get("unRealizedProfit", 0))
-                    t_meta = meta.get(sym, {})
-                    r_dist = max(float(t_meta.get("r_distance", entry_p * 0.015)), 0.0001)
-                    gain = (mark_p - entry_p) if side == "LONG" else (entry_p - mark_p)
-                    r_mult = round(gain / r_dist, 2)
-
-                    # Get candidate SMC structural stop
-                    has_smc, smc_sl, smc_label = market_structure.get_protected_structural_stop(
-                        sym, "BUY" if side == "LONG" else "SELL", entry_p, t_meta.get("current_sl"), bar="15m"
-                    )
-
-                    pos_list.append({
-                        "symbol": sym,
-                        "side": side,
-                        "quantity": abs(amt),
-                        "entry_price": entry_p,
-                        "mark_price": mark_p,
-                        "pnl_usd": upnl,
-                        "r_multiple": r_mult,
-                        "highest_r": t_meta.get("highest_r_reached", 0.0),
-                        "leverage": int(p.get("leverage", 5)),
-                        "breakeven_locked": t_meta.get("breakeven_locked", False),
-                        "capital_shield_locked": t_meta.get("capital_shield_locked", False),
-                        "tp1_taken": t_meta.get("tp1_taken", False),
-                        "tp1_pnl_usd": t_meta.get("tp1_pnl_usd", 0.0),
-                        "is_runner": t_meta.get("is_runner", False),
-                        "trailing_r": t_meta.get("trailing_r_locked", 0.0),
-                        "sl": t_meta.get("current_sl"),
-                        "tp": t_meta.get("tp"),
-                        "structural_level": t_meta.get("structural_level") or smc_label,
-                        "candidate_smc_sl": smc_sl if has_smc else None,
-                        "has_candidate_smc": has_smc,
-                        "sweep_buffer_pct": round(market_structure.get_asset_sweep_buffer(sym) * 100.0, 1),
-                        "ai_thesis": t_meta.get("ai_thesis"),
-                        "ai_confidence": t_meta.get("ai_confidence"),
-                        "opened_at": t_meta.get("opened_at", "")
-                    })
-                feed["positions"] = pos_list
-    except Exception:
+                mt5_positions = mt5_client.get_open_positions()
+                if mt5_positions:
+                    for p in mt5_positions:
+                        sym = p["symbol"]
+                        amt = float(p["volume"])
+                        side = "LONG" if p["side"] == "BUY" else "SHORT"
+                        entry_p = float(p["price_open"])
+                        mark_p = float(p["price_current"])
+                        upnl = float(p["profit_usd"])
+                        ticket = p["ticket"]
+                        t_meta = meta.get(f"MT5_{ticket}", meta.get(sym, {}))
+                        init_sl = float(t_meta.get("initial_sl") or p["sl"] or (entry_p * 0.99 if side == "LONG" else entry_p * 1.01))
+                        r_dist = max(abs(entry_p - init_sl), entry_p * 0.001)
+                        gain = (mark_p - entry_p) if side == "LONG" else (entry_p - mark_p)
+                        r_mult = round(gain / r_dist, 2)
+                        
+                        pos_list.append({
+                            "symbol": sym,
+                            "side": side,
+                            "quantity": amt,
+                            "entry_price": entry_p,
+                            "mark_price": mark_p,
+                            "pnl_usd": upnl,
+                            "r_multiple": r_mult,
+                            "highest_r": t_meta.get("highest_r_reached", r_mult),
+                            "leverage": int(mt5_acc.get("leverage", 100)),
+                            "breakeven_locked": t_meta.get("breakeven_locked", False),
+                            "capital_shield_locked": False,
+                            "tp1_taken": False,
+                            "tp1_pnl_usd": 0.0,
+                            "is_runner": False,
+                            "trailing_r": t_meta.get("trailing_r_locked", 0.0),
+                            "sl": p["sl"],
+                            "tp": p["tp"],
+                            "ticket": ticket,
+                            "structural_level": "MT5 Stop / Broker Order",
+                            "backend": "MT5"
+                        })
+    except Exception as e:
         pass
+
+    feed["positions"] = pos_list
+    feed["balance_usd"] = binance_bal if binance_bal > 0 else (mt5_bal if mt5_bal > 0 else 4628.0)
+    feed["execution_backend"] = "Dual (Binance + MT5)" if (binance_bal > 0 and mt5_bal > 0) else ("MetaTrader 5 (Demo)" if mt5_bal > 0 else "Binance Futures (Demo)")
 
     # Directional heat overview
     bal_val = feed.get("balance_usd", 100000.0)
@@ -975,10 +989,46 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
 
         if path == "/api/action/close":
             sym = payload.get("symbol")
+            ticket = payload.get("ticket")
+            backend = payload.get("backend")
+
+            # Check if this is an MT5 position
+            if backend == "MT5" or ticket:
+                try:
+                    import mt5_client
+                    t_id = int(ticket) if ticket else 0
+                    if not t_id and sym:
+                        # Find ticket by symbol
+                        mt5_open = mt5_client.get_open_positions()
+                        for p in mt5_open:
+                            if p.get("symbol") == sym:
+                                t_id = p.get("ticket")
+                                break
+                    if t_id:
+                        res = mt5_client.close_position_by_ticket(t_id)
+                        if res.get("success"):
+                            self.send_response(200)
+                            self.send_header("Content-Type", "application/json")
+                            self.end_headers()
+                            self.wfile.write(json.dumps({"success": True, "message": f"MT5 #{t_id} closed"}).encode("utf-8"))
+                            return
+                        else:
+                            self.send_response(200)
+                            self.send_header("Content-Type", "application/json")
+                            self.end_headers()
+                            self.wfile.write(json.dumps({"success": False, "error": f"MT5 Error: {res.get('error')}"}).encode("utf-8"))
+                            return
+                except Exception as e:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": f"MT5 Exception: {str(e)}"}).encode("utf-8"))
+                    return
+
             if not sym:
                 self.send_response(400)
                 self.end_headers()
-                self.wfile.write(b'{"error": "Missing symbol"}')
+                self.wfile.write(b'{"error": "Missing symbol or ticket"}')
                 return
 
             target_sym = sym.upper() if sym.upper().endswith("USDT") else f"{sym.upper()}USDT"
@@ -1009,6 +1059,58 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "result": res}).encode("utf-8"))
+            return
+
+        elif path == "/api/action/closeall":
+            closed_count = 0
+            errors = []
+
+            # 1. Close MT5 positions
+            try:
+                import mt5_client
+                mt5_res = mt5_client.close_all_positions()
+                for r in mt5_res:
+                    if r.get("success"):
+                        closed_count += 1
+                    else:
+                        errors.append(f"MT5 #{r.get('ticket')}: {r.get('error')}")
+            except Exception as e:
+                errors.append(f"MT5: {str(e)}")
+
+            # 2. Close Binance Futures positions
+            try:
+                pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=True)
+                active = [p for p in (pos or []) if float(p.get("positionAmt", 0)) != 0]
+                for p in active:
+                    amt = float(p.get("positionAmt", 0))
+                    side = "SELL" if amt > 0 else "BUY"
+                    res = binance_client.send_signed_request(
+                        "/fapi/v1/order",
+                        method="POST",
+                        params={
+                            "symbol": p["symbol"],
+                            "side": side,
+                            "type": "MARKET",
+                            "quantity": abs(amt),
+                            "reduceOnly": "true"
+                        },
+                        is_demo=True
+                    )
+                    if res and not res.get("code"):
+                        closed_count += 1
+                    else:
+                        errors.append(f"Binance {p['symbol']}: {res.get('msg', 'Error')}")
+            except Exception as e:
+                errors.append(f"Binance: {str(e)}")
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True,
+                "closed_count": closed_count,
+                "errors": errors
+            }).encode("utf-8"))
             return
 
         elif path == "/api/action/lock_be":

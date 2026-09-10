@@ -404,27 +404,49 @@ def close_position_by_ticket(ticket: int) -> Dict[str, Any]:
     p = pos[0]
     close_type = mt5.ORDER_TYPE_SELL if p.type == mt5.ORDER_TYPE_BUY else mt5.ORDER_TYPE_BUY
     tick = mt5.symbol_info_tick(p.symbol)
+    if not tick:
+        return {"success": False, "error": f"Failed to get tick for {p.symbol}"}
     price = tick.bid if p.type == mt5.ORDER_TYPE_BUY else tick.ask
     
-    req = {
-        "action": mt5.TRADE_ACTION_DEAL,
-        "symbol": p.symbol,
-        "volume": p.volume,
-        "type": close_type,
-        "position": ticket,
-        "price": price,
-        "deviation": 20,
-        "magic": 888999,
-        "comment": "Close from BelajarKripto",
-        "type_time": mt5.ORDER_TIME_GTC,
-        "type_filling": mt5.ORDER_FILLING_IOC,
-    }
+    fill_types = [mt5.ORDER_FILLING_IOC, mt5.ORDER_FILLING_FOK, mt5.ORDER_FILLING_RETURN]
+    last_res = None
     
-    res = mt5.order_send(req)
-    if res and res.retcode == mt5.TRADE_RETCODE_DONE:
-        return {"success": True, "ticket": ticket, "message": "Position closed successfully"}
-    else:
-        return {"success": False, "error": res.comment if res else str(mt5.last_error())}
+    for filling in fill_types:
+        req = {
+            "action": mt5.TRADE_ACTION_DEAL,
+            "symbol": p.symbol,
+            "volume": p.volume,
+            "type": close_type,
+            "position": ticket,
+            "price": price,
+            "deviation": 20,
+            "magic": 888999,
+            "comment": "Close from BelajarKripto",
+            "type_time": mt5.ORDER_TIME_GTC,
+            "type_filling": filling,
+        }
+        
+        res = mt5.order_send(req)
+        if res and res.retcode == mt5.TRADE_RETCODE_DONE:
+            return {"success": True, "ticket": ticket, "message": "Position closed successfully"}
+        last_res = res
+        
+    err_code = last_res.retcode if last_res else mt5.last_error()
+    err_comment = last_res.comment if last_res else "Execution failed"
+    return {"success": False, "error": f"MT5 retcode: {err_code} ({err_comment})"}
+
+
+def close_all_positions() -> List[Dict[str, Any]]:
+    """Closes all currently open MT5 positions."""
+    positions = get_open_positions()
+    results = []
+    for p in positions:
+        res = close_position_by_ticket(p["ticket"])
+        res["symbol"] = p["symbol"]
+        res["volume"] = p["volume"]
+        res["side"] = p["side"]
+        results.append(res)
+    return results
 
 
 def modify_position_sl_tp(ticket: int, new_sl: float, new_tp: Optional[float] = None) -> Dict[str, Any]:
