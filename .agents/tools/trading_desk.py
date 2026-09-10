@@ -1398,7 +1398,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     if b_margin_req > b_avail or b_margin_req < 1.0:
                         print(f" ⚠️ [Binance Margin Guard] Margin dibutuhkan (${b_margin_req:,.2f} @ {active_leverage}x) tidak sesuai saldo tersedia (${b_avail:,.2f}). Melewatkan eksekusi Binance.")
                     else:
-                        exec_mode = "LIMIT_SNIPER"
+                        exec_mode = "LIMIT_CHASE"
                         print(f"[Mengirimkan Order ke Binance Futures (Mode: {exec_mode} | Qty: {b_qty} | Leverage: {active_leverage}x | Margin: ${b_margin_req:,.2f})...]")
                         b_order_res = binance_client.place_futures_order(
                             symbol=best["symbol"],
