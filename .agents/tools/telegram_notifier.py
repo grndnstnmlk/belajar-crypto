@@ -112,7 +112,7 @@ def is_desk_paused():
 
 def get_desk_mode():
     state = load_desk_state()
-    return state.get("mode", "HYBRID")
+    return state.get("mode", "SWING")
 
 MAIN_KEYBOARD = {
     "keyboard": [

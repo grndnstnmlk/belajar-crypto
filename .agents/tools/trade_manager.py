@@ -715,10 +715,11 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     pass
 
         # -------------------------------------------------------------
-        # STEP 1B: CAPITAL PRESERVATION SHIELD (+0.70R -> SL to -0.20R)
-        # Prevents healthy winners (+0.7R+) from turning into full 100% losses!
+        # STEP 1B: CAPITAL PRESERVATION SHIELD (+0.70R Scalp / +1.00R Swing -> SL to -0.20R)
+        # Prevents healthy winners from turning into full 100% losses while giving swing room to breathe!
         # -------------------------------------------------------------
-        if r_multiple >= 0.70 and not t_data.get("capital_shield_locked") and not t_data.get("breakeven_locked") and not t_data.get("tp1_taken"):
+        shield_target_r = 0.70 if t_data.get("is_scalp") else 1.00
+        if r_multiple >= shield_target_r and not t_data.get("capital_shield_locked") and not t_data.get("breakeven_locked") and not t_data.get("tp1_taken"):
             if side == "BUY":
                 shield_sl = entry_price - (r_dist * 0.20)
             else:
@@ -949,9 +950,9 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                         print(f"[Telegram Warning] Gagal kirim notif TP1: {ex}")
 
         # -------------------------------------------------------------
-        # STEP 1D: STANDARD BREAKEVEN AUTO-LOCK (+0.60R Scalp / +1.3R Swing)
+        # STEP 1D: STANDARD BREAKEVEN AUTO-LOCK (+0.60R Scalp / +1.25R Swing)
         # -------------------------------------------------------------
-        be_target_r = 0.60 if t_data.get("is_scalp") else 1.3
+        be_target_r = 0.60 if t_data.get("is_scalp") else 1.25
         if r_multiple >= be_target_r and not t_data.get("breakeven_locked"):
             be_price = calculate_breakeven_price(sym, side, entry_price)
             success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)

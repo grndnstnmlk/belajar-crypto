@@ -57,8 +57,9 @@ import macro_news_shield
 # Execution Backend Switch: "BOTH" (Dual Binance + MT5), "MT5", or "BINANCE"
 EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
 
-# Top 10 High-Liquidity Crypto Assets on Binance Futures
-DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI"]
+# Curated High-Performing Crypto Assets on Binance Futures (High Win-Rate Ledger)
+DEFAULT_WATCHLIST = ["BTC", "BNB", "LINK", "SUI", "XRP", "SOL", "NEAR", "ETH"]
+BLACKLIST_COINS = {"SOPH", "ZEC", "ADA", "DOGE", "AVAX", "PROM", "THE", "HOLO", "WLD", "UNI"}
 
 PID_FILE = os.path.join(DATA_DIR, "trading_desk.pid")
 
@@ -173,6 +174,7 @@ def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
             and t["symbol"] not in stables
             and not t["symbol"].startswith("UP")
             and not t["symbol"].startswith("DOWN")
+            and t["symbol"].replace("USDT", "") not in BLACKLIST_COINS
             and (t["symbol"] in futures_info if futures_info else True)
         ]
 
@@ -751,6 +753,21 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                 }
 
         elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) and rsi_safe_short:
+            # 1. Macro Trend Anti-Short Guard: STRICTLY BAN Altcoin Shorts during BTC Bullish / Altseason
+            if sym != "BTC":
+                btc_reg_check = market_regime.detect_market_regime("BTCUSDT", interval="1h")
+                if btc_reg_check and (btc_reg_check.get("bias") == "BULLISH" or "BULLISH" in btc_reg_check.get("regime", "") or btc_reg_check.get("price", 0) > btc_reg_check.get("ema20", 0)):
+                    print(f"   🛡️ [Macro Anti-Short Guard] {sym} SHORT DIBLOKIR: BTC 1H sedang Bullish (${btc_reg_check.get('price', 0):,.0f} > EMA20 ${btc_reg_check.get('ema20', 0):,.0f}). Dilarang melawan arus tren naik makro!")
+                    continue
+                try:
+                    import dominance_compass
+                    d_comp = dominance_compass.get_dominance_compass()
+                    if d_comp.get("regime_code") == "ALTSEASON_BOOM" or d_comp.get("usdt_bias") == "RISK_ON":
+                        print(f"   🛡️ [Dominance Anti-Short Guard] {sym} SHORT DIBLOKIR: Pasar dalam Kuadran 2 (Altseason Boom / Risk-On). Shorting Altcoin dilarang!")
+                        continue
+                except Exception:
+                    pass
+
             # SMC Equilibrium Guard: Skip Short if price is in Discount (< 50%)
             if price_equilibrium_pct < 50.0 and not (has_bearish_sweep or has_bearish_rb):
                 print(f"   🛡️ [SMC Equilibrium Guard] {sym} di-skip untuk SHORT: Harga berada di zona Diskon ({price_equilibrium_pct:.1f}%). Dilarang shorting di area diskon/support!")
@@ -959,7 +976,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
 
     desk_mode = telegram_notifier.get_desk_mode().upper()
     if desk_mode not in ["SCALP", "SWING", "HYBRID"]:
-        desk_mode = "HYBRID"
+        desk_mode = "SWING"
 
     mode_labels = {
         "HYBRID": "🤖 HYBRID AUTO (Simultaneous 1H Swing + 5m Fast Scalp)",
@@ -1593,7 +1610,7 @@ def main():
     # Run command
     run_p = sub.add_parser("run", help="Jalankan siklus pemindaian dan eksekusi trading desk")
     run_p.add_argument("--once", action="store_true", help="Jalankan 1 siklus lalu selesai")
-    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID"], default="HYBRID", help="Set mode operasional desk (default: HYBRID)")
+    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID"], default="SWING", help="Set mode operasional desk (default: SWING)")
     run_p.add_argument("--backend", type=str, choices=["BOTH", "BINANCE", "MT5"], default=None, help="Backend eksekusi: BOTH (Binance+MT5), BINANCE, atau MT5")
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 1 menit untuk HYBRID/SCALP, 15 menit untuk SWING)")

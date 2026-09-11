@@ -57,6 +57,8 @@ HEADERS = {
 
 _feed_cache = None
 _last_feed_fetch_time = 0
+_intel_cache = None
+_last_intel_fetch_time = 0
 
 def get_live_watchlist_rs():
     """
@@ -221,7 +223,7 @@ def get_dashboard_feed_data(force_refresh=False):
     except Exception:
         pass
 
-    cur_mode = state.get("mode", "HYBRID").upper()
+    cur_mode = state.get("mode", "SWING").upper()
     feed["is_paused"] = state.get("paused", False)
     feed["mode"] = cur_mode
     feed["timeframes"] = {
@@ -319,14 +321,12 @@ def get_dashboard_feed_data(force_refresh=False):
     _last_feed_fetch_time = now
     return feed
 
-def get_market_intelligence_data():
-    """
-    Aggregates live market intelligence:
-    - 2D Compass (BTC.D, USDT.D, Quadrant)
-    - Directional Heat (Long/Short ratio, cap)
-    - Coinbase Premium Index (Wall St vs Retail)
-    - Coinalyze / Coinglass Derivatives
-    """
+def get_market_intelligence_data(force_refresh=False):
+    global _intel_cache, _last_intel_fetch_time
+    now = time.time()
+    if not force_refresh and _intel_cache is not None and (now - _last_intel_fetch_time) < 3.0:
+        return _intel_cache
+
     try:
         compass = dominance_compass.get_dominance_compass()
     except Exception as e:
@@ -401,7 +401,7 @@ def get_market_intelligence_data():
     except Exception as e:
         memory_summary = {"error": str(e)}
 
-    return {
+    res_data = {
         "compass": compass,
         "heat": heat,
         "coinbase_premium": cb_prem,
@@ -409,12 +409,15 @@ def get_market_intelligence_data():
         "liquidity": liq,
         "macro": macro_intel,
         "quant_risk": quant_risk,
-        "rejection_block": rb_intel,
+        "rejection_blocks": rb_intel,
         "active_scalps": active_scalps,
         "sentiment_narrative": sentiment_intel,
-        "agent_memory": memory_summary,
+        "memory_summary": memory_summary,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
+    _intel_cache = res_data
+    _last_intel_fetch_time = now
+    return res_data
 
 def get_journal_data():
     """

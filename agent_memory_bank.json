@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-10T20:43:59.196481+00:00",
-    "total_reflections": 7,
-    "system_retention_score": 92.3
+    "last_reflection_at": "2026-09-11T10:32:29.691958+00:00",
+    "total_reflections": 21,
+    "system_retention_score": 76.6
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -18,8 +18,8 @@
         "Daily FVG Fill"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-09T20:07:53.784421+00:00"
+      "last_traded_outcome": "BREAKEVEN",
+      "updated_at": "2026-09-11T10:32:26.152324+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -34,7 +34,7 @@
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
       "last_traded_outcome": "BREAKEVEN",
-      "updated_at": "2026-09-10T19:38:14.283818+00:00"
+      "updated_at": "2026-09-11T10:32:08.167789+00:00"
     },
     "SOLUSDT": {
       "symbol": "SOLUSDT",
@@ -47,7 +47,9 @@
         "Aggressive Liquidity Raid",
         "15m Momentum Continuation"
       ],
-      "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps."
+      "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
+      "last_traded_outcome": "BREAKEVEN",
+      "updated_at": "2026-09-11T10:32:09.430987+00:00"
     },
     "DOGEUSDT": {
       "symbol": "DOGEUSDT",
@@ -59,7 +61,9 @@
         "Volume Surge Breakout with Tight Trailing",
         "HTF Support Sweep"
       ],
-      "notes": "Meme momentum driver. Strict fractional Kelly sizing required (max 1.5% risk)."
+      "notes": "Meme momentum driver. Strict fractional Kelly sizing required (max 1.5% risk).",
+      "last_traded_outcome": "BREAKEVEN",
+      "updated_at": "2026-09-11T10:32:10.750239+00:00"
     }
   },
   "tactical_rules": [
@@ -98,6 +102,286 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260911-024",
+      "timestamp": "2026-09-11T10:32:29.691949+00:00",
+      "symbol": "THEUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "SELL",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "the",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:32:29.691955+00:00"
+    },
+    {
+      "id": "MEM-20260911-023",
+      "timestamp": "2026-09-11T10:32:28.424067+00:00",
+      "symbol": "ZECUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "BUY",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "zec",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:32:28.424071+00:00"
+    },
+    {
+      "id": "MEM-20260911-022",
+      "timestamp": "2026-09-11T10:32:27.486185+00:00",
+      "symbol": "BNBUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "SELL",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "bnb",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:32:27.486191+00:00"
+    },
+    {
+      "id": "MEM-20260911-021",
+      "timestamp": "2026-09-11T10:32:26.152315+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "BUY",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "btc",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 7,
+      "last_accessed": "2026-09-11T13:13:30.307472+00:00"
+    },
+    {
+      "id": "MEM-20260911-020",
+      "timestamp": "2026-09-11T10:32:24.853792+00:00",
+      "symbol": "NEARUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "SELL",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "near",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:32:24.853797+00:00"
+    },
+    {
+      "id": "MEM-20260911-019",
+      "timestamp": "2026-09-11T10:32:13.470746+00:00",
+      "symbol": "UNIUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "SELL",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "uni",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:32:13.470751+00:00"
+    },
+    {
+      "id": "MEM-20260911-018",
+      "timestamp": "2026-09-11T10:32:12.124216+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "SELL",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "xrp",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:32:12.124221+00:00"
+    },
+    {
+      "id": "MEM-20260911-017",
+      "timestamp": "2026-09-11T10:32:10.750230+00:00",
+      "symbol": "DOGEUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "BUY",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "doge",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:32:10.750235+00:00"
+    },
+    {
+      "id": "MEM-20260911-016",
+      "timestamp": "2026-09-11T10:32:09.430976+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "BUY",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "sol",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 7,
+      "last_accessed": "2026-09-11T13:13:32.314750+00:00"
+    },
+    {
+      "id": "MEM-20260911-015",
+      "timestamp": "2026-09-11T10:32:08.167777+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "SELL",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "eth",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:32:08.167782+00:00"
+    },
+    {
+      "id": "MEM-20260911-014",
+      "timestamp": "2026-09-11T10:29:16.129348+00:00",
+      "symbol": "SAHARAUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "BUY",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "sahara",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:29:16.129356+00:00"
+    },
+    {
+      "id": "MEM-20260911-013",
+      "timestamp": "2026-09-11T10:23:35.562849+00:00",
+      "symbol": "THEUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "BUY",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "the",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:23:35.562854+00:00"
+    },
+    {
+      "id": "MEM-20260911-012",
+      "timestamp": "2026-09-11T10:23:34.855009+00:00",
+      "symbol": "THEUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "BUY",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "the",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:23:34.855018+00:00"
+    },
+    {
+      "id": "MEM-20260911-011",
+      "timestamp": "2026-09-11T10:19:10.968343+00:00",
+      "symbol": "ZECUSDT",
+      "setup_type": "Standard SMC",
+      "direction": "BUY",
+      "outcome": "BREAKEVEN",
+      "pnl_pct": 0.0,
+      "root_cause": "Position closed at Breakeven. Trailing stop or BE protection triggered.",
+      "lesson_learned": "Breakeven management preserved capital effectively against sudden liquidity retracement.",
+      "tags": [
+        "zec",
+        "standard_smc",
+        "breakeven",
+        "capital_preservation"
+      ],
+      "importance": 6,
+      "access_count": 1,
+      "last_accessed": "2026-09-11T10:19:10.968349+00:00"
+    },
     {
       "id": "MEM-20260910-010",
       "timestamp": "2026-09-10T20:43:59.196472+00:00",
@@ -195,8 +479,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 31,
-      "last_accessed": "2026-09-10T21:47:52.963935+00:00"
+      "access_count": 34,
+      "last_accessed": "2026-09-11T13:13:04.821821+00:00"
     },
     {
       "id": "MEM-20260909-005",
@@ -236,8 +520,8 @@
         "high_confluence"
       ],
       "importance": 8,
-      "access_count": 95,
-      "last_accessed": "2026-09-10T21:47:52.963931+00:00"
+      "access_count": 107,
+      "last_accessed": "2026-09-11T13:13:32.314752+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -256,8 +540,8 @@
         "absorption"
       ],
       "importance": 9,
-      "access_count": 42,
-      "last_accessed": "2026-09-10T21:47:50.958127+00:00"
+      "access_count": 45,
+      "last_accessed": "2026-09-11T13:13:30.307470+00:00"
     },
     {
       "id": "MEM-20260903-002",
@@ -276,8 +560,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 54,
-      "last_accessed": "2026-09-10T21:47:52.963928+00:00"
+      "access_count": 60,
+      "last_accessed": "2026-09-11T13:13:32.314746+00:00"
     },
     {
       "id": "MEM-20260907-003",
@@ -296,8 +580,8 @@
         "orderflow"
       ],
       "importance": 8,
-      "access_count": 85,
-      "last_accessed": "2026-09-10T21:47:52.963933+00:00"
+      "access_count": 94,
+      "last_accessed": "2026-09-11T13:13:32.314753+00:00"
     }
   ]
 }

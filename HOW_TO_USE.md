@@ -47,9 +47,9 @@ Trading desk memiliki 3 mode eksekusi yang dapat diganti sewaktu-waktu melalui C
 
 | Mode | Timeframe | Fokus Strategi | Alokasi Risiko | Target R:R | Karakteristik |
 | :--- | :---: | :--- | :--- | :---: | :--- |
-| **`SCALP`** | **5m** (Mikro) | 5 Setup Elite Kripto: ICT Rejection Block (50% Mean Threshold), 4H-Range Breakout Re-entry (Fakeout), Inverse FVG (IFVG), 15m Key-Level Rectangle Break & Retest (Mulham), 20-EMA Pullback Trap, Liquidity Sweep | **0.35% – 0.50%** (Micro-Kelly) | **1:1.80 – 1:2.50** | Eksekusi cepat 15–35 menit, Micro-BE (+0.60R), Scale-Out TP1 (+1.25R, 60%), 20-min Anti-Stall Time-Stop |
-| **`HYBRID`** *(Default)* | **5m + 1H** | Dual Engine: Menangkap Swing 1H sekaligus Scalp 5m | **0.50% s/d 1.05%** | **1:2.00 – 1:3.50** | Fleksibel: Eksekusi scalp kilat ke slot kosong saat menunggu setup swing matang |
-| **`SWING`** | **1H & 4H** (Makro) | SMC, Wyckoff Accumulation, Volume Profile VAH/VAL, FVG Retest | **1.05% – 1.50%** | **1:3.00 – 1:5.00+** | Menunggangi ekspansi tren besar multi-jam/hari, proteksi Chandelier Trailing |
+| **`SWING`** *(Default & Rekomendasi)* | **1H & 4H** (Makro) | SMC, Wyckoff Accumulation, Volume Profile VAH/VAL, FVG Retest, Tim Flossbach MSS | **1.05% – 1.50%** (Full Kelly) | **1:3.00 – 1:5.00+** | **Profit Maksimal**: Menunggangi ekspansi tren besar multi-jam/hari, proteksi SMC Trailing (+2R/+3R), tanpa time-stop prematur |
+| **`HYBRID`** | **5m + 1H** | Dual Engine: Menangkap Swing 1H sekaligus Scalp 5m | **0.50% s/d 1.05%** | **1:2.00 – 1:3.50** | Fleksibel: Eksekusi scalp kilat ke slot kosong saat menunggu setup swing matang |
+| **`SCALP`** | **5m** (Mikro) | 5 Setup Elite Kripto: ICT Rejection Block (50% Mean Threshold), 4H-Range Breakout Re-entry, IFVG, 15m Rectangle Break & Retest | **0.35% – 0.50%** (Micro-Kelly) | **1:1.80 – 1:2.50** | Eksekusi cepat 15–35 menit, Micro-BE (+0.60R), Scale-Out TP1 (+1.25R), 20-min Anti-Stall Time-Stop |
 
 ---
 
@@ -57,25 +57,23 @@ Trading desk memiliki 3 mode eksekusi yang dapat diganti sewaktu-waktu melalui C
 
 Buka PowerShell di folder proyek (`c:\Users\USER\Downloads\Githubku\belajar kripto`):
 
-### A. Menjalankan Mode SCALP (Fast Scalper 5m)
+### A. Menjalankan Mode SWING (Tren Besar 1H/4H - Rekomendasi Profit Maksimal)
 ```powershell
-# 1. Siklus 24/7 Autopilot (Memindai 10 koin teratas setiap 1 menit)
-python .agents/tools/trading_desk.py run --mode SCALP --interval 1
+# 1. Siklus Autopilot Terjadwal (Memindai watchlist koin teratas)
+python .agents/tools/trading_desk.py run --mode SWING
 
 # 2. Siklus Uji Coba Sekali Jalan (Single Run Test)
-python .agents/tools/trading_desk.py run --mode SCALP --once
+python .agents/tools/trading_desk.py run --mode SWING --once
 ```
 
 ### B. Menjalankan Mode HYBRID (Swing + Scalp Otomatis)
 ```powershell
-# Berjalan terus-menerus dengan interval 1-2 menit
 python .agents/tools/trading_desk.py run --mode HYBRID --interval 1
 ```
 
-### C. Menjalankan Mode SWING (Tren Besar 1H)
+### C. Menjalankan Mode SCALP (Fast Scalper 5m)
 ```powershell
-# Berjalan terus-menerus dengan interval 15 menit
-python .agents/tools/trading_desk.py run --mode SWING --interval 15
+python .agents/tools/trading_desk.py run --mode SCALP --interval 1
 ```
 
 ### D. Backend Eksekusi: Dual (Binance + MT5), MetaTrader 5, atau Binance Saja
@@ -85,7 +83,7 @@ Trading Desk kini mendukung 3 mode eksekusi backend:
   * Mengeksekusi order secara bersamaan ke **Binance Futures** dan **MetaTrader 5**.
   * Sizing dihitung otomatis proporsional sesuai modal masing-masing akun (misal: ~$4.6k di Binance USDT + $100k di MT5 Demo).
   ```powershell
-  python .agents/tools/trading_desk.py run --mode HYBRID --backend BOTH --interval 1
+  python .agents/tools/trading_desk.py run --mode SWING --backend BOTH
   ```
 
 * **2. MetaTrader 5 Saja (`--backend MT5`)**:
@@ -93,13 +91,13 @@ Trading Desk kini mendukung 3 mode eksekusi backend:
   * Mendukung multi-aset: **Forex (`EURUSD`, `GBPUSD`)**, **Komoditas (`XAUUSD`/Gold)**, dan **Crypto (`BTCUSD`, `ETHUSD`)**.
   * Pastikan tombol **Algo Trading** di aplikasi MT5 berwarna HIJAU.
   ```powershell
-  python .agents/tools/trading_desk.py run --mode HYBRID --backend MT5 --interval 1
+  python .agents/tools/trading_desk.py run --mode SWING --backend MT5
   ```
 
 * **3. Binance Futures Saja (`--backend BINANCE`)**:
   * Mengeksekusi hanya ke akun Binance Futures Demo/Live.
   ```powershell
-  python .agents/tools/trading_desk.py run --mode HYBRID --backend BINANCE --interval 1
+  python .agents/tools/trading_desk.py run --mode SWING --backend BINANCE
   ```
 
 ### E. Melalui File Batch Windows (.bat)
