@@ -30,6 +30,7 @@ import macro_news_shield
 import market_structure
 import trade_journal
 import ai_risk_officer
+import pyramid_runner_engine
 
 def load_trade_metadata():
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -1073,6 +1074,14 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                         except Exception as e:
                             print(f"[Telegram Warning] Gagal kirim notifikasi Trailing: {e}")
 
+    # Smart Pyramiding on Free Runners (Akademi Crypto Module 03 Sizing Multiplier)
+    try:
+        pyr_events = pyramid_runner_engine.audit_and_execute_pyramiding(is_demo=is_demo, user_email=user_email)
+        for pe in pyr_events:
+            management_events.append(f"🚀 {pe['symbol']} Pyramided Layer #{pe['pyramid_layer']} (+{pe['r_multiple']}R -> SL ${pe['new_locked_sl']:,.4f})")
+    except Exception as pyr_err:
+        pass
+
     save_trade_metadata(meta)
     return management_events
 
@@ -1193,6 +1202,13 @@ class FastPositionWatcher(threading.Thread):
                         if events:
                             for ev in events:
                                 print(f"⚡ [Fast Position Watcher] {ev}")
+
+                        # 3. Dynamic Beta-Neutral Portfolio Hedge Check
+                        try:
+                            import portfolio_beta_hedger
+                            portfolio_beta_hedger.evaluate_and_execute_portfolio_hedge(open_positions=active, is_demo=self.is_demo)
+                        except Exception:
+                            pass
             except Exception:
                 pass
             time.sleep(self.interval)

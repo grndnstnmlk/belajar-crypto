@@ -499,7 +499,7 @@ def cancel_existing_algo_orders_for_symbol(symbol, is_demo=True, user_email=None
     except Exception:
         pass
 
-def place_futures_order(symbol, side, quantity, leverage=5, sl=None, tp=None, is_demo=True, user_email=None, exec_mode="MARKET"):
+def place_futures_order(symbol, side, quantity, leverage=20, sl=None, tp=None, is_demo=True, user_email=None, exec_mode="MARKET"):
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
     target_user, _, _, _, mode_label, _ = resolve_credentials(user_email, is_demo)
 
@@ -684,7 +684,7 @@ def main():
     trade_p.add_argument("--symbol", type=str, required=True, help="Pair (misal: BTCUSDT, SOLUSDT)")
     trade_p.add_argument("--side", type=str, required=True, choices=["LONG", "SHORT", "long", "short"])
     trade_p.add_argument("--qty", type=float, required=True, help="Ukuran posisi (jumlah koin)")
-    trade_p.add_argument("--leverage", type=int, default=5, help="Leverage (default: 5)")
+    trade_p.add_argument("--leverage", type=int, default=20, help="Leverage (default: 20)")
     trade_p.add_argument("--sl", type=float, default=None, help="Stop Loss price")
     trade_p.add_argument("--tp", type=float, default=None, help="Take Profit target price")
     trade_p.add_argument("--mode", type=str, default="MARKET", choices=["MARKET", "LIMIT_CHASE"], help="Mode eksekusi (MARKET atau LIMIT_CHASE)")

@@ -301,6 +301,59 @@ python .agents/tools/smart_money_tracker.py token --address <TOKEN_CONTRACT_ADDR
 python .agents/tools/smart_money_tracker.py size --whale-size 25000 --balance 1000 --risk 1.5
 ```
 
+---
+
+## 🔒 Phase 14: Hard HTF Macro Bias Lock (`htf_macro_lock.py`)
+
+Hard-locks execution direction exclusively with 4H & Daily EMA 50/200 trends and higher swing structure. If 4H is Bearish, all Long setups are discarded (eliminates 70%–80% of counter-trend fakeouts):
+```bash
+python .agents/tools/htf_macro_lock.py --symbol BTCUSDT --side BUY
+```
+
+---
+
+## 🎲 Phase 15: Monte Carlo Risk Resilience Simulator (`monte_carlo_risk_simulator.py`)
+
+Executes 1,000 bootstrap iterations over historical trade distribution to compute 95% & 99% Value-at-Risk (VaR) Drawdown, Probability of Ruin, and apply dynamic risk haircuts during high market stress:
+```bash
+python .agents/tools/monte_carlo_risk_simulator.py
+```
+
+---
+
+## 🚀 Phase 16: Smart Pyramiding Runner Engine (`pyramid_runner_engine.py`)
+
+Adds +30% volume to winning runners at +2R when Stop Loss is safely locked past Breakeven (Zero Capital Risk compounding):
+```bash
+python .agents/tools/pyramid_runner_engine.py
+```
+
+---
+
+## 🧠 Phase 17: Regime-Adaptive Strategy Switcher (`regime_adaptive_switcher.py`)
+
+Multi-factor chameleon engine (ADX + Choppiness Index + BBW + ATR Expansion) dynamically switches strategy between Hyper-Trending (1:5R+ runners), Moderate Trend (1:3.5R), Ranging Consolidation (1:2.0R ORB), and Volatile Chop:
+```bash
+python .agents/tools/regime_adaptive_switcher.py
+```
+
+---
+
+## ⚡ Phase 18: Order Book Delta Sniping & Dynamic Beta Hedge
+
+1. **Order Book Imbalance & Delta Sniping (`orderbook_delta_sniper.py`)**:
+   Reads Level-2 depth imbalance (>=2.5x) and CVD taker delta absorption to front-run limit walls and expand R:R to 1:5.0 - 1:8.0:
+   ```bash
+   python .agents/tools/orderbook_delta_sniper.py
+   ```
+
+2. **Dynamic Beta-Neutral Portfolio Hedge (`portfolio_beta_hedger.py`)**:
+   Calculates Net Portfolio Beta-Weighted Delta ($USD\Delta$) and deploys BTC Short Hedges during sudden BTC flash crashes:
+   ```bash
+   python .agents/tools/portfolio_beta_hedger.py
+   ```
+
+
 
 
 

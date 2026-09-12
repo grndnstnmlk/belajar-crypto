@@ -913,6 +913,98 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+        elif path == "/api/transaction_costs":
+            try:
+                import transaction_cost_guard
+                data = transaction_cost_guard.get_transaction_cost_summary()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "transaction_costs": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/alpha_benchmark":
+            try:
+                import benchmark_alpha_tracker
+                data = benchmark_alpha_tracker.calculate_alpha_metrics()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "alpha_benchmark": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/monte_carlo/simulate":
+            try:
+                import monte_carlo_risk_simulator
+                q_iter = int(params.get("iterations", [1000])[0])
+                data = monte_carlo_risk_simulator.run_monte_carlo_simulation(iterations=q_iter)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "monte_carlo": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/regime/adaptive":
+            try:
+                import regime_adaptive_switcher
+                q_sym = params.get("symbol", ["BTCUSDT"])[0]
+                q_int = params.get("interval", ["1h"])[0]
+                data = regime_adaptive_switcher.analyze_regime_state(symbol=q_sym, interval=q_int)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "regime_adaptive": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/orderbook/sniping":
+            try:
+                import orderbook_delta_sniper
+                q_sym = params.get("symbol", ["BTCUSDT"])[0]
+                data = orderbook_delta_sniper.analyze_orderbook_and_delta(symbol=q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "orderbook_sniping": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/portfolio/beta_hedge":
+            try:
+                import portfolio_beta_hedger
+                data = portfolio_beta_hedger.evaluate_and_execute_portfolio_hedge(is_demo=True)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "beta_hedge": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
         super().do_GET()
@@ -1436,7 +1528,7 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                     symbol=target_sym,
                     side=side,
                     quantity=qty,
-                    leverage=5,
+                    leverage=int(data.get("leverage") or os.getenv("DEFAULT_LEVERAGE", 20)),
                     sl=sl,
                     tp=tp,
                     is_demo=is_demo,

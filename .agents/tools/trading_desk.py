@@ -53,6 +53,8 @@ import topdown_confluence
 import fast_scalper
 import session_filter
 import macro_news_shield
+import transaction_cost_guard
+import htf_macro_lock
 
 # Execution Backend Switch: "BOTH" (Dual Binance + MT5), "MT5", or "BINANCE"
 EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
@@ -843,6 +845,12 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                 print(f"   [Macro Guardrail] {macro_rationale}")
                 continue
 
+            # Hard HTF Macro Bias Lock (Akademi Crypto Module 04 Anti-Counter Trend Filter)
+            htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, signal["side"])
+            if not htf_audit.get("is_approved", True):
+                print(f"   {htf_audit.get('rejection_reason')}")
+                continue
+
             signal["reason"] += f" + {macro_rationale}"
             signal["macro_aligned"] = True
             print(f"   🎯 [TOP-DOWN CONFLUENCE]: {macro_rationale}")
@@ -1134,6 +1142,28 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
             except Exception as e:
                 pass
 
+            # Check Order Book Imbalance & Delta Sniping Gatekeeper (Microstructure Sniping)
+            try:
+                import orderbook_delta_sniper
+                ob_audit = orderbook_delta_sniper.audit_sniping_entry(
+                    symbol=best["symbol"],
+                    side=best["side"],
+                    proposed_price=best["price"],
+                    proposed_sl=best["sl"]
+                )
+                if not ob_audit["is_approved"]:
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [ORDERBOOK WALL VETO] ---")
+                    print(f"  {ob_audit['veto_reason']}")
+                    continue
+                if ob_audit["confluence_boost"] > 0:
+                    best["confluence_score"] = min(100, best.get("confluence_score", 80) + ob_audit["confluence_boost"])
+                if ob_audit["optimized_entry"] != best["price"]:
+                    print(f"  ⚡ [SNIPER PRECISION ENTRY] Harga entry dioptimalkan: ${best['price']:,.4f} -> ${ob_audit['optimized_entry']:,.4f}")
+                    best["price"] = ob_audit["optimized_entry"]
+                    best["sl"] = ob_audit["optimized_sl"]
+            except Exception as e:
+                pass
+
             print(f"\n--- [{idx}/{len(selected)}] EKSEKUSI SETUP: {best['side']} {best['symbol']} ---")
             print(f" * Konfluensi : {best['confluence_score']}% [{best['confluence_grade']}]")
             print(f" * Rationale  : {best['reason']}")
@@ -1291,6 +1321,16 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
             except Exception as e:
                 pass
 
+            # Regime-Adaptive Strategy Switcher (Chameleon Dynamic Tuning)
+            try:
+                import regime_adaptive_switcher
+                reg_adaptive = regime_adaptive_switcher.get_adaptive_strategy_parameters(best["symbol"])
+                if reg_adaptive:
+                    effective_risk_pct *= reg_adaptive.get("risk_multiplier", 1.0)
+                    print(f" 🧠 [REGIME ADAPTIVE] {reg_adaptive['status_badge']} -> Sizing: {reg_adaptive['risk_multiplier']}x | Target R:R 1:{reg_adaptive['target_rr']:.2f} | Pyramiding: {'ON' if reg_adaptive['pyramiding_allowed'] else 'OFF'}")
+            except Exception:
+                pass
+
             # Refresh live available free margin directly from exchange before sizing
             _, live_avail = get_account_financials(user_email, is_demo)
             available_usd = min(available_usd, live_avail)
@@ -1391,8 +1431,9 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     if b_avail <= 0:
                         b_avail = b_equity
 
-                    # Dynamic Leverage based on desk mode or user flag
-                    active_leverage = leverage if leverage else (20 if desk_mode == "SCALP" else 5)
+                    # Dynamic Leverage based on desk mode or user flag / env
+                    default_lev = int(os.getenv("DEFAULT_LEVERAGE", 20))
+                    active_leverage = leverage if leverage else default_lev
 
                     b_risk_budget = b_equity * (effective_risk_pct / 100.0)
                     b_pos_usd = b_risk_budget / max(sl_pct, 0.005)
@@ -1410,12 +1451,23 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     if not is_v:
                         b_qty = adj_qty
 
+                    # Transaction Cost & Friction Gatekeeper (AgenticTrading pattern)
+                    cost_audit = transaction_cost_guard.audit_pre_trade_transaction_drag(
+                        symbol=best["symbol"],
+                        position_notional_usd=b_qty * best["price"],
+                        expected_profit_usd=b_risk_budget * 3.5,
+                        force_maker=True
+                    )
+                    print(f" 💰 [Transaction Cost Guard] Est. Friction: ${cost_audit['total_friction_usd']:,.2f} ({cost_audit['drag_pct']}% of profit) | Status: {cost_audit['verdict']}")
+
                     # Check final margin requirement
                     b_margin_req = (b_qty * best["price"]) / float(active_leverage)
                     if b_margin_req > b_avail or b_margin_req < 1.0:
                         print(f" ⚠️ [Binance Margin Guard] Margin dibutuhkan (${b_margin_req:,.2f} @ {active_leverage}x) tidak sesuai saldo tersedia (${b_avail:,.2f}). Melewatkan eksekusi Binance.")
+                    elif not cost_audit.get("is_safe", True) and cost_audit.get("drag_pct", 0) > 25.0:
+                        print(f" 🛑 [Transaction Cost Guard] Friction drag terlalu tinggi ({cost_audit['drag_pct']}%). Melewatkan eksekusi demi menjaga net R:R.")
                     else:
-                        exec_mode = "LIMIT_CHASE"
+                        exec_mode = cost_audit.get("recommended_mode", "LIMIT_CHASE")
                         print(f"[Mengirimkan Order ke Binance Futures (Mode: {exec_mode} | Qty: {b_qty} | Leverage: {active_leverage}x | Margin: ${b_margin_req:,.2f})...]")
                         b_order_res = binance_client.place_futures_order(
                             symbol=best["symbol"],
@@ -1435,6 +1487,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                             exec_success = True
                             executed_backends.append("Binance Futures")
                             _LAST_FINANCIALS_CACHE["binance_available"] = max(0.0, b_avail - b_margin_req)
+                            
+                            # Record fill cost telemetry into transaction cost memory
+                            transaction_cost_guard.record_fill_telemetry(
+                                symbol=best["symbol"],
+                                side=best["side"],
+                                signal_price=best["price"],
+                                fill_price=best["price"],
+                                quantity=b_qty,
+                                fee_usd=(b_qty * best["price"]) * 0.0002,
+                                is_maker=(exec_mode in ["LIMIT_CHASE", "LIMIT_MAKER"])
+                            )
                         else:
                             print(f"⚠️ Eksekusi {best['symbol']} gagal di Binance Futures.")
                 except Exception as b_err:
