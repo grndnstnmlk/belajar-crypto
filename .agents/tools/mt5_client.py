@@ -153,12 +153,14 @@ def resolve_symbol_name(raw_symbol: str) -> Optional[str]:
             if s_name in [clean, base, f"{base}USD", f"{base}USDT"]:
                 mt5.symbol_select(s.name, True)
                 return s.name
-        # Then check substring
+        # Then check exact prefix with standard broker suffixes
+        valid_suffixes = ["USD", "USDT", "M", ".M", ".A", "_PRO", ".CASH", ".ECN", "BUSD", "PERP"]
         for s in all_syms:
             s_name = s.name.upper()
-            if clean in s_name or (len(base) >= 3 and s_name.startswith(base)):
-                mt5.symbol_select(s.name, True)
-                return s.name
+            for suf in valid_suffixes:
+                if s_name == f"{base}{suf}" or s_name == f"{clean}{suf}":
+                    mt5.symbol_select(s.name, True)
+                    return s.name
                 
     return None
 

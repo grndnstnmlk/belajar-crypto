@@ -78,12 +78,32 @@ def get_15m_context(symbol):
 
 def fetch_scalp_candles(symbol="BTC", bar="5m", limit=100):
     """
-    Fetches latest candles for fast scalping from MT5 native feed or Binance cached radar.
+    Fetches latest candles for fast scalping from Binance Vision / market_radar (Primary)
+    with MT5 bridge fallback for Forex/Indices.
     Returns chronologically sorted list: oldest to newest.
     """
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
     
-    # 1. Attempt MT5 native candles if connected
+    # 1. Primary: High-Speed Binance Vision / Futures Cached Feed
+    raw_candles = market_radar.fetch_candles(sym_clean, bar=bar, limit=limit)
+    if not raw_candles:
+        raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar, limit=limit)
+        
+    if raw_candles and len(raw_candles) >= 15:
+        parsed = []
+        for c in raw_candles:
+            parsed.append({
+                "ts": int(c[0]),
+                "time": datetime.fromtimestamp(int(c[0]) / 1000).strftime("%Y-%m-%d %H:%M"),
+                "open": float(c[1]),
+                "high": float(c[2]),
+                "low": float(c[3]),
+                "close": float(c[4]),
+                "volume": float(c[5])
+            })
+        return parsed
+
+    # 2. Fallback: MT5 native candles if connected and non-crypto / custom broker feed
     try:
         import mt5_client
         if mt5_client.ensure_mt5_connected():
@@ -104,25 +124,7 @@ def fetch_scalp_candles(symbol="BTC", bar="5m", limit=100):
     except Exception:
         pass
 
-    # 2. Fallback to high-speed cached market_radar / market_eyes
-    raw_candles = market_radar.fetch_candles(sym_clean, bar=bar, limit=limit)
-    if not raw_candles:
-        raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar, limit=limit)
-    if not raw_candles:
-        return []
-
-    parsed = []
-    for c in raw_candles:
-        parsed.append({
-            "ts": int(c[0]),
-            "time": datetime.fromtimestamp(int(c[0]) / 1000).strftime("%Y-%m-%d %H:%M"),
-            "open": float(c[1]),
-            "high": float(c[2]),
-            "low": float(c[3]),
-            "close": float(c[4]),
-            "volume": float(c[5])
-        })
-    return parsed
+    return []
 
 # =====================================================================
 # HTF LIQUIDITY ANCHORS (Craig Percoco Morning Routine Engine)

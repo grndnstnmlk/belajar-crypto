@@ -126,6 +126,36 @@ def estimate_spread_and_slippage(symbol, current_price, orderbook_depth=None):
         "is_spread_acceptable": is_acceptable
     }
 
+def evaluate_pre_trade_risk(
+    symbol,
+    side,
+    price,
+    sl,
+    tp,
+    balance_usd=5000.0,
+    available_margin=3500.0,
+    open_positions=None,
+    orderbook_depth=None,
+    proposed_risk_scale=1.0,
+    setup_type="SMC Order Block Retest",
+    market_conditions=None
+):
+    """Alias for validate_pre_trade_order to guarantee 100% backward/forward compatibility."""
+    return validate_pre_trade_order(
+        symbol=symbol,
+        side=side,
+        price=price,
+        sl=sl,
+        tp=tp,
+        balance_usd=balance_usd,
+        available_margin=available_margin,
+        open_positions=open_positions,
+        orderbook_depth=orderbook_depth,
+        proposed_risk_scale=proposed_risk_scale,
+        setup_type=setup_type,
+        market_conditions=market_conditions
+    )
+
 def validate_pre_trade_order(
     symbol,
     side,

@@ -284,7 +284,13 @@ def send_telegram_photo(photo_path, caption=None, chat_id=None):
     if caption:
         safe_caption = caption
         if len(safe_caption) > 1020:
-            safe_caption = safe_caption[:1015] + "..."
+            safe_caption = safe_caption[:1010] + "..."
+            # Auto-close basic unclosed HTML tags to prevent Telegram 400 Bad Request
+            for tag in ["b", "i", "code", "pre"]:
+                open_cnt = safe_caption.count(f"<{tag}>")
+                close_cnt = safe_caption.count(f"</{tag}>")
+                if open_cnt > close_cnt:
+                    safe_caption += f"</{tag}>" * (open_cnt - close_cnt)
         body.extend(f"--{boundary}\r\n".encode("utf-8"))
         body.extend(f'Content-Disposition: form-data; name="caption"\r\n\r\n'.encode("utf-8"))
         body.extend(f"{safe_caption}\r\n".encode("utf-8"))
