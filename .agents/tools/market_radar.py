@@ -383,13 +383,51 @@ def get_unified_market_scan(symbol: str) -> Dict[str, Any]:
             confluence_score -= 1
             confluence_reasons.append("ICT Bearish Rejection Block")
 
-    if orb.get("has_setup"):
-        if orb.get("setup_side") == "BUY":
-            confluence_score += 2
-            confluence_reasons.append("ORB Bullish Breakout Active")
-        elif orb.get("setup_side") == "SELL":
-            confluence_score -= 2
-            confluence_reasons.append("ORB Bearish Breakdown Active")
+    # Add Open Interest (OI) Delta Archetype & Liquidation Magnets
+    oi_intel = None
+    try:
+        import coinglass_derivatives
+        oi_intel = coinglass_derivatives.get_oi_archetype_and_liquidation_magnets(
+            symbol=base,
+            current_price=smc.get("current_price", 0.0)
+        )
+        if oi_intel:
+            arch = oi_intel.get("archetype", {})
+            arch_code = arch.get("code")
+            if arch_code == "LONG_BUILDUP":
+                confluence_score += 2
+                confluence_reasons.append("OI Long Buildup (Aggressive Institutional Buying)")
+            elif arch_code == "SHORT_BUILDUP":
+                confluence_score -= 2
+                confluence_reasons.append("OI Short Buildup (Aggressive Short Squeezers)")
+            elif arch_code == "SHORT_SQUEEZE":
+                confluence_score -= 2
+                confluence_reasons.append("OI Short Squeeze Warning (Bull Trap)")
+            elif arch_code == "LONG_FLUSH_CAPITULATION":
+                confluence_score += 2
+                confluence_reasons.append("OI Long Flushout (Potential Accumulation Spring)")
+    except Exception:
+        pass
+
+    # Add FOMO Trading 14-Course Master SMC (Dealing Range 50% Eq & IDM Sweep)
+    fomo_intel = None
+    try:
+        import fomo_smc_engine
+        fomo_intel = fomo_smc_engine.audit_fomo_smc_setup(base, bar="15m", side="BUY" if confluence_score >= 0 else "SELL")
+        if fomo_intel:
+            f_score = fomo_intel.get("smc_confluence_score", 50)
+            dr_zone = fomo_intel.get("dealing_range", {}).get("zone", "EQUILIBRIUM")
+            idm_status = fomo_intel.get("inducement", {}).get("status")
+            if "DISCOUNT" in dr_zone and f_score >= 70:
+                confluence_score += 2
+                confluence_reasons.append("FOMO SMC: Prime Discount & Structural OB")
+            elif "PREMIUM" in dr_zone and f_score >= 70:
+                confluence_score -= 2
+                confluence_reasons.append("FOMO SMC: Prime Premium & Structural Bearish OB")
+            if idm_status == "INDUCEMENT_PENDING_SWEEP":
+                confluence_reasons.append("FOMO SMC Warning: Inducement Not Swept")
+    except Exception:
+        pass
 
     bias_label = "STRONG_BUY" if confluence_score >= 3 else ("BUY" if confluence_score >= 1 else ("STRONG_SELL" if confluence_score <= -3 else ("SELL" if confluence_score <= -1 else "NEUTRAL")))
 
@@ -401,8 +439,18 @@ def get_unified_market_scan(symbol: str) -> Dict[str, Any]:
         "confluence_reasons": confluence_reasons,
         "smc": smc,
         "rejection_blocks": rb,
-        "orb": orb
+        "orb": orb,
+        "oi_archetype": oi_intel,
+        "fomo_smc": fomo_intel
     }
+
+def get_tradingview_broad_scan(top_n: int = 20) -> Dict[str, Any]:
+    """Retrieves broad-market screening and momentum leaders via tv_screener_adapter."""
+    try:
+        import tv_screener_adapter
+        return tv_screener_adapter.scan_binance_futures_universe(top_n=top_n)
+    except Exception as e:
+        return {"status": "ERROR", "error": str(e), "top_volume": []}
 
 if __name__ == "__main__":
     print("=== Testing Unified Market Radar ===")
@@ -415,3 +463,7 @@ if __name__ == "__main__":
     
     wl = get_live_watchlist_rs()
     print(f"\nTop 3 RS Leaders: {[w['symbol'] + ' (RS ' + str(w['rs_score']) + '%)' for w in wl[:3]]}")
+    
+    print("\nTradingView Broad Universe Scan:")
+    tv_data = get_tradingview_broad_scan(top_n=3)
+    print(f"Total pairs scanned: {tv_data.get('total_pairs_scanned', 0)} (Source: {tv_data.get('source')})")

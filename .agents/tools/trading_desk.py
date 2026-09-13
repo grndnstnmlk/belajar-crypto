@@ -14,12 +14,42 @@ import time
 import urllib.request
 from datetime import datetime
 
-# Ensure UTF-8 output on Windows console
-if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+# Ensure UTF-8 output on Windows console & enable ANSI VT100 colors
+if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8")
+        os.system("") # Activates ANSI escape processing on Windows 10/11
     except Exception:
         pass
+
+class C:
+    """Terminal ANSI Color & Style Palette for Institutional Workstation."""
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    ITALIC = "\033[3m"
+    UNDERLINE = "\033[4m"
+    
+    # Foreground
+    BLACK = "\033[30m"
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    WHITE = "\033[37m"
+    
+    # Bright Foreground
+    BRIGHT_RED = "\033[91m"
+    BRIGHT_GREEN = "\033[92m"
+    BRIGHT_YELLOW = "\033[93m"
+    BRIGHT_BLUE = "\033[94m"
+    BRIGHT_MAGENTA = "\033[95m"
+    BRIGHT_CYAN = "\033[96m"
+    BRIGHT_WHITE = "\033[97m"
+    GRAY = "\033[90m"
 
 # SSL Context to prevent Windows / regional ISP SSL certificate verification blocks
 SSL_CTX = ssl.create_default_context()
@@ -94,7 +124,7 @@ def ensure_dashboard_daemon():
     """Checks if Dashboard HTTP server is running on port 5000; starts it if not."""
     try:
         req = urllib.request.Request("http://localhost:5000/api/feed", headers={"User-Agent": "TradingDeskDaemonCheck/1.0"})
-        with urllib.request.urlopen(req, timeout=2) as resp:
+        with urllib.request.urlopen(req, timeout=1.5) as resp:
             if resp.status == 200:
                 return
     except Exception:
@@ -103,8 +133,18 @@ def ensure_dashboard_daemon():
     try:
         import subprocess
         srv_script = os.path.join(TOOLS_DIR, "dashboard_server.py")
-        subprocess.Popen([sys.executable, "-u", srv_script], cwd=PROJECT_ROOT)
-        time.sleep(1.5)
+        if os.path.exists(srv_script):
+            flags = (0x00000008 | 0x00000200 | 0x08000000) if sys.platform == "win32" else 0
+            subprocess.Popen(
+                [sys.executable, "-u", srv_script],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=flags,
+                close_fds=True,
+                cwd=ROOT_DIR
+            )
+            time.sleep(2.0)
     except Exception:
         pass
 
@@ -851,12 +891,118 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                 print(f"   {htf_audit.get('rejection_reason')}")
                 continue
 
+            # FOMO Trading 14-Course Master SMC Gatekeeper (Dealing Range 50% Eq & IDM Sweep)
+            try:
+                import fomo_smc_engine
+                fomo_check = fomo_smc_engine.audit_fomo_smc_setup(
+                    symbol=sym,
+                    bar="1h",
+                    side="BUY" if signal["side"] == "LONG" else "SELL"
+                )
+                if fomo_check:
+                    if not fomo_check.get("is_approved", True):
+                        print(f"   [FOMO SMC Gatekeeper] 🛑 DITOLAK: {fomo_check.get('rejection_reason')}")
+                        continue
+                    
+                    idm_info = fomo_check.get("inducement", {})
+                    if idm_info.get("status") == "INDUCEMENT_PENDING_SWEEP":
+                        print(f"   [FOMO SMC Trap Alert] ⚠️ Inducement belum di-sweep (${idm_info.get('idm_price', 0):,.2f}). Menghindari retail trap entry!")
+                        continue
+                    
+                    dr = fomo_check.get("dealing_range", {})
+                    signal["fomo_smc"] = {
+                        "zone": dr.get("zone"),
+                        "dist_from_eq_pct": dr.get("dist_from_eq_pct"),
+                        "idm_status": idm_info.get("status"),
+                        "confluence_score": fomo_check.get("smc_confluence_score")
+                    }
+                    signal["reason"] += f" + 💎 FOMO SMC ({dr.get('zone')} | IDM {idm_info.get('status')})"
+            except Exception:
+                pass
+
+            # Open Interest (OI) Delta Archetype & Liquidation Magnet Shield
+            try:
+                import coinglass_derivatives
+                oi_eval = coinglass_derivatives.get_oi_archetype_and_liquidation_magnets(
+                    symbol=sym,
+                    current_price=signal.get("entry_price", price)
+                )
+                if oi_eval:
+                    arch = oi_eval.get("archetype", {})
+                    arch_code = arch.get("code")
+                    if arch_code == "SHORT_SQUEEZE" and signal["side"] == "BUY":
+                        print(f"   [Derivatives Guard] ⚠️ SHORT_SQUEEZE VETO: {pair_sym} Long breakout ditolak karena kenaikan hanya akibat likuidasi short (Bull Trap).")
+                        continue
+                    elif arch_code == "SHORT_BUILDUP" and signal["side"] == "BUY":
+                        print(f"   [Derivatives Guard] 🔴 SHORT_BUILDUP VETO: {pair_sym} Long ditolak karena ada tekanan jual institusional baru yang masif.")
+                        continue
+                    
+                    # Align Take Profit to Liquidation Magnet if favorable
+                    liq_m = oi_eval.get("liquidation_magnets", {})
+                    if signal["side"] == "BUY" and liq_m.get("upper_shorts_pool_price"):
+                        up_p = liq_m["upper_shorts_pool_price"]
+                        if up_p > signal["entry_price"]:
+                            signal["reason"] += f" | 🧲 Target Short Liq Magnet: ${up_p:,.2f} (+{liq_m['upper_dist_pct']}%)"
+                    elif signal["side"] == "SELL" and liq_m.get("lower_longs_pool_price"):
+                        low_p = liq_m["lower_longs_pool_price"]
+                        if low_p < signal["entry_price"]:
+                            signal["reason"] += f" | 🧲 Target Long Liq Magnet: ${low_p:,.2f} ({liq_m['lower_dist_pct']}%)"
+            except Exception:
+                pass
+
             signal["reason"] += f" + {macro_rationale}"
             signal["macro_aligned"] = True
             print(f"   🎯 [TOP-DOWN CONFLUENCE]: {macro_rationale}")
             candidates.append(signal)
 
     return candidates
+
+def print_cycle_header(timestamp_str, target_user, mode_label, session_info, is_blk, active_watchlist, genome, min_rr, max_risk_pct):
+    blk_badge = f"{C.BRIGHT_RED}🔴 BLACKOUT (Order Baru Beku){C.RESET}" if is_blk else f"{C.BRIGHT_GREEN}🟢 AMAN (Normal Autopilot){C.RESET}"
+    w_list_str = ", ".join(active_watchlist[:8]) + (f" +{len(active_watchlist)-8} more" if len(active_watchlist) > 8 else "")
+    
+    print()
+    print(f"{C.BRIGHT_CYAN}╔══════════════════════════════════════════════════════════════════════════════════════════╗{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BOLD}{C.BRIGHT_WHITE}🤖 AKADEMI CRYPTO — AUTONOMOUS AI TRADING DESK MISSION CONTROL{C.RESET}                           {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}╠══════════════════════════════════════════════════════════════════════════════════════════╣{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}📅 Waktu      :{C.RESET} {C.BRIGHT_YELLOW}{timestamp_str}{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}👤 Akun       :{C.RESET} {C.BRIGHT_WHITE}{target_user}{C.RESET} ({C.BRIGHT_GREEN}{mode_label}{C.RESET})")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}⏱️ Sesi Pasar  :{C.RESET} {C.BRIGHT_CYAN}{session_info['session_name']}{C.RESET} (Syarat Min Skor: {C.BRIGHT_YELLOW}>={session_info['min_threshold']}%{C.RESET})")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}📰 News Shield :{C.RESET} {blk_badge}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}🌐 Watchlist  :{C.RESET} {C.BRIGHT_WHITE}{len(active_watchlist)} Aset{C.RESET} [{w_list_str}]")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}🧬 Genome     :{C.RESET} Gen {genome.get('generation', 1)} | Min R:R >= {C.BRIGHT_GREEN}1:{min_rr:.2f}{C.RESET} | Max Risk: {C.BRIGHT_YELLOW}{max_risk_pct:.2f}%{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}╚══════════════════════════════════════════════════════════════════════════════════════════╝{C.RESET}")
+
+def print_active_positions_table(active_positions):
+    if not active_positions:
+        print(f"  {C.GRAY}ℹ️ Tidak ada posisi futures yang sedang aktif.{C.RESET}")
+        return
+    
+    print(f"  {C.GRAY}┌────────────┬──────────────┬─────────────┬─────────────┬────────────────┬───────────────────────────┐{C.RESET}")
+    print(f"  {C.GRAY}│{C.RESET} {C.BOLD}SYMBOL    {C.RESET} {C.GRAY}│{C.RESET} {C.BOLD}DIRECTION    {C.RESET} {C.GRAY}│{C.RESET} {C.BOLD}ENTRY PRICE {C.RESET} {C.GRAY}│{C.RESET} {C.BOLD}MARK PRICE  {C.RESET} {C.GRAY}│{C.RESET} {C.BOLD}UNREALIZED PNL {C.RESET}{C.GRAY}│{C.RESET} {C.BOLD}STATUS & GUARDS            {C.RESET}{C.GRAY}│{C.RESET}")
+    print(f"  {C.GRAY}├────────────┼──────────────┼─────────────┼─────────────┼────────────────┼───────────────────────────┤{C.RESET}")
+    
+    for p in active_positions:
+        amt = float(p.get("positionAmt", 0))
+        side_label = "LONG  🟢" if amt > 0 else "SHORT 🔴"
+        side_color = C.BRIGHT_GREEN if amt > 0 else C.BRIGHT_RED
+        entry_p = float(p.get("entryPrice", 0))
+        mark_p = float(p.get("markPrice", 0))
+        upnl = float(p.get("unRealizedProfit", 0))
+        pnl_val_str = f"+${upnl:,.2f}" if upnl >= 0 else f"-${abs(upnl):,.2f}"
+        pnl_color = C.BRIGHT_GREEN if upnl >= 0 else C.BRIGHT_RED
+        
+        status_label = "🛡️ BREAKEVEN LOCKED" if upnl > 15.0 else "🎯 Trailing Stop ON"
+        status_color = C.BRIGHT_CYAN if upnl > 15.0 else C.BRIGHT_GREEN
+        
+        sym_str = p['symbol'].ljust(10)
+        entry_str = f"${entry_p:,.4f}".rjust(11)
+        mark_str = f"${mark_p:,.4f}".rjust(11)
+        pnl_str = pnl_val_str.rjust(14)
+        status_str = status_label.ljust(25)
+        
+        print(f"  {C.GRAY}│{C.RESET} {C.BRIGHT_WHITE}{sym_str}{C.RESET} {C.GRAY}│{C.RESET} {side_color}{side_label}{C.RESET}    {C.GRAY}│{C.RESET} {entry_str} {C.GRAY}│{C.RESET} {mark_str} {C.GRAY}│{C.RESET} {pnl_color}{pnl_str}{C.RESET} {C.GRAY}│{C.RESET} {status_color}{status_str}{C.RESET} {C.GRAY}│{C.RESET}")
+    print(f"  {C.GRAY}└────────────┴──────────────┴─────────────┴─────────────┴────────────────┴───────────────────────────┘{C.RESET}")
 
 def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50, symbols=None, leverage=None):
     genome = load_genome()
@@ -876,17 +1022,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
         pass
 
     timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print("\n" + "=" * 68)
-    print(f"       🤖 AUTONOMOUS AI TRADING DESK — CYCLE RUN")
-    print(f"       📅 Waktu      : {timestamp_str}")
-    print(f"       👤 Akun       : {target_user}")
-    print(f"       🕹️ Mode       : {mode_label}")
-    print(f"       ⏱️ Sesi Pasar  : {session_info['session_name']}")
-    print(f"       🎯 Akurasi Min : Skor Konfluensi >= {session_info['min_threshold']}% (Akurasi Terproteksi)")
-    print(f"       📰 News Shield : {'🔴 BLACKOUT (Order Baru Beku)' if is_blk else '🟢 AMAN (Normal Autopilot)'}")
-    print(f"       🌐 Watchlist  : {len(active_watchlist)} Aset ({', '.join(active_watchlist)})")
-    print(f"       🧬 Genome     : Gen {genome.get('generation', 1)} (Min R:R >= {min_rr}, Max Risk: {max_risk_pct}%)")
-    print("=" * 68)
+    print_cycle_header(timestamp_str, target_user, mode_label, session_info, is_blk, active_watchlist, genome, min_rr, max_risk_pct)
 
     # 1. Check Account Equity, Available Margin & Active Positions Guardrail
     balance_usd, available_usd = get_account_financials(user_email, is_demo)
@@ -896,7 +1032,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
 
     # Check if desk execution is paused via Telegram remote control
     if telegram_notifier.is_desk_paused():
-        print(f"\n[Telegram Remote Guard] ⏸️ Trading Desk sedang DIJEDA via Telegram (/pause). Melewatkan pembukaan order baru.")
+        print(f"\n{C.BRIGHT_YELLOW}[Telegram Remote Guard] ⏸️ Trading Desk sedang DIJEDA via Telegram (/pause). Melewatkan pembukaan order baru.{C.RESET}")
         export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
         return
 
@@ -905,34 +1041,34 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
         import paperclip_orchestrator
         fstate = paperclip_orchestrator.load_firm_state()
         if fstate.get("circuit_breaker_active"):
-            print(f"\n[Paperclip Circuit Breaker] 🚨 Trading Desk DIJEDA oleh Dewan Direksi ({fstate.get('circuit_breaker_reason')}). Melewatkan pembukaan order baru.")
+            print(f"\n{C.BRIGHT_RED}[Paperclip Circuit Breaker] 🚨 Trading Desk DIJEDA oleh Dewan Direksi ({fstate.get('circuit_breaker_reason')}). Melewatkan pembukaan order baru.{C.RESET}")
             export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
             return
     except Exception:
         pass
 
-    print(f"\n[1. RISK OFFICER AUDIT]")
-    print(f" * Saldo Dompet Futures : ${balance_usd:,.2f} USDT (Margin Bebas Tersedia: ${available_usd:,.2f} USDT)")
-    print(f" * Posisi Aktif Saat Ini: {len(active_positions)} / {max_open_positions} max")
-    print(f" * Capital Shield Check : {'⚠️ ACTIVE COLD-STREAK (Alokasi risiko dipangkas 50%)' if cold_streak_mult < 1.0 else '🟢 NORMAL (Alokasi risiko penuh)'}")
+    print(f"\n{C.BOLD}{C.BRIGHT_CYAN}┌─ [1. 🛡️ RISK OFFICER & PORTFOLIO AUDIT] ──────────────────────────────────────────{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}│{C.RESET} {C.GRAY}Saldo Futures       :{C.RESET} {C.BRIGHT_GREEN}${balance_usd:,.2f} USDT{C.RESET} ({C.GRAY}Margin Bebas:{C.RESET} {C.BRIGHT_WHITE}${available_usd:,.2f} USDT{C.RESET})")
+    print(f"{C.BRIGHT_CYAN}│{C.RESET} {C.GRAY}Posisi Aktif        :{C.RESET} {C.BRIGHT_WHITE}{len(active_positions)} / {max_open_positions} maks{C.RESET}")
+    cold_tag = f"{C.BRIGHT_RED}⚠️ ACTIVE COLD-STREAK (Alokasi risiko dipangkas 50%){C.RESET}" if cold_streak_mult < 1.0 else f"{C.BRIGHT_GREEN}🟢 NORMAL (Alokasi risiko penuh){C.RESET}"
+    print(f"{C.BRIGHT_CYAN}│{C.RESET} {C.GRAY}Capital Shield Check:{C.RESET} {cold_tag}")
 
     # 1A. Portfolio Correlation & Directional Heat Audit (Akademi Crypto Module 03)
     try:
         import portfolio_guard
         port_audit = portfolio_guard.audit_portfolio_heat(active_positions, balance_usd)
-        print(f" * Directional Heat     : {port_audit['long_count']}/{port_audit['max_same_direction']} Longs | {port_audit['short_count']}/{port_audit['max_same_direction']} Shorts -> {port_audit['heat_status']}")
+        print(f"{C.BRIGHT_CYAN}│{C.RESET} {C.GRAY}Directional Heat    :{C.RESET} {port_audit['long_count']}/{port_audit['max_same_direction']} Longs | {port_audit['short_count']}/{port_audit['max_same_direction']} Shorts -> {C.BRIGHT_YELLOW}{port_audit['heat_status']}{C.RESET}")
     except Exception as e:
         port_audit = None
-        print(f" * [Portfolio Guard Warning] {e}")
+        print(f"{C.BRIGHT_CYAN}│{C.RESET} {C.GRAY}Directional Heat    :{C.RESET} [Bypass: {e}]")
 
     # 1B. BTC.D & USDT.D Market Flow Compass Audit (Akademi Crypto Module 01)
     try:
         import dominance_compass
         comp_info = dominance_compass.get_dominance_compass()
-        print(f" * Macro Flow Compass   : BTC.D {comp_info['btc_d']:.2f}% | USDT.D {comp_info['usdt_d']:.2f}% ({comp_info['usdt_bias']}) -> {comp_info['regime_title']}")
+        print(f"{C.BRIGHT_CYAN}│{C.RESET} {C.GRAY}Macro Flow Compass  :{C.RESET} BTC.D {comp_info['btc_d']:.2f}% | USDT.D {comp_info['usdt_d']:.2f}% ({comp_info['usdt_bias']}) -> {C.BRIGHT_CYAN}{comp_info['regime_title']}{C.RESET}")
     except Exception as e:
         comp_info = None
-        print(f" * [Dominance Compass Warning] {e}")
 
     # 1C. BTC Macro Regime & Directional Gatekeeper (Akademi Crypto Module 02 & 04)
     btc_regime = None
@@ -940,30 +1076,29 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
         import market_regime
         btc_regime = market_regime.detect_market_regime("BTCUSDT", "1h")
         if btc_regime:
-            print(f" * BTC Macro 1H Regime  : {btc_regime['regime_label']} (ADX {btc_regime['adx']:.1f} | Bias: {btc_regime['bias']})")
+            bias_col = C.BRIGHT_GREEN if btc_regime['bias'] == 'BULLISH' else (C.BRIGHT_RED if btc_regime['bias'] == 'BEARISH' else C.BRIGHT_YELLOW)
+            print(f"{C.BRIGHT_CYAN}│{C.RESET} {C.GRAY}BTC Macro 1H Regime :{C.RESET} {btc_regime['regime_label']} (ADX {btc_regime['adx']:.1f} | Bias: {bias_col}{btc_regime['bias']}{C.RESET})")
     except Exception as e:
-        print(f" * [Market Regime Warning] {e}")
+        pass
+    print(f"{C.BRIGHT_CYAN}└───────────────────────────────────────────────────────────────────────────────────{C.RESET}")
 
     export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
 
-    for p in active_positions:
-        amt = float(p["positionAmt"])
-        side = "LONG 🟢" if amt > 0 else "SHORT 🔴"
-        upnl = float(p.get("unRealizedProfit", 0))
-        be_tag = " | 🛡️ [PROTEKSI BREAKEVEN AKTIF]" if upnl > 15.0 else ""
-        print(f"   -> [{p['symbol']}] {side} | Mark: ${float(p['markPrice']):,.4f} | PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}{be_tag}")
+    # Dynamic Position Risk & Monitoring Table
+    print(f"\n{C.BOLD}{C.BRIGHT_WHITE}[📊 STATUS POSISI AKTIF & PROTEKSI SMR]{C.RESET}")
+    print_active_positions_table(active_positions)
 
     # Dynamic Trade Management (Breakeven Auto-Lock & Trailing Stop Engine)
-    print(f"\n[🛡️ DYNAMIC POSITION RISK & LIFECYCLE MANAGEMENT]")
+    print(f"\n{C.BOLD}{C.BRIGHT_YELLOW}[🛡️ DYNAMIC POSITION RISK & LIFECYCLE MANAGEMENT]{C.RESET}")
     try:
         events = trade_manager.audit_and_manage_positions(user_email=user_email, is_demo=is_demo)
         if events:
             for ev in events:
-                print(f" * {ev}")
+                print(f"  {C.BRIGHT_CYAN}*{C.RESET} {ev}")
         else:
-            print(" * Semua posisi aktif dalam pengawasan ketat (Proteksi SL & Trailing up-to-date).")
+            print(f"  {C.GRAY}* Semua posisi aktif dalam pengawasan ketat (Proteksi SL & Trailing up-to-date).{C.RESET}")
     except Exception as e:
-        print(f" * [Peringatan Trade Manager] {e}")
+        print(f"  {C.GRAY}* [Peringatan Trade Manager] {e}{C.RESET}")
 
     if len(active_positions) >= max_open_positions:
         print(f"\n[Guardrail Alert] Batas maksimal posisi ({max_open_positions}) tercapai. Melewatkan pembukaan posisi baru untuk menjaga margin.")
@@ -1589,82 +1724,44 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
             })
             time.sleep(1)
 
-    print("=" * 65 + "\n")
-
 def show_desk_status(user_email=None, is_demo=True):
     target_user, _, _, _, mode_label, _ = binance_client.resolve_credentials(user_email, is_demo)
     genome = load_genome()
     active_positions = get_active_positions(user_email, is_demo)
-    balance_usd = get_account_balance(user_email, is_demo)
+    balance_usd, available_usd = get_account_financials(user_email, is_demo)
 
-    print("\n=======================================================")
-    print(f"       🖥️ TRADING DESK STATUS OVERVIEW")
-    print(f"       👤 Akun: {target_user} | Mode: {mode_label}")
-    print("=======================================================")
-    print(f"Total Equity Balance : ${balance_usd:,.2f} USDT")
-    print(f"Active Positions     : {len(active_positions)} open")
-    for p in active_positions:
-        amt = float(p["positionAmt"])
-        side = "LONG 🟢" if amt > 0 else "SHORT 🔴"
-        upnl = float(p.get("unRealizedProfit", 0))
-        print(f" * [{p['symbol']}] {side} | Entry: ${float(p['entryPrice']):,.4f} | Mark: ${float(p['markPrice']):,.4f} | PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}")
+    print()
+    print(f"{C.BRIGHT_CYAN}╔══════════════════════════════════════════════════════════════════════════════════════════╗{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BOLD}{C.BRIGHT_WHITE}🖥️  TRADING DESK STATUS OVERVIEW — TELEMETRY & PORTFOLIO AUDIT{C.RESET}                          {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}╠══════════════════════════════════════════════════════════════════════════════════════════╣{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}👤 Akun       :{C.RESET} {C.BRIGHT_WHITE}{target_user}{C.RESET} ({C.BRIGHT_GREEN}{mode_label}{C.RESET})")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}💰 Total Saldo:{C.RESET} {C.BRIGHT_GREEN}${balance_usd:,.2f} USDT{C.RESET} ({C.GRAY}Margin Bebas:{C.RESET} {C.BRIGHT_WHITE}${available_usd:,.2f} USDT{C.RESET})")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}📊 Posisi     :{C.RESET} {C.BRIGHT_WHITE}{len(active_positions)} Posisi Aktif{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}╚══════════════════════════════════════════════════════════════════════════════════════════╝{C.RESET}")
+    
+    print_active_positions_table(active_positions)
 
-    print("-------------------------------------------------------")
+    print(f"\n{C.BRIGHT_CYAN}┌─ [DESK RULES & MACRO REGIME] ────────────────────────────────────────────────────{C.RESET}")
     desk_mode = telegram_notifier.get_desk_mode().upper()
     if desk_mode == "HYBRID":
-        mode_desc = "🤖 HYBRID (Dual-Engine: 5m Fast Scalp + 1H Swing Confluence)"
+        mode_desc = f"{C.BRIGHT_GREEN}🤖 HYBRID (Dual-Engine: 5m Fast Scalp + 1H Swing Confluence){C.RESET}"
     elif desk_mode == "SCALP":
-        mode_desc = "⚡ SCALP ONLY (5m Micro-Structure Protocol)"
+        mode_desc = f"{C.BRIGHT_YELLOW}⚡ SCALP ONLY (5m Micro-Structure Protocol){C.RESET}"
     else:
-        mode_desc = "🎯 SWING ONLY (1H/4H Macro Confluence Focus)"
-    print(f"Desk Operational Mode: {mode_desc}")
+        mode_desc = f"{C.BRIGHT_CYAN}🎯 SWING ONLY (1H/4H Macro Confluence Focus){C.RESET}"
+    print(f"{C.BRIGHT_CYAN}│{C.RESET} Mode Operasi Desk   : {mode_desc}")
     try:
         import market_regime
         btc_reg = market_regime.detect_market_regime("BTCUSDT", "1h")
         if btc_reg:
-            print(f"BTC 1H Macro Regime  : {btc_reg['regime_label']} (Bias: {btc_reg['bias']})")
+            bias_col = C.BRIGHT_GREEN if btc_reg['bias'] == 'BULLISH' else (C.BRIGHT_RED if btc_reg['bias'] == 'BEARISH' else C.BRIGHT_YELLOW)
+            print(f"{C.BRIGHT_CYAN}│{C.RESET} BTC 1H Macro Regime : {btc_reg['regime_label']} (Bias: {bias_col}{btc_reg['bias']}{C.RESET})")
     except Exception:
         pass
-    print(f"Desk Genetic Rules   : Generation {genome.get('generation', 1)}")
-    print(f" * Min R:R Filter    : 1 : {genome.get('parameters', {}).get('min_risk_reward', 3.0)}")
-    print(f" * Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5)}%")
-    print("=======================================================\n")
-
-def ensure_dashboard_daemon():
-    """
-    Checks if Web Dashboard HTTP server is listening on port 5000.
-    If not, automatically launches dashboard_server.py as a background daemon.
-    """
-    import socket
-    import subprocess
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(0.5)
-    is_up = False
-    try:
-        if sock.connect_ex(("127.0.0.1", 5000)) == 0:
-            is_up = True
-    except Exception:
-        pass
-    finally:
-        sock.close()
-
-    if not is_up:
-        dash_script = os.path.join(TOOLS_DIR, "dashboard_server.py")
-        if os.path.exists(dash_script):
-            try:
-                flags = (0x00000008 | 0x00000200 | 0x08000000) if sys.platform == "win32" else 0
-                subprocess.Popen(
-                    [sys.executable, "-u", dash_script],
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    creationflags=flags,
-                    close_fds=True,
-                    cwd=ROOT_DIR
-                )
-                print("🌐 [Web Dashboard] Daemon otomatis dinyalakan di background (http://localhost:5000).")
-            except Exception as e:
-                print(f"⚠️ [Web Dashboard] Gagal auto-start daemon: {e}")
+    print(f"{C.BRIGHT_CYAN}│{C.RESET} Aturan Genetik Desk : Gen {genome.get('generation', 1)}")
+    print(f"{C.BRIGHT_CYAN}│{C.RESET}  * Min R:R Filter    : 1 : {genome.get('parameters', {}).get('min_risk_reward', 2.0):.2f}")
+    print(f"{C.BRIGHT_CYAN}│{C.RESET}  * Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5):.2f}%")
+    print(f"{C.BRIGHT_CYAN}└───────────────────────────────────────────────────────────────────────────────────{C.RESET}\n")
 
 def main():
     parser = argparse.ArgumentParser(description="Autonomous AI Trading Desk (CEO Orchestrator)")
@@ -1717,7 +1814,7 @@ def main():
             cur_mode = telegram_notifier.get_desk_mode().upper()
             sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode == "HYBRID" else max(15, args.interval * 60))
             lev_str = f" | Leverage: {lev_val}x" if lev_val else f" | Leverage: {'20x' if cur_mode == 'SCALP' else '5x'}"
-            print(f"Memulai Autonomous Trading Desk Daemon (Watchlist: {w_str} | Mode: {cur_mode}{lev_str} | Interval: {sleep_sec}s | Max Positions: {max_pos} [Uncapped])... Tekan Ctrl+C untuk berhenti.")
+            print(f"{C.BRIGHT_GREEN}🚀 Memulai Autonomous Trading Desk Daemon{C.RESET} ({C.BRIGHT_WHITE}Watchlist: {w_str} | Mode: {cur_mode}{lev_str} | Max Positions: {max_pos}{C.RESET})...")
             # Start background Telegram interactive remote control listener thread
             telegram_notifier.start_command_listener(args.user, is_demo=is_demo)
             try:
@@ -1725,10 +1822,18 @@ def main():
                     run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val)
                     cur_mode = telegram_notifier.get_desk_mode().upper()
                     sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode == "HYBRID" else max(15, args.interval * 60))
-                    print(f"⚡ [FAST AUTOPILOT] Desk tidur {sleep_sec} detik sebelum pemindaian berikutnya...")
-                    time.sleep(sleep_sec)
+                    
+                    # Animated countdown progress bar
+                    for remaining in range(sleep_sec, 0, -1):
+                        progress = int(((sleep_sec - remaining) / sleep_sec) * 20)
+                        bar = "█" * progress + "░" * (20 - progress)
+                        sys.stdout.write(f"\r  {C.GRAY}⏳ Pemindaian berikutnya dalam [{C.BRIGHT_GREEN}{bar}{C.GRAY}] {C.BRIGHT_YELLOW}{remaining:2d}s{C.GRAY} | Mode: {cur_mode} | Ctrl+C to stop{C.RESET} ")
+                        sys.stdout.flush()
+                        time.sleep(1)
+                    sys.stdout.write(f"\r  {C.BRIGHT_CYAN}🚀 Memulai siklus pemindaian baru...                                            {C.RESET}\n")
+                    sys.stdout.flush()
             except KeyboardInterrupt:
-                print("\nTrading Desk Daemon dihentikan oleh pengguna.")
+                print(f"\n{C.BRIGHT_YELLOW}Trading Desk Daemon dihentikan oleh pengguna.{C.RESET}")
     else:
         show_desk_status(None, is_demo=True)
 

@@ -821,6 +821,24 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path == "/api/smc/fomo_analysis":
+            try:
+                import fomo_smc_engine
+                q_sym = params.get("symbol", ["BTC"])[0]
+                q_bar = params.get("bar", ["1h"])[0]
+                q_side = params.get("side", ["BUY"])[0]
+                data = fomo_smc_engine.audit_fomo_smc_setup(symbol=q_sym, bar=q_bar, side=q_side)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "analysis": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         elif path == "/api/quant/volatility":
             try:
                 import timeseries_quant_forecaster
@@ -1000,6 +1018,70 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": True, "beta_hedge": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/derivatives/oi_archetype":
+            try:
+                import coinglass_derivatives
+                q_sym = params.get("symbol", ["BTC"])[0]
+                data = coinglass_derivatives.get_oi_archetype_and_liquidation_magnets(symbol=q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "oi_archetype": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/tv_screener/futures":
+            try:
+                import tv_screener_adapter
+                top_n = int(params.get("top_n", [30])[0])
+                data = tv_screener_adapter.scan_binance_futures_universe(top_n=top_n)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "screener_data": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/tv_screener/summary":
+            try:
+                import tv_screener_adapter
+                q_sym = params.get("symbol", ["BTC"])[0]
+                data = tv_screener_adapter.get_tradingview_technical_summary(symbol=q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "technical_summary": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/tv_screener/dex_gems":
+            try:
+                import tv_screener_adapter
+                top_n = int(params.get("top_n", [15])[0])
+                data = tv_screener_adapter.scan_dex_and_altcoin_gems(top_n=top_n)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "dex_gems": data}, ensure_ascii=False).encode("utf-8"))
             except Exception as e:
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json; charset=utf-8")

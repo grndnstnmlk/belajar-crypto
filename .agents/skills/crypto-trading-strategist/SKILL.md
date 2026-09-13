@@ -353,11 +353,27 @@ python .agents/tools/regime_adaptive_switcher.py
    python .agents/tools/portfolio_beta_hedger.py
    ```
 
+---
 
+## 🏛️ Phase 19: FOMO Trading 14-Course Master SMC Synthesis (`fomo_smc_engine.py`)
+*Synthesized from Phantom Trading, Hustle FX, Vertex Investing, Flipping Markets, MENTFX, WWA Bootcamp, VVS Academy, and TraqFX.*
 
+1. **Dealing Range 50% Equilibrium Rule**:
+   - **Discount Zone (< 50%)**: The ONLY permitted territory for executing **LONG** setups (Optimal Trade Entry 0.618 - 0.786).
+   - **Premium Zone (> 50%)**: The ONLY permitted territory for executing **SHORT** setups.
+   - Long orders in Premium territory or Short orders in Discount territory are **HARD-VETOED** by the risk engine.
 
+2. **Inducement (IDM) & Liquidity Trap Avoidance**:
+   - Identifies minor internal swing points formed immediately before institutional POIs.
+   - Requires patience for retail traps to be swept before entering the true Order Block.
 
+3. **Institutional Funding Candle (IFC) Engulfing Trigger**:
+   - Detects candles with $\ge 40\%$ wick sweep followed by an immediate structural engulfing close, providing high-probability sniper entries with minimal drawdown.
 
+4. **BOS vs CHoCH Structural Evolution**:
+   - Distinguishes between pro-trend expansions (Break of Structure) and foundational trend shifts (Change of Character).
 
-
-
+```bash
+# Run institutional SMC audit on any crypto asset
+python .agents/tools/fomo_smc_engine.py
+```

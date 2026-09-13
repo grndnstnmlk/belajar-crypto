@@ -671,6 +671,82 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         except Exception:
             pass
 
+        # FOMO Trading 14-Course Master SMC (Dealing Range 50% Eq, IDM, IFC Engulfing)
+        fomo_smc_intel = None
+        try:
+            import fomo_smc_engine
+            target_side = "BUY" if "BULLISH" in bias else ("SELL" if "BEARISH" in bias else "BUY")
+            fomo_smc_intel = fomo_smc_engine.audit_fomo_smc_setup(base, bar=bar_clean, side=target_side)
+            if fomo_smc_intel:
+                dr = fomo_smc_intel.get("dealing_range", {})
+                idm = fomo_smc_intel.get("inducement", {})
+                ifc = fomo_smc_intel.get("ifc_pattern", {})
+                print(f"FOMO SMC Zone    : {dr.get('zone', 'N/A')} (Dist: {dr.get('dist_from_eq_pct', 0):+.2f}%) | Range: ${dr.get('range_low', 0):,.2f} - ${dr.get('range_high', 0):,.2f}")
+                print(f"Inducement (IDM) : {idm.get('status', 'N/A')} -> {idm.get('recommendation', 'N/A')}")
+                if ifc.get("has_ifc"):
+                    print(f"IFC Setup        : {ifc.get('summary', 'N/A')}")
+        except Exception:
+            pass
+
+    # 4. Open Interest (OI) Delta Archetypes & Liquidation Magnet Cluster Levels
+    oi_archetype_intel = None
+    try:
+        import coinglass_derivatives
+        # Compute 1H price delta from candles if available
+        p_1h_delta = 0.0
+        if raw_candles and len(raw_candles) >= 2:
+            p_1h_delta = ((float(raw_candles[-1][4]) - float(raw_candles[-2][4])) / float(raw_candles[-2][4])) * 100.0
+        
+        oi_archetype_intel = coinglass_derivatives.get_oi_archetype_and_liquidation_magnets(
+            symbol=base,
+            current_price=current_price,
+            price_change_1h=p_1h_delta,
+            price_change_24h=change_pct,
+            high_24h=high_24h,
+            low_24h=low_24h
+        )
+        if oi_archetype_intel:
+            oi_fmt = oi_archetype_intel.get("open_interest_formatted", "N/A")
+            oi_d1 = oi_archetype_intel.get("oi_delta_1h_pct", 0.0)
+            arch = oi_archetype_intel.get("archetype", {})
+            liq_m = oi_archetype_intel.get("liquidation_magnets", {})
+            print(f"OI Flow & Delta  : {oi_fmt} (1H: {oi_d1:+.2f}%) | {arch.get('label')}")
+            print(f"Liq Magnet Pools : Upper: ${liq_m.get('upper_shorts_pool_price', 0):,.2f} (+{liq_m.get('upper_dist_pct', 0)}%) | Lower: ${liq_m.get('lower_longs_pool_price', 0):,.2f} ({liq_m.get('lower_dist_pct', 0)}%)")
+            print(f"Dominant Magnet  : {liq_m.get('summary')}")
+    except Exception as e:
+        pass
+
+    # 5. Institutional Confluence Score (0 - 100%)
+    confluence_score = 50.0
+    # Add Trend alignment (+15%)
+    if "BULLISH" in bias:
+        confluence_score += 15.0
+    elif "BEARISH" in bias:
+        confluence_score += 15.0
+
+    # Add Structural patterns (+15%)
+    if three_touch or liquidity_sweep or (rejection_block_intel and rejection_block_intel.get("has_rejection_block")):
+        confluence_score += 15.0
+
+    # Add FOMO SMC alignment (+10% / -15% trap penalty)
+    if fomo_smc_intel:
+        if fomo_smc_intel.get("smc_confluence_score", 0) >= 75:
+            confluence_score += 10.0
+        if fomo_smc_intel.get("inducement", {}).get("status") == "INDUCEMENT_PENDING_SWEEP":
+            confluence_score -= 15.0  # Trap penalty for retail frontrunning before IDM sweep
+
+    # Add Derivatives Archetype bonus (+15% or penalty -20%)
+    if oi_archetype_intel:
+        arch_code = oi_archetype_intel.get("archetype", {}).get("code", "NEUTRAL_ROTATION")
+        if arch_code in ["LONG_BUILDUP", "SHORT_BUILDUP", "LONG_FLUSH_CAPITULATION"]:
+            confluence_score += 15.0
+        elif arch_code == "SHORT_SQUEEZE":
+            confluence_score -= 15.0  # Trap penalty
+
+    confluence_score = max(10.0, min(95.0, round(confluence_score, 1)))
+    grade = "A+ (INSTITUTIONAL GRADE)" if confluence_score >= 80 else ("B (MODERATE)" if confluence_score >= 60 else "C (DEFENSIVE)")
+    print(f"Confluence Score : {confluence_score}% [{grade}]")
+
     print(f"=======================================================\n")
     return {
         "symbol": inst_id_spot,
@@ -687,8 +763,12 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         "volume_profile": volume_profile,
         "liquidity_sweep": liquidity_sweep,
         "rejection_block": rejection_block_intel,
+        "fomo_smc": fomo_smc_intel,
         "vwap": vwap_data,
-        "funding_rate": funding_rate
+        "funding_rate": funding_rate,
+        "oi_archetype": oi_archetype_intel,
+        "confluence_score": confluence_score,
+        "grade": grade
     }
 
 def main():

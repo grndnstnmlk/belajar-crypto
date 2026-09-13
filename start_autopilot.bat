@@ -1,29 +1,11 @@
 @echo off
-title AKADEMI CRYPTO - 24/7 AUTONOMOUS AI TRADING DESK (BINANCE FUTURES AUTONOMOUS)
-color 0A
+title AKADEMI CRYPTO - AUTONOMOUS TRADING DESK MISSION CONTROL
 chcp 65001 >nul
+cd /d "%~dp0"
 
-set EXECUTION_BACKEND=BINANCE
+:: Activate Windows ANSI Escape processing
+reg add HKCU\Console /v VirtualTerminalLevel /t REG_DWORD /d 1 /f >nul 2>&1
 
-echo ====================================================================
-echo   🤖 AKADEMI CRYPTO - AUTONOMOUS AI TRADING DESK (DUAL-BACKEND)
-echo   Backend   : ⚡ BINANCE FUTURES TESTNET/LIVE
-echo   Desk      : 🎯 SWING INTRADAY DESK (1H / 4H Macro Confluence - Profit Maksimal)
-echo   Setup     : SMC Liquidity Sweeps, 3R-5R Asymmetric Targets, Order Blocks, FVG
-echo   Interval  : Pemindaian Siklus Makro Berkala
-echo   Watchlist : Multi-Asset (BTC, ETH, SOL, XRP, DOGE, NEAR, SUI, LINK)
-echo   Proteksi  : SMC Trailing Stop (+2R/+3R), Auto Breakeven (+1.0R), Dynamic Kelly
-echo   Dashboard : http://localhost:5000
-echo ====================================================================
-echo.
-echo Memeriksa dan menyalakan Web Dashboard di latar belakang (Port 5000)...
-start "" /B python -u .agents\tools\dashboard_server.py
-echo.
-echo Pastikan tombol [Algo Trading] di aplikasi MetaTrader 5 berwarna HIJAU!
-echo Memulai pemindaian otomatis Swing Intraday (1H/4H Macro Confluence) ke akun Binance & MT5...
-echo Tekan Ctrl+C untuk menghentikan bot.
-echo.
-
-python -u .agents\tools\trading_desk.py run --mode SWING
-
-pause
+:: Launch interactive Python launcher
+python -u .agents\tools\launcher.py
+if errorlevel 1 pause

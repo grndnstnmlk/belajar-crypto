@@ -483,6 +483,178 @@ def evaluate_liquidation_hunt(symbol, side, deriv_intel=None):
         "reason": f"✅ Arus order flow seimbang (FR: {fr:+.4f}% | L/S: {ls:.2f})."
     }
 
+def get_oi_archetype_and_liquidation_magnets(symbol="BTC", current_price=None, price_change_1h=None, price_change_24h=None, high_24h=None, low_24h=None):
+    """
+    Computes:
+    1. 4 Institutional Open Interest (OI) Delta Archetypes:
+       - LONG_BUILDUP (Price UP + OI UP): Real aggressive spot/futures buying, confirms breakout.
+       - SHORT_BUILDUP (Price DOWN + OI UP): Aggressive shorting, confirms breakdown.
+       - SHORT_SQUEEZE (Price UP + OI DOWN): Short covering fakeout, bull trap risk.
+       - LONG_FLUSH_CAPITULATION (Price DOWN + OI DOWN): Long liquidations flush, potential bottom spring.
+       - NEUTRAL_ROTATION (Balanced / Churn).
+    2. Liquidation Magnet Cluster Levels (Upper Shorts Liq Pool vs Lower Longs Liq Pool).
+    3. Derivatives Confluence Score & Veto recommendations.
+    """
+    ccy = clean_coin(symbol)
+    pair = f"{ccy}USDT"
+    
+    # 1. Fetch current price if not provided
+    if not current_price or current_price <= 0:
+        current_price = get_approx_price(ccy)
+        if current_price <= 0:
+            current_price = 100.0
+
+    # 2. Fetch Open Interest & 1H / 4H / 24H Delta from Binance Futures Public API
+    oi_usd = 0.0
+    oi_coin = 0.0
+    oi_delta_1h = 0.0
+    oi_delta_4h = 0.0
+    oi_delta_24h = 0.0
+    oi_source = "BINANCE_FUTURES_DATA"
+
+    try:
+        # Binance Historical Open Interest (Free Public API)
+        hist_url = f"https://fapi.binance.com/futures/data/openInterestHist?symbol={pair}&period=1h&limit=25"
+        raw_hist = fetch_json(hist_url, timeout=5)
+        if raw_hist and isinstance(raw_hist, list) and len(raw_hist) > 0:
+            latest = raw_hist[-1]
+            oi_usd = float(latest.get("sumOpenInterestValue", 0.0))
+            oi_coin = float(latest.get("sumOpenInterest", 0.0))
+            
+            if len(raw_hist) >= 2:
+                p1 = float(raw_hist[-2].get("sumOpenInterestValue", 0.0))
+                if p1 > 0:
+                    oi_delta_1h = ((oi_usd - p1) / p1) * 100.0
+            if len(raw_hist) >= 5:
+                p4 = float(raw_hist[-5].get("sumOpenInterestValue", 0.0))
+                if p4 > 0:
+                    oi_delta_4h = ((oi_usd - p4) / p4) * 100.0
+            if len(raw_hist) >= 24:
+                p24 = float(raw_hist[0].get("sumOpenInterestValue", 0.0))
+                if p24 > 0:
+                    oi_delta_24h = ((oi_usd - p24) / p24) * 100.0
+    except Exception:
+        pass
+
+    # Fallback to Coinalyze / OKX if Binance API was unreachable
+    if oi_usd <= 0:
+        base_deriv = get_derivatives_intelligence(ccy)
+        if base_deriv:
+            oi_usd = float(base_deriv.get("open_interest_usd", 0.0))
+            oi_coin = float(base_deriv.get("open_interest_coin", 0.0))
+            oi_delta_1h = float(base_deriv.get("oi_change_1h_pct", 0.0))
+            oi_delta_4h = oi_delta_1h * 1.5
+            oi_source = base_deriv.get("source", "FALLBACK")
+
+    # 3. Determine Price Delta (1H and 24H)
+    p_delta_1h = price_change_1h if price_change_1h is not None else 0.0
+    p_delta_24h = price_change_24h if price_change_24h is not None else 0.0
+
+    # 4. Classify 4 Institutional Open Interest Archetypes
+    # Sensitivity threshold: 0.15% price delta, 0.40% OI delta
+    is_price_up = p_delta_1h > 0.10 or (p_delta_1h >= -0.05 and p_delta_24h > 0.5)
+    is_price_down = p_delta_1h < -0.10 or (p_delta_1h <= 0.05 and p_delta_24h < -0.5)
+    is_oi_expanding = oi_delta_1h > 0.35 or oi_delta_4h > 1.0
+    is_oi_contracting = oi_delta_1h < -0.35 or oi_delta_4h < -1.0
+
+    if is_price_up and is_oi_expanding:
+        archetype_code = "LONG_BUILDUP"
+        archetype_label = "🟢 LONG_BUILDUP (Real Buying Demand)"
+        archetype_desc = "Harga naik diiringi modal baru masuk. Validasi tren Bullish kuat & reli berlanjut."
+        bias = "BULLISH_EXPANSION"
+        veto_side = "SHORT"  # Do not short a real long buildup
+        confluence_score = 90
+    elif is_price_down and is_oi_expanding:
+        archetype_code = "SHORT_BUILDUP"
+        archetype_label = "🔴 SHORT_BUILDUP (Aggressive Short Sellers)"
+        archetype_desc = "Harga turun diiringi pembukaan posisi short baru. Tekanan jual institusional kuat."
+        bias = "BEARISH_EXPANSION"
+        veto_side = "LONG"   # Do not long into aggressive short buildup
+        confluence_score = 85
+    elif is_price_up and is_oi_contracting:
+        archetype_code = "SHORT_SQUEEZE"
+        archetype_label = "⚠️ SHORT_SQUEEZE (Short Covering Trap)"
+        archetype_desc = "Harga naik HANYA karena likuidasi/cut-loss short seller. Waspada Bull Trap & fakeout!"
+        bias = "EXHAUSTION_WARNING"
+        veto_side = "LONG"   # Veto buying the top of a short squeeze!
+        confluence_score = 40
+    elif is_price_down and is_oi_contracting:
+        archetype_code = "LONG_FLUSH_CAPITULATION"
+        archetype_label = "💎 LONG_FLUSH_CAPITULATION (Exhaustion Bottom)"
+        archetype_desc = "Posisi Long ritel terlikuidasi massal. Menuju titik dasar kapitulasi & potensi Wyckoff Spring."
+        bias = "ACCUMULATION_SPRING"
+        veto_side = "SHORT"  # Do not short the bottom after longs have flushed
+        confluence_score = 85
+    else:
+        archetype_code = "NEUTRAL_ROTATION"
+        archetype_label = "⚪ NEUTRAL_ROTATION (Balanced Open Interest)"
+        archetype_desc = "Perubahan Open Interest stabil / dalam rentang konsolidasi wajar."
+        bias = "NEUTRAL"
+        veto_side = None
+        confluence_score = 65
+
+    # 5. Calculate Liquidation Cluster Magnet Pools
+    # Leverage tiers: 50x (1.8% away), 25x (3.6% away), 15x (6.0% away)
+    h24 = high_24h if (high_24h and high_24h > current_price) else (current_price * 1.025)
+    l24 = low_24h if (low_24h and low_24h < current_price) else (current_price * 0.975)
+
+    # Upper Short Liquidation Pool (Resting above resistance / 24h high)
+    upper_liq_price = round(max(h24 * 1.003, current_price * 1.018), 4 if current_price < 10 else 2)
+    upper_dist_pct = round(((upper_liq_price - current_price) / current_price) * 100.0, 2)
+    est_upper_pool_usd = round(max(1.5, (oi_usd * 0.08) / 1_000_000), 2)  # ~8% of total OI clustered as upper stops
+
+    # Lower Long Liquidation Pool (Resting below support / 24h low)
+    lower_liq_price = round(min(l24 * 0.997, current_price * 0.982), 4 if current_price < 10 else 2)
+    lower_dist_pct = round(((lower_liq_price - current_price) / current_price) * 100.0, 2)
+    est_lower_pool_usd = round(max(1.5, (oi_usd * 0.08) / 1_000_000), 2)  # ~8% of total OI clustered as lower stops
+
+    # Determine dominant magnet
+    if abs(upper_dist_pct) < abs(lower_dist_pct):
+        dominant_magnet = "UPPER_SHORTS_POOL"
+        magnet_summary = f"🧲 Magnet Dominan: Atas (${upper_liq_price:,.2f} | +{upper_dist_pct}%) [~${est_upper_pool_usd}M Shorts Liq]"
+    else:
+        dominant_magnet = "LOWER_LONGS_POOL"
+        magnet_summary = f"🧲 Magnet Dominan: Bawah (${lower_liq_price:,.2f} | {lower_dist_pct}%) [~${est_lower_pool_usd}M Longs Liq]"
+
+    # Format OI text
+    if oi_usd >= 1_000_000_000:
+        oi_str = f"${oi_usd / 1_000_000_000:.2f}B"
+    elif oi_usd >= 1_000_000:
+        oi_str = f"${oi_usd / 1_000_000:.2f}M"
+    else:
+        oi_str = f"${oi_usd:,.0f}"
+
+    return {
+        "symbol": ccy,
+        "pair": pair,
+        "current_price": current_price,
+        "open_interest_usd": oi_usd,
+        "open_interest_formatted": oi_str,
+        "oi_delta_1h_pct": round(oi_delta_1h, 2),
+        "oi_delta_4h_pct": round(oi_delta_4h, 2),
+        "oi_delta_24h_pct": round(oi_delta_24h, 2),
+        "archetype": {
+            "code": archetype_code,
+            "label": archetype_label,
+            "description": archetype_desc,
+            "bias": bias,
+            "veto_side": veto_side,
+            "confluence_score": confluence_score
+        },
+        "liquidation_magnets": {
+            "upper_shorts_pool_price": upper_liq_price,
+            "upper_dist_pct": upper_dist_pct,
+            "upper_pool_usd_millions": est_upper_pool_usd,
+            "lower_longs_pool_price": lower_liq_price,
+            "lower_dist_pct": lower_dist_pct,
+            "lower_pool_usd_millions": est_lower_pool_usd,
+            "dominant_magnet": dominant_magnet,
+            "summary": magnet_summary
+        },
+        "source": oi_source,
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
 # Aliases for external caller & dashboard compatibility
 get_coinglass_sentiment_summary = get_derivatives_intelligence
 get_derivatives_summary = get_derivatives_intelligence
@@ -490,8 +662,10 @@ get_derivatives_summary = get_derivatives_intelligence
 if __name__ == "__main__":
     for coin in ["BTC", "ETH", "SOL", "DOGE"]:
         d = get_derivatives_intelligence(coin)
-        print("\n" + "=" * 55)
-        print(f"[{coin}] OI: {d['open_interest_formatted']} | L/S: {d['long_short_ratio']:.2f} ({d['long_pct']}% vs {d['short_pct']}%)")
-        print(f"FR: {d['funding_rate_pct']:+.4f}% | 4H Liq Long: {d['liq_4h_long']:,.1f} | Short: {d['liq_4h_short']:,.1f}")
-        print(f"Status: {d['regime']}")
+        oi_arch = get_oi_archetype_and_liquidation_magnets(coin)
+        print("\n" + "=" * 65)
+        print(f"[{coin}] OI: {oi_arch['open_interest_formatted']} (1H: {oi_arch['oi_delta_1h_pct']:+.2f}%) | Archetype: {oi_arch['archetype']['label']}")
+        print(f"Magnets: Upper ${oi_arch['liquidation_magnets']['upper_shorts_pool_price']:,.2f} (+{oi_arch['liquidation_magnets']['upper_dist_pct']}%) | Lower ${oi_arch['liquidation_magnets']['lower_longs_pool_price']:,.2f} ({oi_arch['liquidation_magnets']['lower_dist_pct']}%)")
+        print(f"Status: {d['regime']} | Dominant: {oi_arch['liquidation_magnets']['dominant_magnet']}")
         print(f"Source: {d['source']}")
+
