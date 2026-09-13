@@ -89,7 +89,7 @@ def fetch_scalp_candles(symbol="BTC", bar="5m", limit=100):
     if not raw_candles:
         raw_candles = market_eyes.fetch_candles(sym_clean, bar=bar, limit=limit)
         
-    if raw_candles and len(raw_candles) >= 15:
+    if raw_candles and len(raw_candles) >= 5:
         parsed = []
         for c in raw_candles:
             parsed.append({
