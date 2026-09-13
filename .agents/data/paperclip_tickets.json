@@ -1,5 +1,618 @@
 [
   {
+    "ticket_id": "TCK-20260913-7197",
+    "symbol": "BTCUSDT",
+    "side": "SHORT",
+    "strategy": "Quantitative Confluence Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-13 18:27:37",
+    "updated_at": "2026-09-13 18:27:43",
+    "payload": {
+      "entry": 77338.0,
+      "sl": 77452.405,
+      "tp": 76994.785,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.6,
+      "thesis": "APPROVED: Setup BTCUSDT (SHORT) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_DEFENSIVE (Scale 0.60x)",
+      "key_risks": [
+        "Normal market volatility risk"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $77,452.4050.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BTCUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 77452.405,
+        "tp_price": 76994.785,
+        "rr_ratio": 3.0,
+        "strategy": "5m Craig Percoco Morning Routine (BSL Sweep & FVG)",
+        "bull_score": 49,
+        "bear_score": 51,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+        "bear_critique": " \u2022 Dinding bid pembeli tebal (1.62x Bids/Asks) berpotensi memantulkan harga ke atas.\n \u2022 Aset BTCUSDT berada di sektor narasi laggard (\ud83d\udc51 Macro Heavyweights), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (49% vs 51%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 77452.405,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-14 01:27:42"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-14 01:27:43",
+        "symbol": "BTCUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial."
+        },
+        "conservative": {
+          "score": 25,
+          "desired_scale": 0.6,
+          "thesis": "Peringatan konsentrasi arah: sudah ada 4 posisi sepihak terbuka."
+        },
+        "neutral": {
+          "score": 57,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 57.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_DEFENSIVE",
+          "composite_risk_score": 46,
+          "allocated_risk_scale": 0.6,
+          "stop_loss_profile": "TIGHT_BREAKEVEN",
+          "regime_weights": {
+            "aggressive": 0.2,
+            "neutral": 0.35,
+            "conservative": 0.45
+          },
+          "synthesis": "APPROVED DEFENSIVE: Risiko terdeteksi namun terukur. Alokasi disesuaikan ke 0.60x dengan kunci Break-Even cepat di +0.6R."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BTC",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 6,
+        "is_leading_sector": false,
+        "sector_24h_avg": -0.6,
+        "relative_strength_vs_btc": -0.81,
+        "confluence_boost": -5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-13 18:27:43",
+      "note": "Auto-Approved in Full Autopilot: Portofolio padat (5 posisi aktif berjalan)"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-13 18:27:37",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BTCUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-09-13 18:27:43",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-13 18:27:43",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (5 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260913-7972",
+    "symbol": "BNBUSDT",
+    "side": "SHORT",
+    "strategy": "Quantitative Confluence Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-13 18:18:37",
+    "updated_at": "2026-09-13 18:18:40",
+    "payload": {
+      "entry": 721.42,
+      "sl": 729.3715,
+      "tp": 705.517,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.42,
+      "thesis": "ADJUST_RISK: Setup BNBUSDT (SHORT) diterima dengan catatan risiko kehati-hatian (Liquidation Hunt active: \u26a1 [LIQUIDATION HUNT ALPHA] BNB SHORT DI-BOOST (+15% Konfluensi): Eksploitasi likuidasi ritel overleveraged Long (FR: +0.0000% | L/S: 2.50). Institusi berpeluang menyapu stop-loss ritel ke bawah., Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)). Alokasi modal disarankan dipangkas ke 70%. | Tri-Risk: APPROVED_DEFENSIVE (Scale 0.60x)",
+      "key_risks": [
+        "Liquidation Hunt active: \u26a1 [LIQUIDATION HUNT ALPHA] BNB SHORT DI-BOOST (+15% Konfluensi): Eksploitasi likuidasi ritel overleveraged Long (FR: +0.0000% | L/S: 2.50). Institusi berpeluang menyapu stop-loss ritel ke bawah.",
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $729.3715.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 729.3715,
+        "tp_price": 705.517,
+        "rr_ratio": 2.0,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 62,
+        "bear_score": 38,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.74x Bids/Asks) menekan harga ke bawah.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.",
+        "bear_critique": " \u2022 Aset BNBUSDT berada di sektor narasi laggard (\ud83d\udc51 Macro Heavyweights), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (62% vs 38%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 729.3715,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-14 01:18:40"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-14 01:18:40",
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 62% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 25,
+          "desired_scale": 0.6,
+          "thesis": "Peringatan konsentrasi arah: sudah ada 4 posisi sepihak terbuka."
+        },
+        "neutral": {
+          "score": 62,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 62.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_DEFENSIVE",
+          "composite_risk_score": 47,
+          "allocated_risk_scale": 0.6,
+          "stop_loss_profile": "TIGHT_BREAKEVEN",
+          "regime_weights": {
+            "aggressive": 0.2,
+            "neutral": 0.35,
+            "conservative": 0.45
+          },
+          "synthesis": "APPROVED DEFENSIVE: Risiko terdeteksi namun terukur. Alokasi disesuaikan ke 0.60x dengan kunci Break-Even cepat di +0.6R."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BNB",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 6,
+        "is_leading_sector": false,
+        "sector_24h_avg": -0.52,
+        "relative_strength_vs_btc": -0.84,
+        "confluence_boost": -5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-13 18:18:40",
+      "note": "Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan)"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-13 18:18:37",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BNBUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-09-13 18:18:40",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-13 18:18:40",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260913-0072",
+    "symbol": "ETHUSDT",
+    "side": "SHORT",
+    "strategy": "Quantitative Confluence Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-13 18:18:20",
+    "updated_at": "2026-09-13 18:18:22",
+    "payload": {
+      "entry": 2508.61,
+      "sl": 2538.1906,
+      "tp": 2449.4488,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 78,
+      "suggested_risk_scale": 0.49,
+      "thesis": "ADJUST_RISK: Setup ETHUSDT (SHORT) diterima dengan catatan risiko kehati-hatian (Liquidation Hunt active: \u26a1 [LIQUIDATION HUNT ALPHA] ETH SHORT DI-BOOST (+15% Konfluensi): Eksploitasi likuidasi ritel overleveraged Long (FR: -0.0041% | L/S: 2.97). Institusi berpeluang menyapu stop-loss ritel ke bawah., Thick bid support floor (1.71x Bids/Asks) threatens short breakdown, Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)). Alokasi modal disarankan dipangkas ke 50%. | Tri-Risk: APPROVED_BALANCED (Scale 0.99x)",
+      "key_risks": [
+        "Liquidation Hunt active: \u26a1 [LIQUIDATION HUNT ALPHA] ETH SHORT DI-BOOST (+15% Konfluensi): Eksploitasi likuidasi ritel overleveraged Long (FR: -0.0041% | L/S: 2.97). Institusi berpeluang menyapu stop-loss ritel ke bawah.",
+        "Thick bid support floor (1.71x Bids/Asks) threatens short breakdown",
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $2,538.1906.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "ETHUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 2538.1906,
+        "tp_price": 2449.4488,
+        "rr_ratio": 2.0,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 52,
+        "bear_score": 48,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.",
+        "bear_critique": " \u2022 Dinding bid pembeli tebal (1.71x Bids/Asks) berpotensi memantulkan harga ke atas.\n \u2022 Aset ETHUSDT berada di sektor narasi laggard (\ud83d\udc51 Macro Heavyweights), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (52% vs 48%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 2538.1906,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-14 01:18:22"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-14 01:18:22",
+        "symbol": "ETHUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 65,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 3 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 58,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 58.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 53,
+          "allocated_risk_scale": 0.99,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.2,
+            "neutral": 0.35,
+            "conservative": 0.45
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 0.99x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "ETH",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 6,
+        "is_leading_sector": false,
+        "sector_24h_avg": -0.52,
+        "relative_strength_vs_btc": -0.84,
+        "confluence_boost": -5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-13 18:18:22",
+      "note": "Auto-Approved in Full Autopilot: Portofolio padat (6 posisi aktif berjalan)"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-13 18:18:20",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup ETHUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-09-13 18:18:22",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (78%)"
+      },
+      {
+        "timestamp": "2026-09-13 18:18:22",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (6 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260913-0218",
+    "symbol": "DOGEUSDT",
+    "side": "SHORT",
+    "strategy": "Quantitative Confluence Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-13 18:18:00",
+    "updated_at": "2026-09-13 18:18:05",
+    "payload": {
+      "entry": 0.0845,
+      "sl": 0.0861,
+      "tp": 0.0812,
+      "rr": 2.06
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.69,
+      "thesis": "ADJUST_RISK: Setup DOGEUSDT (SHORT) diterima dengan catatan risiko kehati-hatian (Marginal Risk-to-Reward ratio (1:2.06 below preferred 1:3.0)). Alokasi modal disarankan dipangkas ke 70%. | Tri-Risk: APPROVED_BALANCED (Scale 0.99x)",
+      "key_risks": [
+        "Marginal Risk-to-Reward ratio (1:2.06 below preferred 1:3.0)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0861.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 0.0861,
+        "tp_price": 0.0812,
+        "rr_ratio": 2.06,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 59,
+        "bear_score": 41,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.06) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.",
+        "bear_critique": " \u2022 Aset DOGEUSDT berada di sektor narasi laggard (\ud83d\udc36 Meme & Cultural Tokens), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.0861,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-14 01:18:05"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-14 01:18:05",
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.06 di atas ambang batas minimum institusional. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 61,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 56,
+          "allocated_risk_scale": 0.99,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.2,
+            "neutral": 0.35,
+            "conservative": 0.45
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 0.99x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "DOGE",
+        "sector_key": "MEME_BETA",
+        "sector_title": "Meme & Cultural Tokens",
+        "sector_icon": "\ud83d\udc36",
+        "sector_rank": 5,
+        "is_leading_sector": false,
+        "sector_24h_avg": -0.39,
+        "relative_strength_vs_btc": -0.72,
+        "confluence_boost": -5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-13 18:18:05",
+      "note": "Auto-Approved in Full Autopilot: Portofolio padat (5 posisi aktif berjalan)"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-13 18:18:00",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup DOGEUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-09-13 18:18:05",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-13 18:18:05",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (5 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260913-6866",
+    "symbol": "AVAXUSDT",
+    "side": "SHORT",
+    "strategy": "Quantitative Confluence Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-13 18:16:16",
+    "updated_at": "2026-09-13 18:16:22",
+    "payload": {
+      "entry": 7.425,
+      "sl": 7.5266,
+      "tp": 7.2218,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.69,
+      "thesis": "ADJUST_RISK: Setup AVAXUSDT (SHORT) diterima dengan catatan risiko kehati-hatian (Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)). Alokasi modal disarankan dipangkas ke 70%. | Tri-Risk: APPROVED_BALANCED (Scale 0.99x)",
+      "key_risks": [
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $7.5266.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 7.5266,
+        "tp_price": 7.2218,
+        "rr_ratio": 2.0,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 57,
+        "bear_score": 43,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset AVAXUSDT berada dalam 3 besar rotasi sektor (\u26a1 Solana & High-Speed L1).",
+        "bear_critique": " \u2022 Dinding bid pembeli tebal (1.44x Bids/Asks) berpotensi memantulkan harga ke atas.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 7.5266,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-14 01:16:21"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-14 01:16:22",
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 3 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 60,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 56,
+          "allocated_risk_scale": 0.99,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.2,
+            "neutral": 0.35,
+            "conservative": 0.45
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 0.99x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "AVAX",
+        "sector_key": "SOL_L1",
+        "sector_title": "Solana & High-Speed L1",
+        "sector_icon": "\u26a1",
+        "sector_rank": 3,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.35,
+        "relative_strength_vs_btc": 0.11,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-13 18:16:22",
+      "note": "Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan)"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-13 18:16:16",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup AVAXUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-09-13 18:16:22",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-13 18:16:22",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260913-7366",
     "symbol": "SUIUSDT",
     "side": "LONG",
@@ -11702,620 +12315,6 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan); Free margin menipis (12.6%) oleh Autonomous Board (AI Executive Committee)."
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260911-6968",
-    "symbol": "NEARUSDT",
-    "side": "SHORT",
-    "strategy": "Quantitative Confluence Setup",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
-    "priority": "NORMAL",
-    "created_at": "2026-09-11 00:32:36",
-    "updated_at": "2026-09-11 00:32:43",
-    "payload": {
-      "entry": 50.17,
-      "sl": 51.1036,
-      "tp": 48.3028,
-      "rr": 2.0
-    },
-    "debate_result": null,
-    "risk_result": {
-      "decision": "ADJUST_RISK",
-      "confidence": 85,
-      "suggested_risk_scale": 0.42,
-      "thesis": "ADJUST_RISK: Setup NEARUSDT (SHORT) diterima dengan catatan risiko kehati-hatian (Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)). Alokasi modal disarankan dipangkas ke 70%. | Tri-Risk: APPROVED_DEFENSIVE (Scale 0.60x)",
-      "key_risks": [
-        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $51.1036.",
-      "provider": "Heuristic Fallback (GEMINI API Timeout)",
-      "adversarial_debate": {
-        "symbol": "NEARUSDT",
-        "side": "SHORT",
-        "entry_price": 0.0,
-        "sl_price": 51.1036,
-        "tp_price": 48.3028,
-        "rr_ratio": 2.0,
-        "strategy": "5m ICT Rejection Block Mean Threshold",
-        "bull_score": 66,
-        "bear_score": 34,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.54x Bids/Asks) menekan harga ke bawah.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.",
-        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (66% vs 34%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 51.1036,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-11 07:32:42"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-11 07:32:43",
-        "symbol": "NEARUSDT",
-        "side": "SHORT",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 90,
-          "desired_scale": 1.1,
-          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 66% menunjukkan dorongan positif moderat. | ADX momentum kuat (40.3) mendukung kelanjutan tren yang ekspansif."
-        },
-        "conservative": {
-          "score": 20,
-          "desired_scale": 0.55,
-          "thesis": "Portofolio memiliki 3 posisi searah; alokasi ukuran disesuaikan secara dinamis. | Margin bebas kritis (15%); prioritas preservasi kas."
-        },
-        "neutral": {
-          "score": 64,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 64.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "APPROVED_DEFENSIVE",
-          "composite_risk_score": 49,
-          "allocated_risk_scale": 0.6,
-          "stop_loss_profile": "TIGHT_BREAKEVEN",
-          "regime_weights": {
-            "aggressive": 0.2,
-            "neutral": 0.35,
-            "conservative": 0.45
-          },
-          "synthesis": "APPROVED DEFENSIVE: Risiko terdeteksi namun terukur. Alokasi disesuaikan ke 0.60x dengan kunci Break-Even cepat di +0.6R."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "NEAR",
-        "sector_key": "AI_DEPIN",
-        "sector_title": "AI & DePIN",
-        "sector_icon": "\ud83e\udd16",
-        "sector_rank": 4,
-        "is_leading_sector": false,
-        "sector_24h_avg": -2.64,
-        "relative_strength_vs_btc": -0.73,
-        "confluence_boost": -5
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-11 00:32:43",
-      "note": "Auto-Approved in Full Autopilot: Portofolio padat (6 posisi aktif berjalan); Free margin menipis (15.0%)"
-    },
-    "execution_result": null,
-    "timeline": [
-      {
-        "timestamp": "2026-09-11 00:32:36",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup NEARUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
-      },
-      {
-        "timestamp": "2026-09-11 00:32:43",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
-      },
-      {
-        "timestamp": "2026-09-11 00:32:43",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (6 posisi aktif berjalan); Free margin menipis (15.0%) oleh Autonomous Board (AI Executive Committee)."
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260911-6866",
-    "symbol": "BTCUSDT",
-    "side": "SHORT",
-    "strategy": "Quantitative Confluence Setup",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
-    "priority": "NORMAL",
-    "created_at": "2026-09-11 00:30:56",
-    "updated_at": "2026-09-11 00:31:02",
-    "payload": {
-      "entry": 34.09,
-      "sl": 34.4938,
-      "tp": 33.2824,
-      "rr": 2.0
-    },
-    "debate_result": null,
-    "risk_result": {
-      "decision": "VETO",
-      "confidence": 85,
-      "suggested_risk_scale": 0.0,
-      "thesis": "VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 5%). Penambahan posisi BTCUSDT ditolak demi perlindungan modal.",
-      "key_risks": [
-        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)",
-        "Blocked by Tri-Perspective Fund Manager"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $34.4938.",
-      "provider": "Heuristic Fallback (GEMINI API Timeout)",
-      "adversarial_debate": {
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "entry_price": 0.0,
-        "sl_price": 34.4938,
-        "tp_price": 33.2824,
-        "rr_ratio": 2.0,
-        "strategy": "5m ICT Rejection Block Mean Threshold",
-        "bull_score": 67,
-        "bear_score": 33,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset BTCUSDT tergabung dalam sektor narasi terkuat hari ini (\ud83d\udc51 Macro Heavyweights), menikmati rotasi modal institusional prima.",
-        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (67% vs 33%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 34.4938,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-11 07:31:01"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-11 07:31:02",
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 90,
-          "desired_scale": 1.1,
-          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 67% menunjukkan dorongan positif moderat. | ADX momentum kuat (40.3) mendukung kelanjutan tren yang ekspansif."
-        },
-        "conservative": {
-          "score": 5,
-          "desired_scale": 0.3,
-          "thesis": "Peringatan konsentrasi arah: sudah ada 4 posisi sepihak terbuka. | Margin bebas kritis (15%); prioritas preservasi kas."
-        },
-        "neutral": {
-          "score": 64,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 64.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "BLOCKED_RISK_LIMIT",
-          "composite_risk_score": 42,
-          "allocated_risk_scale": 0.0,
-          "stop_loss_profile": "NONE",
-          "regime_weights": {
-            "aggressive": 0.2,
-            "neutral": 0.35,
-            "conservative": 0.45
-          },
-          "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 5%). Penambahan posisi BTCUSDT ditolak demi perlindungan modal."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "BTC",
-        "sector_key": "MACRO_BLUECHIP",
-        "sector_title": "Macro Heavyweights",
-        "sector_icon": "\ud83d\udc51",
-        "sector_rank": 1,
-        "is_leading_sector": true,
-        "sector_24h_avg": -1.39,
-        "relative_strength_vs_btc": 0.52,
-        "confluence_boost": 15
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-11 00:31:02",
-      "note": "Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan); Free margin menipis (15.5%)"
-    },
-    "execution_result": null,
-    "timeline": [
-      {
-        "timestamp": "2026-09-11 00:30:56",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup BTCUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
-      },
-      {
-        "timestamp": "2026-09-11 00:31:02",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: VETO (85%)"
-      },
-      {
-        "timestamp": "2026-09-11 00:31:02",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan); Free margin menipis (15.5%) oleh Autonomous Board (AI Executive Committee)."
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260911-2056",
-    "symbol": "BTCUSDT",
-    "side": "SHORT",
-    "strategy": "Quantitative Confluence Setup",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
-    "priority": "NORMAL",
-    "created_at": "2026-09-11 00:29:12",
-    "updated_at": "2026-09-11 00:29:18",
-    "payload": {
-      "entry": 34.09,
-      "sl": 34.4938,
-      "tp": 33.2824,
-      "rr": 2.0
-    },
-    "debate_result": null,
-    "risk_result": {
-      "decision": "VETO",
-      "confidence": 85,
-      "suggested_risk_scale": 0.0,
-      "thesis": "VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 5%). Penambahan posisi BTCUSDT ditolak demi perlindungan modal.",
-      "key_risks": [
-        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)",
-        "Blocked by Tri-Perspective Fund Manager"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $34.4938.",
-      "provider": "Heuristic Fallback (GEMINI API Timeout)",
-      "adversarial_debate": {
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "entry_price": 0.0,
-        "sl_price": 34.4938,
-        "tp_price": 33.2824,
-        "rr_ratio": 2.0,
-        "strategy": "5m ICT Rejection Block Mean Threshold",
-        "bull_score": 69,
-        "bear_score": 31,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.71x Bids/Asks) menekan harga ke bawah.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset BTCUSDT tergabung dalam sektor narasi terkuat hari ini (\ud83d\udc51 Macro Heavyweights), menikmati rotasi modal institusional prima.",
-        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (69% vs 31%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 34.4938,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-11 07:29:18"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-11 07:29:18",
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 90,
-          "desired_scale": 1.1,
-          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 69% menunjukkan dorongan positif moderat. | ADX momentum kuat (40.3) mendukung kelanjutan tren yang ekspansif."
-        },
-        "conservative": {
-          "score": 5,
-          "desired_scale": 0.3,
-          "thesis": "Peringatan konsentrasi arah: sudah ada 4 posisi sepihak terbuka. | Margin bebas kritis (16%); prioritas preservasi kas."
-        },
-        "neutral": {
-          "score": 65,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 65.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "BLOCKED_RISK_LIMIT",
-          "composite_risk_score": 43,
-          "allocated_risk_scale": 0.0,
-          "stop_loss_profile": "NONE",
-          "regime_weights": {
-            "aggressive": 0.2,
-            "neutral": 0.35,
-            "conservative": 0.45
-          },
-          "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 5%). Penambahan posisi BTCUSDT ditolak demi perlindungan modal."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "BTC",
-        "sector_key": "MACRO_BLUECHIP",
-        "sector_title": "Macro Heavyweights",
-        "sector_icon": "\ud83d\udc51",
-        "sector_rank": 1,
-        "is_leading_sector": true,
-        "sector_24h_avg": -1.38,
-        "relative_strength_vs_btc": 0.53,
-        "confluence_boost": 15
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-11 00:29:18",
-      "note": "Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan); Free margin menipis (15.6%)"
-    },
-    "execution_result": null,
-    "timeline": [
-      {
-        "timestamp": "2026-09-11 00:29:12",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup BTCUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
-      },
-      {
-        "timestamp": "2026-09-11 00:29:18",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: VETO (85%)"
-      },
-      {
-        "timestamp": "2026-09-11 00:29:18",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan); Free margin menipis (15.6%) oleh Autonomous Board (AI Executive Committee)."
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260911-5655",
-    "symbol": "BTCUSDT",
-    "side": "SHORT",
-    "strategy": "Quantitative Confluence Setup",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
-    "priority": "NORMAL",
-    "created_at": "2026-09-11 00:27:35",
-    "updated_at": "2026-09-11 00:27:41",
-    "payload": {
-      "entry": 34.09,
-      "sl": 34.4938,
-      "tp": 33.2824,
-      "rr": 2.0
-    },
-    "debate_result": null,
-    "risk_result": {
-      "decision": "VETO",
-      "confidence": 85,
-      "suggested_risk_scale": 0.0,
-      "thesis": "VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 5%). Penambahan posisi BTCUSDT ditolak demi perlindungan modal.",
-      "key_risks": [
-        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)",
-        "Blocked by Tri-Perspective Fund Manager"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $34.4938.",
-      "provider": "Heuristic Fallback (GEMINI API Timeout)",
-      "adversarial_debate": {
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "entry_price": 0.0,
-        "sl_price": 34.4938,
-        "tp_price": 33.2824,
-        "rr_ratio": 2.0,
-        "strategy": "5m ICT Rejection Block Mean Threshold",
-        "bull_score": 69,
-        "bear_score": 31,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.77x Bids/Asks) menekan harga ke bawah.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset BTCUSDT tergabung dalam sektor narasi terkuat hari ini (\ud83d\udc51 Macro Heavyweights), menikmati rotasi modal institusional prima.",
-        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (69% vs 31%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 34.4938,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-11 07:27:40"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-11 07:27:41",
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 90,
-          "desired_scale": 1.1,
-          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 69% menunjukkan dorongan positif moderat. | ADX momentum kuat (40.3) mendukung kelanjutan tren yang ekspansif."
-        },
-        "conservative": {
-          "score": 5,
-          "desired_scale": 0.3,
-          "thesis": "Peringatan konsentrasi arah: sudah ada 4 posisi sepihak terbuka. | Margin bebas kritis (15%); prioritas preservasi kas."
-        },
-        "neutral": {
-          "score": 65,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 65.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "BLOCKED_RISK_LIMIT",
-          "composite_risk_score": 43,
-          "allocated_risk_scale": 0.0,
-          "stop_loss_profile": "NONE",
-          "regime_weights": {
-            "aggressive": 0.2,
-            "neutral": 0.35,
-            "conservative": 0.45
-          },
-          "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 5%). Penambahan posisi BTCUSDT ditolak demi perlindungan modal."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "BTC",
-        "sector_key": "MACRO_BLUECHIP",
-        "sector_title": "Macro Heavyweights",
-        "sector_icon": "\ud83d\udc51",
-        "sector_rank": 1,
-        "is_leading_sector": true,
-        "sector_24h_avg": -1.24,
-        "relative_strength_vs_btc": 0.55,
-        "confluence_boost": 15
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-11 00:27:41",
-      "note": "Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan); Free margin menipis (15.5%)"
-    },
-    "execution_result": null,
-    "timeline": [
-      {
-        "timestamp": "2026-09-11 00:27:35",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup BTCUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
-      },
-      {
-        "timestamp": "2026-09-11 00:27:41",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: VETO (85%)"
-      },
-      {
-        "timestamp": "2026-09-11 00:27:41",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan); Free margin menipis (15.5%) oleh Autonomous Board (AI Executive Committee)."
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260911-7229",
-    "symbol": "BTCUSDT",
-    "side": "SHORT",
-    "strategy": "Quantitative Confluence Setup",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
-    "priority": "NORMAL",
-    "created_at": "2026-09-11 00:25:57",
-    "updated_at": "2026-09-11 00:26:02",
-    "payload": {
-      "entry": 34.09,
-      "sl": 34.4938,
-      "tp": 33.2824,
-      "rr": 2.0
-    },
-    "debate_result": null,
-    "risk_result": {
-      "decision": "VETO",
-      "confidence": 85,
-      "suggested_risk_scale": 0.0,
-      "thesis": "VETO FUND MANAGER (Tri-Perspective Risk): REJECTED: Stres portofolio melampaui batas aman (Konservatif 5%). Penambahan posisi BTCUSDT ditolak demi perlindungan modal.",
-      "key_risks": [
-        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)",
-        "Blocked by Tri-Perspective Fund Manager"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $34.4938.",
-      "provider": "Heuristic Fallback (GEMINI API Timeout)",
-      "adversarial_debate": {
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "entry_price": 0.0,
-        "sl_price": 34.4938,
-        "tp_price": 33.2824,
-        "rr_ratio": 2.0,
-        "strategy": "5m ICT Rejection Block Mean Threshold",
-        "bull_score": 69,
-        "bear_score": 31,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.71x Bids/Asks) menekan harga ke bawah.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset BTCUSDT tergabung dalam sektor narasi terkuat hari ini (\ud83d\udc51 Macro Heavyweights), menikmati rotasi modal institusional prima.",
-        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (69% vs 31%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 34.4938,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-11 07:26:02"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-11 07:26:02",
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 90,
-          "desired_scale": 1.1,
-          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 69% menunjukkan dorongan positif moderat. | ADX momentum kuat (40.3) mendukung kelanjutan tren yang ekspansif."
-        },
-        "conservative": {
-          "score": 5,
-          "desired_scale": 0.3,
-          "thesis": "Peringatan konsentrasi arah: sudah ada 4 posisi sepihak terbuka. | Margin bebas kritis (15%); prioritas preservasi kas."
-        },
-        "neutral": {
-          "score": 65,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 65.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "BLOCKED_RISK_LIMIT",
-          "composite_risk_score": 43,
-          "allocated_risk_scale": 0.0,
-          "stop_loss_profile": "NONE",
-          "regime_weights": {
-            "aggressive": 0.2,
-            "neutral": 0.35,
-            "conservative": 0.45
-          },
-          "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 5%). Penambahan posisi BTCUSDT ditolak demi perlindungan modal."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "BTC",
-        "sector_key": "MACRO_BLUECHIP",
-        "sector_title": "Macro Heavyweights",
-        "sector_icon": "\ud83d\udc51",
-        "sector_rank": 1,
-        "is_leading_sector": true,
-        "sector_24h_avg": -1.3,
-        "relative_strength_vs_btc": 0.53,
-        "confluence_boost": 15
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-11 00:26:02",
-      "note": "Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan); Free margin menipis (15.4%)"
-    },
-    "execution_result": null,
-    "timeline": [
-      {
-        "timestamp": "2026-09-11 00:25:57",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup BTCUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
-      },
-      {
-        "timestamp": "2026-09-11 00:26:02",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: VETO (85%)"
-      },
-      {
-        "timestamp": "2026-09-11 00:26:02",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (7 posisi aktif berjalan); Free margin menipis (15.4%) oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   }

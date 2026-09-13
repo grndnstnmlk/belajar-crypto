@@ -650,7 +650,12 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
             t_data["highest_r_reached"] = round(r_multiple, 2)
 
         # -------------------------------------------------------------
-        # STEP 0: TIME-STOP CHECK FOR SCALP TRADES (Safeguard: Never force-close in minus!)
+        # STEP 0: FINE-TUNED ADAPTIVE ANTI-STALL & CAPITAL REALLOCATION
+        # Safeguards:
+        # 1. Never close a trade that is floating in the red (allow room to reach SMC invalidation or bounce).
+        # 2. Adaptive timeout based on coin beta: 35m for majors/slow movers (ADA, XRP, LINK, BNB) vs 25m for high-beta.
+        # 3. Developing momentum protection: if 0.20 <= R < 0.60, auto-lock Breakeven (Risk-Free) and LET WINNERS RUN.
+        # 4. Strict flat closure: only reallocate if trade is dead flat (0.0 <= R < 0.20) to recycle margin.
         # -------------------------------------------------------------
         if t_data.get("is_scalp"):
             opened_at = t_data.get("opened_at", "")
@@ -659,36 +664,59 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     fmt = "%Y-%m-%d %H:%M:%S" if len(opened_at) > 16 else "%Y-%m-%d %H:%M"
                     op_dt = datetime.strptime(opened_at, fmt)
                     elapsed_min = (datetime.now() - op_dt).total_seconds() / 60.0
-                    # Proteksi: Jangan pernah force-close posisi yang sedang minus/floating red.
-                    # Biarkan posisi bernafas hingga menyentuh Stop Loss terukur atau memantul ke Take Profit.
-                    # Tutup jika posisi scalp sudah flat / stagnan (0.0 <= r_multiple < 0.35) setelah 20 menit (4 candle 5m).
-                    if elapsed_min >= 20.0 and (0.0 <= r_multiple < 0.35):
-                        close_side = "SELL" if amt > 0 else "BUY"
-                        binance_client.send_signed_request(
-                            "/fapi/v1/order",
-                            method="POST",
-                            params={
-                                "symbol": sym,
-                                "side": close_side,
-                                "type": "MARKET",
-                                "quantity": abs(amt),
-                                "reduceOnly": "true"
-                            },
-                            is_demo=is_demo,
-                            user_email=user_email
-                        )
-                        print(f"⏱️ [SCALP STAGNANT CLOSE] {sym}: Ditutup setelah {int(elapsed_min)} menit (Stagnan di Breakeven/Untung Tipis +{r_multiple:.2f}R).")
-                        try:
-                            telegram_notifier.send_telegram_broadcast(
-                                f"⏱️ *STAGNANT TRADE CLOSED (CAPITAL REALLOCATION)* ⏱️\n"
-                                f"Aset: *{sym}*\n"
-                                f"Durasi Aktif: *{int(elapsed_min)} menit*\n"
-                                f"PnL: *${upnl:+,.2f} USDT* (+{r_multiple:.2f}R)\n"
-                                f"Posisi ditutup karena stagnan di zona aman untuk memutar modal ke setup baru."
+                    
+                    # Adaptive timeout: 35m for slower accumulation assets, 25m for hyper-scalps
+                    slow_movers = {"ADA", "XRP", "LINK", "DOT", "LTC", "BNB"}
+                    timeout_min = 35.0 if any(sym.startswith(sm) for sm in slow_movers) else 25.0
+
+                    if elapsed_min >= timeout_min:
+                        # Case A: Trade is developing healthy momentum (0.20R <= R < 0.60R) -> Lock Breakeven & Let it Run!
+                        if 0.20 <= r_multiple < 0.60 and not t_data.get("breakeven_locked"):
+                            be_price = calculate_breakeven_price(sym, side, entry_price)
+                            success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
+                            if success:
+                                t_data["breakeven_locked"] = True
+                                t_data["current_sl"] = be_price
+                                print(f"🛡️ [ANTI-STALL BE LOCK] {sym}: Momentum sehat (+{r_multiple:.2f}R pada {int(elapsed_min)}m). SL dikunci ke Breakeven ${be_price:,.4f} untuk membiarkan profit berlari bebas risiko!")
+                                try:
+                                    telegram_notifier.send_telegram_broadcast(
+                                        f"🛡️ <b>MOMENTUM EXTENSION (BREAKEVEN LOCKED)</b> 🛡️\n"
+                                        f"💎 <b>Aset:</b> <code>{sym}</code>\n"
+                                        f"⏱️ <b>Durasi:</b> {int(elapsed_min)} menit (Profit: +{r_multiple:.2f}R)\n"
+                                        f"🔒 <b>SL Diamankan ke BE:</b> <code>${be_price:,.4f}</code>\n"
+                                        f"🚀 <i>Posisi tidak ditutup paksa karena momentum berkembang. Dibiarkan berlari menuju TP bebas risiko!</i>"
+                                    )
+                                except Exception:
+                                    pass
+
+                        # Case B: Trade is completely dead-flat (0.0 <= R < 0.20) -> Safe Reallocation to Free Capital
+                        elif 0.0 <= r_multiple < 0.20:
+                            close_side = "SELL" if amt > 0 else "BUY"
+                            binance_client.send_signed_request(
+                                "/fapi/v1/order",
+                                method="POST",
+                                params={
+                                    "symbol": sym,
+                                    "side": close_side,
+                                    "type": "MARKET",
+                                    "quantity": abs(amt),
+                                    "reduceOnly": "true"
+                                },
+                                is_demo=is_demo,
+                                user_email=user_email
                             )
-                        except Exception:
-                            pass
-                        continue
+                            print(f"⏱️ [SCALP STAGNANT CLOSE] {sym}: Ditutup setelah {int(elapsed_min)} menit (Dead-flat di +{r_multiple:.2f}R). Modal direalokasi.")
+                            try:
+                                telegram_notifier.send_telegram_broadcast(
+                                    f"⏱️ *STAGNANT TRADE CLOSED (CAPITAL REALLOCATION)* ⏱️\n"
+                                    f"Aset: *{sym}*\n"
+                                    f"Durasi Aktif: *{int(elapsed_min)} menit*\n"
+                                    f"PnL: *${upnl:+,.2f} USDT* (+{r_multiple:.2f}R)\n"
+                                    f"Posisi ditutup karena flat tanpa agresi volume untuk memutar modal ke setup baru."
+                                )
+                            except Exception:
+                                pass
+                            continue
                 except Exception:
                     pass
 
