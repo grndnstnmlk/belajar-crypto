@@ -93,6 +93,20 @@ EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
 DEFAULT_WATCHLIST = ["BTC", "BNB", "LINK", "SUI", "XRP", "SOL", "NEAR", "ETH"]
 BLACKLIST_COINS = {"SOPH", "ZEC", "ADA", "DOGE", "AVAX", "PROM", "THE", "HOLO", "WLD", "UNI"}
 
+try:
+    import pairlist_pipeline
+except ImportError:
+    pairlist_pipeline = None
+
+def get_effective_watchlist() -> list:
+    """Returns dynamic curated pairlist from pairlist_pipeline, falling back to DEFAULT_WATCHLIST."""
+    if pairlist_pipeline:
+        try:
+            return pairlist_pipeline.get_active_dynamic_pairlist()
+        except Exception:
+            pass
+    return DEFAULT_WATCHLIST
+
 PID_FILE = os.path.join(DATA_DIR, "trading_desk.pid")
 
 def acquire_single_instance_lock():
@@ -193,10 +207,17 @@ def get_asset_sweep_buffer(symbol):
 def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
     """
     Dynamic Universe Screener:
-    Fetches real-time 24h ticker data from Binance Vision, filters for valid Binance Futures USDT pairs,
-    excludes stablecoins & leveraged tokens, and ranks assets by 24h quote volume & momentum.
-    Guarantees foundational benchmark assets (BTC, ETH, SOL) are always included.
+    Uses Chainable Dynamic Pairlist Pipeline (6-Stage Institutional Filter) to select
+    the highest-quality liquid pairs on Binance Futures, with automatic fallback.
     """
+    if pairlist_pipeline:
+        try:
+            champions = pairlist_pipeline.get_active_dynamic_pairlist()
+            if champions and len(champions) >= 4:
+                return champions[:top_n]
+        except Exception:
+            pass
+
     anchor_coins = ["BTC", "ETH", "SOL"]
     stables = {"USDCUSDT", "FDUSDUSDT", "TUSDUSDT", "BUSDUSDT", "EURUSDT", "DAIUSDT", "AEURUSDT", "USDSUSDT"}
 

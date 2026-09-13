@@ -31,8 +31,24 @@ sys.path.insert(0, TOOLS_DIR)
 
 import market_radar
 import market_eyes
+try:
+    import hyperopt_optimizer
+except ImportError:
+    hyperopt_optimizer = None
 
 DEFAULT_SCALP_SYMBOLS = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "SUI", "LINK", "AVAX", "NEAR"]
+
+def load_optimized_scalper_params(symbol="BTC"):
+    """
+    Dynamically loads hyperparameter-optimized settings (from hyperopt_optimizer) if available.
+    """
+    if hyperopt_optimizer:
+        try:
+            return hyperopt_optimizer.get_optimized_params(symbol, "fast_scalper")
+        except Exception:
+            pass
+    return None
+
 
 def get_15m_context(symbol):
     """

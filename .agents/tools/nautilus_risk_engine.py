@@ -266,6 +266,21 @@ def validate_pre_trade_order(
     except Exception:
         pass
 
+    # 8. Check Adaptive ML & Dissimilarity Index Anomaly Gate (FreqAI-Style OOD)
+    ml_info = {}
+    try:
+        import adaptive_ml_engine
+        ml_info = adaptive_ml_engine.audit_pre_trade_ml_safety(clean_sym, side)
+        if not ml_info.get("approved", True):
+            rejection_reasons.append(ml_info.get("reason", "ML Out-of-Distribution Anomaly"))
+        else:
+            ml_mul = ml_info.get("risk_multiplier", 1.0)
+            adjusted_scale *= ml_mul
+            if ml_mul < 1.0:
+                warnings.append(f"🧠 [Adaptive ML]: {ml_info.get('reason')}")
+    except Exception:
+        pass
+
     is_approved = len(rejection_reasons) == 0
 
     return {

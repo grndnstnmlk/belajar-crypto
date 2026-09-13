@@ -46,6 +46,29 @@ import trade_journal
 import liquidity_heatmap
 import ai_risk_officer
 import market_radar
+import threading
+
+try:
+    import hyperopt_optimizer
+except ImportError:
+    hyperopt_optimizer = None
+
+try:
+    import adaptive_ml_engine
+except ImportError:
+    adaptive_ml_engine = None
+
+try:
+    import pairlist_pipeline
+except ImportError:
+    pairlist_pipeline = None
+
+_hyperopt_state = {
+    "is_running": False,
+    "last_run": None,
+    "last_result": None,
+    "error": None
+}
 
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
@@ -1089,6 +1112,82 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path == "/api/hyperopt/status":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "state": _hyperopt_state}).encode("utf-8"))
+            return
+
+        elif path == "/api/hyperopt/results":
+            res_file = os.path.join(DATA_DIR, "optimized_params.json")
+            hist_file = os.path.join(DATA_DIR, "hyperopt_history.json")
+            params_data = {}
+            hist_data = {}
+            if os.path.exists(res_file):
+                try:
+                    with open(res_file, "r", encoding="utf-8") as f:
+                        params_data = json.load(f)
+                except Exception:
+                    pass
+            if os.path.exists(hist_file):
+                try:
+                    with open(hist_file, "r", encoding="utf-8") as f:
+                        hist_data = json.load(f)
+                except Exception:
+                    pass
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True,
+                "optimized_params": params_data,
+                "latest_history": hist_data
+            }).encode("utf-8"))
+            return
+
+        elif path == "/api/ml/status":
+            try:
+                q_sym = params.get("symbol", ["BTC"])[0]
+                q_bar = params.get("bar", ["1h"])[0]
+                if adaptive_ml_engine:
+                    ml_data = adaptive_ml_engine.evaluate_live_market_ml(symbol=q_sym, bar=q_bar)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": True, "ml_profile": ml_data}, ensure_ascii=False).encode("utf-8"))
+                else:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "adaptive_ml_engine not available"}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/pairlist/active":
+            try:
+                if pairlist_pipeline:
+                    data = pairlist_pipeline.get_pairlist_telemetry()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": True, "pairlist_data": data}, ensure_ascii=False).encode("utf-8"))
+                else:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "pairlist_pipeline not available"}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         super().do_GET()
 
     def do_POST(self):
@@ -1426,6 +1525,100 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "closed_count": len(active)}).encode("utf-8"))
+            return
+
+        elif path == "/api/hyperopt/run":
+            if _hyperopt_state["is_running"]:
+                self.send_response(429)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": "Hyperopt optimization is already running"}).encode("utf-8"))
+                return
+
+            sym = payload.get("symbol", "BTC")
+            strat = payload.get("strategy", "fast_scalper")
+            bar = payload.get("bar", "1H")
+            trials = int(payload.get("trials", 40))
+            target = payload.get("target", "sortino")
+
+            def _bg_run():
+                global _hyperopt_state
+                _hyperopt_state["is_running"] = True
+                _hyperopt_state["last_run"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                _hyperopt_state["error"] = None
+                try:
+                    if hyperopt_optimizer:
+                        res = hyperopt_optimizer.run_hyperopt(
+                            symbol=sym,
+                            strategy=strat,
+                            bar=bar,
+                            target_count=500,
+                            trials=trials,
+                            target=target
+                        )
+                        _hyperopt_state["last_result"] = res
+                    else:
+                        _hyperopt_state["error"] = "hyperopt_optimizer module not available"
+                except Exception as ex:
+                    _hyperopt_state["error"] = str(ex)
+                finally:
+                    _hyperopt_state["is_running"] = False
+
+            t = threading.Thread(target=_bg_run, daemon=True)
+            t.start()
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True,
+                "message": f"Optimization started in background for {sym} ({strat}) with {trials} trials",
+                "symbol": sym,
+                "strategy": strat
+            }).encode("utf-8"))
+            return
+
+        elif path == "/api/ml/retrain":
+            sym = payload.get("symbol", "BTC")
+            bar = payload.get("bar", "1h")
+            count = int(payload.get("candles", 500))
+
+            def _bg_retrain():
+                if adaptive_ml_engine:
+                    adaptive_ml_engine.train_and_cache_model(symbol=sym, bar=bar, candle_count=count)
+
+            t = threading.Thread(target=_bg_retrain, daemon=True)
+            t.start()
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True,
+                "message": f"Rolling ML retraining started in background for {sym} [{bar}] ({count} candles)",
+                "symbol": sym,
+                "bar": bar
+            }).encode("utf-8"))
+            return
+
+        elif path == "/api/pairlist/refresh":
+            top_n = int(payload.get("top_n", 8))
+
+            def _bg_pairlist():
+                if pairlist_pipeline:
+                    pipeline = pairlist_pipeline.DynamicPairlistPipeline()
+                    pipeline.execute()
+
+            t = threading.Thread(target=_bg_pairlist, daemon=True)
+            t.start()
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True,
+                "message": "Dynamic Pairlist Pipeline execution triggered in background"
+            }).encode("utf-8"))
             return
 
         elif path == "/api/action/toggle_pause":
