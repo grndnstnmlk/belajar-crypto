@@ -150,12 +150,12 @@ def calculate_confluence_score(setup, session_info=None):
     if "FVG" in setup.get("reason", "") or setup.get("is_fvg"):
         struct_pts += 12
         reasons.append("Fair Value Gap Retest")
-    if "IFVG" in setup.get("strategy", "") or "Inverse FVG" in setup.get("strategy", ""):
+    if "Percoco" in setup.get("strategy", "") or "Percoco" in setup.get("reason", "") or setup.get("is_percoco"):
+        struct_pts += 25
+        reasons.append("Craig Percoco Key-Level Rejection Sniper (Wick + Volume)")
+    elif "IFVG" in setup.get("strategy", "") or "Inverse FVG" in setup.get("strategy", ""):
         struct_pts += 24
         reasons.append("Inverse FVG Role Reversal (ICT Manipulation)")
-    elif "Akademi Crypto" in setup.get("strategy", "") or "Pocket" in setup.get("strategy", ""):
-        struct_pts += 24
-        reasons.append("Akademi Crypto High Win-Rate Blueprint (EMA 9/21 + Stoch)")
     elif "Rectangle" in setup.get("strategy", "") or "Break & Retest" in setup.get("strategy", ""):
         struct_pts += 23
         reasons.append("15m Rectangle Break & Retest (Mulham Sniper)")

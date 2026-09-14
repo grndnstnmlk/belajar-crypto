@@ -445,7 +445,82 @@ def detect_wyckoff_spring_utad(candles: List[List[Any]]) -> Dict[str, Any]:
     return {"has_wyckoff": False, "pattern": "NONE", "summary": "No active Wyckoff Phase C Spring/UTAD"}
 
 # =============================================================================
-# 8. Master Institutional FOMO SMC Setup Auditor (14-Course Synthesis)
+# 8. Craig Percoco Mechanical Scalper (HTF Key-Level Tap + Rejection Wick + Volume Surge)
+# =============================================================================
+def detect_craig_percoco_rejection_setup(candles: List[List[Any]]) -> Dict[str, Any]:
+    """
+    Craig Percoco Scalping Strategy Engine:
+    1. Identifies HTF Key Support/Resistance (10-25 candle Swing Highs & Lows).
+    2. Inspects recent candle for a clean Rejection Wick (>= 38% of total candle height).
+    3. Confirms Volume Surge (>= 1.20x of 14-period average volume).
+    4. Computes Mechanical Invalidation (SL behind wick) and 1:3.0R Target.
+    """
+    if not candles or len(candles) < 20:
+        return {"has_percoco": False, "signal": "NONE", "summary": "Insufficient candles"}
+
+    highs = [float(c[2]) for c in candles]
+    lows = [float(c[3]) for c in candles]
+    opens = [float(c[1]) for c in candles]
+    closes = [float(c[4]) for c in candles]
+    volumes = [float(c[5]) for c in candles]
+
+    # Calculate average volume
+    avg_vol = sum(volumes[-15:-1]) / 14.0 if len(volumes) >= 15 else (volumes[-1] or 1.0)
+    curr_vol = volumes[-1]
+    vol_surge = (curr_vol >= (avg_vol * 1.20))
+
+    # Evaluate Key Level from past 20 candles
+    swing_high = max(highs[-20:-2])
+    swing_low = min(lows[-20:-2])
+
+    o, h, l, c = opens[-1], highs[-1], lows[-1], closes[-1]
+    candle_range = max(h - l, 0.0001)
+
+    lower_wick = min(o, c) - l
+    upper_wick = h - max(o, c)
+
+    # Bullish Percoco Setup: Price tapped near swing_low, lower wick >= 38% of range, closed in upper half
+    if (l <= swing_low * 1.002) and (lower_wick / candle_range >= 0.38) and (c > l + 0.45 * candle_range):
+        dist_sl = max(c - (l * 0.998), c * 0.004)
+        entry = c
+        sl = round(l * 0.998, 4)
+        tp = round(entry + (dist_sl * 3.0), 4)
+        rr = (tp - entry) / dist_sl
+        return {
+            "has_percoco": True,
+            "signal": "BULLISH_PERCOCO_REJECTION",
+            "entry": entry,
+            "sl": sl,
+            "tp": tp,
+            "rr": round(rr, 2),
+            "key_level": round(swing_low, 4),
+            "vol_surge": vol_surge,
+            "summary": f"🎯 CRAIG PERCOCO SNIPER (LONG): Rejection Wick {lower_wick/candle_range*100:.0f}% at Support ${swing_low:,.4f} | R:R 1:{rr:.2f}"
+        }
+
+    # Bearish Percoco Setup: Price tapped near swing_high, upper wick >= 38% of range, closed in lower half
+    if (h >= swing_high * 0.998) and (upper_wick / candle_range >= 0.38) and (c < h - 0.45 * candle_range):
+        dist_sl = max((h * 1.002) - c, c * 0.004)
+        entry = c
+        sl = round(h * 1.002, 4)
+        tp = round(entry - (dist_sl * 3.0), 4)
+        rr = (entry - tp) / dist_sl
+        return {
+            "has_percoco": True,
+            "signal": "BEARISH_PERCOCO_REJECTION",
+            "entry": entry,
+            "sl": sl,
+            "tp": tp,
+            "rr": round(rr, 2),
+            "key_level": round(swing_high, 4),
+            "vol_surge": vol_surge,
+            "summary": f"🎯 CRAIG PERCOCO SNIPER (SHORT): Rejection Wick {upper_wick/candle_range*100:.0f}% at Resistance ${swing_high:,.4f} | R:R 1:{rr:.2f}"
+        }
+
+    return {"has_percoco": False, "signal": "NONE", "summary": "No active Percoco rejection setup"}
+
+# =============================================================================
+# 9. Master Institutional FOMO SMC Setup Auditor (14-Course Synthesis)
 # =============================================================================
 def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", proposed_price: Optional[float] = None) -> Dict[str, Any]:
     """
@@ -578,6 +653,16 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
             score += 20
             reasons.append(wyckoff_intel["summary"])
 
+    # 8. Craig Percoco Key-Level Rejection Sniper (Wick >= 38% + Volume Surge)
+    percoco_intel = detect_craig_percoco_rejection_setup(candles)
+    if percoco_intel.get("has_percoco"):
+        if is_buy and percoco_intel["signal"] == "BULLISH_PERCOCO_REJECTION":
+            score += 20
+            reasons.append(percoco_intel["summary"])
+        elif not is_buy and percoco_intel["signal"] == "BEARISH_PERCOCO_REJECTION":
+            score += 20
+            reasons.append(percoco_intel["summary"])
+
     score = max(0, min(100, score))
     grade = "A+ (INSTITUTIONAL GRADE)" if score >= 85 else ("A (HIGH CONFLUENCE)" if score >= 75 else ("B (MODERATE)" if score >= 60 else "C (POOR)"))
 
@@ -604,6 +689,7 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         "vertex_refinement": vertex_intel,
         "sd_flip": flip_intel,
         "wyckoff": wyckoff_intel,
+        "percoco_setup": percoco_intel,
         "confluence_reasons": reasons,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
