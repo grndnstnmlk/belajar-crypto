@@ -855,6 +855,8 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         elif path == "/api/memory/sync_journal":
             try:
                 import agent_memory_engine
