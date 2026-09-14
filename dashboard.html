@@ -328,6 +328,22 @@
       box-shadow: 0 0 16px rgba(255, 135, 9, 0.45);
     }
 
+    /* Custom GSAP Chalkboard Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(14, 16, 15, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-surface-25);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-shockingly-green);
+    }
+
     /* Responsive Compact Adaptations for Full Screens & Laptop Viewports */
     @media (max-width: 1550px) {
       header { padding: 0 10px; gap: 6px; }
@@ -350,12 +366,16 @@
     .tab-pane {
       display: none;
       flex: 1;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       height: calc(100vh - 60px);
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
     }
 
     .tab-pane.active {
       display: flex;
+      flex-direction: column;
     }
 
     /* ==========================================================================
@@ -366,6 +386,7 @@
       grid-template-columns: 240px 1fr 340px;
       width: 100%;
       height: 100%;
+      min-height: calc(100vh - 60px);
       overflow: hidden;
     }
 
@@ -2320,6 +2341,9 @@
               <span style="color:var(--color-cyan); font-weight:700;">📖 Memori:</span>
               <span class="mono" id="memory-total-count-badge" style="color:var(--color-text);">3 Episodik</span>
             </div>
+            <button class="btn" onclick="syncAgentMemoryJournal()" style="border-color:var(--color-shockingly-green); color:var(--color-shockingly-green);" title="Sinkronkan seluruh data trade journal ke memori kognitif">
+              🔄 Sinkron Jurnal
+            </button>
             <button class="btn" onclick="triggerManualReflection()" style="border-color:var(--color-lilac); color:var(--color-lilac);" title="Jalankan refleksi evaluasi mandiri">
               ⚡ Refleksi Uji Coba
             </button>
@@ -2333,12 +2357,8 @@
             <input type="text" id="memory-search-input" placeholder="Cari ingatan setup, koin, atau jebakan market (e.g. false breakout, spring, SOL)..." style="flex:1; background:var(--color-card); border:1px solid var(--color-ash); color:var(--color-text); border-radius:var(--radius-card); padding:8px 14px; font-size:12px; font-family:var(--font-body);" onkeydown="if(event.key==='Enter') executeMemorySearch()">
             <button class="btn btn-primary" onclick="executeMemorySearch()" style="padding:7px 16px; font-size:11.5px;">Cari Memori</button>
           </div>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <div id="memory-symbol-chips-bar" style="display:flex; gap:6px; flex-wrap:wrap; max-height:84px; overflow-y:auto; align-items:center;">
             <button class="filter-chip active" onclick="filterMemoryBySymbol('ALL', this)">SEMUA</button>
-            <button class="filter-chip" onclick="filterMemoryBySymbol('BTCUSDT', this)">BTC</button>
-            <button class="filter-chip" onclick="filterMemoryBySymbol('ETHUSDT', this)">ETH</button>
-            <button class="filter-chip" onclick="filterMemoryBySymbol('SOLUSDT', this)">SOL</button>
-            <button class="filter-chip" onclick="filterMemoryBySymbol('DOGEUSDT', this)">DOGE</button>
           </div>
         </div>
 
@@ -4626,6 +4646,21 @@
       const totCountBadge = document.getElementById('memory-total-count-badge');
       if (totCountBadge) totCountBadge.innerText = `${summary.total_episodic_memories || 0} Episodik`;
 
+      // Render Dynamic Symbol Filter Chips
+      const chipsBar = document.getElementById('memory-symbol-chips-bar');
+      if (chipsBar && summary.coin_profiles) {
+        const symbols = Object.keys(summary.coin_profiles).sort();
+        let chipsHtml = `<button class="filter-chip ${currentMemoryFilterSymbol === 'ALL' ? 'active' : ''}" onclick="filterMemoryBySymbol('ALL', this)">SEMUA (${symbols.length})</button>`;
+        symbols.forEach(sym => {
+          const shortSym = sym.replace('USDT', '');
+          const isAct = currentMemoryFilterSymbol === sym ? 'active' : '';
+          const prof = summary.coin_profiles[sym] || {};
+          const countStr = prof.total_trades ? ` [${prof.total_trades}]` : '';
+          chipsHtml += `<button class="filter-chip ${isAct}" onclick="filterMemoryBySymbol('${sym}', this)">${shortSym}${countStr}</button>`;
+        });
+        chipsBar.innerHTML = chipsHtml;
+      }
+
       // Render Episodic Memories
       const refContainer = document.getElementById('memory-reflections-container');
       if (refContainer) {
@@ -4685,6 +4720,10 @@
           const wickColor = p.wick_risk_rating === 'HIGH' || p.wick_risk_rating === 'VERY_HIGH' ? 'tangerine' : 'blue';
           const falseBrkColor = p.false_breakout_bias === 'HIGH' || p.false_breakout_bias === 'VERY_HIGH' ? 'tangerine' : 'mint';
           const setupsList = (p.optimal_setups || []).map(s => `• ${s}`).join('<br>');
+          const wr = p.win_rate_pct !== undefined ? p.win_rate_pct : 0.0;
+          const tradesCount = p.total_trades || 0;
+          const pnlUsd = p.net_pnl_usd !== undefined ? p.net_pnl_usd : 0.0;
+          const pnlColor = pnlUsd >= 0 ? 'var(--color-mint)' : 'var(--color-tangerine)';
 
           return `
             <div class="coin-profile-card">
@@ -4698,6 +4737,20 @@
                   <span class="pill-badge ${falseBrkColor} mono" style="font-size:8.5px; padding:1px 5px;">Fakeout: ${p.false_breakout_bias || 'LOW'}</span>
                 </div>
               </div>
+
+              <!-- Realized Performance Matrix -->
+              <div style="display:flex; justify-content:space-between; align-items:center; background:var(--color-paper); border:1px solid var(--color-ash); border-radius:6px; padding:6px 10px; font-size:11px;">
+                <div>
+                  <span style="color:var(--color-text-dim);">Win Rate:</span>
+                  <b class="mono" style="color:var(--color-text); margin-left:4px;">${wr}%</b>
+                  <span class="mono" style="color:var(--color-text-dim); font-size:9.5px;">(${p.wins || 0}W/${p.losses || 0}L/${tradesCount}T)</span>
+                </div>
+                <div>
+                  <span style="color:var(--color-text-dim);">PnL:</span>
+                  <b class="mono" style="color:${pnlColor}; margin-left:4px;">${pnlUsd >= 0 ? '+' : ''}$${pnlUsd.toFixed(2)}</b>
+                </div>
+              </div>
+
               <div style="font-size:11px; color:var(--color-text-dim); line-height:1.4;">
                 ${p.notes || ''}
               </div>
@@ -4737,9 +4790,28 @@
 
     function filterMemoryBySymbol(sym, btn) {
       currentMemoryFilterSymbol = sym;
-      document.querySelectorAll('#view-memory .filter-chip').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#memory-symbol-chips-bar .filter-chip').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
       loadAgentMemoryData(currentMemorySearchQuery, sym);
+    }
+
+    async function syncAgentMemoryJournal() {
+      try {
+        showToast("⏳ Menyinkronkan jurnal trading dengan memori kognitif...");
+        const res = await fetch('/api/memory/sync_journal');
+        const d = await res.json();
+        if (d.success) {
+          const resObj = d.result || {};
+          showToast(`🧠 Sukses Sinkronisasi: ${resObj.synced_trades || 0} trade diindeks ke ${resObj.profiled_coins_count || 0} profil koin.`);
+          if (d.summary) {
+            renderAgentMemory(d.summary);
+          }
+        } else {
+          showToast(`⚠️ Gagal sinkronisasi: ${d.error || 'Unknown error'}`);
+        }
+      } catch (e) {
+        showToast(`⚠️ Error: ${e.message}`);
+      }
     }
 
     async function triggerManualReflection() {

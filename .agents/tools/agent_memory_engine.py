@@ -28,15 +28,17 @@ MEMORY_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.pa
 
 # Default Half-Life for Ebbinghaus Decay (30 days in seconds)
 TAU_DECAY_SECONDS = 30 * 86400
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
 DEFAULT_COIN_PROFILES = {
+    # --- Top Traded Assets & Anchors ---
     "BTCUSDT": {
         "symbol": "BTCUSDT",
         "volatility_regime": "LOW_TO_MODERATE",
         "wick_risk_rating": "MODERATE",
         "funding_sensitivity": "HIGH",
         "false_breakout_bias": "LOW",
-        "optimal_setups": ["SMC Order Block Retest", "Wyckoff Phase C Spring", "Daily FVG Fill"],
+        "optimal_setups": ["SMC Order Block Retest", "Wyckoff Phase C Spring", "Daily FVG Fill", "VWAP Mean Reversion"],
         "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC)."
     },
     "ETHUSDT": {
@@ -45,7 +47,7 @@ DEFAULT_COIN_PROFILES = {
         "wick_risk_rating": "MODERATE",
         "funding_sensitivity": "HIGH",
         "false_breakout_bias": "MODERATE",
-        "optimal_setups": ["Order Flow Shift", "Liquidity Sweep + SMR", "4H FVG Bounce"],
+        "optimal_setups": ["Order Flow Shift", "Liquidity Sweep + SMR", "4H FVG Bounce", "Naked POC Retest"],
         "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion."
     },
     "SOLUSDT": {
@@ -54,8 +56,26 @@ DEFAULT_COIN_PROFILES = {
         "wick_risk_rating": "HIGH",
         "funding_sensitivity": "MODERATE",
         "false_breakout_bias": "HIGH",
-        "optimal_setups": ["Breaker Block Flip", "Aggressive Liquidity Raid", "15m Momentum Continuation"],
+        "optimal_setups": ["Breaker Block Flip", "Aggressive Liquidity Raid", "15m Momentum Continuation", "SFP Stop-Hunt"],
         "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps."
+    },
+    "BNBUSDT": {
+        "symbol": "BNBUSDT",
+        "volatility_regime": "LOW_TO_MODERATE",
+        "wick_risk_rating": "LOW",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "LOW",
+        "optimal_setups": ["Trendline Liquidity Sweep", "Range EQ Bounce", "Institutional Iceberg Absorption"],
+        "notes": "Exchange native anchor. High institutional bid support; low false breakout rate on HTF."
+    },
+    "XRPUSDT": {
+        "symbol": "XRPUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "VERY_HIGH",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Volume Spike Expansion", "SFP Liquidity Sweep", "Funding Rate Squeeze"],
+        "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required."
     },
     "DOGEUSDT": {
         "symbol": "DOGEUSDT",
@@ -63,8 +83,217 @@ DEFAULT_COIN_PROFILES = {
         "wick_risk_rating": "VERY_HIGH",
         "funding_sensitivity": "VERY_HIGH",
         "false_breakout_bias": "VERY_HIGH",
-        "optimal_setups": ["Volume Surge Breakout with Tight Trailing", "HTF Support Sweep"],
+        "optimal_setups": ["Volume Surge Breakout with Tight Trailing", "HTF Support Sweep", "Liquidation Cascade Dip"],
         "notes": "Meme momentum driver. Strict fractional Kelly sizing required (max 1.5% risk)."
+    },
+    "ADAUSDT": {
+        "symbol": "ADAUSDT",
+        "volatility_regime": "MODERATE",
+        "wick_risk_rating": "MODERATE",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "MODERATE",
+        "optimal_setups": ["Multi-day Range Reversion", "Order Block Retest", "VWAP Elasticity"],
+        "notes": "Tends to form extended consolidation ranges before directional expansion."
+    },
+    "AVAXUSDT": {
+        "symbol": "AVAXUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "MODERATE_HIGH",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["15m EMA Momentum Ribbon", "Displacement FVG Reclaim", "CVD Absorption"],
+        "notes": "High beta to SOL and layer-1 rotations. Strong trend continuation when 1H EMA 50 aligns."
+    },
+    "SUIUSDT": {
+        "symbol": "SUIUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Hyper-Trend ORB Breakout", "Liquidity Cluster Raid", "Smart Pyramiding at +2R"],
+        "notes": "High momentum layer-1 leader. High R:R potential on trending days; avoid counter-trend shorts."
+    },
+    "NEARUSDT": {
+        "symbol": "NEARUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "MODERATE",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "MODERATE",
+        "optimal_setups": ["AI-Narrative Trend Follow", "1H FVG Retest", "Volume Surge Pullback"],
+        "notes": "AI and Web3 infrastructure bellwether. Clean price action on 1H timeframes."
+    },
+    "LINKUSDT": {
+        "symbol": "LINKUSDT",
+        "volatility_regime": "MODERATE",
+        "wick_risk_rating": "LOW_TO_MODERATE",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "LOW",
+        "optimal_setups": ["Institutional Accumulation Range", "POC Magnetic Reversion", "Wyckoff Spring"],
+        "notes": "Oracle leader with strong fundamental holding. Highly respects horizontal support and resistance."
+    },
+    "UNIUSDT": {
+        "symbol": "UNIUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["DEX Fee Surge Catalyst", "SFP Resistance Sweep", "Liquidation Dip Reversal"],
+        "notes": "DeFi sector leader. High sensitivity to Ethereum gas and regulatory news."
+    },
+    "THEUSDT": {
+        "symbol": "THEUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "VERY_HIGH",
+        "funding_sensitivity": "VERY_HIGH",
+        "false_breakout_bias": "VERY_HIGH",
+        "optimal_setups": ["Fast Scalp Momentum Dip", "Strict 1.5R Quick Exit"],
+        "notes": "Low cap dex token. Extreme wick volatility; cap maximum exposure to 1% risk."
+    },
+    "ZECUSDT": {
+        "symbol": "ZECUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Privacy Rotation Sweep", "Overnight Range Bounce"],
+        "notes": "Privacy coin idiosyncratic movement. Prone to sharp mean reversions."
+    },
+    "WLDUSDT": {
+        "symbol": "WLDUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "VERY_HIGH",
+        "funding_sensitivity": "VERY_HIGH",
+        "false_breakout_bias": "VERY_HIGH",
+        "optimal_setups": ["AI Narrative Momentum", "Unlocks & Squeeze Snatching"],
+        "notes": "High float unlock volatility and strong short squeezes."
+    },
+    "SOPHUSDT": {
+        "symbol": "SOPHUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "VERY_HIGH",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "VERY_HIGH",
+        "optimal_setups": ["Fast Scalping Ribbon", "Volume Breakout Pullback"],
+        "notes": "Micro-cap altcoin. Strict stop loss required immediately upon entry."
+    },
+    "TRXUSDT": {
+        "symbol": "TRXUSDT",
+        "volatility_regime": "LOW",
+        "wick_risk_rating": "LOW",
+        "funding_sensitivity": "LOW",
+        "false_breakout_bias": "LOW",
+        "optimal_setups": ["Steady Trend Following", "EMA 20/50 Pullback"],
+        "notes": "High stability and low beta to broader market; stable trend continuation."
+    },
+    "ENAUSDT": {
+        "symbol": "ENAUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "VERY_HIGH",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Basis Yield Arbitrage Squeeze", "15m FVG Reversal"],
+        "notes": "Synthetic dollar yield token; strongly skewed by funding rates."
+    },
+
+    # --- Upcoming / Watchlist Pipeline Candidates ---
+    "PEPEUSDT": {
+        "symbol": "PEPEUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "VERY_HIGH",
+        "funding_sensitivity": "VERY_HIGH",
+        "false_breakout_bias": "VERY_HIGH",
+        "optimal_setups": ["Volume Surge Momentum", "Liquidity Cluster Raid", "15m Breakout with BE Lock"],
+        "notes": "Top tier meme coin. Rapid volume explosions; requires tight trailing stop at +1.5R."
+    },
+    "WIFUSDT": {
+        "symbol": "WIFUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "VERY_HIGH",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "VERY_HIGH",
+        "optimal_setups": ["Solana Ecosystem Meme Expansion", "SFP Sweep at Key Levels"],
+        "notes": "High beta meme correlated with SOL. Fast reversals upon hitting daily pivots."
+    },
+    "APTUSDT": {
+        "symbol": "APTUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Move-Ecosystem Breakout", "4H FVG Bounce"],
+        "notes": "Layer-1 altcoin with aggressive market maker manipulation near unlocks."
+    },
+    "ARBUSDT": {
+        "symbol": "ARBUSDT",
+        "volatility_regime": "MODERATE_HIGH",
+        "wick_risk_rating": "MODERATE",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "MODERATE",
+        "optimal_setups": ["Ethereum L2 Beta Surge", "Range Low Liquidity Sweep"],
+        "notes": "Arbitrum governance token. High liquidity depth on futures."
+    },
+    "OPUSDT": {
+        "symbol": "OPUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "MODERATE_HIGH",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "MODERATE",
+        "optimal_setups": ["Superchain Momentum", "POC Gravity Retest"],
+        "notes": "Optimism ecosystem driver. Clean trends when ETH leads the market."
+    },
+    "TIAUSDT": {
+        "symbol": "TIAUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Modular Narrative Continuation", "Funding Pre-Settlement Squeeze"],
+        "notes": "Modular blockchain leader. Highly reactive to staking and unlock news."
+    },
+    "INJUSDT": {
+        "symbol": "INJUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Institutional Order Block Retest", "CVD Iceberg Absorption"],
+        "notes": "Cosmos DeFi hub. Strong institutional market-maker presence."
+    },
+    "RENDERUSDT": {
+        "symbol": "RENDERUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "MODERATE",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "MODERATE",
+        "optimal_setups": ["AI/DePIN Sector Rally", "1H EMA 50 Dynamic Support"],
+        "notes": "Decentralized GPU compute bellwether. High correlation with Nvidia earnings & tech sentiment."
+    },
+    "FETUSDT": {
+        "symbol": "FETUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["ASI Alliance Breakout", "SFP High Sweep Short"],
+        "notes": "AI narrative leader. Sharp momentum bursts during Asian & London sessions."
+    },
+    "SEIUSDT": {
+        "symbol": "SEIUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Parallel EVM Momentum", "Displacement FVG Reclaim"],
+        "notes": "High-throughput trading chain. Clean lower timeframe trends."
+    },
+    "FTMUSDT": {
+        "symbol": "FTMUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Sonic Upgrade Rebrand Momentum", "Wyckoff Spring at Range Low"],
+        "notes": "High retail interest. Wide stop loss required during volatility spikes."
     }
 }
 
@@ -91,6 +320,22 @@ DEFAULT_TACTICAL_RULES = [
         "rule_text": "Avoid aggressive Long entries when 8h Funding Rate exceeds +0.06% (Long Crowding Danger).",
         "confidence": 0.91,
         "trigger_conditions": ["high_funding_long", "resistance_test"],
+        "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+        "id": "RULE-HTF-BIAS-01",
+        "category": "TREND_ALIGNMENT",
+        "rule_text": "Only execute Scalp/Swing positions aligned with the 4H & Daily EMA 50/200 directional bias.",
+        "confidence": 0.96,
+        "trigger_conditions": ["htf_bias_lock", "counter_trend_block"],
+        "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+        "id": "RULE-PYRAMID-01",
+        "category": "CAPITAL_SCALING",
+        "rule_text": "Only add pyramiding size (+30%) when original Stop Loss is locked beyond Breakeven (+0.5R).",
+        "confidence": 0.93,
+        "trigger_conditions": ["breakeven_locked", "continuation_mss"],
         "created_at": "2026-01-01T00:00:00Z"
     }
 ]
@@ -157,6 +402,7 @@ class AgentMemoryEngine:
             "system_retention_score": 98.4
         }
         self.load_memories()
+        self.sync_with_trade_journal()
 
     def load_memories(self) -> None:
         """Load persistent memories from JSON storage, or seed defaults."""
@@ -165,7 +411,11 @@ class AgentMemoryEngine:
                 with open(self.memory_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     self.episodic_memories = data.get("episodic_memories", [])
-                    self.coin_profiles = data.get("coin_profiles", DEFAULT_COIN_PROFILES)
+                    self.coin_profiles = data.get("coin_profiles", {})
+                    # Ensure all default profiles are present
+                    for sym, prof in DEFAULT_COIN_PROFILES.items():
+                        if sym not in self.coin_profiles:
+                            self.coin_profiles[sym] = dict(prof)
                     self.tactical_rules = data.get("tactical_rules", DEFAULT_TACTICAL_RULES)
                     self.meta = data.get("meta", self.meta)
                     return
@@ -305,6 +555,181 @@ class AgentMemoryEngine:
         return top_picks
 
     # =========================================================================
+    # Dynamic Profiler & Trade Journal Ledger Synchronization
+    # =========================================================================
+    def get_or_create_coin_profile(self, symbol: str) -> Dict[str, Any]:
+        """
+        Retrieves or dynamically synthesizes an institutional profile for any traded or incoming candidate coin.
+        """
+        clean_sym = symbol.upper().replace("-", "").replace("/", "").replace("_", "").strip()
+        if not clean_sym.endswith("USDT") and not clean_sym.endswith("USD"):
+            clean_sym += "USDT"
+
+        if clean_sym in self.coin_profiles:
+            return self.coin_profiles[clean_sym]
+
+        # Dynamic Synthesis for new / scanned candidate coins
+        is_meme = any(m in clean_sym for m in ["PEPE", "DOGE", "SHIB", "WIF", "BONK", "FLOKI", "BOME", "POPCAT", "MEME"])
+        is_l1_l2 = any(l in clean_sym for l in ["BTC", "ETH", "SOL", "BNB", "AVAX", "SUI", "APT", "ARB", "OP", "SEI", "NEAR", "FTM", "INJ", "TIA"])
+        is_ai_depin = any(a in clean_sym for a in ["RENDER", "FET", "NEAR", "TAO", "RNDR", "AGIX", "OCEAN", "AKT", "WLD", "IO"])
+
+        if is_meme:
+            volatility = "VERY_HIGH"
+            wick_risk = "VERY_HIGH"
+            funding_sens = "VERY_HIGH"
+            fakeout_bias = "VERY_HIGH"
+            setups = ["Volume Surge Breakout with Tight Trailing", "Liquidation Cluster Sweep Dip", "SFP High Stop-Hunt"]
+            notes = f"High-momentum meme token {clean_sym}. Rapid liquidity shifts; enforce maximum 1.5% Kelly risk and fast BE lock."
+        elif is_ai_depin:
+            volatility = "HIGH"
+            wick_risk = "MODERATE_HIGH"
+            funding_sens = "HIGH"
+            fakeout_bias = "HIGH"
+            setups = ["AI-Narrative Momentum Continuation", "Displacement FVG Reclaim", "1H EMA 50 Dynamic Support"]
+            notes = f"Narrative-driven asset {clean_sym}. Correlated with tech momentum; best traded with trend alignment."
+        elif is_l1_l2:
+            volatility = "MODERATE_HIGH"
+            wick_risk = "MODERATE"
+            funding_sens = "MODERATE"
+            fakeout_bias = "MODERATE"
+            setups = ["SMC Order Block Retest", "Breaker Block Flip", "Institutional VWAP Mean Reversion"]
+            notes = f"Layer 1/2 infrastructure asset {clean_sym}. Highly responsive to institutional volume and HTF market structure."
+        else:
+            volatility = "MODERATE"
+            wick_risk = "MODERATE"
+            funding_sens = "MODERATE"
+            fakeout_bias = "MODERATE"
+            setups = ["15m Order Block Retest", "Naked POC Magnetic Pull", "SFP Liquidity Sweep"]
+            notes = f"Active dynamic asset {clean_sym}. Standard institutional SMC guardrails and 1:3.5R target applied."
+
+        new_profile = {
+            "symbol": clean_sym,
+            "volatility_regime": volatility,
+            "wick_risk_rating": wick_risk,
+            "funding_sensitivity": funding_sens,
+            "false_breakout_bias": fakeout_bias,
+            "optimal_setups": setups,
+            "notes": notes,
+            "total_trades": 0,
+            "win_rate_pct": 0.0,
+            "net_pnl_usd": 0.0,
+            "created_dynamically": True,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        self.coin_profiles[clean_sym] = new_profile
+        self.save_memories()
+        return new_profile
+
+    def sync_with_trade_journal(self) -> Dict[str, Any]:
+        """
+        Scans all closed trades from trade_journal_ledger.json and trading_desk_history.json.
+        Ingests real trade outcomes into episodic memory bank and updates per-coin statistics in coin_profiles.
+        """
+        ledger_path = os.path.join(DATA_DIR, "trade_journal_ledger.json")
+        desk_history_path = os.path.join(DATA_DIR, "trading_desk_history.json")
+        
+        trades = []
+        if os.path.exists(ledger_path):
+            try:
+                with open(ledger_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        trades.extend(data)
+            except Exception as e:
+                print(f"[AgentMemory] Warning loading ledger: {e}")
+
+        if os.path.exists(desk_history_path):
+            try:
+                with open(desk_history_path, "r", encoding="utf-8") as f:
+                    d_data = json.load(f)
+                    if isinstance(d_data, list):
+                        trades.extend(d_data)
+            except Exception:
+                pass
+
+        if not trades:
+            return {"status": "NO_TRADES_FOUND", "synced_trades": 0}
+
+        # Symbol statistics aggregator
+        stats_by_sym = {}
+        processed_ids = set()
+
+        for t in trades:
+            t_id = t.get("id", f"{t.get('symbol')}_{t.get('closed_at')}_{t.get('pnl_usd')}")
+            if t_id in processed_ids:
+                continue
+            processed_ids.add(t_id)
+
+            sym = t.get("symbol", "").upper().replace("-", "").replace("/", "").replace("_", "").strip()
+            if not sym or "MT5" in sym:
+                continue
+            if not sym.endswith("USDT") and not sym.endswith("USD"):
+                sym += "USDT"
+
+            if sym not in stats_by_sym:
+                stats_by_sym[sym] = {
+                    "total": 0,
+                    "wins": 0,
+                    "losses": 0,
+                    "breakevens": 0,
+                    "total_pnl_usd": 0.0,
+                    "total_r": 0.0,
+                    "last_outcome": "UNKNOWN",
+                    "last_closed_at": ""
+                }
+
+            pnl = float(t.get("net_pnl_usd", t.get("pnl_usd", t.get("pnl", 0.0))))
+            r_mult = float(t.get("r_multiple", 0.0))
+            
+            stats_by_sym[sym]["total"] += 1
+            stats_by_sym[sym]["total_pnl_usd"] += pnl
+            stats_by_sym[sym]["total_r"] += r_mult
+            
+            if pnl > 0.5:
+                outcome = "WIN"
+                stats_by_sym[sym]["wins"] += 1
+            elif pnl < -0.5:
+                outcome = "LOSS"
+                stats_by_sym[sym]["losses"] += 1
+            else:
+                outcome = "BREAKEVEN"
+                stats_by_sym[sym]["breakevens"] += 1
+
+            stats_by_sym[sym]["last_outcome"] = outcome
+            if t.get("closed_at"):
+                stats_by_sym[sym]["last_closed_at"] = t.get("closed_at")
+
+        # Update coin profiles
+        for sym, stat in stats_by_sym.items():
+            prof = self.get_or_create_coin_profile(sym)
+            prof["total_trades"] = stat["total"]
+            prof["wins"] = stat["wins"]
+            prof["losses"] = stat["losses"]
+            prof["breakevens"] = stat["breakevens"]
+            prof["win_rate_pct"] = round((stat["wins"] / stat["total"] * 100) if stat["total"] > 0 else 0.0, 1)
+            prof["net_pnl_usd"] = round(stat["total_pnl_usd"], 2)
+            prof["avg_r_multiple"] = round((stat["total_r"] / stat["total"]) if stat["total"] > 0 else 0.0, 2)
+            prof["last_traded_outcome"] = stat["last_outcome"]
+            prof["last_closed_at"] = stat["last_closed_at"]
+            prof["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+            # Dynamic Wick / Fakeout adjustments based on actual performance
+            if stat["total"] >= 5:
+                if prof["win_rate_pct"] < 40.0:
+                    prof["false_breakout_bias"] = "HIGH"
+                    prof["wick_risk_rating"] = "HIGH"
+                elif prof["win_rate_pct"] >= 65.0:
+                    prof["false_breakout_bias"] = "LOW"
+
+        self.save_memories()
+        return {
+            "status": "SUCCESS",
+            "synced_trades": len(processed_ids),
+            "profiled_coins_count": len(stats_by_sym),
+            "profiled_coins": list(stats_by_sym.keys())
+        }
+
+    # =========================================================================
     # Pre-Trade Context Gate & Warning Engine
     # =========================================================================
     def query_pre_trade_context(self, symbol: str, setup_type: str, market_conditions: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -312,7 +737,10 @@ class AgentMemoryEngine:
         Evaluate pre-trade setup against active memory bank.
         Returns risk multipliers, warnings, relevant lessons, and coin profile quirks.
         """
-        clean_symbol = symbol.upper()
+        clean_symbol = symbol.upper().replace("-", "").replace("/", "").replace("_", "").strip()
+        if not clean_symbol.endswith("USDT") and not clean_symbol.endswith("USD"):
+            clean_symbol += "USDT"
+
         clean_setup = setup_type.strip()
         query = f"{clean_symbol} {clean_setup}"
         
@@ -324,15 +752,8 @@ class AgentMemoryEngine:
 
         results = self.hybrid_search(query, symbol=clean_symbol, limit=4)
         
-        # Profile lookup
-        profile = self.coin_profiles.get(clean_symbol, {
-            "symbol": clean_symbol,
-            "volatility_regime": "MODERATE",
-            "wick_risk_rating": "MODERATE",
-            "funding_sensitivity": "MODERATE",
-            "false_breakout_bias": "MODERATE",
-            "notes": "Standard altcoin profile. Standard risk parameters applied."
-        })
+        # Profile lookup (dynamic or existing)
+        profile = self.get_or_create_coin_profile(clean_symbol)
 
         warnings = []
         lessons = []

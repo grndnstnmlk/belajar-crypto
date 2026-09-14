@@ -804,6 +804,22 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         except Exception:
             pass
 
+        # 🧠 Agent Memory & Cognitive Reflection Gate (rohitg00/agentmemory)
+        try:
+            from agent_memory_engine import memory_engine
+            mem_intel = memory_engine.query_pre_trade_context(f"{base}USDT", f"SMC {side}")
+            conf_mult = float(mem_intel.get("confidence_multiplier", 1.0))
+            if conf_mult < 0.88:
+                score = int(score * conf_mult)
+                if mem_intel.get("warnings"):
+                    reasons.append(f"🧠 Cognitive Caution ({conf_mult:.2f}x): {mem_intel['warnings'][0]}")
+            elif conf_mult >= 1.05:
+                score = min(100, int(score * conf_mult))
+                if mem_intel.get("lessons_learned"):
+                    reasons.append(f"🧠 Cognitive Confluence ({conf_mult:.2f}x): {mem_intel['lessons_learned'][0]}")
+        except Exception:
+            pass
+
     score = max(0, min(100, score))
     grade = "A+ (INSTITUTIONAL GRADE)" if score >= 85 else ("A (HIGH CONFLUENCE)" if score >= 75 else ("B (MODERATE)" if score >= 60 else "C (POOR)"))
 

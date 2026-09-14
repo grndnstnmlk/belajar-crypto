@@ -1,61 +1,71 @@
 {
-  "timestamp": "2026-09-14 22:36:02",
+  "timestamp": "2026-09-15 00:36:08",
   "initial_pairs_count": 10,
   "stages": {
-    "1_StaticBlacklistFilter": 10,
-    "2_VolumePairListFilter": 10,
-    "3_PricePrecisionFilter": 10,
-    "4_SpreadAndFrictionFilter": 10,
-    "5_VolatilityFilter": 10,
-    "6_SMCConfluenceRankerFilter": 8
+    "1_StaticBlacklistFilter": 7,
+    "2_VolumePairListFilter": 7,
+    "3_PricePrecisionFilter": 7,
+    "4_SpreadAndFrictionFilter": 7,
+    "5_VolatilityFilter": 7,
+    "6_SMCConfluenceRankerFilter": 7
   },
-  "stage_1_blacklist_passed": 10,
-  "stage_2_volume_passed": 10,
-  "stage_3_price_precision_passed": 10,
-  "stage_4_spread_passed": 10,
-  "stage_5_volatility_passed": 10,
-  "stage_6_smc_ranker_selected": 8,
+  "stage_1_blacklist_passed": 7,
+  "stage_2_volume_passed": 7,
+  "stage_3_price_precision_passed": 7,
+  "stage_4_spread_passed": 7,
+  "stage_5_volatility_passed": 7,
+  "stage_6_smc_ranker_selected": 7,
   "final_pairlist": [
     "BTC",
     "SOL",
+    "XRP",
     "ETH",
     "BNB",
-    "XRP",
-    "SUI",
     "LINK",
-    "AVAX"
+    "SUI"
   ],
-  "elapsed_sec": 2.54,
+  "elapsed_sec": 2.25,
   "champions": [
     {
       "symbol": "BTC",
       "pair": "BTCUSDT",
-      "price": 78428.0,
+      "price": 78774.01,
       "volume_24h_usd": 50000000.0,
       "volume_24h_m": "$50.0M",
-      "change_24h_pct": 1.7,
+      "change_24h_pct": 1.97,
       "volatility_range_pct": 6.0,
       "spread_pct": 0.04,
-      "pipeline_score": 65.9
+      "pipeline_score": 66.4
     },
     {
       "symbol": "SOL",
       "pair": "SOLUSDT",
-      "price": 101.94,
+      "price": 102.8,
       "volume_24h_usd": 50000000.0,
       "volume_24h_m": "$50.0M",
-      "change_24h_pct": 1.47,
+      "change_24h_pct": 1.9,
       "volatility_range_pct": 6.0,
       "spread_pct": 0.04,
-      "pipeline_score": 62.5
+      "pipeline_score": 66.3
+    },
+    {
+      "symbol": "XRP",
+      "pair": "XRPUSDT",
+      "price": 1.4274,
+      "volume_24h_usd": 50000000.0,
+      "volume_24h_m": "$50.0M",
+      "change_24h_pct": 5.55,
+      "volatility_range_pct": 6.0,
+      "spread_pct": 0.04,
+      "pipeline_score": 63.6
     },
     {
       "symbol": "ETH",
       "pair": "ETHUSDT",
-      "price": 2504.18,
+      "price": 2526.0,
       "volume_24h_usd": 50000000.0,
       "volume_24h_m": "$50.0M",
-      "change_24h_pct": 0.57,
+      "change_24h_pct": 0.92,
       "volatility_range_pct": 6.0,
       "spread_pct": 0.04,
       "pipeline_score": 62.5
@@ -63,57 +73,35 @@
     {
       "symbol": "BNB",
       "pair": "BNBUSDT",
-      "price": 721.55,
+      "price": 724.56,
       "volume_24h_usd": 50000000.0,
       "volume_24h_m": "$50.0M",
-      "change_24h_pct": 0.31,
+      "change_24h_pct": 0.52,
       "volatility_range_pct": 6.0,
       "spread_pct": 0.04,
       "pipeline_score": 62.5
     },
     {
-      "symbol": "XRP",
-      "pair": "XRPUSDT",
-      "price": 1.4021,
+      "symbol": "LINK",
+      "pair": "LINKUSDT",
+      "price": 11.581,
       "volume_24h_usd": 50000000.0,
       "volume_24h_m": "$50.0M",
-      "change_24h_pct": 4.21,
+      "change_24h_pct": 1.76,
       "volatility_range_pct": 6.0,
       "spread_pct": 0.04,
-      "pipeline_score": 60.9
+      "pipeline_score": 56.0
     },
     {
       "symbol": "SUI",
       "pair": "SUIUSDT",
-      "price": 0.7242,
+      "price": 0.7308,
       "volume_24h_usd": 50000000.0,
       "volume_24h_m": "$50.0M",
-      "change_24h_pct": 1.54,
+      "change_24h_pct": 1.6,
       "volatility_range_pct": 6.0,
       "spread_pct": 0.04,
-      "pipeline_score": 55.6
-    },
-    {
-      "symbol": "LINK",
-      "pair": "LINKUSDT",
-      "price": 11.415,
-      "volume_24h_usd": 50000000.0,
-      "volume_24h_m": "$50.0M",
-      "change_24h_pct": 1.21,
-      "volatility_range_pct": 6.0,
-      "spread_pct": 0.04,
-      "pipeline_score": 52.5
-    },
-    {
-      "symbol": "AVAX",
-      "pair": "AVAXUSDT",
-      "price": 7.455,
-      "volume_24h_usd": 50000000.0,
-      "volume_24h_m": "$50.0M",
-      "change_24h_pct": 1.08,
-      "volatility_range_pct": 6.0,
-      "spread_pct": 0.04,
-      "pipeline_score": 52.5
+      "pipeline_score": 55.7
     }
   ]
 }

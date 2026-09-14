@@ -855,6 +855,24 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+        elif path == "/api/memory/sync_journal":
+            try:
+                import agent_memory_engine
+                res = agent_memory_engine.memory_engine.sync_with_trade_journal()
+                data = {
+                    "success": True,
+                    "result": res,
+                    "summary": agent_memory_engine.memory_engine.get_memory_summary()
+                }
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
         elif path == "/api/memory/tiered":
