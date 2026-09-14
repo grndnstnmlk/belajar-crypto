@@ -41,6 +41,11 @@ try:
 except ImportError:
     institutional_quant_strategies = None
 
+try:
+    import crypto_automation_strategies
+except ImportError:
+    crypto_automation_strategies = None
+
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
 SSL_CTX.verify_mode = ssl.CERT_NONE
@@ -710,6 +715,48 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         except Exception:
             pass
 
+    # 10. Crypto-Native Autopilot Suite (Liquidity Cluster, EMA Ribbon, Funding Squeeze)
+    liq_cluster_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    ema_ribbon_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    funding_squeeze_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+
+    if crypto_automation_strategies:
+        try:
+            liq_cluster_intel = crypto_automation_strategies.detect_liquidity_cluster_hunt(base, bar="15m")
+            if liq_cluster_intel.get("has_setup"):
+                if is_buy and "BULLISH" in liq_cluster_intel.get("signal", ""):
+                    score += 15
+                    reasons.append(liq_cluster_intel["summary"])
+                elif not is_buy and "BEARISH" in liq_cluster_intel.get("signal", ""):
+                    score += 15
+                    reasons.append(liq_cluster_intel["summary"])
+        except Exception:
+            pass
+
+        try:
+            ema_ribbon_intel = crypto_automation_strategies.detect_ema_momentum_ribbon(base, bar="15m")
+            if ema_ribbon_intel.get("has_setup"):
+                if is_buy and "BULLISH" in ema_ribbon_intel.get("signal", ""):
+                    score += 18
+                    reasons.append(ema_ribbon_intel["summary"])
+                elif not is_buy and "BEARISH" in ema_ribbon_intel.get("signal", ""):
+                    score += 18
+                    reasons.append(ema_ribbon_intel["summary"])
+        except Exception:
+            pass
+
+        try:
+            funding_squeeze_intel = crypto_automation_strategies.detect_funding_rate_squeeze(base)
+            if funding_squeeze_intel.get("has_setup"):
+                if is_buy and "BULLISH" in funding_squeeze_intel.get("signal", ""):
+                    score += 20
+                    reasons.append(funding_squeeze_intel["summary"])
+                elif not is_buy and "BEARISH" in funding_squeeze_intel.get("signal", ""):
+                    score += 20
+                    reasons.append(funding_squeeze_intel["summary"])
+        except Exception:
+            pass
+
     score = max(0, min(100, score))
     grade = "A+ (INSTITUTIONAL GRADE)" if score >= 85 else ("A (HIGH CONFLUENCE)" if score >= 75 else ("B (MODERATE)" if score >= 60 else "C (POOR)"))
 
@@ -740,6 +787,9 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         "naked_poc": npoc_intel,
         "oi_divergence": oi_intel,
         "flash_dump_dip": flash_intel,
+        "liquidity_cluster": liq_cluster_intel,
+        "ema_ribbon": ema_ribbon_intel,
+        "funding_squeeze": funding_squeeze_intel,
         "confluence_reasons": reasons,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }

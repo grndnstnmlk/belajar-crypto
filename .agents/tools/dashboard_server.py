@@ -777,6 +777,20 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/strategy/crypto_autopilot":
+            sym = params.get("symbol", ["BTC"])[0]
+            try:
+                import crypto_automation_strategies
+                data = crypto_automation_strategies.scan_all_crypto_automation_strategies(sym)
+                data["success"] = True
+            except Exception as e:
+                data = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
         elif path == "/api/risk/pre_trade_audit":
             import nautilus_risk_engine
             sym = params.get("symbol", ["BTC"])[0]
