@@ -584,6 +584,16 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
     vertex_intel = detect_vertex_mean_threshold_and_wicks(candles)
     flip_intel = detect_supply_demand_flips(candles)
     wyckoff_intel = detect_wyckoff_spring_utad(candles)
+    percoco_intel = {"has_percoco": False, "signal": "NONE", "summary": "Standby"}
+    npoc_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    oi_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    flash_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    liq_cluster_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    ema_ribbon_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    funding_squeeze_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    sfp_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    cvd_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    vwap_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
 
     score = 70
     reasons = []
@@ -679,10 +689,6 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
             reasons.append(percoco_intel["summary"])
 
     # 9. Institutional Suite (Naked POC Magnet, OI Divergence, Flash Dump Dip)
-    npoc_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
-    oi_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
-    flash_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
-
     if institutional_quant_strategies:
         try:
             npoc_intel = institutional_quant_strategies.detect_naked_poc_gravity_magnet(base, bar=bar, candles=candles)
@@ -721,10 +727,6 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
             pass
 
     # 10. Crypto-Native Autopilot Suite (Liquidity Cluster, EMA Ribbon, Funding Squeeze)
-    liq_cluster_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
-    ema_ribbon_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
-    funding_squeeze_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
-
     if crypto_automation_strategies:
         try:
             liq_cluster_intel = crypto_automation_strategies.detect_liquidity_cluster_hunt(base, bar="15m")
@@ -763,10 +765,6 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
             pass
 
     # 11. Institutional Prop-Desk Suite (SFP Stop-Hunt, CVD Absorption, VWAP Elasticity)
-    sfp_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
-    cvd_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
-    vwap_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
-
     if prop_desk_strategies:
         try:
             sfp_intel = prop_desk_strategies.detect_sfp_liquidity_sweep(base, bar="15m")
