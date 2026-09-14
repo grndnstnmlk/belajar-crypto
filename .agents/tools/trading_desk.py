@@ -1243,16 +1243,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     print(f"  {port_msg}")
                     continue
                 base_risk = best.get("risk_pct", max_risk_pct)
+                scalp_risk_cap = round(max_risk_pct * 0.75, 2)
                 if best.get("is_scalp"):
-                    base_risk = min(0.50, base_risk)
+                    base_risk = min(scalp_risk_cap, base_risk)
                 kelly_risk, kelly_status = get_adaptive_kelly_risk_pct(base_risk_pct=base_risk)
                 if best.get("is_scalp"):
-                    kelly_risk = min(0.50, kelly_risk)
+                    kelly_risk = min(scalp_risk_cap, kelly_risk)
                 effective_risk_pct = portfolio_guard.get_scaled_risk_pct(best["side"], active_positions, kelly_risk)
                 if best.get("is_scalp"):
-                    effective_risk_pct = min(0.50, effective_risk_pct)
+                    effective_risk_pct = min(scalp_risk_cap, effective_risk_pct)
             except Exception:
-                effective_risk_pct = 0.50 if best.get("is_scalp") else max_risk_pct
+                effective_risk_pct = round(max_risk_pct * 0.75, 2) if best.get("is_scalp") else max_risk_pct
                 kelly_status = "Fallback"
 
             # Anti-Martingale Cold-Streak Circuit Breaker (Module 03)

@@ -1,35 +1,35 @@
 {
-  "generation": 45,
+  "generation": 63,
   "fitness_score": 88.5,
   "parameters": {
-    "min_risk_reward": 3.5,
-    "max_risk_per_trade_pct": 1.5,
+    "min_risk_reward": 3.0,
+    "max_risk_per_trade_pct": 4.6,
     "rsi_overbought": 70,
     "rsi_oversold": 30,
     "require_fvg_confluence": true,
     "max_funding_rate_threshold": 0.01,
     "weights": {
-      "trend_weight": 0.35,
-      "rsi_weight": 0.3,
-      "volatility_weight": 0.2,
-      "risk_aversion": 0.3
+      "trend_weight": 0.40,
+      "rsi_weight": 0.25,
+      "volatility_weight": 0.20,
+      "risk_aversion": 0.25
     }
   },
   "regime_genomes": {
     "TRENDING": {
       "label": "🟢 TREND FOLLOWING ENGINE",
-      "min_risk_reward": 3.5,
-      "max_risk_per_trade_pct": 2.0,
-      "trailing_be_threshold_r": 1.5,
+      "min_risk_reward": 3.0,
+      "max_risk_per_trade_pct": 4.6,
+      "trailing_be_threshold_r": 1.2,
       "rsi_overbought": 75,
       "rsi_oversold": 25,
       "strategy_focus": "EMA_CROSS_AND_TREND_PULLBACK",
-      "rationale": "Captures massive multi-candle continuation waves with wide trailing stops (Target R:R 1:3.50 – 1:5.00+)."
+      "rationale": "Captures massive multi-candle continuation waves with target $600 USD per win (Target R:R 1:3.00 – 1:5.00+)."
     },
     "RANGING": {
       "label": "🟡 MEAN REVERSION ENGINE",
       "min_risk_reward": 2.5,
-      "max_risk_per_trade_pct": 1.5,
+      "max_risk_per_trade_pct": 3.5,
       "trailing_be_threshold_r": 0.75,
       "rsi_overbought": 68,
       "rsi_oversold": 32,
@@ -39,7 +39,7 @@
     "DEFENSIVE": {
       "label": "⚪ CAPITAL PRESERVATION ENGINE",
       "min_risk_reward": 3.0,
-      "max_risk_per_trade_pct": 0.75,
+      "max_risk_per_trade_pct": 1.5,
       "allow_entry": false,
       "strategy_focus": "STANDBY_SQUEEZE_PROTECTION",
       "rationale": "Prevents capital attrition in choppy, low-liquidity volatility compression zones."
@@ -471,15 +471,123 @@
       "timestamp": "2026-09-14 01:22:39",
       "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
       "hypothesis": "Win rate (48.52%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 46,
+      "timestamp": "2026-09-14 01:43:34",
+      "action": "REVERT_ROLLBACK",
+      "hypothesis": "Reverted to Gen-31 baseline parameters after underperforming test."
+    },
+    {
+      "generation": 47,
+      "timestamp": "2026-09-14 02:14:49",
+      "action": "AUTORESEARCH_MUTATE_RR (3.0 -> 3.25)",
+      "hypothesis": "Win rate (48.17%) is below target (55.0%). Raising minimum R:R to 3.25 to preserve mathematical payoff."
+    },
+    {
+      "generation": 48,
+      "timestamp": "2026-09-14 02:21:39",
+      "action": "AUTORESEARCH_MUTATE_RR (3.25 -> 3.5)",
+      "hypothesis": "Win rate (47.88%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 49,
+      "timestamp": "2026-09-14 02:29:09",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (47.59%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 50,
+      "timestamp": "2026-09-14 02:39:09",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (47.31%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 51,
+      "timestamp": "2026-09-14 03:07:33",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (47.02%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 52,
+      "timestamp": "2026-09-14 03:40:50",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (47.34%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 53,
+      "timestamp": "2026-09-14 03:56:20",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (47.45%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 54,
+      "timestamp": "2026-09-14 04:21:01",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (47.17%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 55,
+      "timestamp": "2026-09-14 05:01:19",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (46.9%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 56,
+      "timestamp": "2026-09-14 05:13:57",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (46.63%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 57,
+      "timestamp": "2026-09-14 07:07:21",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (46.55%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 58,
+      "timestamp": "2026-09-14 07:32:35",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (46.48%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 59,
+      "timestamp": "2026-09-14 07:33:44",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (46.78%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 60,
+      "timestamp": "2026-09-14 18:34:39",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (46.7%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 61,
+      "timestamp": "2026-09-14 18:34:43",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (46.63%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 62,
+      "timestamp": "2026-09-14 18:34:58",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (46.37%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 63,
+      "timestamp": "2026-09-14 18:35:09",
+      "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
+      "hypothesis": "Win rate (46.48%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
     }
   ],
   "active_experiment": {
     "status": "EVALUATING",
-    "test_generation": 45,
-    "start_trade_count": 474,
-    "baseline_sharpe": -7.19,
-    "baseline_pf": 0.74,
-    "hypothesis": "Win rate (48.52%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    "test_generation": 63,
+    "start_trade_count": 540,
+    "baseline_sharpe": -0.7,
+    "baseline_pf": 0.73,
+    "hypothesis": "Win rate (46.48%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
   },
   "best_known_genome": {
     "generation": 31,

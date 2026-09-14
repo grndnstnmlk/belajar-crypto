@@ -369,15 +369,31 @@ def evaluate_live_market_ml(symbol: str = "BTC", bar: str = "1h") -> Dict[str, A
     if not candles or len(candles) < 30:
         return {
             "symbol": sym_clean,
+            "bar": bar,
             "status": "IN_DISTRIBUTION",
             "dissimilarity_index": 0.50,
+            "anomaly_score": 0.10,
             "risk_multiplier": 1.0,
-            "predicted_direction": "NEUTRAL"
+            "predicted_direction": "NEUTRAL",
+            "predicted_return_bps": 0.0,
+            "confidence_pct": 50.0,
+            "model_status": "FALLBACK_INSUFFICIENT_CANDLES"
         }
 
     features, _ = extract_candle_features(candles)
     if not features:
-        return {"symbol": sym_clean, "status": "IN_DISTRIBUTION", "dissimilarity_index": 0.50, "risk_multiplier": 1.0}
+        return {
+            "symbol": sym_clean,
+            "bar": bar,
+            "status": "IN_DISTRIBUTION",
+            "dissimilarity_index": 0.50,
+            "anomaly_score": 0.10,
+            "risk_multiplier": 1.0,
+            "predicted_direction": "NEUTRAL",
+            "predicted_return_bps": 0.0,
+            "confidence_pct": 50.0,
+            "model_status": "FALLBACK_EMPTY_FEATURES"
+        }
 
     cur_feat = features[-1]
 
