@@ -74,22 +74,22 @@ def get_current_session_info(dt=None):
         session_name = "🇯🇵 ASIAN ACCUMULATION SESSION"
         session_code = "ASIA"
         bonus_score = 6
-        min_threshold = 75
-        rationale = "Range-bound consolidation & liquidity engineering. Standard filter required."
+        min_threshold = 80
+        rationale = "Range-bound consolidation & liquidity engineering. Strict Grade A filter required."
         high_liquidity = False
     elif is_dead_zone:
         session_name = "⚠️ LOW-LIQUIDITY DEAD ZONE (Late NY / Asia Pre-Market)"
         session_code = "DEAD_ZONE"
         bonus_score = 3
-        min_threshold = 78  # Calibrated for opportunity capture during off-peak hours
-        rationale = "Thin order books, wider spreads, and high fakeout wick risk. High confluence setups permitted."
+        min_threshold = 90  # Strictly block low-conviction noise during dead zone
+        rationale = "Thin order books, wider spreads, and high fakeout wick risk. Only 90%+ A+ setups permitted."
         high_liquidity = False
     else:
         session_name = "🌐 INTER-SESSION DRIFT (Transition Window)"
         session_code = "TRANSITION"
         bonus_score = 8
-        min_threshold = 75
-        rationale = "Moderate volume between major sessions. Solid confluence required."
+        min_threshold = 80
+        rationale = "Moderate volume between major sessions. Solid Grade A confluence required."
         high_liquidity = False
 
     return {
@@ -363,8 +363,8 @@ def calculate_confluence_score(setup, session_info=None):
 
     min_required = session_info["min_threshold"]
     if is_scalp:
-        # Micro scalping threshold: calibrated to 68% - 72% for fast micro-structure execution
-        min_required = min(72, max(68, min_required - 8))
+        # Micro scalping must strictly meet Grade A (minimum 80%)
+        min_required = max(80, min_required)
     is_admissible = (total_score >= min_required)
 
     return {
