@@ -43,7 +43,8 @@ FALLBACK_PAIRLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "SUI", "NEAR", "LINK"]
 
 STATIC_BLACKLIST = {
     "USDC", "FDUSD", "TUSD", "BUSD", "DAI", "EUR", "USTC", "LUNA",
-    "SOPH", "ZEC", "PROM", "THE", "HOLO", "WLD", "BTCDOM", "DEFI"
+    "SOPH", "ZEC", "PROM", "THE", "HOLO", "WLD", "BTCDOM", "DEFI",
+    "AVAX", "ADA", "DOGE", "1000PEPE", "1000SHIB", "1000BONK", "1000FLOKI"
 }
 
 

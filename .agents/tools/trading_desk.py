@@ -99,13 +99,18 @@ except ImportError:
     pairlist_pipeline = None
 
 def get_effective_watchlist() -> list:
-    """Returns dynamic curated pairlist from pairlist_pipeline, falling back to DEFAULT_WATCHLIST."""
+    """Returns dynamic curated pairlist from pairlist_pipeline, strictly filtering out blacklisted coins."""
+    pairs = DEFAULT_WATCHLIST
     if pairlist_pipeline:
         try:
-            return pairlist_pipeline.get_active_dynamic_pairlist()
+            dyn_pairs = pairlist_pipeline.get_active_dynamic_pairlist()
+            if dyn_pairs:
+                pairs = dyn_pairs
         except Exception:
             pass
-    return DEFAULT_WATCHLIST
+    # Strictly filter out ANY blacklisted coin
+    clean_watchlist = [p for p in pairs if p.upper() not in BLACKLIST_COINS]
+    return clean_watchlist if clean_watchlist else DEFAULT_WATCHLIST
 
 PID_FILE = os.path.join(DATA_DIR, "trading_desk.pid")
 
