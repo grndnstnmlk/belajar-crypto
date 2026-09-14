@@ -1,13 +1,20 @@
 """
-FOMO SMC Master Engine (fomo_smc_engine.py)
-Synthesized from 14 Global Smart Money Concepts (SMC) Courses & Akademi Crypto Framework:
-- Phantom Trading, Hustle FX, Vertex Investing, Flipping Markets, MENTFX, WWA Bootcamp, VVS Academy.
-
-Key Core Modules:
-1. Dealing Range 50% Equilibrium (Premium vs Discount Arrays).
-2. Inducement (IDM) & Liquidity Trap Identifier.
-3. Institutional Funding Candle (IFC) Engulfing & Sweep Trigger.
-4. BOS (Break of Structure) vs CHoCH (Change of Character) Lifecycle.
+FOMO SMC Master Engine (fomo_smc_engine.py) - Complete 14-Course Synthesis
+Synthesized from all 14 Global Smart Money Concepts (SMC) Courses on Mr FOMO Trading:
+1. Phantom Trading (Fractal S/D & CHoCH)
+2. Hustle FX (50% Equilibrium Dealing Range)
+3. Vertex Investing (50% Mean Threshold MT & Wick-as-Candle)
+4. Flipping Markets (Supply-to-Demand S/D Flips)
+5. Precision Markets (Expectational Order Flow)
+6. PipFactory Academy (Liquidity Sweeps before Mitigation)
+7. VVS Academy (Wyckoff Accumulation Spring & Distribution UTAD)
+8. FX Simplified (Clean FVG Imbalances)
+9. TraqFX (London & NY Killzone Scalping)
+10. MENTFX (Decision Point POI Mapping)
+11. WWA Bootcamp (Institutional Funding Candle IFC Engulfing)
+12. Eye-Opening FX (Asian Range Judas Swing)
+13. Fractal Markets (HTF-to-LTF Alignment)
+14. Ultimate Supply & Demand (Zone Freshness & Departure Strength)
 """
 
 import json
@@ -304,15 +311,152 @@ def detect_bos_and_choch(candles: List[List[Any]]) -> Dict[str, Any]:
     return {"event": "IN_STRUCTURE_ROTATION", "summary": "Price rotating inside existing structural pivots"}
 
 # =============================================================================
-# 5. Master Institutional FOMO SMC Setup Auditor
+# 5. Vertex Investing 50% Mean Threshold (MT) & Long-Wick Refinement
+# =============================================================================
+def detect_vertex_mean_threshold_and_wicks(candles: List[List[Any]]) -> Dict[str, Any]:
+    """
+    Vertex Investing Signature Refinements:
+    1. 50% Mean Threshold (MT) of Order Block: Calculates 50% body level to halve SL distance and expand R:R.
+    2. Wick-as-Candle (Long Rejection Wick): Treats wicks >= 50% candle spread as LTF Order Blocks.
+    """
+    if not candles or len(candles) < 10:
+        return {"has_vertex_refinement": False, "mt_level": 0.0, "summary": "Insufficient candles"}
+
+    last_candle = candles[-2] # Completed candle
+    o = float(last_candle[1])
+    h = float(last_candle[2])
+    l = float(last_candle[3])
+    c = float(last_candle[4])
+    spread = max(h - l, 1e-6)
+    body = abs(c - o)
+
+    # 50% Mean Threshold of the candle body
+    mt_level = min(o, c) + (body * 0.50)
+
+    # Long Rejection Wick Analysis (Vertex Wick-as-OB)
+    lower_wick = min(o, c) - l
+    upper_wick = h - max(o, c)
+    
+    if (lower_wick / spread) >= 0.45:
+        wick_50 = l + (lower_wick * 0.50)
+        return {
+            "has_vertex_refinement": True,
+            "type": "BULLISH_WICK_OB",
+            "mt_level": round(mt_level, 4),
+            "wick_entry_50": round(wick_50, 4),
+            "summary": f"📐 VERTEX 50% WICK OB: Bullish Long-Wick Refinement at ${wick_50:,.4f}"
+        }
+    elif (upper_wick / spread) >= 0.45:
+        wick_50 = h - (upper_wick * 0.50)
+        return {
+            "has_vertex_refinement": True,
+            "type": "BEARISH_WICK_OB",
+            "mt_level": round(mt_level, 4),
+            "wick_entry_50": round(wick_50, 4),
+            "summary": f"📐 VERTEX 50% WICK OB: Bearish Long-Wick Refinement at ${wick_50:,.4f}"
+        }
+
+    return {
+        "has_vertex_refinement": True,
+        "type": "STANDARD_MT_50",
+        "mt_level": round(mt_level, 4),
+        "wick_entry_50": round(mt_level, 4),
+        "summary": f"📐 VERTEX 50% MT: Order Block Mean Threshold at ${mt_level:,.4f}"
+    }
+
+# =============================================================================
+# 6. Flipping Markets: Supply-to-Demand (S/D) Flips
+# =============================================================================
+def detect_supply_demand_flips(candles: List[List[Any]]) -> Dict[str, Any]:
+    """
+    Flipping Markets Methodology:
+    Identifies zones where prior Supply fails and flips into Demand (or vice-versa),
+    providing the highest-momentum continuation entry signals.
+    """
+    if not candles or len(candles) < 20:
+        return {"has_flip": False, "flip_type": "NONE", "summary": "Insufficient data"}
+
+    closes = [float(c[4]) for c in candles]
+    highs = [float(c[2]) for c in candles]
+    lows = [float(c[3]) for c in candles]
+    
+    # Check for Supply failure -> Bullish Flip
+    recent_high = max(highs[-10:-2])
+    if closes[-1] > recent_high and lows[-1] >= recent_high * 0.998:
+        return {
+            "has_flip": True,
+            "flip_type": "SUPPLY_TO_DEMAND_FLIP",
+            "flip_price": round(recent_high, 4),
+            "summary": f"🔄 FLIPPING MARKETS: Supply-to-Demand Flip at ${recent_high:,.4f}"
+        }
+
+    # Check for Demand failure -> Bearish Flip
+    recent_low = min(lows[-10:-2])
+    if closes[-1] < recent_low and highs[-1] <= recent_low * 1.002:
+        return {
+            "has_flip": True,
+            "flip_type": "DEMAND_TO_SUPPLY_FLIP",
+            "flip_price": round(recent_low, 4),
+            "summary": f"🔄 FLIPPING MARKETS: Demand-to-Supply Flip at ${recent_low:,.4f}"
+        }
+
+    return {"has_flip": False, "flip_type": "NONE", "summary": "No active S/D flip zone"}
+
+# =============================================================================
+# 7. VVS Academy & WWA: Wyckoff Phase C Schematics (Spring & UTAD)
+# =============================================================================
+def detect_wyckoff_spring_utad(candles: List[List[Any]]) -> Dict[str, Any]:
+    """
+    VVS Academy & WWA Bootcamp Wyckoff Engine:
+    - Phase C Spring: Final false breakdown below range low that immediately recovers into trading range.
+    - Phase C UTAD: Final false breakout above range high that immediately dumps back into trading range.
+    """
+    if not candles or len(candles) < 25:
+        return {"has_wyckoff": False, "pattern": "NONE", "summary": "Insufficient candles"}
+
+    highs = [float(c[2]) for c in candles[-25:]]
+    lows = [float(c[3]) for c in candles[-25:]]
+    closes = [float(c[4]) for c in candles[-25:]]
+
+    support = min(lows[:-2])
+    resistance = max(highs[:-2])
+    curr_close = closes[-1]
+    last_low = lows[-2]
+    last_high = highs[-2]
+
+    # Spring: Last candle spiked below support but current closed back above support
+    if last_low < support and curr_close > support:
+        return {
+            "has_wyckoff": True,
+            "pattern": "WYCKOFF_SPRING_PHASE_C",
+            "key_level": round(support, 4),
+            "summary": f"💎 WYCKOFF SPRING (Phase C): False Breakdown Swept at ${last_low:,.4f} -> Closed inside range"
+        }
+
+    # UTAD (Upthrust After Distribution): Spiked above resistance but current closed below resistance
+    if last_high > resistance and curr_close < resistance:
+        return {
+            "has_wyckoff": True,
+            "pattern": "WYCKOFF_UTAD_PHASE_C",
+            "key_level": round(resistance, 4),
+            "summary": f"🩸 WYCKOFF UTAD (Phase C): False Breakout Swept at ${last_high:,.4f} -> Closed inside range"
+        }
+
+    return {"has_wyckoff": False, "pattern": "NONE", "summary": "No active Wyckoff Phase C Spring/UTAD"}
+
+# =============================================================================
+# 8. Master Institutional FOMO SMC Setup Auditor (14-Course Synthesis)
 # =============================================================================
 def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", proposed_price: Optional[float] = None) -> Dict[str, Any]:
     """
     Executes the 14-Course Master SMC Audit for a proposed trade setup:
-    1. Dealing Range & 50% Equilibrium Filter (Longs only in Discount / Shorts only in Premium)
-    2. Inducement Sweep Verification (Avoids premature retail traps)
-    3. Institutional Funding Candle (IFC) Manipulation & Reversal Check
-    4. BOS / CHoCH Alignment
+    1. Hustle FX: Dealing Range & 50% Equilibrium Filter (Longs only in Discount / Shorts only in Premium)
+    2. PipFactory & MENTFX: Inducement Sweep Verification (Avoids premature retail traps)
+    3. WWA & Phantom: Institutional Funding Candle (IFC) Engulfing Check
+    4. Phantom & Precision: BOS / CHoCH Trend Alignment
+    5. Vertex Investing: 50% Mean Threshold (MT) & Rejection Wick Refinements
+    6. Flipping Markets: Supply-to-Demand (S/D) Flip Zones
+    7. VVS Academy: Wyckoff Phase C Spring & UTAD Confirmation
     
     Returns comprehensive institutional verdict and confluence score (0 - 100%).
     """
@@ -347,6 +491,9 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
     idm_intel = detect_inducement_traps(candles)
     ifc_intel = detect_ifc_institutional_funding_candle(candles)
     struct_intel = detect_bos_and_choch(candles)
+    vertex_intel = detect_vertex_mean_threshold_and_wicks(candles)
+    flip_intel = detect_supply_demand_flips(candles)
+    wyckoff_intel = detect_wyckoff_spring_utad(candles)
 
     score = 70
     reasons = []
@@ -404,6 +551,33 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         score += 10
         reasons.append(f"🏛️ {struct_intel['event']}")
 
+    # 5. Vertex Investing 50% Mean Threshold / Wick OB Refinement
+    if vertex_intel.get("has_vertex_refinement"):
+        if is_buy and vertex_intel.get("type") in ["BULLISH_WICK_OB", "STANDARD_MT_50"]:
+            score += 10
+            reasons.append(vertex_intel["summary"])
+        elif not is_buy and vertex_intel.get("type") in ["BEARISH_WICK_OB", "STANDARD_MT_50"]:
+            score += 10
+            reasons.append(vertex_intel["summary"])
+
+    # 6. Flipping Markets S/D Flip Confluence
+    if flip_intel.get("has_flip"):
+        if is_buy and flip_intel["flip_type"] == "SUPPLY_TO_DEMAND_FLIP":
+            score += 15
+            reasons.append(flip_intel["summary"])
+        elif not is_buy and flip_intel["flip_type"] == "DEMAND_TO_SUPPLY_FLIP":
+            score += 15
+            reasons.append(flip_intel["summary"])
+
+    # 7. VVS / WWA Wyckoff Phase C Spring & UTAD
+    if wyckoff_intel.get("has_wyckoff"):
+        if is_buy and wyckoff_intel["pattern"] == "WYCKOFF_SPRING_PHASE_C":
+            score += 20
+            reasons.append(wyckoff_intel["summary"])
+        elif not is_buy and wyckoff_intel["pattern"] == "WYCKOFF_UTAD_PHASE_C":
+            score += 20
+            reasons.append(wyckoff_intel["summary"])
+
     score = max(0, min(100, score))
     grade = "A+ (INSTITUTIONAL GRADE)" if score >= 85 else ("A (HIGH CONFLUENCE)" if score >= 75 else ("B (MODERATE)" if score >= 60 else "C (POOR)"))
 
@@ -427,6 +601,9 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         "ifc_candle": ifc_intel,
         "ifc_pattern": ifc_intel,
         "market_structure": struct_intel,
+        "vertex_refinement": vertex_intel,
+        "sd_flip": flip_intel,
+        "wyckoff": wyckoff_intel,
         "confluence_reasons": reasons,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
