@@ -1,5 +1,5 @@
 {
-  "generation": 63,
+  "generation": 65,
   "fitness_score": 88.5,
   "parameters": {
     "min_risk_reward": 3.0,
@@ -9,10 +9,10 @@
     "require_fvg_confluence": true,
     "max_funding_rate_threshold": 0.01,
     "weights": {
-      "trend_weight": 0.40,
+      "trend_weight": 0.4,
       "rsi_weight": 0.25,
-      "volatility_weight": 0.20,
-      "risk_aversion": 0.25
+      "volatility_weight": 0.2,
+      "risk_aversion": 0.35
     }
   },
   "regime_genomes": {
@@ -579,15 +579,27 @@
       "timestamp": "2026-09-14 18:35:09",
       "action": "AUTORESEARCH_MUTATE_RR (3.5 -> 3.5)",
       "hypothesis": "Win rate (46.48%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    },
+    {
+      "generation": 64,
+      "timestamp": "2026-09-14 19:12:08",
+      "action": "AUTORESEARCH_MUTATE_RR (3.0 -> 3.25)",
+      "hypothesis": "Win rate (46.59%) is below target (55.0%). Raising minimum R:R to 3.25 to preserve mathematical payoff."
+    },
+    {
+      "generation": 65,
+      "timestamp": "2026-09-14 19:37:10",
+      "action": "AUTORESEARCH_MUTATE_RR (3.25 -> 3.5)",
+      "hypothesis": "Win rate (46.52%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
     }
   ],
   "active_experiment": {
     "status": "EVALUATING",
-    "test_generation": 63,
-    "start_trade_count": 540,
-    "baseline_sharpe": -0.7,
+    "test_generation": 65,
+    "start_trade_count": 546,
+    "baseline_sharpe": -0.37,
     "baseline_pf": 0.73,
-    "hypothesis": "Win rate (46.48%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
+    "hypothesis": "Win rate (46.52%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
   },
   "best_known_genome": {
     "generation": 31,
