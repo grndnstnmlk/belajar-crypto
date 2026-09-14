@@ -46,6 +46,11 @@ try:
 except ImportError:
     crypto_automation_strategies = None
 
+try:
+    import prop_desk_strategies
+except ImportError:
+    prop_desk_strategies = None
+
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
 SSL_CTX.verify_mode = ssl.CERT_NONE
@@ -757,6 +762,48 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         except Exception:
             pass
 
+    # 11. Institutional Prop-Desk Suite (SFP Stop-Hunt, CVD Absorption, VWAP Elasticity)
+    sfp_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    cvd_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    vwap_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+
+    if prop_desk_strategies:
+        try:
+            sfp_intel = prop_desk_strategies.detect_sfp_liquidity_sweep(base, bar="15m")
+            if sfp_intel.get("has_setup"):
+                if is_buy and "BULLISH" in sfp_intel.get("signal", ""):
+                    score += 22
+                    reasons.append(sfp_intel["summary"])
+                elif not is_buy and "BEARISH" in sfp_intel.get("signal", ""):
+                    score += 22
+                    reasons.append(sfp_intel["summary"])
+        except Exception:
+            pass
+
+        try:
+            cvd_intel = prop_desk_strategies.detect_cvd_absorption_iceberg(base, bar="15m")
+            if cvd_intel.get("has_setup"):
+                if is_buy and "BULLISH" in cvd_intel.get("signal", ""):
+                    score += 18
+                    reasons.append(cvd_intel["summary"])
+                elif not is_buy and "BEARISH" in cvd_intel.get("signal", ""):
+                    score += 18
+                    reasons.append(cvd_intel["summary"])
+        except Exception:
+            pass
+
+        try:
+            vwap_intel = prop_desk_strategies.detect_vwap_volatility_elasticity(base, bar="15m")
+            if vwap_intel.get("has_setup"):
+                if is_buy and "BULLISH" in vwap_intel.get("signal", ""):
+                    score += 18
+                    reasons.append(vwap_intel["summary"])
+                elif not is_buy and "BEARISH" in vwap_intel.get("signal", ""):
+                    score += 18
+                    reasons.append(vwap_intel["summary"])
+        except Exception:
+            pass
+
     score = max(0, min(100, score))
     grade = "A+ (INSTITUTIONAL GRADE)" if score >= 85 else ("A (HIGH CONFLUENCE)" if score >= 75 else ("B (MODERATE)" if score >= 60 else "C (POOR)"))
 
@@ -790,6 +837,9 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         "liquidity_cluster": liq_cluster_intel,
         "ema_ribbon": ema_ribbon_intel,
         "funding_squeeze": funding_squeeze_intel,
+        "sfp_sweep": sfp_intel,
+        "cvd_absorption": cvd_intel,
+        "vwap_elasticity": vwap_intel,
         "confluence_reasons": reasons,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
