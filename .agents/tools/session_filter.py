@@ -104,13 +104,141 @@ def get_current_session_info(dt=None):
         "is_dead_zone": is_dead_zone
     }
 
+def classify_strategy_archetype(setup: dict) -> dict:
+    """
+    Classifies trading setup into an institutional strategy archetype:
+    - MEAN_REVERSION: VWAP elasticity, Fabio Auction, Patrick Nill 3-Touch, Range Bounce.
+    - LIQUIDITY_SWEEP: SFP (Swing Failure), Judas Swing, Tim MSS, Rejection Block, Stop-Hunt.
+    - PULLBACK_STRUCTURE: 20-EMA Trap, FVG Retest, Inverse FVG (IFVG) Role Reversal.
+    - BREAKOUT_MOMENTUM: Rectangle Breakout, ORB, Volume Expansion, Momentum Chase.
+    - GENERAL: Standard discretionary/rule-based setup.
+    """
+    strat = str(setup.get("strategy", "")).lower()
+    reason = str(setup.get("reason", "")).lower()
+    combo = f"{strat} {reason}"
+
+    if (
+        setup.get("is_sfp") or "sfp" in combo or "swing failure" in combo or
+        setup.get("is_judas") or "judas" in combo or
+        setup.get("is_tim") or "tim mss" in combo or "liquidity sweep" in combo or "stop-hunt" in combo or "stop hunt" in combo or
+        setup.get("rejection_block_setup") or "rejection block" in combo
+    ):
+        return {
+            "archetype": "LIQUIDITY_SWEEP",
+            "name": "🎯 SFP & Institutional Liquidity Sweep",
+            "dead_zone_friendly": True,
+            "asian_friendly": True,
+            "kz_friendly": True
+        }
+    elif (
+        setup.get("is_vwap") or "vwap" in combo or "mean reversion" in combo or "elasticity" in combo or
+        setup.get("is_fabio") or "fabio" in combo or "auction" in combo or
+        setup.get("is_3touch") or "3-touch" in combo or "3 touch" in combo or
+        setup.get("is_percoco") or "percoco" in combo or "rejection sniper" in combo or
+        "range boundary" in combo or "4h-range" in combo or "4h range" in combo
+    ):
+        return {
+            "archetype": "MEAN_REVERSION",
+            "name": "🔄 Mean Reversion & Boundary Inversion",
+            "dead_zone_friendly": True,
+            "asian_friendly": True,
+            "kz_friendly": False
+        }
+    elif (
+        "20-ema" in combo or "20 ema" in combo or "pullback trap" in combo or
+        "ifvg" in combo or "inverse fvg" in combo or
+        setup.get("is_fvg") or "fvg" in combo or "fair value gap" in combo or
+        "order block" in combo or "ob retest" in combo
+    ):
+        return {
+            "archetype": "PULLBACK_STRUCTURE",
+            "name": "📐 Dynamic Pullback & Value Area Retest",
+            "dead_zone_friendly": False,
+            "asian_friendly": True,
+            "kz_friendly": True
+        }
+    elif (
+        "rectangle" in combo or "breakout" in combo or "break & retest" in combo or
+        "orb" in combo or "opening range" in combo or "momentum" in combo or "trendline break" in combo
+    ):
+        return {
+            "archetype": "BREAKOUT_MOMENTUM",
+            "name": "⚡ Breakout & High-Velocity Expansion",
+            "dead_zone_friendly": False,
+            "asian_friendly": False,
+            "kz_friendly": True
+        }
+    else:
+        # Check if scalp flag indicates statistical reversion
+        if setup.get("is_mean_reversion_or_sweep", False):
+            return {
+                "archetype": "MEAN_REVERSION",
+                "name": "🔄 Statistical Micro-Reversion",
+                "dead_zone_friendly": True,
+                "asian_friendly": True,
+                "kz_friendly": False
+            }
+        return {
+            "archetype": "GENERAL",
+            "name": "🌐 General Multi-Factor Setup",
+            "dead_zone_friendly": False,
+            "asian_friendly": True,
+            "kz_friendly": True
+        }
+
+def get_adaptive_threshold(setup: dict, session_info: dict) -> Tuple[int, str]:
+    """
+    Computes dynamic minimum confluence threshold based on:
+    1. Active Session (Dead Zone vs Asian vs London/NY Kill Zones)
+    2. Strategy Archetype (Mean Reversion / Liquidity Sweep vs Breakout / Momentum)
+    """
+    archetype_info = classify_strategy_archetype(setup)
+    archetype = archetype_info["archetype"]
+    session_code = session_info.get("session_code", "TRANSITION")
+
+    if session_code == "DEAD_ZONE":
+        if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+            # Range-bound dead zone favors mean reversion and boundary stop-hunts
+            return 75, f"Strategy-Adaptive: {archetype_info['name']} allowed in Dead Zone at Grade A (75%)"
+        elif archetype == "PULLBACK_STRUCTURE":
+            return 80, f"Strategy-Adaptive: {archetype_info['name']} requires solid key-level confluence (80%) in Dead Zone"
+        elif archetype == "BREAKOUT_MOMENTUM":
+            # Breakouts in thin order books have ~75% fakeout rate; strictly require 90%
+            return 90, f"Strategy-Adaptive: {archetype_info['name']} restricted to Elite A+ (90%) to block Dead Zone fakeouts"
+        else:
+            return 80, f"Strategy-Adaptive: General setups require Grade A (80%) in Dead Zone"
+
+    elif session_code == "ASIA":
+        if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+            return 75, f"Strategy-Adaptive: {archetype_info['name']} optimal for Asian Range (75%)"
+        elif archetype == "BREAKOUT_MOMENTUM":
+            return 85, f"Strategy-Adaptive: {archetype_info['name']} requires higher bar (85%) during Asian consolidation"
+        else:
+            return 78, f"Strategy-Adaptive: Standard Asian session threshold (78%)"
+
+    elif session_code in ["LONDON_KZ", "NY_KZ"]:
+        if archetype in ["BREAKOUT_MOMENTUM", "PULLBACK_STRUCTURE", "LIQUIDITY_SWEEP"]:
+            return 75, f"Strategy-Adaptive: High institutional liquidity allows aggressive 75% threshold for {archetype_info['name']}"
+        elif archetype == "MEAN_REVERSION":
+            return 80, f"Strategy-Adaptive: Counter-trend reversion requires 80% during strong Kill Zone expansion"
+        else:
+            return 78, f"Strategy-Adaptive: Active Kill Zone institutional threshold (78%)"
+
+    else:  # TRANSITION
+        if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+            return 76, f"Strategy-Adaptive: {archetype_info['name']} calibrated at 76%"
+        elif archetype == "BREAKOUT_MOMENTUM":
+            return 85, f"Strategy-Adaptive: Breakout requires 85% during inter-session drift"
+        else:
+            return 80, f"Strategy-Adaptive: Transition window standard threshold (80%)"
+
 def calculate_confluence_score(setup, session_info=None):
     """
-    Evaluates multi-variable confluence and returns a 0-100% score and grade.
+    Evaluates multi-variable confluence and returns a 0-100% score, grade, and adaptive threshold.
     
     Score Matrix Breakdown (Max 100 points):
     1. Higher Timeframe Alignment (4H Macro Trend)     : 30 pts
-    2. Key Area of Value (FVG / POC / 3-Touch / MSS)   : 25 pts
+    2. Key Area of Value (FVG / POC / 3-Touch / SFP)   : 25 pts
     3. Relative Strength (Alpha Leader / Beta Laggard) : 15 pts
     4. Execution Precision (R:R Ratio >= 2.5)          : 15 pts
     5. Session Liquidity Bonus (London/NY KZ)          : 15 pts
@@ -138,22 +266,19 @@ def calculate_confluence_score(setup, session_info=None):
     # 2. Key Level / Smart Money Structure (25 pts)
     struct_pts = 0
     reasons = []
-    if setup.get("is_tim"):
-        struct_pts += 15
-        reasons.append("Tim MSS Liquidity Sweep")
-    if setup.get("is_fabio"):
-        struct_pts += 15
-        reasons.append("Fabio Auction VAH/VAL")
-    if setup.get("is_3touch"):
-        struct_pts += 15
-        reasons.append("Patrick Nill 3-Touch Level")
-    if "FVG" in setup.get("reason", "") or setup.get("is_fvg"):
-        struct_pts += 12
-        reasons.append("Fair Value Gap Retest")
-    if "Judas" in setup.get("strategy", "") or "Judas" in setup.get("reason", "") or setup.get("is_judas"):
+    if setup.get("is_sfp") or "SFP" in setup.get("strategy", "") or "SFP" in setup.get("reason", ""):
+        struct_pts += 25
+        reasons.append("SFP Liquidity Sweep & Stop-Hunt Snatcher")
+    elif setup.get("is_cvd") or "CVD" in setup.get("strategy", "") or "Absorption" in setup.get("strategy", ""):
+        struct_pts += 25
+        reasons.append("CVD Absorption & Iceberg Wall Execution")
+    elif setup.get("is_vwap") or "VWAP" in setup.get("strategy", "") or "Elasticity" in setup.get("strategy", ""):
+        struct_pts += 25
+        reasons.append("Institutional VWAP Mean Reversion")
+    elif setup.get("is_judas") or "Judas" in setup.get("strategy", "") or "Judas" in setup.get("reason", ""):
         struct_pts += 25
         reasons.append("London Judas Swing Asian Range Sweep")
-    elif "Percoco" in setup.get("strategy", "") or "Percoco" in setup.get("reason", "") or setup.get("is_percoco"):
+    elif setup.get("is_percoco") or "Percoco" in setup.get("strategy", "") or "Percoco" in setup.get("reason", ""):
         struct_pts += 25
         reasons.append("Craig Percoco Key-Level Rejection Sniper (Wick + Volume)")
     elif "IFVG" in setup.get("strategy", "") or "Inverse FVG" in setup.get("strategy", ""):
@@ -168,9 +293,22 @@ def calculate_confluence_score(setup, session_info=None):
     elif "4H-Range" in setup.get("strategy", "") or "4H Range" in setup.get("reason", ""):
         struct_pts += 22
         reasons.append("4H Range Boundary Liquidity Trap")
-    elif is_scalp:
-        struct_pts += 20
-        reasons.append("5m Micro-Structure Trigger")
+    else:
+        if setup.get("is_tim"):
+            struct_pts += 15
+            reasons.append("Tim MSS Liquidity Sweep")
+        if setup.get("is_fabio"):
+            struct_pts += 15
+            reasons.append("Fabio Auction VAH/VAL")
+        if setup.get("is_3touch"):
+            struct_pts += 15
+            reasons.append("Patrick Nill 3-Touch Level")
+        if "FVG" in setup.get("reason", "") or setup.get("is_fvg"):
+            struct_pts += 12
+            reasons.append("Fair Value Gap Retest")
+        if is_scalp and struct_pts == 0:
+            struct_pts += 20
+            reasons.append("5m Micro-Structure Trigger")
 
     struct_pts = min(25, struct_pts)
     if struct_pts > 0:
@@ -364,10 +502,9 @@ def calculate_confluence_score(setup, session_info=None):
     else:
         grade = "C (Low Confluence / High Noise)"
 
-    min_required = session_info["min_threshold"]
-    if is_scalp:
-        # Micro scalping must strictly meet Grade A (minimum 80%)
-        min_required = max(80, min_required)
+    # Compute Strategy-Adaptive Dynamic Threshold
+    archetype_info = classify_strategy_archetype(setup)
+    min_required, adaptive_rationale = get_adaptive_threshold(setup, session_info)
     is_admissible = (total_score >= min_required)
 
     return {
@@ -375,6 +512,9 @@ def calculate_confluence_score(setup, session_info=None):
         "grade": grade,
         "min_required": min_required,
         "is_admissible": is_admissible,
+        "strategy_archetype": archetype_info["archetype"],
+        "archetype_name": archetype_info["name"],
+        "adaptive_rationale": adaptive_rationale,
         "breakdown": breakdown,
         "session": session_info
     }
@@ -389,18 +529,19 @@ def audit_candidate_confluence(candidate, session_info=None):
     res = calculate_confluence_score(candidate, session_info)
     sym = candidate.get("symbol", "UNKNOWN")
     side = candidate.get("side", "")
+    arch_name = res.get("archetype_name", "Setup")
 
     if res["is_admissible"]:
         summary = (
             f"✅ [CONFLUENCE PASSED: {res['score']}% | Grade {res['grade']}] "
-            f"{side} {sym} meets strict threshold ({res['score']}% >= {res['min_required']}%) "
-            f"during {session_info['session_name']}."
+            f"{side} {sym} ({arch_name}) meets adaptive threshold ({res['score']}% >= {res['min_required']}%) "
+            f"during {session_info['session_name']}. [{res['adaptive_rationale']}]"
         )
     else:
         summary = (
             f"🛑 [CONFLUENCE BLOCKED: {res['score']}% | Grade {res['grade']}] "
-            f"{side} {sym} fell below required threshold ({res['score']}% < {res['min_required']}%) "
-            f"during {session_info['session_name']}. Order filtered out to preserve capital."
+            f"{side} {sym} ({arch_name}) fell below adaptive threshold ({res['score']}% < {res['min_required']}%) "
+            f"during {session_info['session_name']}. [{res['adaptive_rationale']}] Order filtered out to preserve capital."
         )
 
     return res["is_admissible"], summary, res
@@ -410,9 +551,10 @@ if __name__ == "__main__":
     print("\n=======================================================")
     print(f"       ⏱️ INSTITUTIONAL SESSION & ACCURACY AUDIT")
     print("=======================================================")
-    print(f"Waktu Saat Ini    : {sess['wib_time']}")
-    print(f"Sesi Institusional: {sess['session_name']}")
-    print(f"Karakteristik     : {sess['rationale']}")
-    print(f"Likuiditas Tinggi : {'🟢 YA' if sess['high_liquidity'] else '🟡 MODERAT / RENDAH'}")
-    print(f"Ambang Konfluensi : Minimal {sess['min_threshold']}% untuk lolos eksekusi")
+    print(f"Waktu Saat Ini       : {sess['wib_time']}")
+    print(f"Sesi Institusional   : {sess['session_name']}")
+    print(f"Karakteristik        : {sess['rationale']}")
+    print(f"Likuiditas Tinggi    : {'🟢 YA' if sess['high_liquidity'] else '🟡 MODERAT / RENDAH'}")
+    print(f"Base Ambang Sesi     : Minimal {sess['min_threshold']}%")
+    print("Mode Filter          : 🎯 STRATEGY-ADAPTIVE (Mean-Reversion/SFP: 75% | Breakout: 90% in Dead Zone)")
     print("=======================================================\n")
