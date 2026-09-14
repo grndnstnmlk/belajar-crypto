@@ -20,7 +20,7 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-TOOLS_DIR = os.path.dirname(__file__)
+TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(os.path.dirname(TOOLS_DIR))
 
 _LAST_PUSH_TIME = 0
