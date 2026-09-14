@@ -89,6 +89,13 @@ def record_closed_trade(trade_entry):
     except Exception as m_err:
         pass
 
+    # Seamless Multi-Device Cloud Sync Hook
+    try:
+        import auto_git_sync
+        auto_git_sync.trigger_background_push(f"closed_trade_{trade_entry.get('symbol')}")
+    except Exception:
+        pass
+
 def sync_binance_history(user_email="dxmade@gmail.com", is_demo=True, limit=50):
     """
     Syncs past realized PnL and trade executions directly from Binance Futures API.

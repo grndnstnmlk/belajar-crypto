@@ -61,7 +61,20 @@ def print_banner():
 """
     print(banner)
 
+def ensure_git_sync():
+    try:
+        import auto_git_sync
+        print(f"{C.GRAY}☁️ Memeriksa sinkronisasi data cloud GitHub...{C.RESET}")
+        success, msg = auto_git_sync.sync_pull()
+        if success:
+            print(f"{C.BRIGHT_GREEN}{msg}{C.RESET}")
+        else:
+            print(f"{C.BRIGHT_YELLOW}{msg}{C.RESET}")
+    except Exception:
+        pass
+
 def ensure_dashboard():
+    ensure_git_sync()
     print(f"{C.GRAY}🔄 Memeriksa status Web Dashboard Server (Port 5000)...{C.RESET}")
     srv_script = os.path.join(TOOLS_DIR, "dashboard_server.py")
     if os.path.exists(srv_script):
