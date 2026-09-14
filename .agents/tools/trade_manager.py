@@ -885,6 +885,26 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                 print(f" * [AI Sentinel Error] {e}")
 
         # -------------------------------------------------------------
+        # STEP 1B: 24/7 ANTI-STALL TIME-DECAY SHIELD (DORMANT TRADE PROTECTION)
+        # -------------------------------------------------------------
+        try:
+            import session_adaptive_strategy
+            stall_audit = session_adaptive_strategy.audit_trade_dormancy_and_stall(
+                opened_at_str=t_data.get("opened_at", ""),
+                current_r=r_multiple,
+                max_stagnant_minutes=120
+            )
+            if stall_audit.get("is_stalled") and not t_data.get("breakeven_locked", False):
+                print(f"🛡️ {stall_audit['reason']}")
+                new_be_sl = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
+                update_binance_stop_loss(sym, side, new_be_sl, is_demo=is_demo, user_email=user_email)
+                t_data["breakeven_locked"] = True
+                t_data["current_sl"] = new_be_sl
+                management_events.append(f"🛡️ {sym} Anti-Stall Auto-BE Protected ({stall_audit['elapsed_minutes']:.0f}m)")
+        except Exception:
+            pass
+
+        # -------------------------------------------------------------
         # STEP 1C: PARTIAL TAKE PROFIT 1 (SCALE-OUT 50% @ +1.25R Scalp / +2.0R Swing + RUNNER SMC TRAILING)
         # Realizes cash profit into wallet & locks remaining (Runner) at Breakeven!
         # Synthesized from Akademi Crypto Module 03 (Money Management)

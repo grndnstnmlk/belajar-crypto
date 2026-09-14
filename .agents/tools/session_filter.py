@@ -150,7 +150,10 @@ def calculate_confluence_score(setup, session_info=None):
     if "FVG" in setup.get("reason", "") or setup.get("is_fvg"):
         struct_pts += 12
         reasons.append("Fair Value Gap Retest")
-    if "Percoco" in setup.get("strategy", "") or "Percoco" in setup.get("reason", "") or setup.get("is_percoco"):
+    if "Judas" in setup.get("strategy", "") or "Judas" in setup.get("reason", "") or setup.get("is_judas"):
+        struct_pts += 25
+        reasons.append("London Judas Swing Asian Range Sweep")
+    elif "Percoco" in setup.get("strategy", "") or "Percoco" in setup.get("reason", "") or setup.get("is_percoco"):
         struct_pts += 25
         reasons.append("Craig Percoco Key-Level Rejection Sniper (Wick + Volume)")
     elif "IFVG" in setup.get("strategy", "") or "Inverse FVG" in setup.get("strategy", ""):
