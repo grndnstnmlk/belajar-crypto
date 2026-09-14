@@ -749,6 +749,34 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/strategy/institutional_suite":
+            sym = params.get("symbol", ["BTC"])[0]
+            bar = params.get("bar", ["1h"])[0]
+            try:
+                import institutional_quant_strategies
+                data = institutional_quant_strategies.scan_all_institutional_strategies(sym, bar=bar)
+                data["success"] = True
+            except Exception as e:
+                data = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/strategy/session_adaptive":
+            try:
+                import session_adaptive_strategy
+                reg = session_adaptive_strategy.get_active_24h_regime()
+                data = {"success": True, "active_regime": reg}
+            except Exception as e:
+                data = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
         elif path == "/api/risk/pre_trade_audit":
             import nautilus_risk_engine
             sym = params.get("symbol", ["BTC"])[0]

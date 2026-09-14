@@ -36,6 +36,11 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
 TOOLS_DIR = os.path.dirname(__file__)
 sys.path.insert(0, TOOLS_DIR)
 
+try:
+    import institutional_quant_strategies
+except ImportError:
+    institutional_quant_strategies = None
+
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
 SSL_CTX.verify_mode = ssl.CERT_NONE
@@ -663,6 +668,48 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
             score += 20
             reasons.append(percoco_intel["summary"])
 
+    # 9. Institutional Suite (Naked POC Magnet, OI Divergence, Flash Dump Dip)
+    npoc_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    oi_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+    flash_intel = {"has_setup": False, "signal": "NONE", "summary": "Standby"}
+
+    if institutional_quant_strategies:
+        try:
+            npoc_intel = institutional_quant_strategies.detect_naked_poc_gravity_magnet(base, bar=bar, candles=candles)
+            if npoc_intel.get("has_setup"):
+                if is_buy and "BULLISH" in npoc_intel.get("signal", ""):
+                    score += 15
+                    reasons.append(npoc_intel["summary"])
+                elif not is_buy and "BEARISH" in npoc_intel.get("signal", ""):
+                    score += 15
+                    reasons.append(npoc_intel["summary"])
+        except Exception:
+            pass
+
+        try:
+            oi_intel = institutional_quant_strategies.detect_oi_divergence_exhaustion(base, bar=bar, candles=candles)
+            if oi_intel.get("has_setup"):
+                if is_buy and "BULLISH" in oi_intel.get("signal", ""):
+                    score += 18
+                    reasons.append(oi_intel["summary"])
+                elif not is_buy and "BEARISH" in oi_intel.get("signal", ""):
+                    score += 18
+                    reasons.append(oi_intel["summary"])
+        except Exception:
+            pass
+
+        try:
+            flash_intel = institutional_quant_strategies.detect_flash_dump_liquidation_dip(base, bar="15m")
+            if flash_intel.get("has_setup"):
+                if is_buy and "BULLISH" in flash_intel.get("signal", ""):
+                    score += 20
+                    reasons.append(flash_intel["summary"])
+                elif not is_buy and "BEARISH" in flash_intel.get("signal", ""):
+                    score += 20
+                    reasons.append(flash_intel["summary"])
+        except Exception:
+            pass
+
     score = max(0, min(100, score))
     grade = "A+ (INSTITUTIONAL GRADE)" if score >= 85 else ("A (HIGH CONFLUENCE)" if score >= 75 else ("B (MODERATE)" if score >= 60 else "C (POOR)"))
 
@@ -690,6 +737,9 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         "sd_flip": flip_intel,
         "wyckoff": wyckoff_intel,
         "percoco_setup": percoco_intel,
+        "naked_poc": npoc_intel,
+        "oi_divergence": oi_intel,
+        "flash_dump_dip": flash_intel,
         "confluence_reasons": reasons,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
