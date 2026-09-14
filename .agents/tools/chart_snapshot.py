@@ -225,19 +225,23 @@ def generate_trade_chart(symbol, side, entry_price, sl_price, tp_price, timefram
     rr_ratio = (reward_dist / r_dist) if r_dist > 0 else 2.5
 
     clean_strategy = sanitize_chart_text(strategy_name) or "AI Quantitative Confluence"
-    title_text = f"{pair_display} ({timeframe}) - {side_tag} (R:R 1:{rr_ratio:.2f})"
+    title_text = f"{pair_display} ({timeframe}) — {side_tag}  (R:R 1:{rr_ratio:.2f})"
     clean_title = sanitize_chart_text(title_text)
-    ax.set_title(clean_title, color=TEXT_COLOR, fontsize=13, fontweight="bold", pad=12, loc="left")
 
-    # Subtitle / Strategy Tag
-    ax.text(0.0, 1.02, f"Strategy: {clean_strategy} | Powered by Akademi Crypto AI Desk",
-            transform=ax.transAxes, color=DIM_TEXT, fontsize=8.5, verticalalignment="bottom")
+    # Clean two-tier header with distinct vertical separation to prevent overlapping
+    ax.text(0.0, 1.085, clean_title, transform=ax.transAxes,
+            color=TEXT_COLOR, fontsize=12.5, fontweight="bold", verticalalignment="bottom")
+
+    subtitle_text = f"Strategy: {clean_strategy} | Greend Malik AI Trading Desk"
+    clean_subtitle = sanitize_chart_text(subtitle_text)
+    ax.text(0.0, 1.02, clean_subtitle, transform=ax.transAxes,
+            color=DIM_TEXT, fontsize=8.5, verticalalignment="bottom")
 
     # Brand Watermark in bottom right
-    ax.text(0.98, 0.03, "AKADEMI CRYPTO MISSION CONTROL", transform=ax.transAxes,
+    ax.text(0.98, 0.03, "GREEND MALIK AI TRADING DESK", transform=ax.transAxes,
             color=DIM_TEXT, fontsize=8, alpha=0.35, horizontalalignment="right")
 
-    plt.tight_layout()
+    fig.subplots_adjust(top=0.88, bottom=0.08, left=0.06, right=0.92)
 
     # Save to disk
     timestamp_tag = int(time.time())
