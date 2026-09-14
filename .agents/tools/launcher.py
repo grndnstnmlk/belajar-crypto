@@ -1,5 +1,5 @@
 """
-Akademi Crypto — Autonomous AI Trading Desk Mission Control Launcher
+Greend Malik — Autonomous AI Trading Desk Launcher
 Interactive Python-driven terminal menu with ANSI colors and non-blocking timeout.
 """
 
@@ -52,8 +52,8 @@ def print_banner():
 ██║  ██║██║ ╚██╗██║  ██║██████╔╝███████╗██║ ╚═╝ ██║██║    ╚██████╗██║  ██║   ██║   ██║        ██║   ╚██████╔╝
 ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝     ╚═════╝╚═╝  ╚═╝   ╚═╝   ╚═╝        ╚═╝    ╚═════╝ 
 ========================================================================================={C.RESET}
-      {C.BOLD}{C.BRIGHT_WHITE}⚡ INSTITUTIONAL-GRADE AUTONOMOUS WORKSTATION — BINANCE FUTURES (20x){C.RESET}
-      {C.GRAY}🏛️ KURIKULUM  :{C.RESET} {C.BRIGHT_YELLOW}Akademi Crypto (Module 01 - 05) & Prop Firm Risk Framework{C.RESET}
+      {C.BOLD}{C.BRIGHT_WHITE}⚡ GREEND MALIK AI TRADING DESK — BINANCE FUTURES (20x){C.RESET}
+      {C.GRAY}🏛️ FRAMEWORK   :{C.RESET} {C.BRIGHT_YELLOW}Institutional Smart Money Concepts & Prop Firm Risk Framework{C.RESET}
       {C.GRAY}🧠 QUANT & ML :{C.RESET} {C.BRIGHT_CYAN}Optuna Hyperopt + Dissimilarity Index Anomaly Gate + Dynamic Pairlist{C.RESET}
       {C.GRAY}🌐 DASHBOARD  :{C.RESET} {C.BRIGHT_CYAN}http://localhost:5000 [GSAP Animated Chalkboard]{C.RESET}
       {C.GRAY}📱 TELEGRAM   :{C.RESET} {C.BRIGHT_GREEN}Notifikasi Instan + Two-Way Remote Controller (/status, /positions){C.RESET}
@@ -206,7 +206,7 @@ def main():
         time.sleep(2)
         
     elif choice == "8":
-        print(f"\n{C.GRAY}Menutup Mission Control. Selamat trading!{C.RESET}")
+        print(f"\n{C.GRAY}Menutup AI Trading Desk. Selamat trading!{C.RESET}")
         time.sleep(1)
         sys.exit(0)
 
@@ -214,4 +214,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print(f"\n{C.BRIGHT_YELLOW}Mission Control dihentikan oleh pengguna.{C.RESET}")
+        print(f"\n{C.BRIGHT_YELLOW}AI Trading Desk dihentikan oleh pengguna.{C.RESET}")
