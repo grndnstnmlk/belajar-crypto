@@ -22,22 +22,12 @@ from datetime import datetime
 # Suppress Matplotlib font missing glyph user warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
 
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    import matplotlib.ticker as ticker
-    MATPLOTLIB_AVAILABLE = True
-except ImportError:
-    matplotlib = None
-    plt = None
-    ticker = None
-    MATPLOTLIB_AVAILABLE = False
-
-try:
-    import numpy as np
-except ImportError:
-    np = None
+# Headless backend for Matplotlib
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import numpy as np
 
 # Ensure UTF-8 output on Windows console
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
@@ -115,9 +105,6 @@ def generate_trade_chart(symbol, side, entry_price, sl_price, tp_price, timefram
     pair_display = f"{sym_clean}/USDT"
     side_clean = side.upper()
     is_long = side_clean in ["BUY", "LONG"]
-
-    if not MATPLOTLIB_AVAILABLE or np is None:
-        return None
 
     candles = fetch_candles_for_snapshot(sym_clean, bar=timeframe, limit=45)
     if len(candles) < 15:

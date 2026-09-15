@@ -1,23 +1,16 @@
 import sys
+import ccxt
+import urllib3
 import json
 import urllib.request
-
-try:
-    import urllib3
-    urllib3.disable_warnings()
-except ImportError:
-    pass
-
-try:
-    import ccxt
-except ImportError:
-    ccxt = None
 
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     try:
         sys.stdout.reconfigure(encoding="utf-8")
     except Exception:
         pass
+
+urllib3.disable_warnings()
 
 # Top potential altcoins with USDT pairs on Tokocrypto
 CANDIDATE_SYMBOLS = [

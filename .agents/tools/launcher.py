@@ -98,18 +98,18 @@ def print_menu():
     print(f"{C.BRIGHT_CYAN}╔═══════════════════════════════════════════════════════════════════════════════════════╗{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}                      {C.BOLD}{C.BRIGHT_WHITE}🎯 PILIH PRESET OPERASI AUTOPILOT{C.RESET}                               {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}╠═══════════════════════════════════════════════════════════════════════════════════════╣{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_GREEN}[1] 🚀 FULL INSTITUTIONAL AUTOPILOT (Adaptive Regime + Dynamic Pairlist + Rolling ML){C.RESET}  {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[2] ⚡ FAST SCALPER ENGINE (5m / 15m Micro-SMC, ORB Breakout & Delta Sniping){C.RESET}         {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_GREEN}[1] 🎯 FULL INSTITUTIONAL SWING AUTOPILOT (1H/4H Big Wave + SMC Trailing + Max R:R){C.RESET}   {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[2] ⚡ FAST SCALPER & HYBRID ENGINE (5m / 15m Micro-SMC, ORB Breakout & Delta Sniping){C.RESET} {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_WHITE}[3] 🧠 HYPEROPT STRATEGY OPTIMIZER (Optuna Bayesian Parameter Search){C.RESET}                {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_CYAN}[4] 🌐 DYNAMIC PAIRLIST PIPELINE (6-Stage Multi-Filter Binance Universe Scanner){C.RESET}    {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[5] 🔬 ADAPTIVE ML & ANOMALY EVALUATOR (Live Dissimilarity Index / OOD Gate){C.RESET}         {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_WHITE}[6] 🔍 TOTAL SYSTEM DIAGNOSTIC & HEALTH AUDIT (63 Automated Test Suite){C.RESET}             {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_WHITE}[6] 🔍 TOTAL SYSTEM DIAGNOSTIC & HEALTH AUDIT (66 Automated Test Suite){C.RESET}             {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_CYAN}[7] 🖥️ BUKA WEB DASHBOARD VISUAL DI BROWSER (http://localhost:5000){C.RESET}                   {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}[8] ❌ KELUAR{C.RESET}                                                                       {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}╚═══════════════════════════════════════════════════════════════════════════════════════╝{C.RESET}")
 
 def get_user_choice(timeout_sec=5):
-    print(f"\n{C.GRAY}⏳ Otomatis menjalankan mode {C.BRIGHT_GREEN}[1] FULL AUTOPILOT{C.GRAY} dalam {timeout_sec} detik jika tidak ada tombol ditekan...{C.RESET}")
+    print(f"\n{C.GRAY}⏳ Otomatis menjalankan mode {C.BRIGHT_GREEN}[1] SWING AUTOPILOT{C.GRAY} dalam {timeout_sec} detik jika tidak ada tombol ditekan...{C.RESET}")
     
     if sys.platform == "win32":
         import msvcrt
@@ -150,18 +150,18 @@ def main():
     if choice == "1":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
-        print(f"{C.BOLD}{C.BRIGHT_GREEN}🎯 MEMULAI FULL INSTITUTIONAL AUTOPILOT DESK{C.RESET}")
-        print(f"{C.GRAY}Fitur: Dynamic Pairlist + Rolling ML Anomaly Shield + Regime Switcher + SMC Stops (+2R/+3R){C.RESET}")
+        print(f"{C.BOLD}{C.BRIGHT_GREEN}🎯 MEMULAI FULL INSTITUTIONAL SWING AUTOPILOT DESK (1H / 4H MACRO CONFLUENCE){C.RESET}")
+        print(f"{C.GRAY}Fitur: 1H/4H SMC + Wyckoff + FVG Retest + Dynamic Trailing (+2R/+3R) + Zero Time-Stop{C.RESET}")
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
-        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "HYBRID"], cwd=ROOT_DIR)
+        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "SWING"], cwd=ROOT_DIR)
         
     elif choice == "2":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
-        print(f"{C.BOLD}{C.BRIGHT_YELLOW}⚡ MEMULAI HIGH-FREQUENCY FAST SCALPER DESK (5m/15m MICRO-SMC / ORB BREAKOUT){C.RESET}")
+        print(f"{C.BOLD}{C.BRIGHT_YELLOW}⚡ MEMULAI HIGH-FREQUENCY FAST SCALPER & HYBRID DESK (5m/15m MICRO-SMC / ORB BREAKOUT){C.RESET}")
         print(f"{C.GRAY}Target: 1:2.0R s/d 1:3.5R Asymmetric Targets | Anti-Stall 20m Time-Stop | Delta Sniping{C.RESET}")
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
-        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "SCALP"], cwd=ROOT_DIR)
+        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "HYBRID"], cwd=ROOT_DIR)
         
     elif choice == "3":
         clear_screen()
