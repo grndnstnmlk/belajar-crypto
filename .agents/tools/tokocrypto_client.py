@@ -10,7 +10,12 @@ import os
 import re
 import sys
 import urllib.request
-import urllib3
+
+try:
+    import urllib3
+    urllib3.disable_warnings()
+except ImportError:
+    pass
 
 # Ensure UTF-8 output on Windows console
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
@@ -18,8 +23,6 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     except Exception:
         pass
-
-urllib3.disable_warnings()
 ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
 
 def sanitize_email_suffix(email):

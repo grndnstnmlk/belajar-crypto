@@ -11,7 +11,10 @@ Calculates:
 import os
 import sys
 import math
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None
 from typing import Dict, Any, List, Optional
 
 TOOLS_DIR = os.path.dirname(__file__)
@@ -108,9 +111,12 @@ def get_asset_volatility_profile(symbol: str = "BTC", bar: str = "1h", limit: in
     if not returns:
         returns = [0.0]
 
-    arr_returns = np.array(returns)
-    mean_ret = float(np.mean(arr_returns))
-    std_ret = float(np.std(arr_returns)) if len(arr_returns) > 1 else 0.02
+    mean_ret = float(sum(returns) / len(returns))
+    if len(returns) > 1:
+        variance = sum((r - mean_ret) ** 2 for r in returns) / len(returns)
+        std_ret = float(math.sqrt(variance))
+    else:
+        std_ret = 0.02
 
     # Parkinson Volatility
     parkinson_vol = calculate_parkinson_volatility(highs, lows)
@@ -122,7 +128,7 @@ def get_asset_volatility_profile(symbol: str = "BTC", bar: str = "1h", limit: in
     # Empirical CVaR (Expected Shortfall)
     tail_losses = [r for r in returns if r < -var_95]
     if tail_losses:
-        cvar_95 = float(-np.mean(tail_losses))
+        cvar_95 = float(-sum(tail_losses) / len(tail_losses))
     else:
         cvar_95 = var_95 * 1.25
 
