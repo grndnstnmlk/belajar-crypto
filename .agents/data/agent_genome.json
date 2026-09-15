@@ -1,8 +1,8 @@
 {
-  "generation": 87,
+  "generation": 89,
   "fitness_score": 88.5,
   "parameters": {
-    "min_risk_reward": 3.0,
+    "min_risk_reward": 3.5,
     "max_risk_per_trade_pct": 1.5,
     "rsi_overbought": 70,
     "rsi_oversold": 30,
@@ -12,7 +12,7 @@
       "trend_weight": 0.35,
       "rsi_weight": 0.3,
       "volatility_weight": 0.2,
-      "risk_aversion": 0.15
+      "risk_aversion": 0.25
     }
   },
   "regime_genomes": {
@@ -723,11 +723,27 @@
       "timestamp": "2026-09-15 08:20:19",
       "action": "REVERT_ROLLBACK",
       "hypothesis": "Reverted to Gen-31 baseline parameters after underperforming test."
+    },
+    {
+      "generation": 88,
+      "timestamp": "2026-09-15 08:20:23",
+      "action": "AUTORESEARCH_MUTATE_RR (3.0 -> 3.25)",
+      "hypothesis": "Win rate (43.84%) is below target (55.0%). Raising minimum R:R to 3.25 to preserve mathematical payoff."
+    },
+    {
+      "generation": 89,
+      "timestamp": "2026-09-15 08:20:27",
+      "action": "AUTORESEARCH_MUTATE_RR (3.25 -> 3.5)",
+      "hypothesis": "Win rate (44.09%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
     }
   ],
   "active_experiment": {
-    "status": "IDLE",
-    "last_decision": "REVERT"
+    "status": "EVALUATING",
+    "test_generation": 89,
+    "start_trade_count": 660,
+    "baseline_sharpe": 0.71,
+    "baseline_pf": 0.72,
+    "hypothesis": "Win rate (44.09%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
   },
   "best_known_genome": {
     "generation": 31,
