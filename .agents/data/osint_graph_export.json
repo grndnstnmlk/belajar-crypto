@@ -1,0 +1,171 @@
+{
+  "schema_version": "flowsint-v1.0",
+  "timestamp": "2026-09-15 23:43:00",
+  "graph_summary": {
+    "total_nodes": 10,
+    "total_edges": 9,
+    "clusters_identified": 3
+  },
+  "nodes": [
+    {
+      "id": "hub:mission_control",
+      "label": "Belajar Kripto OSINT Hub",
+      "type": "STATION",
+      "properties": {
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "id": "token:BTC",
+      "label": "BTC",
+      "type": "TOKEN",
+      "properties": {
+        "security_score": 100,
+        "risk_status": "INSTITUTIONAL_SAFE",
+        "liquidity_usd": 263244.9,
+        "contract_address": "E4Ap4icMLwKot8rkkTbq5JkS5kZxt5XCE3yfxbzYBjHx"
+      }
+    },
+    {
+      "id": "chain:solana",
+      "label": "SOLANA",
+      "type": "BLOCKCHAIN",
+      "properties": {
+        "layer": "L1/L2"
+      }
+    },
+    {
+      "id": "pool:2RmBs1KY",
+      "label": "Pool (solana)",
+      "type": "LIQUIDITY_POOL",
+      "properties": {
+        "address": "2RmBs1KYzkDuaRR4F8zU9rPR6KT16eCgJ9YS1c8XXZgQ",
+        "liquidity_usd": 263244.9
+      }
+    },
+    {
+      "id": "token:ETH",
+      "label": "ETH",
+      "type": "TOKEN",
+      "properties": {
+        "security_score": 100,
+        "risk_status": "INSTITUTIONAL_SAFE",
+        "liquidity_usd": 1511369.43,
+        "contract_address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8"
+      }
+    },
+    {
+      "id": "chain:bsc",
+      "label": "BSC",
+      "type": "BLOCKCHAIN",
+      "properties": {
+        "layer": "L1/L2"
+      }
+    },
+    {
+      "id": "pool:0x9F599F",
+      "label": "Pool (bsc)",
+      "type": "LIQUIDITY_POOL",
+      "properties": {
+        "address": "0x9F599F3D64a9D99eA21e68127Bb6CE99f893DA61",
+        "liquidity_usd": 1511369.43
+      }
+    },
+    {
+      "id": "token:SOL",
+      "label": "SOL",
+      "type": "TOKEN",
+      "properties": {
+        "security_score": 100,
+        "risk_status": "INSTITUTIONAL_SAFE",
+        "liquidity_usd": 644153.31,
+        "contract_address": "0x311935Cd80B76769bF2ecC9D8Ab7635b2139cf82"
+      }
+    },
+    {
+      "id": "chain:base",
+      "label": "BASE",
+      "type": "BLOCKCHAIN",
+      "properties": {
+        "layer": "L1/L2"
+      }
+    },
+    {
+      "id": "pool:0x1131DB",
+      "label": "Pool (base)",
+      "type": "LIQUIDITY_POOL",
+      "properties": {
+        "address": "0x1131DB5977242a03eBeaD1aCD18F80A9A29e5922",
+        "liquidity_usd": 644153.31
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "hub:mission_control",
+      "target": "token:BTC",
+      "relationship": "MONITORS",
+      "properties": {
+        "last_scanned": "2026-09-15T23:43:00.534861"
+      }
+    },
+    {
+      "source": "token:BTC",
+      "target": "chain:solana",
+      "relationship": "DEPLOYED_ON",
+      "properties": {}
+    },
+    {
+      "source": "token:BTC",
+      "target": "pool:2RmBs1KY",
+      "relationship": "POOLED_IN",
+      "properties": {
+        "volume_24h": 854300.56
+      }
+    },
+    {
+      "source": "hub:mission_control",
+      "target": "token:ETH",
+      "relationship": "MONITORS",
+      "properties": {
+        "last_scanned": "2026-09-15T23:43:00.534870"
+      }
+    },
+    {
+      "source": "token:ETH",
+      "target": "chain:bsc",
+      "relationship": "DEPLOYED_ON",
+      "properties": {}
+    },
+    {
+      "source": "token:ETH",
+      "target": "pool:0x9F599F",
+      "relationship": "POOLED_IN",
+      "properties": {
+        "volume_24h": 5823434.67
+      }
+    },
+    {
+      "source": "hub:mission_control",
+      "target": "token:SOL",
+      "relationship": "MONITORS",
+      "properties": {
+        "last_scanned": "2026-09-15T23:43:00.534875"
+      }
+    },
+    {
+      "source": "token:SOL",
+      "target": "chain:base",
+      "relationship": "DEPLOYED_ON",
+      "properties": {}
+    },
+    {
+      "source": "token:SOL",
+      "target": "pool:0x1131DB",
+      "relationship": "POOLED_IN",
+      "properties": {
+        "volume_24h": 5099505.16
+      }
+    }
+  ]
+}

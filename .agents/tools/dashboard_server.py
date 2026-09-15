@@ -1188,6 +1188,50 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path == "/api/osint/forensics":
+            try:
+                import crypto_osint_forensics_hub
+                hub = crypto_osint_forensics_hub.CryptoOSINTForensicsHub()
+                refresh = params.get("refresh", ["false"])[0].lower() == "true"
+                intel_file = os.path.join(DATA_DIR, "osint_forensics_intel.json")
+                if refresh or not os.path.exists(intel_file):
+                    data = hub.run_full_intel_cycle()
+                else:
+                    with open(intel_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "osint_intel": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/osint/graph":
+            try:
+                graph_file = os.path.join(DATA_DIR, "osint_graph_export.json")
+                if os.path.exists(graph_file):
+                    with open(graph_file, "r", encoding="utf-8") as f:
+                        graph_data = json.load(f)
+                else:
+                    import crypto_osint_forensics_hub
+                    hub = crypto_osint_forensics_hub.CryptoOSINTForensicsHub()
+                    report = hub.run_full_intel_cycle()
+                    graph_data = report.get("flowsint_graph_preview", {})
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "graph": graph_data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         elif path == "/api/hyperopt/status":
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")

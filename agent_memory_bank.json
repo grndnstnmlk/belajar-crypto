@@ -9,9 +9,9 @@
     "BTCUSDT": {
       "symbol": "BTCUSDT",
       "volatility_regime": "LOW_TO_MODERATE",
-      "wick_risk_rating": "MODERATE",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "HIGH",
-      "false_breakout_bias": "LOW",
+      "false_breakout_bias": "HIGH",
       "optimal_setups": [
         "SMC Order Block Retest",
         "Wyckoff Phase C Spring",
@@ -19,23 +19,23 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 2,
-      "wins": 1,
-      "losses": 1,
-      "breakevens": 0,
-      "win_rate_pct": 50.0,
-      "net_pnl_usd": 1.1,
+      "total_trades": 58,
+      "wins": 14,
+      "losses": 16,
+      "breakevens": 28,
+      "win_rate_pct": 24.1,
+      "net_pnl_usd": 43.34,
       "avg_r_multiple": 0.02,
       "last_traded_outcome": "LOSS",
-      "last_closed_at": "2026-09-15 12:16:05",
-      "updated_at": "2026-09-15T12:11:26.672940+00:00"
+      "last_closed_at": "2026-09-15 09:14:30",
+      "updated_at": "2026-09-15T16:40:39.147129+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
       "volatility_regime": "MODERATE",
-      "wick_risk_rating": "MODERATE",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "HIGH",
-      "false_breakout_bias": "MODERATE",
+      "false_breakout_bias": "HIGH",
       "optimal_setups": [
         "Order Flow Shift",
         "Liquidity Sweep + SMR",
@@ -43,16 +43,16 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 5,
-      "wins": 2,
-      "losses": 0,
-      "breakevens": 3,
-      "win_rate_pct": 40.0,
-      "net_pnl_usd": 2.23,
-      "avg_r_multiple": 0.02,
+      "total_trades": 59,
+      "wins": 11,
+      "losses": 24,
+      "breakevens": 24,
+      "win_rate_pct": 18.6,
+      "net_pnl_usd": -208.69,
+      "avg_r_multiple": -0.14,
       "last_traded_outcome": "BREAKEVEN",
-      "last_closed_at": "2026-09-15 11:56:36",
-      "updated_at": "2026-09-15T12:45:42.132738+00:00"
+      "last_closed_at": "2026-09-15 19:45:27",
+      "updated_at": "2026-09-15T16:40:39.147118+00:00"
     },
     "SOLUSDT": {
       "symbol": "SOLUSDT",
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 2,
-      "wins": 1,
-      "losses": 1,
-      "breakevens": 0,
-      "win_rate_pct": 50.0,
-      "net_pnl_usd": -3.0,
-      "avg_r_multiple": -0.05,
-      "last_traded_outcome": "WIN",
-      "last_closed_at": "2026-09-15 12:29:18",
-      "updated_at": "2026-09-15T12:11:26.672943+00:00"
+      "total_trades": 79,
+      "wins": 16,
+      "losses": 30,
+      "breakevens": 33,
+      "win_rate_pct": 20.3,
+      "net_pnl_usd": -241.38,
+      "avg_r_multiple": -0.11,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-15 09:14:31",
+      "updated_at": "2026-09-15T16:40:39.147097+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -90,16 +90,16 @@
         "Institutional Iceberg Absorption"
       ],
       "notes": "Exchange native anchor. High institutional bid support; low false breakout rate on HTF.",
-      "total_trades": 5,
-      "wins": 1,
-      "losses": 0,
-      "breakevens": 4,
-      "win_rate_pct": 20.0,
-      "net_pnl_usd": 0.36,
-      "avg_r_multiple": 0.0,
+      "total_trades": 126,
+      "wins": 15,
+      "losses": 14,
+      "breakevens": 97,
+      "win_rate_pct": 11.9,
+      "net_pnl_usd": 357.75,
+      "avg_r_multiple": 0.09,
       "last_traded_outcome": "BREAKEVEN",
-      "last_closed_at": "2026-09-15 12:48:22",
-      "updated_at": "2026-09-15T13:43:34.436552+00:00"
+      "last_closed_at": "2026-09-15 20:38:10",
+      "updated_at": "2026-09-15T16:40:39.147123+00:00"
     },
     "XRPUSDT": {
       "symbol": "XRPUSDT",
@@ -113,47 +113,67 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 2,
-      "wins": 2,
-      "losses": 0,
-      "breakevens": 0,
-      "win_rate_pct": 100.0,
-      "net_pnl_usd": 4.9,
-      "avg_r_multiple": 0.08,
-      "last_traded_outcome": "WIN",
-      "last_closed_at": "2026-09-15 12:52:30",
-      "updated_at": "2026-09-15T12:11:26.672935+00:00"
+      "total_trades": 50,
+      "wins": 13,
+      "losses": 18,
+      "breakevens": 19,
+      "win_rate_pct": 26.0,
+      "net_pnl_usd": 181.21,
+      "avg_r_multiple": 0.11,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-15 09:14:29",
+      "updated_at": "2026-09-15T16:40:39.147114+00:00"
     },
     "DOGEUSDT": {
       "symbol": "DOGEUSDT",
       "volatility_regime": "VERY_HIGH",
-      "wick_risk_rating": "VERY_HIGH",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "VERY_HIGH",
-      "false_breakout_bias": "VERY_HIGH",
+      "false_breakout_bias": "HIGH",
       "optimal_setups": [
         "Volume Surge Breakout with Tight Trailing",
         "HTF Support Sweep",
         "Liquidation Cascade Dip"
       ],
-      "notes": "Meme momentum driver. Strict fractional Kelly sizing required (max 1.5% risk)."
+      "notes": "Meme momentum driver. Strict fractional Kelly sizing required (max 1.5% risk).",
+      "total_trades": 23,
+      "wins": 4,
+      "losses": 10,
+      "breakevens": 9,
+      "win_rate_pct": 17.4,
+      "net_pnl_usd": -196.79,
+      "avg_r_multiple": -0.29,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-15 03:23:32",
+      "updated_at": "2026-09-15T16:40:39.147132+00:00"
     },
     "ADAUSDT": {
       "symbol": "ADAUSDT",
       "volatility_regime": "MODERATE",
-      "wick_risk_rating": "MODERATE",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "MODERATE",
-      "false_breakout_bias": "MODERATE",
+      "false_breakout_bias": "HIGH",
       "optimal_setups": [
         "Multi-day Range Reversion",
         "Order Block Retest",
         "VWAP Elasticity"
       ],
-      "notes": "Tends to form extended consolidation ranges before directional expansion."
+      "notes": "Tends to form extended consolidation ranges before directional expansion.",
+      "total_trades": 33,
+      "wins": 10,
+      "losses": 14,
+      "breakevens": 9,
+      "win_rate_pct": 30.3,
+      "net_pnl_usd": -195.63,
+      "avg_r_multiple": -0.17,
+      "last_traded_outcome": "WIN",
+      "last_closed_at": "2026-09-14 23:15:14",
+      "updated_at": "2026-09-15T16:40:39.147121+00:00"
     },
     "AVAXUSDT": {
       "symbol": "AVAXUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "MODERATE_HIGH",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -161,7 +181,17 @@
         "Displacement FVG Reclaim",
         "CVD Absorption"
       ],
-      "notes": "High beta to SOL and layer-1 rotations. Strong trend continuation when 1H EMA 50 aligns."
+      "notes": "High beta to SOL and layer-1 rotations. Strong trend continuation when 1H EMA 50 aligns.",
+      "total_trades": 21,
+      "wins": 0,
+      "losses": 13,
+      "breakevens": 8,
+      "win_rate_pct": 0.0,
+      "net_pnl_usd": -102.47,
+      "avg_r_multiple": -0.24,
+      "last_traded_outcome": "BREAKEVEN",
+      "last_closed_at": "2026-09-15 00:16:31",
+      "updated_at": "2026-09-15T16:40:39.147134+00:00"
     },
     "SUIUSDT": {
       "symbol": "SUIUSDT",
@@ -175,52 +205,62 @@
         "Smart Pyramiding at +2R"
       ],
       "notes": "High momentum layer-1 leader. High R:R potential on trending days; avoid counter-trend shorts.",
-      "total_trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "breakevens": 0,
-      "win_rate_pct": 100.0,
-      "net_pnl_usd": 1.65,
-      "avg_r_multiple": 0.05,
-      "last_traded_outcome": "WIN",
-      "last_closed_at": "2026-09-15 10:31:40",
-      "updated_at": "2026-09-15T12:11:26.672929+00:00"
+      "total_trades": 40,
+      "wins": 10,
+      "losses": 22,
+      "breakevens": 8,
+      "win_rate_pct": 25.0,
+      "net_pnl_usd": 23.04,
+      "avg_r_multiple": -0.0,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-15 09:14:28",
+      "updated_at": "2026-09-15T16:40:39.147109+00:00"
     },
     "NEARUSDT": {
       "symbol": "NEARUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "MODERATE",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "MODERATE",
-      "false_breakout_bias": "MODERATE",
+      "false_breakout_bias": "HIGH",
       "optimal_setups": [
         "AI-Narrative Trend Follow",
         "1H FVG Retest",
         "Volume Surge Pullback"
       ],
-      "notes": "AI and Web3 infrastructure bellwether. Clean price action on 1H timeframes."
+      "notes": "AI and Web3 infrastructure bellwether. Clean price action on 1H timeframes.",
+      "total_trades": 33,
+      "wins": 8,
+      "losses": 4,
+      "breakevens": 21,
+      "win_rate_pct": 24.2,
+      "net_pnl_usd": 13.31,
+      "avg_r_multiple": 0.02,
+      "last_traded_outcome": "BREAKEVEN",
+      "last_closed_at": "2026-09-12 20:00:32",
+      "updated_at": "2026-09-15T16:40:39.147145+00:00"
     },
     "LINKUSDT": {
       "symbol": "LINKUSDT",
       "volatility_regime": "MODERATE",
-      "wick_risk_rating": "LOW_TO_MODERATE",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "MODERATE",
-      "false_breakout_bias": "LOW",
+      "false_breakout_bias": "HIGH",
       "optimal_setups": [
         "Institutional Accumulation Range",
         "POC Magnetic Reversion",
         "Wyckoff Spring"
       ],
       "notes": "Oracle leader with strong fundamental holding. Highly respects horizontal support and resistance.",
-      "total_trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "breakevens": 0,
-      "win_rate_pct": 100.0,
-      "net_pnl_usd": 4.63,
-      "avg_r_multiple": 0.15,
-      "last_traded_outcome": "WIN",
-      "last_closed_at": "2026-09-15 11:56:38",
-      "updated_at": "2026-09-15T12:11:26.672938+00:00"
+      "total_trades": 65,
+      "wins": 16,
+      "losses": 16,
+      "breakevens": 33,
+      "win_rate_pct": 24.6,
+      "net_pnl_usd": 137.03,
+      "avg_r_multiple": -0.01,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-15 08:24:04",
+      "updated_at": "2026-09-15T16:40:39.147126+00:00"
     },
     "UNIUSDT": {
       "symbol": "UNIUSDT",
@@ -233,19 +273,39 @@
         "SFP Resistance Sweep",
         "Liquidation Dip Reversal"
       ],
-      "notes": "DeFi sector leader. High sensitivity to Ethereum gas and regulatory news."
+      "notes": "DeFi sector leader. High sensitivity to Ethereum gas and regulatory news.",
+      "total_trades": 12,
+      "wins": 0,
+      "losses": 2,
+      "breakevens": 10,
+      "win_rate_pct": 0.0,
+      "net_pnl_usd": -1.43,
+      "avg_r_multiple": -0.01,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-11 17:31:11",
+      "updated_at": "2026-09-15T16:40:39.147154+00:00"
     },
     "THEUSDT": {
       "symbol": "THEUSDT",
       "volatility_regime": "VERY_HIGH",
-      "wick_risk_rating": "VERY_HIGH",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "VERY_HIGH",
-      "false_breakout_bias": "VERY_HIGH",
+      "false_breakout_bias": "HIGH",
       "optimal_setups": [
         "Fast Scalp Momentum Dip",
         "Strict 1.5R Quick Exit"
       ],
-      "notes": "Low cap dex token. Extreme wick volatility; cap maximum exposure to 1% risk."
+      "notes": "Low cap dex token. Extreme wick volatility; cap maximum exposure to 1% risk.",
+      "total_trades": 14,
+      "wins": 1,
+      "losses": 11,
+      "breakevens": 2,
+      "win_rate_pct": 7.1,
+      "net_pnl_usd": -36.43,
+      "avg_r_multiple": -0.11,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-11 17:31:10",
+      "updated_at": "2026-09-15T16:40:39.147157+00:00"
     },
     "ZECUSDT": {
       "symbol": "ZECUSDT",
@@ -257,7 +317,17 @@
         "Privacy Rotation Sweep",
         "Overnight Range Bounce"
       ],
-      "notes": "Privacy coin idiosyncratic movement. Prone to sharp mean reversions."
+      "notes": "Privacy coin idiosyncratic movement. Prone to sharp mean reversions.",
+      "total_trades": 37,
+      "wins": 10,
+      "losses": 14,
+      "breakevens": 13,
+      "win_rate_pct": 27.0,
+      "net_pnl_usd": -171.63,
+      "avg_r_multiple": -0.23,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-11 17:31:06",
+      "updated_at": "2026-09-15T16:40:39.147140+00:00"
     },
     "WLDUSDT": {
       "symbol": "WLDUSDT",
@@ -269,19 +339,39 @@
         "AI Narrative Momentum",
         "Unlocks & Squeeze Snatching"
       ],
-      "notes": "High float unlock volatility and strong short squeezes."
+      "notes": "High float unlock volatility and strong short squeezes.",
+      "total_trades": 14,
+      "wins": 7,
+      "losses": 3,
+      "breakevens": 4,
+      "win_rate_pct": 50.0,
+      "net_pnl_usd": 32.01,
+      "avg_r_multiple": 0.09,
+      "last_traded_outcome": "BREAKEVEN",
+      "last_closed_at": "2026-09-09 04:19:55",
+      "updated_at": "2026-09-15T16:40:39.147137+00:00"
     },
     "SOPHUSDT": {
       "symbol": "SOPHUSDT",
       "volatility_regime": "VERY_HIGH",
-      "wick_risk_rating": "VERY_HIGH",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "HIGH",
-      "false_breakout_bias": "VERY_HIGH",
+      "false_breakout_bias": "HIGH",
       "optimal_setups": [
         "Fast Scalping Ribbon",
         "Volume Breakout Pullback"
       ],
-      "notes": "Micro-cap altcoin. Strict stop loss required immediately upon entry."
+      "notes": "Micro-cap altcoin. Strict stop loss required immediately upon entry.",
+      "total_trades": 13,
+      "wins": 5,
+      "losses": 7,
+      "breakevens": 1,
+      "win_rate_pct": 38.5,
+      "net_pnl_usd": -341.31,
+      "avg_r_multiple": -0.94,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-09 04:36:27",
+      "updated_at": "2026-09-15T16:40:39.147143+00:00"
     },
     "TRXUSDT": {
       "symbol": "TRXUSDT",
@@ -293,7 +383,17 @@
         "Steady Trend Following",
         "EMA 20/50 Pullback"
       ],
-      "notes": "High stability and low beta to broader market; stable trend continuation."
+      "notes": "High stability and low beta to broader market; stable trend continuation.",
+      "total_trades": 3,
+      "wins": 1,
+      "losses": 2,
+      "breakevens": 0,
+      "win_rate_pct": 33.3,
+      "net_pnl_usd": -10.48,
+      "avg_r_multiple": -0.26,
+      "last_traded_outcome": "WIN",
+      "last_closed_at": "2026-09-12 14:12:39",
+      "updated_at": "2026-09-15T16:40:39.147162+00:00"
     },
     "ENAUSDT": {
       "symbol": "ENAUSDT",
@@ -305,7 +405,17 @@
         "Basis Yield Arbitrage Squeeze",
         "15m FVG Reversal"
       ],
-      "notes": "Synthetic dollar yield token; strongly skewed by funding rates."
+      "notes": "Synthetic dollar yield token; strongly skewed by funding rates.",
+      "total_trades": 4,
+      "wins": 0,
+      "losses": 4,
+      "breakevens": 0,
+      "win_rate_pct": 0.0,
+      "net_pnl_usd": -31.97,
+      "avg_r_multiple": -0.48,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-13 10:16:54",
+      "updated_at": "2026-09-15T16:40:39.147164+00:00"
     },
     "PEPEUSDT": {
       "symbol": "PEPEUSDT",
@@ -481,6 +591,78 @@
       "net_pnl_usd": 0.0,
       "created_dynamically": true,
       "updated_at": "2026-09-15T11:38:58.867921+00:00"
+    },
+    "PROMUSDT": {
+      "symbol": "PROMUSDT",
+      "volatility_regime": "MODERATE",
+      "wick_risk_rating": "MODERATE",
+      "funding_sensitivity": "MODERATE",
+      "false_breakout_bias": "MODERATE",
+      "optimal_setups": [
+        "15m Order Block Retest",
+        "Naked POC Magnetic Pull",
+        "SFP Liquidity Sweep"
+      ],
+      "notes": "Active dynamic asset PROMUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
+      "total_trades": 1,
+      "win_rate_pct": 0.0,
+      "net_pnl_usd": -3.91,
+      "created_dynamically": true,
+      "updated_at": "2026-09-15T16:40:39.147148+00:00",
+      "wins": 0,
+      "losses": 1,
+      "breakevens": 0,
+      "avg_r_multiple": -0.12,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-10 04:00:16"
+    },
+    "HOLOUSDT": {
+      "symbol": "HOLOUSDT",
+      "volatility_regime": "MODERATE",
+      "wick_risk_rating": "MODERATE",
+      "funding_sensitivity": "MODERATE",
+      "false_breakout_bias": "MODERATE",
+      "optimal_setups": [
+        "15m Order Block Retest",
+        "Naked POC Magnetic Pull",
+        "SFP Liquidity Sweep"
+      ],
+      "notes": "Active dynamic asset HOLOUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
+      "total_trades": 2,
+      "win_rate_pct": 50.0,
+      "net_pnl_usd": -21.76,
+      "created_dynamically": true,
+      "updated_at": "2026-09-15T16:40:39.147151+00:00",
+      "wins": 1,
+      "losses": 1,
+      "breakevens": 0,
+      "avg_r_multiple": -0.36,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-10 16:56:44"
+    },
+    "SAHARAUSDT": {
+      "symbol": "SAHARAUSDT",
+      "volatility_regime": "MODERATE",
+      "wick_risk_rating": "HIGH",
+      "funding_sensitivity": "MODERATE",
+      "false_breakout_bias": "HIGH",
+      "optimal_setups": [
+        "15m Order Block Retest",
+        "Naked POC Magnetic Pull",
+        "SFP Liquidity Sweep"
+      ],
+      "notes": "Active dynamic asset SAHARAUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
+      "total_trades": 5,
+      "win_rate_pct": 0.0,
+      "net_pnl_usd": -8.3,
+      "created_dynamically": true,
+      "updated_at": "2026-09-15T16:40:39.147159+00:00",
+      "wins": 0,
+      "losses": 4,
+      "breakevens": 1,
+      "avg_r_multiple": -0.08,
+      "last_traded_outcome": "LOSS",
+      "last_closed_at": "2026-09-11 17:29:05"
     }
   },
   "tactical_rules": [
@@ -558,8 +740,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 29,
-      "last_accessed": "2026-09-15T15:18:09.609557+00:00"
+      "access_count": 51,
+      "last_accessed": "2026-09-15T16:42:35.105408+00:00"
     },
     {
       "id": "MEM-20260915-004",
@@ -578,8 +760,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 35,
-      "last_accessed": "2026-09-15T15:18:09.609548+00:00"
+      "access_count": 57,
+      "last_accessed": "2026-09-15T16:42:35.105406+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -598,8 +780,8 @@
         "absorption"
       ],
       "importance": 9,
-      "access_count": 38,
-      "last_accessed": "2026-09-15T15:17:25.720494+00:00"
+      "access_count": 46,
+      "last_accessed": "2026-09-15T16:42:35.105396+00:00"
     },
     {
       "id": "MEM-20260903-002",
@@ -618,8 +800,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 53,
-      "last_accessed": "2026-09-15T15:18:01.619347+00:00"
+      "access_count": 63,
+      "last_accessed": "2026-09-15T16:42:35.105404+00:00"
     },
     {
       "id": "MEM-20260907-003",
@@ -638,8 +820,8 @@
         "orderflow"
       ],
       "importance": 8,
-      "access_count": 34,
-      "last_accessed": "2026-09-15T15:17:18.901778+00:00"
+      "access_count": 42,
+      "last_accessed": "2026-09-15T16:41:50.164404+00:00"
     }
   ]
 }

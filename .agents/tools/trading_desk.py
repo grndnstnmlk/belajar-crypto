@@ -1326,6 +1326,18 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
             except Exception as e:
                 pass
 
+            # Check OSINT & Security Forensics Guardrail
+            try:
+                import crypto_osint_forensics_hub
+                hub = crypto_osint_forensics_hub.CryptoOSINTForensicsHub()
+                token_audit = hub.audit_token_dex(best["symbol"])
+                if token_audit.get("risk_status") == "HIGH_RISK":
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [OSINT SECURITY VETO] ---")
+                    print(f"  🚨 High Risk On-Chain Flags: {', '.join(token_audit.get('risk_flags', []))}")
+                    continue
+            except Exception:
+                pass
+
             print(f"\n--- [{idx}/{len(selected)}] EKSEKUSI SETUP: {best['side']} {best['symbol']} ---")
             print(f" * Konfluensi : {best['confluence_score']}% [{best['confluence_grade']}]")
             print(f" * Rationale  : {best['reason']}")
