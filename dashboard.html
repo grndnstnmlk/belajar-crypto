@@ -1254,7 +1254,7 @@
         <div class="brand-title display">
           <span>AI</span><span style="color:var(--color-shockingly-green); text-shadow:0 0 10px rgba(10,228,72,0.3);">TRADING DESK</span>
         </div>
-        <span class="pill-badge core-green" id="header-status-pill">● AUTOPILOT ACTIVE</span>
+        <span class="pill-badge core-green" id="header-status-pill">🤖 HYBRID AUTOPILOT ACTIVE</span>
         <span class="pill-badge blue" id="header-regime-pill" style="font-size:10px; cursor:help;" title="Rezim Pasar Kuantitatif (ADX & Multi-EMA)">● BTC REGIME: DETECTING</span>
       </div>
 
@@ -2834,7 +2834,9 @@
         const statusPill = document.getElementById('header-status-pill');
         if (statusPill) {
           statusPill.className = feed.is_paused ? "pill-badge tangerine" : "pill-badge mint";
-          statusPill.innerText = feed.is_paused ? "⏸️ AUTOPILOT PAUSED" : "● AUTOPILOT ACTIVE";
+          const curMode = (feed.mode || (feed.timeframes && feed.timeframes.active_mode) || "HYBRID").toUpperCase();
+          const modeLabel = curMode === "HYBRID" ? "🤖 HYBRID ACTIVE" : (curMode === "SCALP" ? "⚡ SCALP ACTIVE" : "🎯 SWING ACTIVE");
+          statusPill.innerText = feed.is_paused ? "⏸️ AUTOPILOT PAUSED" : modeLabel;
         }
 
         const regimePill = document.getElementById('header-regime-pill');

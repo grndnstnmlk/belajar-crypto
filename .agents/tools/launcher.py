@@ -98,18 +98,18 @@ def print_menu():
     print(f"{C.BRIGHT_CYAN}╔═══════════════════════════════════════════════════════════════════════════════════════╗{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}                      {C.BOLD}{C.BRIGHT_WHITE}🎯 PILIH PRESET OPERASI AUTOPILOT{C.RESET}                               {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}╠═══════════════════════════════════════════════════════════════════════════════════════╣{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_GREEN}[1] 🎯 FULL INSTITUTIONAL SWING AUTOPILOT (1H/4H Big Wave + SMC Trailing + Max R:R){C.RESET}   {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[2] ⚡ FAST SCALPER & HYBRID ENGINE (5m / 15m Micro-SMC, ORB Breakout & Delta Sniping){C.RESET} {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_WHITE}[3] 🧠 HYPEROPT STRATEGY OPTIMIZER (Optuna Bayesian Parameter Search){C.RESET}                {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_CYAN}[4] 🌐 DYNAMIC PAIRLIST PIPELINE (6-Stage Multi-Filter Binance Universe Scanner){C.RESET}    {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[5] 🔬 ADAPTIVE ML & ANOMALY EVALUATOR (Live Dissimilarity Index / OOD Gate){C.RESET}         {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_WHITE}[6] 🔍 TOTAL SYSTEM DIAGNOSTIC & HEALTH AUDIT (66 Automated Test Suite){C.RESET}             {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_CYAN}[7] 🖥️ BUKA WEB DASHBOARD VISUAL DI BROWSER (http://localhost:5000){C.RESET}                   {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_GREEN}[1] 🤖 FULL DUAL-ENGINE HYBRID AUTOPILOT (1H Swing + 5m Fast Scalper + Delta Sniping){C.RESET} {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_CYAN}[2] 🎯 SWING AUTOPILOT ONLY (1H/4H Big Wave + SMC Trailing + Max R:R){C.RESET}                {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[3] ⚡ FAST SCALPER ONLY (5m/15m Micro-SMC, ORB Breakout & Anti-Stall){C.RESET}              {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_WHITE}[4] 🧠 HYPEROPT STRATEGY OPTIMIZER (Optuna Bayesian Parameter Search){C.RESET}                {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_CYAN}[5] 🌐 DYNAMIC PAIRLIST PIPELINE (6-Stage Multi-Filter Binance Universe Scanner){C.RESET}    {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[6] 🔬 ADAPTIVE ML & ANOMALY EVALUATOR (Live Dissimilarity Index / OOD Gate){C.RESET}         {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_GREEN}[7] 🖥️ BUKA WEB DASHBOARD VISUAL DI BROWSER (http://localhost:5000){C.RESET}                   {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}[8] ❌ KELUAR{C.RESET}                                                                       {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}╚═══════════════════════════════════════════════════════════════════════════════════════╝{C.RESET}")
 
 def get_user_choice(timeout_sec=5):
-    print(f"\n{C.GRAY}⏳ Otomatis menjalankan mode {C.BRIGHT_GREEN}[1] SWING AUTOPILOT{C.GRAY} dalam {timeout_sec} detik jika tidak ada tombol ditekan...{C.RESET}")
+    print(f"\n{C.GRAY}⏳ Otomatis menjalankan mode {C.BRIGHT_GREEN}[1] 🤖 HYBRID AUTOPILOT{C.GRAY} dalam {timeout_sec} detik jika tidak ada tombol ditekan...{C.RESET}")
     
     if sys.platform == "win32":
         import msvcrt
@@ -124,7 +124,7 @@ def get_user_choice(timeout_sec=5):
                     print(f"{ch}\n")
                     return ch
             time.sleep(0.1)
-        print("1 (Auto-boot)\n")
+        print("1 (Auto-boot HYBRID)\n")
         return "1"
     else:
         try:
@@ -145,25 +145,32 @@ def main():
     hyperopt_script = os.path.join(TOOLS_DIR, "hyperopt_optimizer.py")
     pairlist_script = os.path.join(TOOLS_DIR, "pairlist_pipeline.py")
     ml_script = os.path.join(TOOLS_DIR, "adaptive_ml_engine.py")
-    diag_script = os.path.join(ROOT_DIR, "scratch", "total_system_debug.py")
     
     if choice == "1":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
-        print(f"{C.BOLD}{C.BRIGHT_GREEN}🎯 MEMULAI FULL INSTITUTIONAL SWING AUTOPILOT DESK (1H / 4H MACRO CONFLUENCE){C.RESET}")
-        print(f"{C.GRAY}Fitur: 1H/4H SMC + Wyckoff + FVG Retest + Dynamic Trailing (+2R/+3R) + Zero Time-Stop{C.RESET}")
+        print(f"{C.BOLD}{C.BRIGHT_GREEN}🤖 MEMULAI DUAL-ENGINE HYBRID AUTOPILOT (1H SWING + 5m FAST SCALP CONFLUENCE){C.RESET}")
+        print(f"{C.GRAY}Fitur: Dual Engine (1H Swing Macro + 5m Scalper) + Level-2 Delta Sniping + Breakeven Lock{C.RESET}")
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
-        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "SWING"], cwd=ROOT_DIR)
+        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "HYBRID"], cwd=ROOT_DIR)
         
     elif choice == "2":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
-        print(f"{C.BOLD}{C.BRIGHT_YELLOW}⚡ MEMULAI HIGH-FREQUENCY FAST SCALPER & HYBRID DESK (5m/15m MICRO-SMC / ORB BREAKOUT){C.RESET}")
-        print(f"{C.GRAY}Target: 1:2.0R s/d 1:3.5R Asymmetric Targets | Anti-Stall 20m Time-Stop | Delta Sniping{C.RESET}")
+        print(f"{C.BOLD}{C.BRIGHT_CYAN}🎯 MEMULAI FULL INSTITUTIONAL SWING AUTOPILOT DESK (1H / 4H MACRO CONFLUENCE){C.RESET}")
+        print(f"{C.GRAY}Fitur: 1H/4H SMC + Wyckoff + FVG Retest + Dynamic Trailing (+2R/+3R) + Zero Time-Stop{C.RESET}")
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
-        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "HYBRID"], cwd=ROOT_DIR)
+        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "SWING"], cwd=ROOT_DIR)
         
     elif choice == "3":
+        clear_screen()
+        print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
+        print(f"{C.BOLD}{C.BRIGHT_YELLOW}⚡ MEMULAI HIGH-FREQUENCY FAST SCALPER DESK (5m/15m MICRO-SMC / ORB BREAKOUT){C.RESET}")
+        print(f"{C.GRAY}Target: 1:2.0R s/d 1:3.5R Asymmetric Targets | Anti-Stall 20m Time-Stop | Delta Sniping{C.RESET}")
+        print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
+        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "SCALP"], cwd=ROOT_DIR)
+        
+    elif choice == "4":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
         print(f"{C.BOLD}{C.BRIGHT_WHITE}🧠 MENJALANKAN HYPEROPT STRATEGY PARAMETER OPTIMIZER (OPTUNA BAYESIAN){C.RESET}")
@@ -172,7 +179,7 @@ def main():
         input(f"\n{C.GRAY}Tekan Enter untuk kembali ke menu...{C.RESET}")
         main()
 
-    elif choice == "4":
+    elif choice == "5":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
         print(f"{C.BOLD}{C.BRIGHT_CYAN}🌐 MENJALANKAN CHAINABLE DYNAMIC PAIRLIST PIPELINE (6-STAGE FILTER){C.RESET}")
@@ -181,21 +188,12 @@ def main():
         input(f"\n{C.GRAY}Tekan Enter untuk kembali ke menu...{C.RESET}")
         main()
 
-    elif choice == "5":
+    elif choice == "6":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
         print(f"{C.BOLD}{C.BRIGHT_YELLOW}🔬 MENJALANKAN ADAPTIVE ML & OUT-OF-DISTRIBUTION ANOMALY EVALUATOR{C.RESET}")
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
         subprocess.run([sys.executable, "-u", ml_script, "--symbol", "BTC", "--bar", "1h", "--predict"], cwd=ROOT_DIR)
-        input(f"\n{C.GRAY}Tekan Enter untuk kembali ke menu...{C.RESET}")
-        main()
-        
-    elif choice == "6":
-        clear_screen()
-        print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
-        print(f"{C.BOLD}{C.BRIGHT_WHITE}🔍 MENJALANKAN TOTAL SYSTEM END-TO-END HEALTH AUDIT (63 TESTS){C.RESET}")
-        print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
-        subprocess.run([sys.executable, "-u", diag_script], cwd=ROOT_DIR)
         input(f"\n{C.GRAY}Tekan Enter untuk kembali ke menu...{C.RESET}")
         main()
         

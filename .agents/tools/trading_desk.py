@@ -981,6 +981,84 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
             print(f"   🎯 [TOP-DOWN CONFLUENCE]: {macro_rationale}")
             candidates.append(signal)
 
+    # 2. Institutional & Prop-Desk Alpha Strategy Suite (Naked POC, OI Divergence, Flash Dip, SFP Stop Hunt, CVD Iceberg)
+    try:
+        import institutional_quant_strategies
+        import prop_desk_strategies
+        
+        for sym in active_watchlist:
+            pair_sym = f"{sym}USDT"
+            if pair_sym in active_symbols or any(c["symbol"] == pair_sym for c in candidates):
+                continue
+            
+            # Module A: Institutional Quant Suite (Volume Profile nPOC, OI Divergence, Flash Dip)
+            inst_res = institutional_quant_strategies.scan_all_institutional_strategies(sym)
+            if inst_res.get("has_any_setup"):
+                for s in inst_res.get("active_setups", []):
+                    entry = s.get("entry", 0.0)
+                    sl = s.get("sl", 0.0)
+                    tp = s.get("tp", 0.0)
+                    rr = s.get("rr", 3.5)
+                    side = "LONG" if "BUY" in s.get("signal", "") or "LONG" in s.get("signal", "") else "SHORT"
+                    
+                    if entry > 0 and sl > 0 and tp > 0 and rr >= max(3.0, min_rr):
+                        is_approved, _, macro_rationale = topdown_confluence.check_topdown_alignment(
+                            symbol=sym, proposed_side=side, setup_name=s.get("strategy", "INSTITUTIONAL_QUANT")
+                        )
+                        htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, side)
+                        if is_approved and htf_audit.get("is_approved", True):
+                            print(f"   🏛️ [INSTITUTIONAL QUANT]: {s.get('summary')} | R:R 1:{rr:.2f}")
+                            candidates.append({
+                                "symbol": pair_sym,
+                                "base": sym,
+                                "side": side,
+                                "price": entry,
+                                "sl": sl,
+                                "tp": tp,
+                                "rr": rr,
+                                "is_scalp": False,
+                                "is_institutional": True,
+                                "strategy_name": s.get("strategy", "Institutional Quant Setup"),
+                                "risk_pct": max_risk_pct,
+                                "reason": f"🏛️ {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
+                            })
+                            break
+            
+            # Module B: Prop-Desk Alpha Suite (SFP Key Level Stop Hunt, CVD Iceberg Absorption, VWAP Elasticity)
+            prop_res = prop_desk_strategies.scan_all_prop_desk_strategies(sym)
+            if prop_res.get("has_any_setup") and not any(c["symbol"] == pair_sym for c in candidates):
+                for s in prop_res.get("active_setups", []):
+                    entry = s.get("entry", 0.0)
+                    sl = s.get("sl", 0.0)
+                    tp = s.get("tp", 0.0)
+                    rr = s.get("rr", 3.5)
+                    side = "LONG" if "BUY" in s.get("signal", "") or "LONG" in s.get("signal", "") else "SHORT"
+                    
+                    if entry > 0 and sl > 0 and tp > 0 and rr >= max(3.0, min_rr):
+                        is_approved, _, macro_rationale = topdown_confluence.check_topdown_alignment(
+                            symbol=sym, proposed_side=side, setup_name=s.get("strategy", "PROP_DESK_ALPHA")
+                        )
+                        htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, side)
+                        if is_approved and htf_audit.get("is_approved", True):
+                            print(f"   🏢 [PROP DESK ALPHA]: {s.get('summary')} | R:R 1:{rr:.2f}")
+                            candidates.append({
+                                "symbol": pair_sym,
+                                "base": sym,
+                                "side": side,
+                                "price": entry,
+                                "sl": sl,
+                                "tp": tp,
+                                "rr": rr,
+                                "is_scalp": False,
+                                "is_prop_desk": True,
+                                "strategy_name": s.get("strategy", "Prop Desk Alpha Setup"),
+                                "risk_pct": max_risk_pct,
+                                "reason": f"🏢 {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
+                            })
+                            break
+    except Exception as e:
+        print(f" * [Institutional Quant Scan Note]: {e}")
+
     return candidates
 
 def print_cycle_header(timestamp_str, target_user, mode_label, session_info, is_blk, active_watchlist, genome, min_rr, max_risk_pct):
@@ -1145,7 +1223,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
 
     desk_mode = telegram_notifier.get_desk_mode().upper()
     if desk_mode not in ["SCALP", "SWING", "HYBRID"]:
-        desk_mode = "SWING"
+        desk_mode = "HYBRID"
 
     mode_labels = {
         "HYBRID": "🤖 HYBRID AUTO (Simultaneous 1H Swing + 5m Fast Scalp)",
@@ -1156,36 +1234,47 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
 
     candidates = []
 
-    # 2A. Fast Scalper Scan (Runs in HYBRID and SCALP modes)
+    # 2A. Fast Scalper Scan (Runs in HYBRID and SCALP modes with High-RR Quality Gate)
     if desk_mode in ["SCALP", "HYBRID"]:
         print(f"\n[2A. FAST SCALPER ENGINE — 5m / 15m MICRO-STRUCTURE SCAN]")
-        scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:10])
-        for s in scalp_setups:
-            pair_sym = f"{s['symbol']}USDT"
-            if pair_sym in active_symbols:
-                print(f" - {pair_sym}: Sudah ada posisi aktif yang berjalan. Dilewati.")
-                continue
-            print(f" ⚡ [SCALP SIGNAL] {s['symbol']} | {s['side']} | {s['strategy']} | R:R 1:{s['rr_ratio']:.2f}")
-            candidates.append({
-                "symbol": pair_sym,
-                "base": s["symbol"],
-                "side": s["side"],
-                "price": s["entry"],
-                "sl": s["sl"],
-                "tp": s["tp"],
-                "rr": s["rr_ratio"],
-                "risk_pct": 0.45,
-                "is_scalp": True,
-                "is_mean_reversion_or_sweep": s.get("is_mean_reversion_or_sweep", True),
-                "macro_aligned": s.get("macro_aligned", True),
-                "strategy": s["strategy"],
-                "orderflow_metrics": s.get("orderflow_metrics", {}),
-                "reason": f"⚡ SCALP [{s['strategy']}]: {s['reason']} (Target: {s['target_duration']})"
-            })
+        try:
+            # Count current active scalps to avoid crowding out Swing trades
+            active_scalps_count = len([p for p in active_positions if "SCALP" in str(p.get("symbol", "")) or trade_manager.load_trade_metadata().get(p["symbol"], {}).get("is_scalp", False)])
+        except Exception:
+            active_scalps_count = 0
 
-    # 2B. Swing Intraday Scan (Runs in HYBRID and SWING modes)
+        if active_scalps_count >= 2 and desk_mode == "HYBRID":
+            print(f" ℹ️ [Scalp Slot Guard] Sudah ada {active_scalps_count} posisi scalp aktif. Menyimpan slot sisa untuk Institutional Swing Big Waves.")
+        else:
+            scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:8])
+            for s in scalp_setups:
+                # Filter out low-profit micro scalps (Must have >= 1:3.0R Asymmetric Target)
+                if s.get("rr_ratio", 0) < 3.0:
+                    continue
+                pair_sym = f"{s['symbol']}USDT"
+                if pair_sym in active_symbols or any(c["symbol"] == pair_sym for c in candidates):
+                    continue
+                print(f" ⚡ [HIGH-R:R SCALP] {s['symbol']} | {s['side']} | {s['strategy']} | R:R 1:{s['rr_ratio']:.2f}")
+                candidates.append({
+                    "symbol": pair_sym,
+                    "base": s["symbol"],
+                    "side": s["side"],
+                    "price": s["entry"],
+                    "sl": s["sl"],
+                    "tp": s["tp"],
+                    "rr": s["rr_ratio"],
+                    "risk_pct": max_risk_pct,
+                    "is_scalp": True,
+                    "is_mean_reversion_or_sweep": s.get("is_mean_reversion_or_sweep", True),
+                    "macro_aligned": s.get("macro_aligned", True),
+                    "strategy": s["strategy"],
+                    "orderflow_metrics": s.get("orderflow_metrics", {}),
+                    "reason": f"⚡ HIGH-R:R SCALP [{s['strategy']}]: {s['reason']} (Target: {s['target_duration']})"
+                })
+
+    # 2B. Swing & Institutional Intraday Scan (Runs in HYBRID and SWING modes)
     if desk_mode in ["SWING", "HYBRID"]:
-        print(f"\n[2B. SWING INTRADAY ENGINE — 1H / 4H MACRO CONFLUENCE SCAN]")
+        print(f"\n[2B. SWING & INSTITUTIONAL ENGINE — 1H / 4H MACRO CONFLUENCE SCAN]")
         swing_cands = scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct)
         candidates.extend(swing_cands)
 
@@ -1216,24 +1305,25 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
         slots_available = max_open_positions - len(active_positions)
         # Prioritize candidates based on active desk mode
         if desk_mode == "HYBRID":
-            # Fair ranking: Confluence score first, then R:R (giving 5m scalps fast access)
-            admissible_candidates.sort(key=lambda x: (
-                x.get("confluence_score", 0),
-                x.get("rr", 0)
-            ), reverse=True)
-        elif desk_mode == "SCALP":
+            # Primary priority: 1H/4H Institutional Big Waves (non-scalp first), then higher Confluence & R:R
             admissible_candidates.sort(key=lambda x: (
                 1 if x.get("is_scalp") else 0,
-                x.get("confluence_score", 0),
-                x.get("rr", 0)
-            ), reverse=True)
+                -x.get("confluence_score", 0),
+                -x.get("rr", 0)
+            ))
+        elif desk_mode == "SCALP":
+            admissible_candidates.sort(key=lambda x: (
+                0 if x.get("is_scalp") else 1,
+                -x.get("confluence_score", 0),
+                -x.get("rr", 0)
+            ))
         else:
             # Swing mode: prioritize Big-Profit Swing setups over scalps
             admissible_candidates.sort(key=lambda x: (
-                x.get("confluence_score", 0),
-                0 if x.get("is_scalp") else 1,
-                x.get("rr", 0)
-            ), reverse=True)
+                1 if x.get("is_scalp") else 0,
+                -x.get("confluence_score", 0),
+                -x.get("rr", 0)
+            ))
         selected = admissible_candidates[:slots_available]
 
         print(f"\n🎯 Ditemukan {len(admissible_candidates)} setup lolos uji akurasi. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")
@@ -1248,17 +1338,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     print(f"  {port_msg}")
                     continue
                 base_risk = best.get("risk_pct", max_risk_pct)
-                scalp_risk_cap = round(max_risk_pct * 0.75, 2)
-                if best.get("is_scalp"):
-                    base_risk = min(scalp_risk_cap, base_risk)
                 kelly_risk, kelly_status = get_adaptive_kelly_risk_pct(base_risk_pct=base_risk)
-                if best.get("is_scalp"):
-                    kelly_risk = min(scalp_risk_cap, kelly_risk)
                 effective_risk_pct = portfolio_guard.get_scaled_risk_pct(best["side"], active_positions, kelly_risk)
-                if best.get("is_scalp"):
-                    effective_risk_pct = min(scalp_risk_cap, effective_risk_pct)
             except Exception:
-                effective_risk_pct = round(max_risk_pct * 0.75, 2) if best.get("is_scalp") else max_risk_pct
+                effective_risk_pct = max_risk_pct
                 kelly_status = "Fallback"
 
             # Anti-Martingale Cold-Streak Circuit Breaker (Module 03)
@@ -1809,7 +1892,7 @@ def main():
     # Run command
     run_p = sub.add_parser("run", help="Jalankan siklus pemindaian dan eksekusi trading desk")
     run_p.add_argument("--once", action="store_true", help="Jalankan 1 siklus lalu selesai")
-    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID"], default="SWING", help="Set mode operasional desk (default: SWING)")
+    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID"], default="HYBRID", help="Set mode operasional desk (default: HYBRID)")
     run_p.add_argument("--backend", type=str, choices=["BOTH", "BINANCE", "MT5"], default=None, help="Backend eksekusi: BOTH (Binance+MT5), BINANCE, atau MT5")
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 1 menit untuk HYBRID/SCALP, 15 menit untuk SWING)")

@@ -93,13 +93,13 @@ def load_desk_state():
                 return json.load(f)
         except Exception:
             pass
-    return {"paused": False, "mode": "SWING", "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+    return {"paused": False, "mode": "HYBRID", "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 def save_desk_state(state):
     os.makedirs(DATA_DIR, exist_ok=True)
     state["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if "mode" not in state:
-        state["mode"] = "SWING"
+        state["mode"] = "HYBRID"
     try:
         with open(STATE_FILE, "w", encoding="utf-8") as f:
             json.dump(state, f, indent=2)
@@ -112,7 +112,7 @@ def is_desk_paused():
 
 def get_desk_mode():
     state = load_desk_state()
-    return state.get("mode", "SWING")
+    return state.get("mode", "HYBRID")
 
 MAIN_KEYBOARD = {
     "keyboard": [

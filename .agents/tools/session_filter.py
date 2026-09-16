@@ -20,6 +20,7 @@ Key Capabilities:
 import json
 import os
 import sys
+from typing import Tuple, Dict, Any, List, Optional
 from datetime import datetime, timezone, timedelta
 
 # Ensure UTF-8 output on Windows console
