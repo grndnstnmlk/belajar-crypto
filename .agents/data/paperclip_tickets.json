@@ -1,5 +1,127 @@
 [
   {
+    "ticket_id": "TCK-20260916-7570",
+    "symbol": "BNBUSDT",
+    "side": "SHORT",
+    "strategy": "Quantitative Confluence Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-16 06:28:47",
+    "updated_at": "2026-09-16 06:28:54",
+    "payload": {
+      "entry": 713.53,
+      "sl": 714.6966,
+      "tp": 710.0302,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.6,
+      "thesis": "APPROVED: Setup BNBUSDT (SHORT) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_DEFENSIVE (Scale 0.60x)",
+      "key_risks": [
+        "Normal market volatility risk"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $714.6966.",
+      "provider": "Heuristic Fallback (GEMINI API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "entry_price": 0.0,
+        "sl_price": 714.6966,
+        "tp_price": 710.0302,
+        "rr_ratio": 3.0,
+        "strategy": "5m Opening Range Breakout (ORB V4.1)",
+        "bull_score": 66,
+        "bear_score": 34,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding ask resistance berat (0.57x Bids/Asks) menekan harga ke bawah.\n \u2022 Aset BNBUSDT berada dalam 3 besar rotasi sektor (\ud83d\udc51 Macro Heavyweights).",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (66% vs 34%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 714.6966,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-16 13:28:54"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-16 13:28:54",
+        "symbol": "BNBUSDT",
+        "side": "SHORT",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 66% menunjukkan dorongan positif moderat. | ADX momentum kuat (38.2) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 25,
+          "desired_scale": 0.6,
+          "thesis": "Peringatan konsentrasi arah: sudah ada 5 posisi sepihak terbuka."
+        },
+        "neutral": {
+          "score": 64,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 64.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_DEFENSIVE",
+          "composite_risk_score": 52,
+          "allocated_risk_scale": 0.6,
+          "stop_loss_profile": "TIGHT_BREAKEVEN",
+          "regime_weights": {
+            "aggressive": 0.2,
+            "neutral": 0.35,
+            "conservative": 0.45
+          },
+          "synthesis": "APPROVED DEFENSIVE: Risiko terdeteksi namun terukur. Alokasi disesuaikan ke 0.60x dengan kunci Break-Even cepat di +0.6R."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BNB",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 2,
+        "is_leading_sector": false,
+        "sector_24h_avg": -2.1,
+        "relative_strength_vs_btc": -0.15,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-16 06:28:54",
+      "note": "Auto-Approved in Full Autopilot: Portofolio padat (5 posisi aktif berjalan)"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-16 06:28:47",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BNBUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-09-16 06:28:54",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-16 06:28:54",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (5 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260916-8239",
     "symbol": "ARBUSDT",
     "side": "SHORT",
@@ -12095,128 +12217,6 @@
       },
       {
         "timestamp": "2026-09-15 01:51:15",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260915-0804",
-    "symbol": "XRPUSDT",
-    "side": "LONG",
-    "strategy": "Quantitative Confluence Setup",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
-    "priority": "NORMAL",
-    "created_at": "2026-09-15 01:51:00",
-    "updated_at": "2026-09-15 01:51:06",
-    "payload": {
-      "entry": 1.4247,
-      "sl": 1.4153,
-      "tp": 1.4529,
-      "rr": 3.0
-    },
-    "debate_result": null,
-    "risk_result": {
-      "decision": "ADJUST_RISK",
-      "confidence": 85,
-      "suggested_risk_scale": 0.67,
-      "thesis": "ADJUST_RISK: Setup XRPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (99.595 / +0.84%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
-      "key_risks": [
-        "Global Macro Risk-Off: DXY Surging (99.595 / +0.84%)"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.4153.",
-      "provider": "Heuristic Fallback (GEMINI API Timeout)",
-      "adversarial_debate": {
-        "symbol": "XRPUSDT",
-        "side": "LONG",
-        "entry_price": 0.0,
-        "sl_price": 1.4153,
-        "tp_price": 1.4529,
-        "rr_ratio": 3.0,
-        "strategy": "5m Order Flow CVD Absorption Scalp",
-        "bull_score": 57,
-        "bear_score": 43,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
-        "bear_critique": " \u2022 Aset XRPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 1.4153,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-15 08:51:06"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-15 08:51:06",
-        "symbol": "XRPUSDT",
-        "side": "LONG",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 95,
-          "desired_scale": 1.2,
-          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat. | ADX momentum kuat (29.4) mendukung kelanjutan tren yang ekspansif."
-        },
-        "conservative": {
-          "score": 70,
-          "desired_scale": 1.0,
-          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-        },
-        "neutral": {
-          "score": 60,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "APPROVED_OPTIMAL",
-          "composite_risk_score": 77,
-          "allocated_risk_scale": 1.12,
-          "stop_loss_profile": "RUNNER_EXPANSION",
-          "regime_weights": {
-            "aggressive": 0.45,
-            "neutral": 0.35,
-            "conservative": 0.2
-          },
-          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "XRP",
-        "sector_key": "OTHER",
-        "sector_title": "Independent Asset",
-        "sector_icon": "\ud83e\ude99",
-        "sector_rank": 99,
-        "is_leading_sector": false,
-        "sector_24h_avg": 0.0,
-        "relative_strength_vs_btc": 0.0,
-        "confluence_boost": 0
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-15 01:51:06",
-      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
-    },
-    "execution_result": null,
-    "timeline": [
-      {
-        "timestamp": "2026-09-15 01:51:00",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup XRPUSDT (LONG) teridentifikasi via Quantitative Confluence Setup."
-      },
-      {
-        "timestamp": "2026-09-15 01:51:06",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
-      },
-      {
-        "timestamp": "2026-09-15 01:51:06",
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
