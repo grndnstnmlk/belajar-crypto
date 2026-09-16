@@ -489,7 +489,7 @@ def cancel_existing_algo_orders_for_symbol(symbol, is_demo=True, user_email=None
     """
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
     try:
-        open_algos = send_signed_request("/fapi/v1/openAlgoOrders", method="GET", is_demo=is_demo, user_email=user_email)
+        open_algos = send_signed_request("/fapi/v1/openAlgoOrders", method="GET", params={"symbol": sym_clean}, is_demo=is_demo, user_email=user_email)
         if open_algos and isinstance(open_algos, list):
             for o in open_algos:
                 if o.get("symbol") == sym_clean:
@@ -498,6 +498,103 @@ def cancel_existing_algo_orders_for_symbol(symbol, is_demo=True, user_email=None
                         send_signed_request("/fapi/v1/algoOrder", method="DELETE", params={"algoId": algo_id}, is_demo=is_demo, user_email=user_email)
     except Exception:
         pass
+
+def get_active_stop_orders(symbol=None, is_demo=True, user_email=None):
+    """
+    Returns list of open conditional / STOP_MARKET algo orders from Binance Futures.
+    Filtered by symbol if specified.
+    """
+    params = {}
+    if symbol:
+        sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+        params["symbol"] = sym_clean
+    try:
+        open_algos = send_signed_request("/fapi/v1/openAlgoOrders", method="GET", params=params, is_demo=is_demo, user_email=user_email)
+        if isinstance(open_algos, list):
+            return [o for o in open_algos if o.get("orderType") == "STOP_MARKET" or o.get("algoType") == "CONDITIONAL"]
+    except Exception as e:
+        print(f"[Binance Client Warning] Failed to fetch open algo orders: {e}")
+    return []
+
+def sync_exchange_stop_loss(symbol, side, sl_price, is_demo=True, user_email=None):
+    """
+    Institutional Hard Stop-Loss Synchronizer directly on Binance Futures trade servers.
+    Guarantees native on-exchange STOP_MARKET orders with closePosition=True:
+    1. Checks active open conditional algo orders on Binance.
+    2. If a STOP_MARKET already matches sl_price within tick precision and correct opposite side, preserves it ('MATCHED').
+    3. If price differs or order is missing, cancels obsolete orders and places a fresh STOP_MARKET ('CREATED'/'UPDATED').
+    4. Eliminates unhedged exposure during disconnections, reboots, or script stalls.
+    """
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    opp_side = "SELL" if side.upper() in ["BUY", "LONG"] else "BUY"
+    target_sl_str = format_price_precision(sym_clean, sl_price, is_demo=is_demo)
+
+    try:
+        existing_stops = get_active_stop_orders(sym_clean, is_demo=is_demo, user_email=user_email)
+        
+        # Check if an existing stop already matches the target price and side
+        for order in existing_stops:
+            cur_trig = str(order.get("triggerPrice", "")).strip()
+            cur_side = str(order.get("side", "")).upper()
+            try:
+                if cur_side == opp_side and abs(float(cur_trig) - float(target_sl_str)) < 1e-6:
+                    return {
+                        "success": True,
+                        "action": "MATCHED",
+                        "algo_id": order.get("algoId"),
+                        "price": target_sl_str,
+                        "symbol": sym_clean
+                    }
+            except Exception:
+                pass
+
+        # Cancel previous conflicting algo orders for this symbol before placing updated SL
+        cancel_existing_algo_orders_for_symbol(sym_clean, is_demo=is_demo, user_email=user_email)
+
+        # Place fresh STOP_MARKET Algo Order on Binance Futures trade server
+        sl_params = {
+            "algoType": "CONDITIONAL",
+            "symbol": sym_clean,
+            "side": opp_side,
+            "type": "STOP_MARKET",
+            "triggerPrice": target_sl_str,
+            "closePosition": "true"
+        }
+        res = send_signed_request(
+            "/fapi/v1/algoOrder",
+            method="POST",
+            params=sl_params,
+            is_demo=is_demo,
+            user_email=user_email,
+            retries=3,
+            backoff_base=0.5
+        )
+        if res and res.get("algoId"):
+            action = "UPDATED" if existing_stops else "CREATED"
+            print(f"🛡️ [HARD SL SERVER SYNC] Stop Loss server Binance untuk {sym_clean} ({opp_side}) terpasang @ ${target_sl_str} (Algo ID: {res.get('algoId')})")
+            return {
+                "success": True,
+                "action": action,
+                "algo_id": res.get("algoId"),
+                "price": target_sl_str,
+                "symbol": sym_clean
+            }
+        else:
+            print(f"⚠️ [HARD SL SYNC WARNING] Gagal memasang STOP_MARKET di Binance untuk {sym_clean}: {res}")
+            return {
+                "success": False,
+                "action": "FAILED",
+                "error": res,
+                "symbol": sym_clean
+            }
+    except Exception as e:
+        print(f"❌ [HARD SL SYNC ERROR] Exception syncing stop loss for {sym_clean}: {e}")
+        return {
+            "success": False,
+            "action": "ERROR",
+            "error": str(e),
+            "symbol": sym_clean
+        }
 
 def place_futures_order(symbol, side, quantity, leverage=20, sl=None, tp=None, is_demo=True, user_email=None, exec_mode="MARKET"):
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
@@ -581,23 +678,17 @@ def place_futures_order(symbol, side, quantity, leverage=20, sl=None, tp=None, i
     if sl or tp:
         cancel_existing_algo_orders_for_symbol(sym_clean, is_demo=is_demo, user_email=user_email)
 
-    # 3. Attach Stop Loss via Algo Order API with dynamic precision & auto-retry
+    # 3. Attach Stop Loss via Native Hard Stop Loss Synchronizer
     opp_side = "SELL" if side_clean == "BUY" else "BUY"
     if sl:
-        sl_str = format_price_precision(sym_clean, sl, is_demo=is_demo)
-        sl_params = {
-            "algoType": "CONDITIONAL",
-            "symbol": sym_clean,
-            "side": opp_side,
-            "type": "STOP_MARKET",
-            "triggerPrice": sl_str,
-            "closePosition": "true"
-        }
-        sl_res = send_signed_request("/fapi/v1/algoOrder", method="POST", params=sl_params, is_demo=is_demo, user_email=user_email, retries=3)
-        if sl_res and sl_res.get("algoId"):
-            print(f"🛑 Stop Loss dipasang di harga ${sl_str} (Algo ID: {sl_res.get('algoId')})")
+        sl_sync_res = sync_exchange_stop_loss(sym_clean, side_clean, sl, is_demo=is_demo, user_email=user_email)
+        if sl_sync_res.get("success"):
+            sl_algo_id = sl_sync_res.get("algo_id")
+            if res:
+                res["sl_algo_id"] = sl_algo_id
+            print(f"🛑 [HARD SL VERIFIED] Stop Loss server Binance terpasang @ ${sl_sync_res.get('price')} (Algo ID: {sl_algo_id})")
         else:
-            print(f"⚠️ Respon SL: {sl_res}")
+            print(f"⚠️ [HARD SL WARNING] Gagal memasang server SL: {sl_sync_res.get('error')}")
 
     # 4. Attach Take Profit via Algo Order API with dynamic precision & auto-retry
     if tp:

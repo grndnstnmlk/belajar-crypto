@@ -161,19 +161,29 @@ def calculate_rolling_sharpe(trades, window=30):
     sharpe = round((mean_ret / std_ret) * math.sqrt(min(252, len(returns) * 5)), 2)
     return sharpe, round(mean_ret * 100.0, 3), round(std_ret * 100.0, 3)
 
-def analyze_performance():
-    history = get_all_trade_records()
+def analyze_performance(rolling_window=75):
+    all_history = get_all_trade_records()
     genome = load_json(GENOME_FILE, get_default_genome())
 
     print("\n=======================================================")
     print(f"       🧬 SELF-IMPROVEMENT ENGINE AUDIT (GEN-{genome.get('generation', 1)})")
     print("=======================================================")
 
-    if not history:
+    if not all_history:
         print("No closed trades recorded yet.")
         print("Run trades via trading desk to generate empirical feedback data.")
         print("=======================================================\n")
         return None
+
+    total_all_trades = len(all_history)
+
+    # Apply Rolling Window (default 75 most recent trades) to eliminate legacy pre-v4.1 noise
+    if rolling_window and total_all_trades > rolling_window:
+        history = all_history[-rolling_window:]
+        is_rolling = True
+    else:
+        history = all_history
+        is_rolling = False
 
     total_trades = len(history)
     wins = [t for t in history if float(t.get("net_pnl_usd", t.get("pnl_usd", 0))) > 0]
@@ -192,11 +202,15 @@ def analyze_performance():
     avg_loss = (total_loss_pnl / loss_count) if loss_count > 0 else 0.0
     expectancy = (win_rate / 100.0 * avg_win) - ((100.0 - win_rate) / 100.0 * avg_loss)
 
-    sharpe, mean_r, std_r = calculate_rolling_sharpe(history, window=30)
+    sharpe, mean_r, std_r = calculate_rolling_sharpe(history, window=min(30, len(history)))
 
-    print(f"Total Closed Trades : {total_trades}")
-    print(f"Win / Loss Count    : {win_count} Wins | {loss_count} Losses")
-    print(f"Win Rate            : {win_rate:.1f}%")
+    # All-time win rate for complete accounting transparency
+    all_wins = [t for t in all_history if float(t.get("net_pnl_usd", t.get("pnl_usd", 0))) > 0]
+    all_wr = (len(all_wins) / total_all_trades * 100.0) if total_all_trades > 0 else 0.0
+
+    print(f"Total Closed Trades : {total_all_trades} all-time" + (f" (Evaluated on Rolling Last {total_trades} Trades)" if is_rolling else ""))
+    print(f"Win / Loss Count    : {win_count} Wins | {loss_count} Losses" + (" [Rolling]" if is_rolling else ""))
+    print(f"Win Rate            : {win_rate:.1f}%" + (f" (All-time: {all_wr:.1f}%)" if is_rolling else ""))
     print(f"Profit Factor       : {profit_factor:.2f}")
     print(f"Rolling Sharpe Ratio: {sharpe:.2f}")
     print(f"Net Realized PnL    : {'+' if net_pnl >= 0 else ''}${net_pnl:,.2f}")
@@ -204,8 +218,11 @@ def analyze_performance():
     print("=======================================================\n")
 
     return {
-        "total_trades": total_trades,
+        "total_trades": total_all_trades,
+        "evaluated_trades": total_trades,
+        "is_rolling": is_rolling,
         "win_rate": round(win_rate, 2),
+        "all_time_win_rate": round(all_wr, 2),
         "profit_factor": round(profit_factor, 2),
         "rolling_sharpe": sharpe,
         "net_pnl": round(net_pnl, 2),

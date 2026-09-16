@@ -236,15 +236,28 @@ def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
 
         futures_info = binance_client.get_exchange_info(is_demo=is_demo) or {}
 
-        usdt_tickers = [
-            t for t in tickers
-            if t.get("symbol", "").endswith("USDT")
-            and t["symbol"] not in stables
-            and not t["symbol"].startswith("UP")
-            and not t["symbol"].startswith("DOWN")
-            and t["symbol"].replace("USDT", "") not in BLACKLIST_COINS
-            and (t["symbol"] in futures_info if futures_info else True)
-        ]
+        usdt_tickers = []
+        for t in tickers:
+            sym = t.get("symbol", "")
+            if not sym.endswith("USDT") or sym in stables or sym.startswith("UP") or sym.startswith("DOWN"):
+                continue
+            base = sym.replace("USDT", "")
+            if base in BLACKLIST_COINS:
+                continue
+            if futures_info and sym not in futures_info:
+                continue
+            vol = float(t.get("quoteVolume", 0))
+            if vol < 30_000_000.0:  # Strict $30M USDT Volume Floor
+                continue
+            # Spread check (< 0.05% / 5 bps)
+            bid = float(t.get("bidPrice", 0))
+            ask = float(t.get("askPrice", 0))
+            last = float(t.get("lastPrice", 1))
+            if bid > 0 and ask >= bid and last > 0:
+                spread_pct = ((ask - bid) / last) * 100.0
+                if spread_pct > 0.05:
+                    continue
+            usdt_tickers.append(t)
 
         usdt_tickers.sort(key=lambda x: float(x.get("quoteVolume", 0)), reverse=True)
 
@@ -1188,6 +1201,16 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
 
     export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
 
+    # Sync Paperclip execution tickets with live open exchange positions (Auto-Close Exited Positions)
+    try:
+        import paperclip_orchestrator
+        active_syms_set = {str(p.get("symbol", "")).upper() for p in active_positions if p.get("symbol")}
+        closed_sync = paperclip_orchestrator.sync_active_execution_tickets(active_syms_set)
+        if closed_sync:
+            print(f"  🏢 [Paperclip Swarm Sync] {len(closed_sync)} tiket ditutup otomatis karena posisi selesai di exchange.")
+    except Exception:
+        pass
+
     # Dynamic Position Risk & Monitoring Table
     print(f"\n{C.BOLD}{C.BRIGHT_WHITE}[📊 STATUS POSISI AKTIF & PROTEKSI SMR]{C.RESET}")
     print_active_positions_table(active_positions)
@@ -1277,6 +1300,20 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
         print(f"\n[2B. SWING & INSTITUTIONAL ENGINE — 1H / 4H MACRO CONFLUENCE SCAN]")
         swing_cands = scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct)
         candidates.extend(swing_cands)
+
+    # Register discovered candidates into Paperclip Swarm (Stage 1: DISCOVERED)
+    try:
+        import paperclip_orchestrator
+        for cand in candidates[:6]:
+            paperclip_orchestrator.register_candidate_setup(
+                symbol=cand["symbol"],
+                strategy=cand.get("strategy", "Quantitative Confluence Setup"),
+                side=cand["side"],
+                created_by="scalper_specialists" if cand.get("is_scalp") else "market_eyes_screener",
+                payload={"entry": cand["price"], "sl": cand["sl"], "tp": cand["tp"], "rr": cand.get("rr", 0.0)}
+            )
+    except Exception:
+        pass
 
     # 3. Decision & Execution Desk
     print("\n[3. INSTITUTIONAL ACCURACY & CONFLUENCE AUDIT]")
@@ -1421,6 +1458,38 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
             except Exception:
                 pass
 
+            # Check Live On-Chain Whale & DEX Breakout Flow Confluence (+15% Boost / Dump Veto)
+            try:
+                import onchain_whale_tracker
+                tracker = onchain_whale_tracker.OnChainWhaleTracker()
+                whale_state = tracker.load_state()
+                flows = whale_state.get("live_whale_flows", [])
+                sym_clean = best["symbol"].upper().replace("USDT", "")
+                
+                whale_accum = False
+                whale_dump = False
+                inflow_val = 0.0
+                for fl in flows:
+                    fl_sym = fl.get("symbol", "").upper()
+                    if fl_sym == sym_clean or fl_sym in sym_clean or sym_clean in fl_sym:
+                        net_5m = float(fl.get("net_whale_flow_5m_usd", 0.0))
+                        sentiment = fl.get("whale_sentiment", "")
+                        if sentiment in ["AGGRESSIVE_ACCUMULATION", "MODERATE_INFLOW"] or net_5m >= 3000.0:
+                            whale_accum = True
+                            inflow_val = max(inflow_val, net_5m)
+                        elif sentiment in ["AGGRESSIVE_DUMP", "HEAVY_OUTFLOW"] or net_5m <= -5000.0:
+                            whale_dump = True
+
+                if whale_accum:
+                    best["confluence_score"] = min(100, best.get("confluence_score", 80) + 15)
+                    print(f"  🐳 [WHALE CONFLUENCE BOOST] Smart Money Inflow on-chain terdeteksi (+${inflow_val:,.0f}) ➔ Confluence Score +15%!")
+                elif whale_dump and best["side"] in ["LONG", "BUY"]:
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [ON-CHAIN WHALE DUMP DETECTED] ---")
+                    print(f"  🚨 Terdeteksi distribusi paus masif pada likuiditas on-chain ({sym_clean}). Membatalkan order long.")
+                    continue
+            except Exception:
+                pass
+
             print(f"\n--- [{idx}/{len(selected)}] EKSEKUSI SETUP: {best['side']} {best['symbol']} ---")
             print(f" * Konfluensi : {best['confluence_score']}% [{best['confluence_grade']}]")
             print(f" * Rationale  : {best['reason']}")
@@ -1429,13 +1498,13 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
             print(f" * Take Profit: ${best['tp']:,.4f}")
             print(f" * R:R Ratio  : 1 : {best['rr']:.2f}")
 
-            # 4A. Create Paperclip Task Ticket (Paperclip Control Plane)
+            # 4A. Register / Retrieve Paperclip Task Ticket (Paperclip Control Plane)
             paperclip_ticket = None
             try:
                 import paperclip_orchestrator
-                paperclip_ticket = paperclip_orchestrator.create_ticket(
+                paperclip_ticket = paperclip_orchestrator.register_candidate_setup(
                     symbol=best["symbol"],
-                    strategy=best.get("strategy_name", "Quantitative Confluence Setup"),
+                    strategy=best.get("strategy_name", best.get("strategy", "Quantitative Confluence Setup")),
                     side=best.get("side", "BUY"),
                     created_by="scalper_specialists" if best.get("is_scalp") else "market_eyes_screener",
                     payload={"entry": best["price"], "sl": best["sl"], "tp": best["tp"], "rr": best.get("rr", 0.0)}
@@ -1486,6 +1555,26 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                 print(f" * 🤖 AI Officer: {ai_audit['decision']} ({ai_audit['confidence']}%) via {ai_audit.get('provider', 'AI')}")
                 print(f"   Thesis     : {ai_audit['thesis']}")
 
+                # Stage 2: Tauric Debate
+                if ai_audit.get("adversarial_debate"):
+                    deb = ai_audit["adversarial_debate"]
+                    print(f" * 🐂 vs 🐻 [Tauric Debate]: Bull {deb.get('bull_score')}% vs Bear {deb.get('bear_score')}% | Arbiter: {deb.get('verdict')} ({deb.get('winner')})")
+                    print(f"   Arbiter    : {deb.get('arbiter_synthesis')}")
+                    if paperclip_ticket:
+                        try:
+                            import paperclip_orchestrator
+                            paperclip_orchestrator.escalate_ticket(
+                                ticket_id=paperclip_ticket["ticket_id"],
+                                next_stage="DEBATING",
+                                assigned_to="bull_analyst_agent" if deb.get("winner") == "BULL" else "bear_analyst_agent",
+                                note=f"Tauric Debate: Bull {deb.get('bull_score')}% vs Bear {deb.get('bear_score')}% | Arbiter: {deb.get('verdict')}",
+                                agent_id="bull_analyst_agent",
+                                data_update={"debate_result": deb}
+                            )
+                        except Exception:
+                            pass
+
+                # Stage 3: Risk Audit by CRO
                 if paperclip_ticket:
                     try:
                         import paperclip_orchestrator
@@ -1499,11 +1588,6 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                         )
                     except Exception:
                         pass
-
-                if ai_audit.get("adversarial_debate"):
-                    deb = ai_audit["adversarial_debate"]
-                    print(f" * 🐂 vs 🐻 [Tauric Debate]: Bull {deb.get('bull_score')}% vs Bear {deb.get('bear_score')}% | Arbiter: {deb.get('verdict')} ({deb.get('winner')})")
-                    print(f"   Arbiter    : {deb.get('arbiter_synthesis')}")
 
                 if ai_audit.get("tri_perspective_risk"):
                     tri = ai_audit["tri_perspective_risk"]
@@ -1542,11 +1626,19 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     effective_risk_pct = max(0.25, effective_risk_pct * scale)
                     print(f" ⚠️ [AI RISK ADJUST] Risiko disesuaikan oleh AI ke {scale*100:.0f}% ({effective_risk_pct:.2f}% modal)")
 
-                # Autonomous Executive Board Governance (100% Full Autopilot Delegation)
+                # Stage 4: Autonomous Executive Board Governance (100% Full Autopilot Delegation)
                 try:
                     import paperclip_orchestrator
                     esc = paperclip_orchestrator.evaluate_board_escalation_criteria(best, ai_ctx, ai_audit)
                     reasons_str = "; ".join(esc.get("escalation_reasons", []))
+                    if esc.get("requires_board_approval") and paperclip_ticket:
+                        paperclip_orchestrator.escalate_ticket(
+                            ticket_id=paperclip_ticket["ticket_id"],
+                            next_stage="PENDING_BOARD",
+                            assigned_to="board_of_directors",
+                            note=f"Escalated to Board: {reasons_str}",
+                            agent_id="chief_risk_officer"
+                        )
                     if reasons_str:
                         print(f" 👑 [AUTONOMOUS BOARD AUTO-PILOT] Setup {best['symbol']} diaudit Dewan AI: {reasons_str}")
                     if paperclip_ticket:
@@ -1740,7 +1832,9 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                         if b_order_res and b_order_res.get("orderId"):
                             order_id = b_order_res.get("orderId")
                             qty = b_qty
-                            print(f"✅ Order Binance Futures Berhasil! Order ID #{order_id} | Qty: {b_qty} @ {active_leverage}x")
+                            sl_algo_id = b_order_res.get("sl_algo_id")
+                            sl_note = f" | Hard SL Server: #{sl_algo_id} 🛡️" if sl_algo_id else ""
+                            print(f"✅ Order Binance Futures Berhasil! Order ID #{order_id} | Qty: {b_qty} @ {active_leverage}x{sl_note}")
                             exec_success = True
                             executed_backends.append("Binance Futures")
                             _LAST_FINANCIALS_CACHE["binance_available"] = max(0.0, b_avail - b_margin_req)

@@ -249,8 +249,10 @@ def save_tickets(tickets):
 VALID_STAGES = [
     "DISCOVERED",          # Discovered by Screener / Scalper
     "DEBATING",            # Under Bull vs Bear debate
+    "DEBATE",              # Alias for DEBATING
     "RISK_AUDIT",          # Under Tri-Perspective Risk & CRO audit
     "PENDING_BOARD",       # Escalate to Human Board if high-risk criteria met
+    "APPROVED",            # Board / Risk Approved
     "EXECUTING",           # Approved & dispatched to Binance Execution Desk
     "CLOSED",              # Filled, managed, and closed with autopsy
     "VETOED"               # Blocked by CRO or Rejected by Board
@@ -435,6 +437,124 @@ def evaluate_board_escalation_criteria(setup, market_context=None, risk_audit=No
         "requires_board_approval": len(reasons) > 0,
         "escalation_reasons": reasons
     }
+
+def register_candidate_setup(symbol, strategy, side, created_by="market_eyes_screener", payload=None):
+    """
+    Registers a candidate trade setup identified by radar scanners into the DISCOVERED stage.
+    If an active ticket already exists for the symbol in pre-execution stages, updates it
+    to prevent ticket clutter.
+    """
+    tickets = load_tickets()
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+    # Check for existing open pre-execution ticket
+    for t in tickets:
+        if t.get("symbol") == sym_clean and t.get("stage") in ["DISCOVERED", "DEBATING", "DEBATE", "RISK_AUDIT", "PENDING_BOARD"]:
+            t["strategy"] = strategy
+            t["updated_at"] = now_str
+            if payload:
+                t["payload"] = payload
+            save_tickets(tickets)
+            return t
+
+    # If none exists, create a new DISCOVERED ticket
+    return create_ticket(
+        symbol=sym_clean,
+        strategy=strategy,
+        side=side,
+        created_by=created_by,
+        payload=payload
+    )
+
+def close_ticket(symbol_or_ticket_id, exit_reason="Position Closed", realized_pnl=0.0, net_pnl=0.0):
+    """
+    Closes an active ticket when a position is exited in the exchange (TP, SL, Trailing, or Manual).
+    Transitions stage to CLOSED and logs exact ledger accounting.
+    """
+    tickets = load_tickets()
+    sym_or_id = str(symbol_or_ticket_id).upper().replace("-", "").replace("/", "").replace("_", "")
+    now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    target_ticket = None
+
+    for t in tickets:
+        t_id_clean = t.get("ticket_id", "").replace("-", "").upper()
+        t_sym_clean = t.get("symbol", "").replace("-", "").upper()
+        
+        is_match = (t_id_clean == sym_or_id) or (t_sym_clean == sym_or_id)
+        if is_match and t.get("stage") in ["EXECUTING", "PENDING_BOARD", "APPROVED", "RISK_AUDIT", "DEBATING", "DEBATE", "DISCOVERED"]:
+            t["stage"] = "CLOSED"
+            t["updated_at"] = now_str
+            t["execution_result"] = {
+                "status": "CLOSED",
+                "exit_reason": exit_reason,
+                "realized_pnl": round(float(realized_pnl), 4),
+                "net_pnl": round(float(net_pnl), 4),
+                "closed_at": now_str
+            }
+            if "timeline" not in t or not isinstance(t["timeline"], list):
+                t["timeline"] = []
+            t["timeline"].append({
+                "timestamp": now_str,
+                "agent": "trade_journaler_autopsy",
+                "stage": "CLOSED",
+                "note": f"🏁 [CLOSED] {exit_reason} | PnL: ${realized_pnl:+.2f} USDT (Net: ${net_pnl:+.2f})"
+            })
+            target_ticket = t
+            break
+
+    if target_ticket:
+        save_tickets(tickets)
+        fstate = load_firm_state()
+        fstate["stats"]["total_tickets_closed"] = fstate["stats"].get("total_tickets_closed", 0) + 1
+        save_firm_state(fstate)
+
+    return target_ticket
+
+def sync_active_execution_tickets(active_symbols):
+    """
+    Audits all EXECUTING tickets against current exchange open positions.
+    Any ticket marked EXECUTING whose symbol is not currently open is transitioned to CLOSED.
+    """
+    if not isinstance(active_symbols, (set, list, tuple)):
+        return []
+
+    active_set = {str(s).upper().replace("-", "").replace("/", "").replace("_", "") for s in active_symbols}
+    tickets = load_tickets()
+    closed_list = []
+    now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+    changed = False
+    for t in tickets:
+        if t.get("stage") == "EXECUTING":
+            t_sym = t.get("symbol", "").upper().replace("-", "").replace("/", "").replace("_", "")
+            if t_sym and t_sym not in active_set:
+                t["stage"] = "CLOSED"
+                t["updated_at"] = now_str
+                if not t.get("execution_result"):
+                    t["execution_result"] = {
+                        "status": "CLOSED",
+                        "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+                        "closed_at": now_str
+                    }
+                if "timeline" not in t or not isinstance(t["timeline"], list):
+                    t["timeline"] = []
+                t["timeline"].append({
+                    "timestamp": now_str,
+                    "agent": "head_of_execution",
+                    "stage": "CLOSED",
+                    "note": "Position Exited on Exchange (Ledger Synced to Closed)"
+                })
+                closed_list.append(t["symbol"])
+                changed = True
+
+    if changed:
+        save_tickets(tickets)
+        fstate = load_firm_state()
+        fstate["stats"]["total_tickets_closed"] = fstate["stats"].get("total_tickets_closed", 0) + len(closed_list)
+        save_firm_state(fstate)
+
+    return closed_list
 
 # ======================================================================================
 # 4. HEARTBEAT SCHEDULER & DISPATCHER

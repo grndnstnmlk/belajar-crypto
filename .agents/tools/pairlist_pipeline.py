@@ -242,7 +242,7 @@ class DynamicPairlistPipeline:
     def __init__(self, filters: Optional[List[PairlistFilter]] = None):
         self.filters = filters or [
             StaticBlacklistFilter(),
-            VolumePairListFilter(min_volume_usd=20_000_000.0, top_n=35),
+            VolumePairListFilter(min_volume_usd=30_000_000.0, top_n=35),
             PricePrecisionFilter(min_price=0.0005),
             SpreadAndFrictionFilter(max_spread_pct=0.05),
             VolatilityFilter(min_range_pct=1.0, max_range_pct=25.0),
@@ -351,7 +351,7 @@ if __name__ == "__main__":
 
     pipeline = DynamicPairlistPipeline([
         StaticBlacklistFilter(),
-        VolumePairListFilter(min_volume_usd=20_000_000.0, top_n=35),
+        VolumePairListFilter(min_volume_usd=30_000_000.0, top_n=35),
         PricePrecisionFilter(min_price=0.0005),
         SpreadAndFrictionFilter(max_spread_pct=0.05),
         VolatilityFilter(min_range_pct=1.0, max_range_pct=25.0),

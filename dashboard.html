@@ -367,6 +367,11 @@
       border-color: rgba(168, 85, 247, 0.3);
       background: var(--color-purple-dim);
     }
+    .status-pill.red {
+      color: var(--color-red);
+      border-color: rgba(246, 70, 93, 0.3);
+      background: var(--color-red-dim);
+    }
 
     .pulse-dot {
       width: 6px;
@@ -1773,7 +1778,10 @@
               </span>
               <span class="bento-sub-title">Decentralized Agent Command: Task Delegation Kanban, Adversarial Debate, and Board Governance.</span>
             </div>
-            <div style="display:flex; gap:8px; align-items:center;">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <span class="status-pill green mono" id="firm-swarm-status"><span class="pulse-dot"></span>SWARM ACTIVE</span>
+              <span class="status-pill blue mono" id="firm-quota-badge">100% FREE TIER</span>
+              <span class="status-pill amber mono" id="firm-closed-count">0 ARCHIVED</span>
               <button class="btn btn-danger btn-sm" onclick="toggleFirmCircuitBreaker()">🚨 Circuit Breaker</button>
               <button class="btn btn-primary btn-sm" onclick="triggerFirmHeartbeats()">⚡ Trigger Heartbeat</button>
             </div>
@@ -2872,40 +2880,77 @@
     // View 4: Paperclip Firm Loader
     async function loadPaperclipData() {
       try {
-        const res = await fetch('/api/paperclip/tickets');
-        const data = await res.json();
+        const [tRes, fRes] = await Promise.all([
+          fetch('/api/paperclip/tickets'),
+          fetch('/api/paperclip/firm').catch(() => null)
+        ]);
+        const data = await tRes.json();
         let tickets = Array.isArray(data) ? data : (data.tickets || []);
+        
+        let firmData = null;
+        if (fRes && fRes.ok) {
+          try { firmData = await fRes.json(); } catch(e) {}
+        }
+
+        // Update Paperclip Header Telemetry Pills
+        const swarmStatusEl = document.getElementById('firm-swarm-status');
+        const quotaBadgeEl = document.getElementById('firm-quota-badge');
+        const closedBadgeEl = document.getElementById('firm-closed-count');
+
+        if (firmData) {
+          if (swarmStatusEl) {
+            if (firmData.circuit_breaker_active) {
+              swarmStatusEl.className = 'status-pill red mono';
+              swarmStatusEl.innerHTML = '🚨 CIRCUIT BREAKER ACTIVE';
+            } else {
+              swarmStatusEl.className = 'status-pill green mono';
+              swarmStatusEl.innerHTML = '<span class="pulse-dot"></span>SWARM ACTIVE';
+            }
+          }
+          if (quotaBadgeEl && firmData.quota_tracker) {
+            const used = firmData.quota_tracker.free_requests_used || 0;
+            const limit = firmData.quota_tracker.free_requests_limit || 1500;
+            quotaBadgeEl.innerText = `${used}/${limit} FREE API`;
+          }
+          if (closedBadgeEl) {
+            const closedTotal = firmData.stats?.total_tickets_closed ?? (tickets.filter(t => (t.stage || '').toUpperCase() === 'CLOSED').length);
+            closedBadgeEl.innerText = `${closedTotal} ARCHIVED`;
+          }
+        } else if (closedBadgeEl) {
+          const closedTotal = tickets.filter(t => (t.stage || '').toUpperCase() === 'CLOSED').length;
+          closedBadgeEl.innerText = `${closedTotal} ARCHIVED`;
+        }
         
         if (tickets.length === 0) {
           tickets = [
-            { symbol: 'BTCUSDT', stage: 'BOARD_APPROVAL', created_by: 'SMC Strategist', strategy: '4H Bullish FVG Sweep + 3-Touch Support ($75,446)' },
-            { symbol: 'ETHUSDT', stage: 'RISK_AUDIT', created_by: 'Nautilus Risk', strategy: 'Short Exposure Kelly 1.5% - VaR Buffer 1.2% validated' },
-            { symbol: 'SOLUSDT', stage: 'EXECUTING', created_by: 'Execution Desk', strategy: '20x Short Runner @ $97.70 (Stop locked)' },
-            { symbol: 'LINKUSDT', stage: 'DEBATE', created_by: 'Bull vs Bear', strategy: 'Adversarial consensus 78% Long bias above $10.36' },
-            { symbol: 'XRPUSDT', stage: 'DISCOVERED', created_by: 'Market Eyes', strategy: 'Volume Profile VAL bounce + positive CVD absorption' }
+            { symbol: 'BTCUSDT', stage: 'BOARD_APPROVAL', side: 'LONG', created_by: 'SMC Strategist', strategy: '4H Bullish FVG Sweep + 3-Touch Support ($75,446)', payload: { rr: 3.8 } },
+            { symbol: 'ETHUSDT', stage: 'RISK_AUDIT', side: 'SHORT', created_by: 'Chief Risk Officer', strategy: 'Short Exposure Kelly 1.5% - VaR Buffer 1.2% validated', payload: { rr: 3.2 } },
+            { symbol: 'SOLUSDT', stage: 'EXECUTING', side: 'LONG', created_by: 'Execution Desk', strategy: '20x Long Runner @ $132.50 (SL locked in profit)', payload: { rr: 4.5 } },
+            { symbol: 'LINKUSDT', stage: 'DEBATE', side: 'LONG', created_by: 'Bull vs Bear', strategy: 'Adversarial consensus 78% Long bias above $10.36', payload: { rr: 3.0 } },
+            { symbol: 'XRPUSDT', stage: 'DISCOVERED', side: 'LONG', created_by: 'Market Eyes', strategy: 'Volume Profile VAL bounce + positive CVD absorption', payload: { rr: 2.8 } }
           ];
         }
 
         const colMap = {
           'discovered': tickets.filter(t => {
             const s = (t.stage || t.status || '').toUpperCase();
-            return s.includes('DISCOVER') || s.includes('PROPOSE');
+            return s === 'DISCOVERED' || s.includes('DISCOVER') || s.includes('PROPOSE');
           }),
           'debate': tickets.filter(t => {
             const s = (t.stage || t.status || '').toUpperCase();
-            return s.includes('DEBATE') || s.includes('DELIBERAT');
+            return s === 'DEBATING' || s === 'DEBATE' || s.includes('DELIBERAT');
           }),
           'risk': tickets.filter(t => {
             const s = (t.stage || t.status || '').toUpperCase();
-            return s.includes('RISK') || s.includes('AUDIT');
+            return s === 'RISK_AUDIT' || s.includes('AUDIT');
           }),
           'board': tickets.filter(t => {
             const s = (t.stage || t.status || '').toUpperCase();
-            return s.includes('BOARD') || s.includes('APPROVAL');
+            return s === 'PENDING_BOARD' || s === 'APPROVED' || s.includes('BOARD');
           }),
           'exec': tickets.filter(t => {
             const s = (t.stage || t.status || '').toUpperCase();
-            return s.includes('EXEC') || s.includes('ACTIVE');
+            return s === 'EXECUTING' || s.includes('ACTIVE');
           })
         };
 
@@ -2916,17 +2961,37 @@
           if (countEl) countEl.innerText = items.length;
           if (bodyEl) {
             if (items.length === 0) {
-              bodyEl.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-faint); font-size:10.5px;">No active tickets</div>`;
+              bodyEl.innerHTML = `<div style="padding:24px 10px; text-align:center; color:var(--text-faint); font-size:10.5px;">No active tickets</div>`;
             } else {
-              bodyEl.innerHTML = items.map(tk => `
-                <div class="ticket-card">
+              bodyEl.innerHTML = items.map(tk => {
+                const isShort = (tk.side || '').toUpperCase() === 'SHORT' || (tk.side || '').toUpperCase() === 'SELL';
+                const sideColor = isShort ? 'var(--color-red)' : 'var(--color-green)';
+                const sideBg = isShort ? 'var(--color-red-dim)' : 'var(--color-green-dim)';
+                const sideLabel = isShort ? 'SHORT 20x' : 'LONG 20x';
+                const rrRatio = tk.payload?.rr ? `1:${Number(tk.payload.rr).toFixed(1)}R` : (tk.payload?.confidence ? `${tk.payload.confidence}% CONF` : '1:3.5R');
+                const rawAgent = tk.created_by || tk.agent || 'Agent';
+                const agentName = rawAgent.replace(/_/g, ' ');
+                const symbol = tk.symbol || tk.ticket_id || 'ALPHA';
+                const strategy = tk.strategy || tk.thesis || 'Autonomous quant confluence setup';
+                const updatedTime = tk.updated_at ? (tk.updated_at.includes(' ') ? tk.updated_at.split(' ')[1] : tk.updated_at) : (tk.created_at ? (tk.created_at.includes(' ') ? tk.created_at.split(' ')[1] : tk.created_at) : '');
+
+                return `
+                <div class="ticket-card" style="display:flex; flex-direction:column; gap:7px; padding:10px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); transition:border-color 0.15s ease;">
                   <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-weight:700; font-size:11.5px; color:var(--text-primary);">${tk.symbol || tk.ticket_id || 'Alpha Signal'}</span>
-                    <span class="status-pill blue mono" style="font-size:8.5px; padding:1px 4px;">${tk.created_by || tk.agent || 'Agent'}</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <span style="font-weight:700; font-size:12px; color:var(--text-primary); letter-spacing:-0.02em;">${symbol}</span>
+                      <span style="font-size:9px; font-weight:700; padding:1px 5px; border-radius:3px; color:${sideColor}; background:${sideBg}; border:1px solid ${sideColor}33; text-transform:uppercase;">${sideLabel}</span>
+                    </div>
+                    <span class="mono" style="font-size:9.5px; font-weight:700; color:var(--color-blue);">${rrRatio}</span>
                   </div>
-                  <div style="font-size:10.5px; color:var(--text-secondary); line-height:1.4;">${tk.strategy || tk.thesis || (tk.payload ? `R:R 1:${tk.payload.rr || 3.0}` : 'Quant setup verified')}</div>
+                  <div style="font-size:10.5px; color:var(--text-secondary); line-height:1.45; word-break:break-word;">${strategy}</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; color:var(--text-faint); border-top:1px solid var(--border-subtle); padding-top:5px; margin-top:2px;">
+                    <span style="text-transform:capitalize;">🤖 ${agentName}</span>
+                    ${updatedTime ? `<span class="mono">⏱️ ${updatedTime}</span>` : ''}
+                  </div>
                 </div>
-              `).join('');
+                `;
+              }).join('');
             }
           }
         });

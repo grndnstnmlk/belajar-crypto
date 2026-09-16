@@ -105,70 +105,37 @@ def calculate_breakeven_price(symbol, side, entry_price, fee_offset_pct=0.0008, 
 
 def update_binance_stop_loss(symbol, side, new_sl_price, is_demo=True, user_email=None):
     """
-    Safely cancels obsolete stop order and places the updated protective stop on Binance Futures.
-    Uses auto-retry and safe error alerting to eliminate unhedged position gaps.
+    Safely synchronizes the protective hard stop-loss directly on Binance Futures trade servers.
+    Uses native Algo Order API with auto-retry to eliminate unhedged position gaps.
     """
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
-    opp_side = "SELL" if side.upper() in ["BUY", "LONG"] else "BUY"
     sl_str = binance_client.format_price_precision(sym_clean, new_sl_price, is_demo=is_demo)
 
-    # 1. Cancel previous open regular orders and algo orders on this symbol to prevent conflicting SLs (-4130)
-    try:
-        binance_client.send_signed_request(
-            "/fapi/v1/allOpenOrders",
-            method="DELETE",
-            params={"symbol": sym_clean},
-            is_demo=is_demo,
-            user_email=user_email,
-            retries=2
-        )
-    except Exception:
-        pass
-
-    try:
-        binance_client.cancel_existing_algo_orders_for_symbol(
-            symbol=sym_clean,
-            is_demo=is_demo,
-            user_email=user_email
-        )
-    except Exception:
-        pass
-
-    # 2. Place updated Stop Market Algo Order with auto-retry (3 attempts)
-    sl_params = {
-        "algoType": "CONDITIONAL",
-        "symbol": sym_clean,
-        "side": opp_side,
-        "type": "STOP_MARKET",
-        "triggerPrice": sl_str,
-        "closePosition": "true"
-    }
-    res = binance_client.send_signed_request(
-        "/fapi/v1/algoOrder",
-        method="POST",
-        params=sl_params,
+    sync_res = binance_client.sync_exchange_stop_loss(
+        symbol=sym_clean,
+        side=side,
+        sl_price=new_sl_price,
         is_demo=is_demo,
-        user_email=user_email,
-        retries=3,
-        backoff_base=0.5
+        user_email=user_email
     )
-    if res and res.get("algoId"):
-        return True, res.get("algoId")
 
-    # Critical fallback notification if all 3 retries fail
-    print(f"🚨 [CRITICAL WARNING] Gagal memasang Stop Loss baru di Binance untuk {sym_clean}! Respon: {res}", file=sys.stderr)
+    if sync_res.get("success"):
+        return True, sync_res.get("algo_id")
+
+    # Critical fallback notification if sync fails
+    print(f"🚨 [CRITICAL WARNING] Gagal memasang Stop Loss baru di Binance untuk {sym_clean}! Respon: {sync_res}", file=sys.stderr)
     try:
         telegram_notifier.send_telegram_broadcast(
             f"🚨 <b>CRITICAL WARNING: STOP LOSS GAGAL TERPASANG!</b> 🚨\n"
             f"Simbol: <code>{sym_clean}</code>\n"
             f"Level Target SL: <code>${sl_str}</code>\n"
-            f"Respon Error: <code>{res}</code>\n"
+            f"Respon Error: <code>{sync_res.get('error')}</code>\n"
             f"<i>Segera periksa posisi di aplikasi Binance secara manual!</i>"
         )
     except Exception:
         pass
 
-    return False, res
+    return False, sync_res
 
 def execute_manual_partial_tp(symbol, user_email=None, is_demo=True):
     """
@@ -546,6 +513,18 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                 close_time=close_time
             )
 
+            # Automate Paperclip Swarm Ticket Lifecycle Closure
+            try:
+                import paperclip_orchestrator
+                paperclip_orchestrator.close_ticket(
+                    symbol_or_ticket_id=sym,
+                    exit_reason=exit_reason,
+                    realized_pnl=total_realized_trade,
+                    net_pnl=total_net_trade
+                )
+            except Exception as p_err:
+                print(f"[Trade Manager] Note closing Paperclip ticket: {p_err}")
+
             # Autonomous Genetic Evolution Trigger with accurate ledger values
             import self_improve
             pos_amount_usd = (entry_p * qty) if (entry_p and qty) else (risk_b * 5.0)
@@ -599,6 +578,14 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
     # 2. Audit each active position
     management_events = []
 
+    # Pre-fetch all active open algo orders on Binance once per audit cycle for zero-cost batch reconciliation
+    active_algo_orders = binance_client.get_active_stop_orders(is_demo=is_demo, user_email=user_email)
+    active_algo_map = {}
+    for o in active_algo_orders:
+        sym_o = o.get("symbol")
+        if sym_o:
+            active_algo_map.setdefault(sym_o, []).append(o)
+
     for p in active_positions:
         sym = p["symbol"]
         amt = float(p.get("positionAmt", 0))
@@ -648,6 +635,68 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
         # Update highest R reached
         if r_multiple > t_data.get("highest_r_reached", 0.0):
             t_data["highest_r_reached"] = round(r_multiple, 2)
+
+        # -------------------------------------------------------------
+        # STEP S0: FAIL-SAFE EMERGENCY STOP LOSS BREACH CHECK
+        # If mark price has already breached current_sl, immediately close via Market
+        # to prevent runaway losses before server-side conditional order triggers.
+        # -------------------------------------------------------------
+        expected_sl = float(t_data.get("current_sl", 0.0))
+        is_sl_breached = False
+        if expected_sl > 0:
+            if side == "BUY" and mark_price <= expected_sl:
+                is_sl_breached = True
+            elif side == "SELL" and mark_price >= expected_sl:
+                is_sl_breached = True
+
+        if is_sl_breached:
+            print(f"🛑 [EMERGENCY HARD SL BREACHED] {sym}: Mark price (${mark_price:,.4f}) telah melampaui Stop Loss (${expected_sl:,.4f}). Menutup posisi via Market Order demi memotong kerugian!")
+            close_side = "SELL" if amt > 0 else "BUY"
+            binance_client.send_signed_request(
+                "/fapi/v1/order",
+                method="POST",
+                params={
+                    "symbol": sym,
+                    "side": close_side,
+                    "type": "MARKET",
+                    "quantity": abs(amt),
+                    "reduceOnly": "true"
+                },
+                is_demo=is_demo,
+                user_email=user_email
+            )
+            continue
+
+        # -------------------------------------------------------------
+        # STEP S1: FAIL-SAFE SERVER-SIDE HARD STOP-LOSS RECONCILER
+        # Guarantees native on-exchange STOP_MARKET orders directly on Binance trade servers.
+        # -------------------------------------------------------------
+        if expected_sl > 0:
+            existing_sym_stops = active_algo_map.get(sym, [])
+            opp_side = "SELL" if side == "BUY" else "BUY"
+            target_sl_str = binance_client.format_price_precision(sym, expected_sl, is_demo=is_demo)
+            
+            is_matched = False
+            for ord_item in existing_sym_stops:
+                cur_trig = str(ord_item.get("triggerPrice", "")).strip()
+                cur_side = str(ord_item.get("side", "")).upper()
+                try:
+                    if cur_side == opp_side and abs(float(cur_trig) - float(target_sl_str)) < 1e-6:
+                        is_matched = True
+                        break
+                except Exception:
+                    pass
+
+            if not is_matched:
+                sync_res = binance_client.sync_exchange_stop_loss(
+                    symbol=sym,
+                    side=side,
+                    sl_price=expected_sl,
+                    is_demo=is_demo,
+                    user_email=user_email
+                )
+                if sync_res.get("success"):
+                    management_events.append(f"🛡️ {sym} Server Hard SL Synced @ ${target_sl_str} (Algo ID: {sync_res.get('algo_id')})")
 
         # -------------------------------------------------------------
         # STEP 0: FINE-TUNED ADAPTIVE ANTI-STALL & CAPITAL REALLOCATION
@@ -742,6 +791,24 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     )
                 except Exception:
                     pass
+
+        # -------------------------------------------------------------
+        # STEP 1A.2: BLACK SWAN & ON-CHAIN WHALE SHOCK SHIELD
+        # -------------------------------------------------------------
+        try:
+            import dex_futures_bridge
+            bridge = dex_futures_bridge.DEXFuturesBridge()
+            is_shock, shock_reason, shock_metrics = bridge.check_black_swan_circuit_breaker()
+            if is_shock and side == "BUY" and r_multiple >= 0.15 and not t_data.get("breakeven_locked"):
+                be_price = calculate_breakeven_price(sym, side, entry_price)
+                success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
+                if success:
+                    t_data["breakeven_locked"] = True
+                    t_data["current_sl"] = be_price
+                    print(f"🐳 [BLACK SWAN WHALE SHIELD] {sym}: SL diamankan ke BE ${be_price:,.4f} karena terdeteksi shock ({shock_reason})")
+                    management_events.append(f"🐳 {sym} Whale Shock BE Protected @ ${be_price:,.4f}")
+        except Exception:
+            pass
 
         # -------------------------------------------------------------
         # STEP 1B: CAPITAL PRESERVATION SHIELD (+0.70R Scalp / +1.00R Swing -> SL to -0.20R)
