@@ -99,6 +99,30 @@ def trigger_background_push(reason="trade_journal_update"):
     t = threading.Thread(target=_do_push, args=(reason,), daemon=True)
     t.start()
 
+_PERIODIC_SYNC_THREAD = None
+
+def _periodic_sync_worker(interval_minutes=30):
+    while True:
+        try:
+            time.sleep(max(60, interval_minutes * 60))
+            _do_push(reason="periodic_cloud_backup")
+        except Exception:
+            pass
+
+def start_periodic_sync_daemon(interval_minutes=30):
+    """Starts background daemon thread that periodically syncs data to GitHub."""
+    global _PERIODIC_SYNC_THREAD
+    if _PERIODIC_SYNC_THREAD is None or not _PERIODIC_SYNC_THREAD.is_alive():
+        _PERIODIC_SYNC_THREAD = threading.Thread(
+            target=_periodic_sync_worker,
+            args=(interval_minutes,),
+            daemon=True,
+            name="PeriodicGitSyncDaemon"
+        )
+        _PERIODIC_SYNC_THREAD.start()
+        print(f"[Auto-Git-Sync] ☁️ Daemon sinkronisasi cloud periodik aktif (Interval: {interval_minutes}m).")
+    return _PERIODIC_SYNC_THREAD
+
 if __name__ == "__main__":
     print("Testing auto_git_sync...")
     success, msg = sync_pull()

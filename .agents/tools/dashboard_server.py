@@ -2414,6 +2414,15 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     daemon_threads = True
     allow_reuse_address = True
 
+    def handle_error(self, request, client_address):
+        """Silently suppress Windows client socket drops (WinError 10053/10054/BrokenPipe)."""
+        exc_type, exc_val, _ = sys.exc_info()
+        if exc_type in (ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
+            return
+        if hasattr(exc_val, "winerror") and exc_val.winerror in (10053, 10054, 10038):
+            return
+        super().handle_error(request, client_address)
+
 def kill_stale_port_holder(port):
     """Kills any previous stale process listening on the dashboard port."""
     try:

@@ -1300,6 +1300,7 @@ class FastPositionWatcher(threading.Thread):
 
     def run(self):
         while self.running:
+            next_sleep = self.interval
             try:
                 # 1. MT5 Positions Dynamic Management
                 mt5_events = audit_and_manage_mt5_positions()
@@ -1307,26 +1308,49 @@ class FastPositionWatcher(threading.Thread):
                     for ev in mt5_events:
                         print(f"⚡ [Fast MT5 Position Watcher] {ev}")
 
-                # 2. Binance Futures Positions Dynamic Management
-                meta = load_trade_metadata()
-                if meta:
-                    pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=self.is_demo, user_email=self.user_email)
-                    active = [p for p in (pos or []) if float(p.get("positionAmt", 0)) != 0]
-                    if active:
-                        events = audit_and_manage_positions(user_email=self.user_email, is_demo=self.is_demo)
-                        if events:
-                            for ev in events:
-                                print(f"⚡ [Fast Position Watcher] {ev}")
+                # 2. Binance Futures Positions Dynamic Management (Unconditionally checked)
+                pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=self.is_demo, user_email=self.user_email)
+                active = [p for p in (pos or []) if float(p.get("positionAmt", 0)) != 0]
 
-                        # 3. Dynamic Beta-Neutral Portfolio Hedge Check
-                        try:
-                            import portfolio_beta_hedger
-                            portfolio_beta_hedger.evaluate_and_execute_portfolio_hedge(open_positions=active, is_demo=self.is_demo)
-                        except Exception:
-                            pass
+                has_high_rr_runner = False
+                if active:
+                    events = audit_and_manage_positions(user_email=self.user_email, is_demo=self.is_demo)
+                    if events:
+                        for ev in events:
+                            print(f"⚡ [Fast Position Watcher] {ev}")
+
+                    # Check if any active position is a runner with profit >= +1.5R
+                    meta = load_trade_metadata()
+                    for p in active:
+                        sym = p.get("symbol", "")
+                        sym_m = meta.get(sym, {})
+                        upnl = float(p.get("unRealizedProfit", 0))
+                        init_risk = float(sym_m.get("initial_risk_usd", 15.0))
+                        if init_risk > 0 and (upnl / init_risk) >= 1.5:
+                            has_high_rr_runner = True
+                            break
+
+                    # 3. Dynamic Beta-Neutral Portfolio Hedge Check
+                    try:
+                        import portfolio_beta_hedger
+                        portfolio_beta_hedger.evaluate_and_execute_portfolio_hedge(open_positions=active, is_demo=self.is_demo)
+                    except Exception:
+                        pass
+
+                # Dynamic Adaptive Interval:
+                # - 0 active positions: 20s backoff (saves 60% API weight & prevents socket fatigue)
+                # - 1+ active positions: 4s precision trailing stop & breakeven lock
+                # - Runner at >= +1.5R: 2s sniper execution
+                if not active:
+                    next_sleep = 20.0
+                elif has_high_rr_runner:
+                    next_sleep = 2.0
+                else:
+                    next_sleep = 4.0
+
             except Exception:
-                pass
-            time.sleep(self.interval)
+                next_sleep = self.interval
+            time.sleep(next_sleep)
 
     def stop(self):
         self.running = False

@@ -230,6 +230,17 @@ def send_signed_request(endpoint, method="GET", params=None, is_demo=True, user_
 
         try:
             with urllib.request.urlopen(req, timeout=10, context=SSL_CTX) as resp:
+                headers = dict(resp.info())
+                # Rate-Limit Used-Weight Shield (Binance Futures enforces 2,400 weight / minute)
+                used_w_str = headers.get("x-mbx-used-weight-1m") or headers.get("X-MBX-USED-WEIGHT-1M")
+                if used_w_str:
+                    try:
+                        used_w = int(used_w_str)
+                        if used_w >= 1800:
+                            # 75% quota reached (1,800/2,400). Apply adaptive micro-throttle to prevent 429 ban
+                            time.sleep(0.5)
+                    except Exception:
+                        pass
                 return json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             err_msg = e.read().decode("utf-8", errors="ignore")

@@ -11,6 +11,7 @@ import os
 import ssl
 import sys
 import time
+import traceback
 import urllib.request
 from datetime import datetime
 
@@ -2033,9 +2034,46 @@ def main():
             print(f"{C.BRIGHT_GREEN}🚀 Memulai Autonomous Trading Desk Daemon{C.RESET} ({C.BRIGHT_WHITE}Watchlist: {w_str} | Mode: {cur_mode}{lev_str} | Max Positions: {max_pos}{C.RESET})...")
             # Start background Telegram interactive remote control listener thread
             telegram_notifier.start_command_listener(args.user, is_demo=is_demo)
+
+            # Start background periodic Git cloud sync daemon
+            try:
+                import auto_git_sync
+                auto_git_sync.start_periodic_sync_daemon(interval_minutes=30)
+            except Exception:
+                pass
+
+            consecutive_errors = 0
             try:
                 while True:
-                    run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val)
+                    try:
+                        run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val)
+                        consecutive_errors = 0  # Reset error count on successful cycle completion
+                    except Exception as cycle_err:
+                        consecutive_errors += 1
+                        err_trace = traceback.format_exc()
+                        err_log_path = os.path.join(DATA_DIR, "daemon_errors.log")
+                        try:
+                            with open(err_log_path, "a", encoding="utf-8") as ef:
+                                ef.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Cycle Error #{consecutive_errors}:\n{err_trace}\n{'-'*60}\n")
+                        except Exception:
+                            pass
+
+                        backoff = min(60, 5 * (2 ** min(consecutive_errors - 1, 4)))
+                        print(f"\n{C.BRIGHT_RED}⚠️ [Auto-Healing Supervisor] Gangguan siklus #{consecutive_errors}: {cycle_err}{C.RESET}")
+                        print(f"  {C.GRAY}Sistem pulih secara otomatis (Auto-Healing). Menunggu {backoff}s sebelum retry siklus...{C.RESET}")
+
+                        if consecutive_errors == 3:
+                            try:
+                                telegram_notifier.send_telegram_msg(
+                                    f"🚨 <b>Trading Desk Supervisor Alert</b>\n"
+                                    f"Terdeteksi {consecutive_errors} kegagalan siklus berturut-turut:\n<code>{str(cycle_err)[:150]}</code>\n"
+                                    f"Sistem sedang menjalankan auto-healing & exponential backoff."
+                                )
+                            except Exception:
+                                pass
+                        time.sleep(backoff)
+                        continue
+
                     cur_mode = telegram_notifier.get_desk_mode().upper()
                     sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode == "HYBRID" else max(15, args.interval * 60))
                     
