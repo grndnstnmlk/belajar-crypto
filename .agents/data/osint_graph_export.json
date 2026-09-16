@@ -1,6 +1,6 @@
 {
   "schema_version": "flowsint-v1.0",
-  "timestamp": "2026-09-15 23:51:31",
+  "timestamp": "2026-09-16 21:49:00",
   "graph_summary": {
     "total_nodes": 10,
     "total_edges": 9,
@@ -22,7 +22,7 @@
       "properties": {
         "security_score": 100,
         "risk_status": "INSTITUTIONAL_SAFE",
-        "liquidity_usd": 265784.1,
+        "liquidity_usd": 276054.28,
         "contract_address": "E4Ap4icMLwKot8rkkTbq5JkS5kZxt5XCE3yfxbzYBjHx"
       }
     },
@@ -40,7 +40,7 @@
       "type": "LIQUIDITY_POOL",
       "properties": {
         "address": "2RmBs1KYzkDuaRR4F8zU9rPR6KT16eCgJ9YS1c8XXZgQ",
-        "liquidity_usd": 265784.1
+        "liquidity_usd": 276054.28
       }
     },
     {
@@ -48,27 +48,27 @@
       "label": "ETH",
       "type": "TOKEN",
       "properties": {
-        "security_score": 100,
-        "risk_status": "INSTITUTIONAL_SAFE",
-        "liquidity_usd": 1512622.64,
-        "contract_address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8"
+        "security_score": 50,
+        "risk_status": "CAUTION",
+        "liquidity_usd": 7008.27,
+        "contract_address": "0xEc680B4160DD30A35A30b412e1677cEAE82417f1"
       }
     },
     {
-      "id": "chain:bsc",
-      "label": "BSC",
+      "id": "chain:robinhood",
+      "label": "ROBINHOOD",
       "type": "BLOCKCHAIN",
       "properties": {
         "layer": "L1/L2"
       }
     },
     {
-      "id": "pool:0x9F599F",
-      "label": "Pool (bsc)",
+      "id": "pool:0xAc3E07",
+      "label": "Pool (robinhood)",
       "type": "LIQUIDITY_POOL",
       "properties": {
-        "address": "0x9F599F3D64a9D99eA21e68127Bb6CE99f893DA61",
-        "liquidity_usd": 1512622.64
+        "address": "0xAc3E07600B81b9590bCA625a456e777fB68B09C3",
+        "liquidity_usd": 7008.27
       }
     },
     {
@@ -78,7 +78,7 @@
       "properties": {
         "security_score": 100,
         "risk_status": "INSTITUTIONAL_SAFE",
-        "liquidity_usd": 644498.31,
+        "liquidity_usd": 623244.29,
         "contract_address": "0x311935Cd80B76769bF2ecC9D8Ab7635b2139cf82"
       }
     },
@@ -96,7 +96,7 @@
       "type": "LIQUIDITY_POOL",
       "properties": {
         "address": "0x1131DB5977242a03eBeaD1aCD18F80A9A29e5922",
-        "liquidity_usd": 644498.31
+        "liquidity_usd": 623244.29
       }
     }
   ],
@@ -106,7 +106,7 @@
       "target": "token:BTC",
       "relationship": "MONITORS",
       "properties": {
-        "last_scanned": "2026-09-15T23:51:31.617469"
+        "last_scanned": "2026-09-16T21:49:00.234013"
       }
     },
     {
@@ -120,7 +120,7 @@
       "target": "pool:2RmBs1KY",
       "relationship": "POOLED_IN",
       "properties": {
-        "volume_24h": 854308.18
+        "volume_24h": 734571.42
       }
     },
     {
@@ -128,21 +128,21 @@
       "target": "token:ETH",
       "relationship": "MONITORS",
       "properties": {
-        "last_scanned": "2026-09-15T23:51:31.617479"
+        "last_scanned": "2026-09-16T21:49:00.234021"
       }
     },
     {
       "source": "token:ETH",
-      "target": "chain:bsc",
+      "target": "chain:robinhood",
       "relationship": "DEPLOYED_ON",
       "properties": {}
     },
     {
       "source": "token:ETH",
-      "target": "pool:0x9F599F",
+      "target": "pool:0xAc3E07",
       "relationship": "POOLED_IN",
       "properties": {
-        "volume_24h": 5808210.5
+        "volume_24h": 321.84
       }
     },
     {
@@ -150,7 +150,7 @@
       "target": "token:SOL",
       "relationship": "MONITORS",
       "properties": {
-        "last_scanned": "2026-09-15T23:51:31.617483"
+        "last_scanned": "2026-09-16T21:49:00.234025"
       }
     },
     {
@@ -164,7 +164,7 @@
       "target": "pool:0x1131DB",
       "relationship": "POOLED_IN",
       "properties": {
-        "volume_24h": 5072029.37
+        "volume_24h": 6629982.97
       }
     }
   ]
