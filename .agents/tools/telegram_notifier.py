@@ -550,6 +550,207 @@ def notify_ai_early_tp(symbol, side, mark_price, pnl_usd, r_multiple, thesis, is
     )
     return send_telegram_msg(msg)
 
+def notify_dex_pump_alert(token_info):
+    """
+    Sends rich alert when DEX Pump Radar detects high-velocity breakout on Solana/EVM DEX.
+    Includes interactive inline buttons for DexScreener, RugCheck, and Explorer.
+    """
+    sym = token_info.get("symbol", "UNKNOWN")
+    name = token_info.get("name", sym)
+    chain = str(token_info.get("chain_id") or token_info.get("chain") or "").upper()
+    addr = token_info.get("token_address", "")
+    prc = f"${token_info.get('price_usd', 0):.6f}" if token_info.get('price_usd', 0) < 1 else f"${token_info.get('price_usd', 0):,.2f}"
+    liq = f"${token_info.get('liquidity_usd', 0):,.0f}"
+    vol5m = f"${token_info.get('volume_5m', 0):,.0f}"
+    alpha = token_info.get("alpha_score", 0)
+    safety = token_info.get("safety_score", 0)
+    rug_risk = token_info.get("rug_risk", "UNKNOWN")
+    dex_url = token_info.get("dex_url") or token_info.get("url") or f"https://dexscreener.com/{chain.lower()}/{addr}"
+    bridged_contract = token_info.get("bridged_futures_contract", "")
+    
+    shield_badge = "🛡️ VERIFIED SAFE" if safety >= 75 else ("⚠️ MODERATE RISK" if safety >= 50 else "🚨 HIGH RISK")
+    bridge_line = f"\n🎯 <b>Binance Futures Bridge:</b> <code>{bridged_contract} (20x)</code>" if bridged_contract else ""
+
+    # Explorer Link
+    if "SOL" in chain:
+        explorer_url = f"https://solscan.io/token/{addr}" if addr else "https://solscan.io"
+        rugcheck_url = f"https://rugcheck.xyz/tokens/{addr}" if addr else "https://rugcheck.xyz"
+    elif "BASE" in chain:
+        explorer_url = f"https://basescan.org/token/{addr}" if addr else "https://basescan.org"
+        rugcheck_url = f"https://dexscreener.com/base/{addr}"
+    elif "BSC" in chain:
+        explorer_url = f"https://bscscan.com/token/{addr}" if addr else "https://bscscan.com"
+        rugcheck_url = f"https://dexscreener.com/bsc/{addr}"
+    else:
+        explorer_url = f"https://etherscan.io/token/{addr}" if addr else "https://etherscan.io"
+        rugcheck_url = f"https://dexscreener.com/ethereum/{addr}"
+    
+    msg = (
+        f"🚀 <b>DEX RADAR: PUMP BREAKOUT DETECTED</b>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🪙 <b>{html.escape(name)} ({html.escape(sym)})</b> | <code>{chain}</code>\n"
+        f"💵 <b>Price:</b> <code>{prc}</code> | <b>5m Vol:</b> <code>{vol5m}</code>\n"
+        f"💧 <b>Liquidity:</b> <code>{liq}</code>\n"
+        f"⚡ <b>Alpha Score:</b> <b>{alpha}/100</b> | <b>Safety:</b> <b>{safety}/100</b>\n"
+        f"🛡️ <b>Anti-Rug Audit:</b> {shield_badge} (<code>{rug_risk}</code>){bridge_line}\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"<i>⚠️ DYOR: High-velocity on-chain token. Ikuti panduan sizing Akademi Crypto.</i>"
+    )
+
+    inline_keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "📊 DexScreener Chart", "url": dex_url},
+                {"text": "🛡️ RugCheck Audit", "url": rugcheck_url}
+            ],
+            [
+                {"text": "🔍 Blockchain Explorer", "url": explorer_url}
+            ]
+        ]
+    }
+    return send_telegram_msg(msg, reply_markup=inline_keyboard)
+
+def notify_whale_inflow_alert(whale_event):
+    """
+    Sends rich alert when On-Chain Whale & Smart Money Tracker detects large swap sweeps (> $5k-$10k).
+    Includes interactive inline buttons to track wallet on explorer.
+    """
+    sym = whale_event.get("symbol", "UNKNOWN")
+    chain = str(whale_event.get("chain", "")).upper()
+    addr = whale_event.get("wallet_address", "")
+    action = whale_event.get("action", "SWAP")
+    action_icon = "🟢 WHALE BUY ACCUMULATION" if "BUY" in action else "🔴 WHALE DUMP PRESSURE"
+    vol5m = f"${whale_event.get('volume_5m_usd', 0):,.0f}"
+    ticket = f"${whale_event.get('avg_ticket_usd', 0):,.0f}"
+    sentiment = whale_event.get("sentiment", "NEUTRAL")
+    dex_url = whale_event.get("dex_url", "") or f"https://dexscreener.com/{chain.lower()}"
+    
+    explorer_url = f"https://solscan.io/account/{addr}" if "SOL" in chain and addr else ("https://etherscan.io/address/" + addr if addr else dex_url)
+
+    msg = (
+        f"🐋 <b>ON-CHAIN WHALE FLOW ALERT</b>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🏷️ <b>Asset:</b> <b>#{html.escape(sym)}</b> on <code>{chain}</code>\n"
+        f"⚡ <b>Action:</b> {action_icon}\n"
+        f"🌊 <b>5m Inflow Volume:</b> <code>{vol5m}</code>\n"
+        f"🎫 <b>Avg Ticket Size:</b> <code>{ticket}</code>\n"
+        f"🎯 <b>Whale Sentiment:</b> <code>{sentiment}</code>\n"
+        f"━━━━━━━━━━━━━━━━━━"
+    )
+
+    inline_keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "🐋 Track Wallet Explorer", "url": explorer_url},
+                {"text": "📈 DEX Live Chart", "url": dex_url}
+            ]
+        ]
+    }
+    return send_telegram_msg(msg, reply_markup=inline_keyboard)
+
+def notify_auto_bridge_execution(exec_info):
+    """
+    Sends rich alert when Auto-Bridge engine executes 20x Binance Futures trade on a DEX momentum token.
+    Includes interactive button to open Binance Futures terminal.
+    """
+    sym = exec_info.get("token", "UNKNOWN")
+    contract = exec_info.get("contract", f"{sym}USDT")
+    alpha = exec_info.get("alpha_score", 0)
+    safety = exec_info.get("safety_score", 0)
+    lev = exec_info.get("leverage", 20)
+    mark_p = exec_info.get("mark_price", 0.0)
+    
+    msg = (
+        f"🌉 <b>DEX AUTO-BRIDGE: FUTURES ORDER EXECUTED!</b>\n"
+        f"<i>Mode: 🟡 DEMO TESTNET | 20x Leverage</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>DEX Token:</b> #{html.escape(sym)}\n"
+        f"🎯 <b>Futures Contract:</b> <code>{contract}</code> (🟢 BUY)\n"
+        f"⚡ <b>Alpha / Safety:</b> <b>{alpha}/100</b> | <b>{safety}/100</b>\n"
+        f"💵 <b>Execution Price:</b> <code>${mark_p:,.4f}</code>\n"
+        f"🛑 <b>Risk Guardrail:</b> 2.0% Kelly Sizing + SMC Trailing Stop\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🚀 <i>Momentum DEX berhasil di-bridge langsung ke order Binance Futures secara otomatis!</i>"
+    )
+
+    futures_url = f"https://www.binance.com/en/futures/{contract}"
+    dex_token_url = f"https://dexscreener.com/search?q={sym}"
+    inline_keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": f"⚡ Buka {contract} di Binance", "url": futures_url},
+                {"text": "📊 Buka DexScreener", "url": dex_token_url}
+            ]
+        ]
+    }
+    return send_telegram_msg(msg, reply_markup=inline_keyboard)
+
+def notify_black_swan_circuit_breaker(shock_info):
+    """
+    Sends urgent alert when Black Swan Circuit Breaker freezes all auto-executions due to BTC flash dump.
+    Includes button to monitor Bitcoin live liquidation chart.
+    """
+    reason = shock_info.get("reason", "BTC_FLASH_DUMP_SHOCK")
+    btc_15m = shock_info.get("btc_15m_return_pct", 0.0)
+    btc_5m = shock_info.get("btc_5m_return_pct", 0.0)
+    btc_p = shock_info.get("btc_price", 0.0)
+    
+    msg = (
+        f"🚨 <b>BLACK SWAN CIRCUIT BREAKER ACTIVATED!</b>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🛑 <b>Trigger Reason:</b> <b>{html.escape(reason)}</b>\n"
+        f"📉 <b>BTC 15m Momentum:</b> <code>{btc_15m:.2f}%</code> (5m: <code>{btc_5m:.2f}%</code>)\n"
+        f"💵 <b>BTC Price:</b> <code>${btc_p:,.2f}</code>\n"
+        f"🛡️ <b>Tindakan Proteksi:</b> Seluruh Auto-Bridge DEX dibekukan sementara untuk mencegah jebakan likuiditas pasar jatuh.\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🔒 <i>Modal trading terlindungi dari flash crash sistemik.</i>"
+    )
+
+    inline_keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "📉 Chart BTCUSDT (Binance)", "url": "https://www.binance.com/en/futures/BTCUSDT"},
+                {"text": "🌊 Coinglass Liquidations", "url": "https://www.coinglass.com/LiquidationData"}
+            ]
+        ]
+    }
+    return send_telegram_msg(msg, reply_markup=inline_keyboard)
+
+def notify_smart_money_discovered(wallet_info):
+    """
+    Sends notification when Smart Money Discovery Engine identifies a new top PnL whale/insider wallet.
+    """
+    addr = wallet_info.get("address", "")
+    label = wallet_info.get("label", "Smart Money Whale")
+    chain = str(wallet_info.get("chain", "SOLANA")).upper()
+    cat = wallet_info.get("category", "SMART_MONEY")
+    win_rate = wallet_info.get("win_rate", 75.0)
+    pnl = wallet_info.get("pnl_7d_usd", 0.0)
+    
+    explorer_url = f"https://solscan.io/account/{addr}" if "SOL" in chain else f"https://etherscan.io/address/{addr}"
+    
+    msg = (
+        f"🎯 <b>ELITE SMART MONEY WALLET DISCOVERED!</b>\n"
+        f"<i>Akademi Crypto On-Chain Intelligence</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🏷️ <b>Label:</b> <b>{html.escape(label)}</b>\n"
+        f"🌐 <b>Chain:</b> <code>{chain}</code> | <b>Arketipe:</b> <code>{cat}</code>\n"
+        f"🏆 <b>Win Rate:</b> <b>{win_rate:.1f}%</b>\n"
+        f"💰 <b>Est. 7D Realized PnL:</b> <code>+${pnl:,.0f} USD</code>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🤖 <i>Dompet ini otomatis dimasukkan ke dalam radar pemantauan Smart Money Watchlist.</i>"
+    )
+
+    inline_keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "🔍 Track Wallet on Explorer", "url": explorer_url},
+                {"text": "📊 Buka DexScreener", "url": f"https://dexscreener.com/{chain.lower()}"}
+            ]
+        ]
+    }
+    return send_telegram_msg(msg, reply_markup=inline_keyboard)
+
 def notify_ai_profit_lock(symbol, side, mark_price, new_sl_price, current_pnl, r_multiple, is_demo=True):
     """
     Sends notification when AI tightens Stop Loss directly into the profit zone (+0.25R above entry).

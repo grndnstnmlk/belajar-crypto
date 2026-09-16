@@ -63,6 +63,21 @@ try:
 except ImportError:
     pairlist_pipeline = None
 
+try:
+    import dex_pump_radar
+except ImportError:
+    dex_pump_radar = None
+
+try:
+    import onchain_whale_tracker
+except ImportError:
+    onchain_whale_tracker = None
+
+try:
+    import dex_futures_bridge
+except ImportError:
+    dex_futures_bridge = None
+
 _hyperopt_state = {
     "is_running": False,
     "last_run": None,
@@ -77,6 +92,99 @@ SSL_CTX.verify_mode = ssl.CERT_NONE
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36"
 }
+
+# -----------------------------------------------------------------------------
+# DEX & WHALE RADAR AUTOMATED TELEGRAM WATCHER + AUTO-BRIDGE ENGINE
+# -----------------------------------------------------------------------------
+_notified_dex_tokens = set()
+_notified_whale_alerts = set()
+_last_circuit_breaker_alert = 0.0
+
+def _run_dex_whale_alert_watcher():
+    """Periodically scans DEX pumps & Whale swaps and executes Auto-Bridge with Black Swan protection."""
+    global _last_circuit_breaker_alert
+    time.sleep(15)  # initial delay on startup
+    while True:
+        try:
+            time.sleep(60)
+            
+            # 0. Check Black Swan Circuit Breaker
+            is_shock = False
+            bridge_engine = dex_futures_bridge.get_bridge_engine() if dex_futures_bridge else None
+            if bridge_engine:
+                is_shock, cb_reason, cb_metrics = bridge_engine.check_black_swan_circuit_breaker()
+                if is_shock and (time.time() - _last_circuit_breaker_alert > 1800):
+                    _last_circuit_breaker_alert = time.time()
+                    try:
+                        telegram_notifier.notify_black_swan_circuit_breaker({
+                            "reason": cb_reason,
+                            "btc_15m_return_pct": cb_metrics.get("btc_15m_return_pct", 0.0),
+                            "btc_5m_return_pct": cb_metrics.get("btc_5m_return_pct", 0.0),
+                            "btc_price": cb_metrics.get("btc_current_price", 0.0)
+                        })
+                    except Exception:
+                        pass
+
+            # 1. Evaluate DEX Pump Breakouts & Auto-Bridge
+            if dex_pump_radar and not is_shock:
+                try:
+                    radar = dex_pump_radar.DexPumpRadar()
+                    state = radar.scan_all_trending_pumps()
+                    for token in (state.get("tokens") or [])[:5]:
+                        addr = token.get("token_address")
+                        alpha = token.get("alpha_score", 0)
+                        sec = token.get("security") or {}
+                        safety = sec.get("safety_score", token.get("safety_score", 0))
+                        
+                        # Check Futures bridge mapping
+                        mapped_futures = bridge_engine.normalize_to_futures_symbol(token.get("symbol")) if bridge_engine else None
+                        if mapped_futures:
+                            token["bridged_futures_contract"] = mapped_futures
+
+                        if addr and addr not in _notified_dex_tokens and alpha >= 65 and safety >= 72:
+                            _notified_dex_tokens.add(addr)
+                            telegram_notifier.notify_dex_pump_alert(token)
+
+                        # Auto-Bridge execution to Binance Futures 20x
+                        if bridge_engine and mapped_futures and alpha >= 70 and safety >= 75:
+                            bridge_res = bridge_engine.evaluate_and_bridge_token(token)
+                            if bridge_res.get("bridged"):
+                                try:
+                                    telegram_notifier.notify_auto_bridge_execution({
+                                        "token": token.get("symbol"),
+                                        "contract": mapped_futures,
+                                        "alpha_score": alpha,
+                                        "safety_score": safety,
+                                        "leverage": 20,
+                                        "mark_price": token.get("price_usd", 0.0)
+                                    })
+                                except Exception:
+                                    pass
+                except Exception:
+                    pass
+
+            # 2. Evaluate Whale Swaps & Inflows
+            if onchain_whale_tracker:
+                try:
+                    tracker = onchain_whale_tracker.OnChainWhaleTracker()
+                    w_state = tracker.run_full_scan()
+                    for alert in (w_state.get("recent_whale_alerts") or [])[:3]:
+                        sig_key = f"{alert.get('symbol')}:{alert.get('action')}:{round(alert.get('volume_5m_usd', 0), -3)}"
+                        if sig_key not in _notified_whale_alerts:
+                            _notified_whale_alerts.add(sig_key)
+                            telegram_notifier.notify_whale_inflow_alert(alert)
+                except Exception:
+                    pass
+
+            if len(_notified_dex_tokens) > 200:
+                _notified_dex_tokens.clear()
+            if len(_notified_whale_alerts) > 200:
+                _notified_whale_alerts.clear()
+        except Exception:
+            pass
+
+_dex_whale_watcher_thread = threading.Thread(target=_run_dex_whale_alert_watcher, daemon=True, name="DexWhaleAlertWatcher")
+_dex_whale_watcher_thread.start()
 
 _feed_cache = None
 _last_feed_fetch_time = 0
@@ -598,6 +706,15 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == "/api/watchlist":
             data = get_live_watchlist_rs()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/dex-radar" or path == "/api/dex_radar":
+            import dex_pump_radar
+            data = dex_pump_radar.get_latest_dex_radar_state()
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
@@ -1308,6 +1425,117 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path in ("/api/dex-radar", "/api/dex_radar"):
+            try:
+                state_f = os.path.join(DATA_DIR, "dex_radar_state.json")
+                if os.path.exists(state_f):
+                    with open(state_f, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                elif dex_pump_radar:
+                    scanner = dex_pump_radar.DexPumpRadar()
+                    data = scanner.run_full_scan()
+                else:
+                    data = {"status": "NO_DATA", "tokens": []}
+                
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "ERROR", "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/whale-tracker", "/api/whale_tracker"):
+            try:
+                state_f = os.path.join(DATA_DIR, "whale_tracker_state.json")
+                if os.path.exists(state_f):
+                    with open(state_f, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                elif onchain_whale_tracker:
+                    tracker = onchain_whale_tracker.OnChainWhaleTracker()
+                    data = tracker.run_full_scan()
+                else:
+                    data = {"status": "NO_DATA", "live_whale_flows": []}
+                
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "ERROR", "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/whale-tracker/top-pnl", "/api/whale_tracker/top_pnl"):
+            try:
+                if onchain_whale_tracker:
+                    tracker = onchain_whale_tracker.OnChainWhaleTracker()
+                    leaderboard = tracker.get_top_pnl_leaderboard()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": True, "leaderboard": leaderboard}, ensure_ascii=False).encode("utf-8"))
+                else:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b'{"success": false, "error": "Whale tracker unavailable"}')
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/whale-tracker/auto-discover", "/api/whale_tracker/auto_discover"):
+            try:
+                if onchain_whale_tracker:
+                    tracker = onchain_whale_tracker.OnChainWhaleTracker()
+                    discovered = tracker.discover_top_pnl_whales(limit=8)
+                    if discovered and telegram_notifier:
+                        try:
+                            telegram_notifier.notify_smart_money_discovered(discovered[0])
+                        except Exception:
+                            pass
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": True, "discovered": discovered, "count": len(discovered)}, ensure_ascii=False).encode("utf-8"))
+                else:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b'{"success": false, "error": "Whale tracker unavailable"}')
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/dex-bridge/status", "/api/dex_bridge/status"):
+            try:
+                if dex_futures_bridge:
+                    engine = dex_futures_bridge.get_bridge_engine()
+                    data = engine.get_status_payload()
+                else:
+                    data = {"status": "UNAVAILABLE", "auto_bridge_enabled": False}
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "ERROR", "error": str(e)}).encode("utf-8"))
+            return
+
         super().do_GET()
 
     def do_POST(self):
@@ -1320,6 +1548,197 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             payload = json.loads(post_body.decode("utf-8"))
         except Exception:
             payload = {}
+
+        if path == "/api/whale-tracker/add":
+            try:
+                addr = payload.get("address")
+                lbl = payload.get("label", "Custom Whale")
+                chn = payload.get("chain", "solana")
+                cat = payload.get("category", "SMART_MONEY")
+                if not addr:
+                    self.send_response(400)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b'{"success": false, "error": "Missing address"}')
+                    return
+                
+                tracker = onchain_whale_tracker.OnChainWhaleTracker() if onchain_whale_tracker else None
+                if tracker:
+                    res = tracker.add_custom_wallet(addr, lbl, chn, cat)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps(res).encode("utf-8"))
+                else:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b'{"success": false, "error": "Whale tracker unavailable"}')
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/whale-tracker/auto-discover", "/api/whale_tracker/auto_discover"):
+            try:
+                if onchain_whale_tracker:
+                    tracker = onchain_whale_tracker.OnChainWhaleTracker()
+                    limit = int(payload.get("limit", 8))
+                    discovered = tracker.discover_top_pnl_whales(limit=limit)
+                    if discovered and telegram_notifier:
+                        try:
+                            telegram_notifier.notify_smart_money_discovered(discovered[0])
+                        except Exception:
+                            pass
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": True, "discovered": discovered, "count": len(discovered)}, ensure_ascii=False).encode("utf-8"))
+                else:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b'{"success": false, "error": "Whale tracker unavailable"}')
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/dex-radar/notify_test":
+            try:
+                sample_token = {
+                    "symbol": payload.get("symbol", "SOL_ALPHA"),
+                    "name": payload.get("name", "Solana Alpha Breakout"),
+                    "chain": payload.get("chain", "SOLANA"),
+                    "price_usd": float(payload.get("price_usd", 0.0452)),
+                    "volume_5m": float(payload.get("volume_5m", 38500)),
+                    "liquidity_usd": float(payload.get("liquidity_usd", 92000)),
+                    "alpha_score": int(payload.get("alpha_score", 88)),
+                    "safety_score": int(payload.get("safety_score", 94)),
+                    "rug_risk": "SAFE_AUDITED",
+                    "dex_url": payload.get("dex_url", "https://dexscreener.com/solana")
+                }
+                res = telegram_notifier.notify_dex_pump_alert(sample_token)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "telegram_response": res}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/whale-tracker/notify_test":
+            try:
+                sample_whale = {
+                    "symbol": payload.get("symbol", "RAY"),
+                    "chain": payload.get("chain", "SOLANA"),
+                    "action": payload.get("action", "WHALE_BUY_SWEEP"),
+                    "volume_5m_usd": float(payload.get("volume_5m_usd", 64500)),
+                    "avg_ticket_usd": float(payload.get("avg_ticket_usd", 12800)),
+                    "sentiment": payload.get("sentiment", "AGGRESSIVE_ACCUMULATION"),
+                    "dex_url": payload.get("dex_url", "https://dexscreener.com/solana")
+                }
+                res = telegram_notifier.notify_whale_inflow_alert(sample_whale)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "telegram_response": res}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/dex-bridge/toggle", "/api/dex_bridge/toggle"):
+            try:
+                engine = dex_futures_bridge.get_bridge_engine() if dex_futures_bridge else None
+                if engine:
+                    en = payload.get("enabled", None)
+                    res_state = engine.toggle_bridge(en)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": True, "auto_bridge_enabled": res_state}).encode("utf-8"))
+                else:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b'{"success": false, "error": "Bridge engine unavailable"}')
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/dex-bridge/circuit_breaker_test", "/api/dex_bridge/circuit_breaker_test"):
+            try:
+                shock_sample = {
+                    "reason": "MANUAL_TEST_FLASH_CRASH_SHOCK",
+                    "btc_15m_return_pct": -3.45,
+                    "btc_5m_return_pct": -1.82,
+                    "btc_price": 64200.50
+                }
+                res = telegram_notifier.notify_black_swan_circuit_breaker(shock_sample)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "telegram_response": res}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/dex-bridge/bridge_test", "/api/dex_bridge/bridge_test"):
+            try:
+                token_sample = {
+                    "symbol": payload.get("symbol", "PEPE"),
+                    "name": "Pepe Meme Alpha",
+                    "chain": "ETHEREUM",
+                    "price_usd": 0.0000104,
+                    "volume_5m": 125000,
+                    "liquidity_usd": 450000,
+                    "alpha_score": 85,
+                    "safety_score": 92,
+                    "net_whale_flow_usd": 15400
+                }
+                engine = dex_futures_bridge.get_bridge_engine() if dex_futures_bridge else None
+                if engine:
+                    res = engine.evaluate_and_bridge_token(token_sample)
+                    if res.get("bridged"):
+                        telegram_notifier.notify_auto_bridge_execution({
+                            "token": "PEPE",
+                            "contract": res.get("futures_contract", "1000PEPEUSDT"),
+                            "alpha_score": 85,
+                            "safety_score": 92,
+                            "leverage": 20,
+                            "mark_price": 0.0000104
+                        })
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": True, "bridge_result": res}).encode("utf-8"))
+                else:
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b'{"success": false, "error": "Bridge engine unavailable"}')
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
 
         if path == "/api/memory/reflect":
             try:
@@ -1786,10 +2205,10 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
-        elif path == "/api/paperclip/action":
+        elif path in ("/api/paperclip/action", "/api/firm/heartbeat", "/api/firm/action"):
             try:
                 import paperclip_orchestrator
-                action_type = payload.get("action")
+                action_type = payload.get("action", "trigger_heartbeat" if "heartbeat" in path else "board_approve")
                 ticket_id = payload.get("ticket_id")
                 note = payload.get("note", "Dashboard Board Action")
                 user = payload.get("user", "Chairman (Web Board)")
@@ -1826,7 +2245,7 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
-        elif path == "/api/webhook/tradingview":
+        elif path in ("/api/webhook/tradingview", "/api/action/manual_entry", "/api/order/manual_entry"):
             """
             TradingView External Signal Gateway:
             Receives JSON alerts from TradingView Pine Script / Alerts.
