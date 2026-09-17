@@ -1,8 +1,8 @@
 {
-  "generation": 178,
+  "generation": 179,
   "fitness_score": 88.5,
   "parameters": {
-    "min_risk_reward": 3.25,
+    "min_risk_reward": 3.5,
     "max_risk_per_trade_pct": 1.5,
     "rsi_overbought": 70,
     "rsi_oversold": 30,
@@ -12,7 +12,7 @@
       "trend_weight": 0.35,
       "rsi_weight": 0.3,
       "volatility_weight": 0.2,
-      "risk_aversion": 0.2
+      "risk_aversion": 0.25
     }
   },
   "regime_genomes": {
@@ -1269,15 +1269,21 @@
       "timestamp": "2026-09-18 01:09:43",
       "action": "AUTORESEARCH_MUTATE_RR (3.0 -> 3.25)",
       "hypothesis": "Win rate (29.33%) is below target (55.0%). Raising minimum R:R to 3.25 to preserve mathematical payoff."
+    },
+    {
+      "generation": 179,
+      "timestamp": "2026-09-18 01:38:54",
+      "action": "AUTORESEARCH_MUTATE_RR (3.25 -> 3.5)",
+      "hypothesis": "Win rate (30.67%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
     }
   ],
   "active_experiment": {
     "status": "EVALUATING",
-    "test_generation": 178,
-    "start_trade_count": 999,
-    "baseline_sharpe": 3.59,
+    "test_generation": 179,
+    "start_trade_count": 1002,
+    "baseline_sharpe": 2.79,
     "baseline_pf": 0.21,
-    "hypothesis": "Win rate (29.33%) is below target (55.0%). Raising minimum R:R to 3.25 to preserve mathematical payoff."
+    "hypothesis": "Win rate (30.67%) is below target (55.0%). Raising minimum R:R to 3.5 to preserve mathematical payoff."
   },
   "best_known_genome": {
     "generation": 31,
