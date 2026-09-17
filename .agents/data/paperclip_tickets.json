@@ -1,5 +1,35 @@
 [
   {
+    "ticket_id": "TCK-20260917-0640",
+    "symbol": "LINKUSDT",
+    "side": "SHORT",
+    "strategy": "Quantitative Confluence Setup",
+    "created_by": "market_eyes_screener",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-17 02:10:50",
+    "updated_at": "2026-09-17 02:14:53",
+    "payload": {
+      "entry": 11.091,
+      "sl": 11.1683,
+      "tp": 10.7431,
+      "rr": 4.5
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-17 02:10:50",
+        "agent": "market_eyes_screener",
+        "stage": "DISCOVERED",
+        "note": "Setup LINKUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260917-9284",
     "symbol": "ETHUSDT",
     "side": "SHORT",
@@ -376,11 +406,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-17 01:32:07",
-    "updated_at": "2026-09-17 02:08:14",
+    "updated_at": "2026-09-17 02:14:53",
     "payload": {
-      "entry": 99.13,
+      "entry": 99.07,
       "sl": 99.699,
-      "tp": 96.5695,
+      "tp": 96.2395,
       "rr": 4.5
     },
     "debate_result": null,
@@ -403,10 +433,10 @@
     "strategy": "5m Craig Percoco Morning Routine (BSL Sweep & FVG)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-17 01:00:15",
-    "updated_at": "2026-09-17 01:43:36",
+    "updated_at": "2026-09-17 02:34:33",
     "payload": {
       "entry": 0.7181,
       "sl": 0.7226,
@@ -515,7 +545,13 @@
       "authorized_at": "2026-09-17 01:43:36",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected)",
+      "realized_pnl": 0.9694,
+      "net_pnl": 0.8511,
+      "closed_at": "2026-09-17 02:34:33"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-17 01:00:15",
@@ -546,6 +582,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-17 02:34:33",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected) | PnL: $+0.97 USDT (Net: $+0.85)"
       }
     ]
   },
@@ -12675,138 +12717,6 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
-      },
-      {
-        "timestamp": "2026-09-16 18:16:27",
-        "agent": "head_of_execution",
-        "stage": "CLOSED",
-        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260915-7786",
-    "symbol": "BTCUSDT",
-    "side": "SHORT",
-    "strategy": "Quantitative Confluence Setup",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "CLOSED",
-    "priority": "NORMAL",
-    "created_at": "2026-09-15 22:22:47",
-    "updated_at": "2026-09-16 18:16:27",
-    "payload": {
-      "entry": 75224.76,
-      "sl": 75672.9974,
-      "tp": 73880.0478,
-      "rr": 3.0
-    },
-    "debate_result": null,
-    "risk_result": {
-      "decision": "APPROVE",
-      "confidence": 85,
-      "suggested_risk_scale": 1.0,
-      "thesis": "APPROVED: Setup BTCUSDT (SHORT) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
-      "key_risks": [
-        "Normal market volatility risk"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $75,672.9974.",
-      "provider": "Heuristic Fallback (GEMINI API Timeout)",
-      "adversarial_debate": {
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "entry_price": 0.0,
-        "sl_price": 75672.9974,
-        "tp_price": 73880.0478,
-        "rr_ratio": 3.0,
-        "strategy": "5m Order Flow CVD Absorption Scalp",
-        "bull_score": 63,
-        "bear_score": 37,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset BTCUSDT berada dalam 3 besar rotasi sektor (\ud83d\udc51 Macro Heavyweights).",
-        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (63% vs 37%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 75672.9974,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-16 05:22:52"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-16 05:22:53",
-        "symbol": "BTCUSDT",
-        "side": "SHORT",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 95,
-          "desired_scale": 1.2,
-          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 63% menunjukkan dorongan positif moderat. | ADX momentum kuat (36.1) mendukung kelanjutan tren yang ekspansif."
-        },
-        "conservative": {
-          "score": 45,
-          "desired_scale": 0.85,
-          "thesis": "Portofolio memiliki 3 posisi searah; alokasi ukuran disesuaikan secara dinamis."
-        },
-        "neutral": {
-          "score": 63,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 63.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "APPROVED_BALANCED",
-          "composite_risk_score": 61,
-          "allocated_risk_scale": 1.0,
-          "stop_loss_profile": "ATR_TRAILING",
-          "regime_weights": {
-            "aggressive": 0.2,
-            "neutral": 0.35,
-            "conservative": 0.45
-          },
-          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "BTC",
-        "sector_key": "MACRO_BLUECHIP",
-        "sector_title": "Macro Heavyweights",
-        "sector_icon": "\ud83d\udc51",
-        "sector_rank": 2,
-        "is_leading_sector": false,
-        "sector_24h_avg": -4.15,
-        "relative_strength_vs_btc": 0.16,
-        "confluence_boost": 5
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-15 22:22:53",
-      "note": "Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan)"
-    },
-    "execution_result": {
-      "status": "CLOSED",
-      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
-      "closed_at": "2026-09-16 18:16:27"
-    },
-    "timeline": [
-      {
-        "timestamp": "2026-09-15 22:22:47",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup BTCUSDT (SHORT) teridentifikasi via Quantitative Confluence Setup."
-      },
-      {
-        "timestamp": "2026-09-15 22:22:53",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: APPROVE (85%)"
-      },
-      {
-        "timestamp": "2026-09-15 22:22:53",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
       },
       {
         "timestamp": "2026-09-16 18:16:27",
