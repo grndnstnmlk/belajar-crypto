@@ -1,39 +1,5 @@
 [
   {
-    "timestamp": "2026-09-16 16:39:17",
-    "symbol": "SOLUSDT",
-    "side": "SHORT",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 95,
-      "desired_scale": 1.2,
-      "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat. | ADX momentum kuat (39.2) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 25,
-      "desired_scale": 0.6,
-      "thesis": "Peringatan konsentrasi arah: sudah ada 6 posisi sepihak terbuka."
-    },
-    "neutral": {
-      "score": 60,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "BLOCKED_RISK_LIMIT",
-      "composite_risk_score": 51,
-      "allocated_risk_scale": 0.0,
-      "stop_loss_profile": "NONE",
-      "regime_weights": {
-        "aggressive": 0.2,
-        "neutral": 0.35,
-        "conservative": 0.45
-      },
-      "synthesis": "REJECTED: Stres portofolio melampaui batas aman (Konservatif 25%). Penambahan posisi SOLUSDT ditolak demi perlindungan modal."
-    }
-  },
-  {
     "timestamp": "2026-09-16 17:03:07",
     "symbol": "BNBUSDT",
     "side": "SHORT",
@@ -1685,6 +1651,40 @@
       "desired_scale": 1.1,
       "half_kelly_pct": 3.0,
       "thesis": "Probabilitas kemenangan model: 63.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_OPTIMAL",
+      "composite_risk_score": 74,
+      "allocated_risk_scale": 1.12,
+      "stop_loss_profile": "RUNNER_EXPANSION",
+      "regime_weights": {
+        "aggressive": 0.45,
+        "neutral": 0.35,
+        "conservative": 0.2
+      },
+      "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+    }
+  },
+  {
+    "timestamp": "2026-09-17 10:16:18",
+    "symbol": "LINKUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 85,
+      "desired_scale": 1.2,
+      "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 64% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 70,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 63,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 63.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
     },
     "fund_manager": {
       "verdict": "APPROVED_OPTIMAL",
