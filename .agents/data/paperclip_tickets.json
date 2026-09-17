@@ -6,10 +6,10 @@
     "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-17 04:09:13",
-    "updated_at": "2026-09-17 04:13:42",
+    "updated_at": "2026-09-17 04:14:56",
     "payload": {
       "entry": 11.099,
       "sl": 11.1173,
@@ -19,13 +19,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$11.10 USDT)",
+      "realized_pnl": -11.096,
+      "net_pnl": -11.1049,
+      "closed_at": "2026-09-17 04:14:56"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-17 04:09:13",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup LINKUSDT (SHORT) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      },
+      {
+        "timestamp": "2026-09-17 04:14:56",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$11.10 USDT) | PnL: $-11.10 USDT (Net: $-11.10)"
       }
     ]
   },
