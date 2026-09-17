@@ -922,6 +922,33 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/seasonality/status":
+            try:
+                import hedge_fund_seasonality_engine
+                data = hedge_fund_seasonality_engine.get_dashboard_seasonality_payload()
+                data["success"] = True
+            except Exception as e:
+                data = {"success": False, "error": str(e), "status": "ERROR"}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/seasonality/evaluate":
+            sym = params.get("symbol", ["BTC"])[0]
+            try:
+                import hedge_fund_seasonality_engine
+                data = hedge_fund_seasonality_engine.calculate_seasonality_confluence(sym)
+                data["success"] = True
+            except Exception as e:
+                data = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
         elif path == "/api/risk/pre_trade_audit":
             import nautilus_risk_engine
             sym = params.get("symbol", ["BTC"])[0]

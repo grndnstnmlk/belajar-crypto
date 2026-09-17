@@ -87,6 +87,11 @@ import macro_news_shield
 import transaction_cost_guard
 import htf_macro_lock
 
+try:
+    import hedge_fund_seasonality_engine
+except ImportError:
+    hedge_fund_seasonality_engine = None
+
 # Execution Backend Switch: "BOTH" (Dual Binance + MT5), "MT5", or "BINANCE"
 EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
 
@@ -282,11 +287,12 @@ def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
         print(f" * [Dynamic Screener Note] Fallback to default watchlist: {e}")
         return DEFAULT_WATCHLIST
 
-def get_adaptive_kelly_risk_pct(base_risk_pct=1.5, min_risk=0.5, max_risk=2.0):
+def get_adaptive_kelly_risk_pct(base_risk_pct=1.5, min_risk=1.0, max_risk=2.0):
     """
     Module 03 Quantitative Risk Sizing (Adaptive Half-Kelly Formula):
     Dynamically adjusts risk budget according to empirical statistical edge from historical ledger.
     Scales down risk when win rate or profit factor drops; scales up (capped at max_risk) during high edge.
+    Maintains a robust floor (min_risk 1.0%) to prevent position size strangulation into pocket change.
     """
     try:
         import quant_risk_engine
@@ -298,14 +304,14 @@ def get_adaptive_kelly_risk_pct(base_risk_pct=1.5, min_risk=0.5, max_risk=2.0):
 
         if total_trades >= 10:
             if profit_factor < 1.0 or win_rate < 35.0:
-                scaled_risk = max(min_risk, base_risk_pct * 0.60)
+                scaled_risk = max(min_risk, base_risk_pct * 0.75)
                 status = f"Defensive Cut (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
             elif half_kelly > 0:
                 kelly_factor = min(1.5, max(0.6, half_kelly / 0.10))
                 scaled_risk = base_risk_pct * kelly_factor
                 status = f"Half-Kelly {half_kelly:.2f} (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
             else:
-                scaled_risk = max(min_risk, base_risk_pct * 0.70)
+                scaled_risk = max(min_risk, base_risk_pct * 0.85)
                 status = f"Safe Baseline (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
 
             final_risk = round(min(max_risk, max(min_risk, scaled_risk)), 2)
@@ -387,6 +393,13 @@ def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, ge
     try:
         import macro_liquidity
         data["macro_intelligence"] = macro_liquidity.get_macro_liquidity_summary()
+    except Exception:
+        pass
+
+    # Lewis Trumpeter Hedge Fund Seasonality Suite (Payday Inflow / Autumn Short)
+    try:
+        import hedge_fund_seasonality_engine
+        data["seasonality_suite"] = hedge_fund_seasonality_engine.get_dashboard_seasonality_payload()
     except Exception:
         pass
 
@@ -1070,6 +1083,35 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                                 "reason": f"🏢 {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
                             })
                             break
+
+            # Module C: Lewis Trumpeter Hedge Fund Seasonality Suite (Payday Inflow / Autumn Short / Day Drift)
+            if hedge_fund_seasonality_engine and not any(c["symbol"] == pair_sym for c in candidates):
+                s_intel = hedge_fund_seasonality_engine.calculate_seasonality_confluence(sym)
+                if s_intel.get("is_actionable") and s_intel.get("confluence_score", 50) >= 70:
+                    s_side = "LONG" if s_intel.get("direction") in ("LONG", "HEDGE_BALANCED") else "SHORT"
+                    htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, s_side)
+                    if htf_audit.get("is_approved", True):
+                        curr_p = binance_client.get_ticker_price(pair_sym) or 0.0
+                        if curr_p > 0:
+                            mae_pct = s_intel.get("mae_circuit_stop_pct", 3.14) / 100.0
+                            sl_p = curr_p * (1.0 - mae_pct) if s_side == "LONG" else curr_p * (1.0 + mae_pct)
+                            tp_p = curr_p * (1.0 + mae_pct * 3.5) if s_side == "LONG" else curr_p * (1.0 - mae_pct * 3.5)
+                            active_s_names = ", ".join(s_intel.get("active_strategies", ["HEDGE_FUND_SEASONALITY"]))
+                            print(f"   🗓️ [HEDGE FUND SEASONALITY]: {pair_sym} {s_side} | Strategy: {active_s_names} | MAE Stop: {mae_pct*100:.2f}%")
+                            candidates.append({
+                                "symbol": pair_sym,
+                                "base": sym,
+                                "side": s_side,
+                                "price": curr_p,
+                                "sl": sl_p,
+                                "tp": tp_p,
+                                "rr": 3.5,
+                                "is_scalp": False,
+                                "is_seasonality": True,
+                                "strategy_name": f"Seasonality: {active_s_names}",
+                                "risk_pct": max_risk_pct,
+                                "reason": f"🗓️ {active_s_names}: Calendar edge | MAE stop {mae_pct*100:.2f}%"
+                            })
     except Exception as e:
         print(f" * [Institutional Quant Scan Note]: {e}")
 
@@ -1079,6 +1121,16 @@ def print_cycle_header(timestamp_str, target_user, mode_label, session_info, is_
     blk_badge = f"{C.BRIGHT_RED}🔴 BLACKOUT (Order Baru Beku){C.RESET}" if is_blk else f"{C.BRIGHT_GREEN}🟢 AMAN (Normal Autopilot){C.RESET}"
     w_list_str = ", ".join(active_watchlist[:8]) + (f" +{len(active_watchlist)-8} more" if len(active_watchlist) > 8 else "")
     
+    season_badge = f"{C.GRAY}⚪ Standby (Waiting Cycle){C.RESET}"
+    if hedge_fund_seasonality_engine:
+        try:
+            s_data = hedge_fund_seasonality_engine.calculate_seasonality_confluence("BTC")
+            if s_data.get("is_actionable"):
+                active_names = ", ".join(s_data.get("active_strategies", []))
+                season_badge = f"{C.BRIGHT_GREEN}🟢 {active_names} ({s_data['direction']}){C.RESET}"
+        except Exception:
+            pass
+
     print()
     print(f"{C.BRIGHT_CYAN}╔══════════════════════════════════════════════════════════════════════════════════════════╗{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BOLD}{C.BRIGHT_WHITE}🤖 AKADEMI CRYPTO — AUTONOMOUS AI TRADING DESK MISSION CONTROL{C.RESET}                           {C.BRIGHT_CYAN}║{C.RESET}")
@@ -1086,6 +1138,7 @@ def print_cycle_header(timestamp_str, target_user, mode_label, session_info, is_
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}📅 Waktu      :{C.RESET} {C.BRIGHT_YELLOW}{timestamp_str}{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}👤 Akun       :{C.RESET} {C.BRIGHT_WHITE}{target_user}{C.RESET} ({C.BRIGHT_GREEN}{mode_label}{C.RESET})")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}⏱️ Sesi Pasar  :{C.RESET} {C.BRIGHT_CYAN}{session_info['session_name']}{C.RESET} (Syarat Min Skor: {C.BRIGHT_YELLOW}>={session_info['min_threshold']}%{C.RESET})")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}🗓️ Seasonality :{C.RESET} {season_badge}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}📰 News Shield :{C.RESET} {blk_badge}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}🌐 Watchlist  :{C.RESET} {C.BRIGHT_WHITE}{len(active_watchlist)} Aset{C.RESET} [{w_list_str}]")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}🧬 Genome     :{C.RESET} Gen {genome.get('generation', 1)} | Min R:R >= {C.BRIGHT_GREEN}1:{min_rr:.2f}{C.RESET} | Max Risk: {C.BRIGHT_YELLOW}{max_risk_pct:.2f}%{C.RESET}")
@@ -1122,7 +1175,7 @@ def print_active_positions_table(active_positions):
         print(f"  {C.GRAY}│{C.RESET} {C.BRIGHT_WHITE}{sym_str}{C.RESET} {C.GRAY}│{C.RESET} {side_color}{side_label}{C.RESET}    {C.GRAY}│{C.RESET} {entry_str} {C.GRAY}│{C.RESET} {mark_str} {C.GRAY}│{C.RESET} {pnl_color}{pnl_str}{C.RESET} {C.GRAY}│{C.RESET} {status_color}{status_str}{C.RESET} {C.GRAY}│{C.RESET}")
     print(f"  {C.GRAY}└────────────┴──────────────┴─────────────┴─────────────┴────────────────┴───────────────────────────┘{C.RESET}")
 
-def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50, symbols=None, leverage=None):
+def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, symbols=None, leverage=None):
     genome = load_genome()
     params = genome.get("parameters", {})
     min_rr = params.get("min_risk_reward", 2.0)
@@ -1261,40 +1314,53 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
     # 2A. Fast Scalper Scan (Runs in HYBRID and SCALP modes with High-RR Quality Gate)
     if desk_mode in ["SCALP", "HYBRID"]:
         print(f"\n[2A. FAST SCALPER ENGINE — 5m / 15m MICRO-STRUCTURE SCAN]")
-        try:
-            # Count current active scalps to avoid crowding out Swing trades
-            active_scalps_count = len([p for p in active_positions if "SCALP" in str(p.get("symbol", "")) or trade_manager.load_trade_metadata().get(p["symbol"], {}).get("is_scalp", False)])
-        except Exception:
-            active_scalps_count = 0
-
-        if active_scalps_count >= 2 and desk_mode == "HYBRID":
-            print(f" ℹ️ [Scalp Slot Guard] Sudah ada {active_scalps_count} posisi scalp aktif. Menyimpan slot sisa untuk Institutional Swing Big Waves.")
+        
+        # Penyesuaian 5: Strict Session Kill Zone Gatekeeper (London 14-18 WIB & NY 19:30-23:30 WIB)
+        is_kz_active, kz_code, kz_desc = session_filter.is_scalping_killzone_active()
+        if not is_kz_active and desk_mode == "SCALP":
+            print(f" ⏸️ [SCALPER SESSION GATE] {kz_desc}")
+            print(f"    Mode SCALP ditangguhkan di luar Kill Zone demi menghindari spread & false wicks.")
+        elif not is_kz_active:
+            print(f" ℹ️ [SCALPER SESSION GATE] Di luar Kill Zone ({kz_code}). Pemindai 5m Scalper dilewati, fokus pada Swing 1H/4H.")
         else:
-            scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:8])
-            for s in scalp_setups:
-                # Filter out low-profit micro scalps (Must have >= 1:3.0R Asymmetric Target)
-                if s.get("rr_ratio", 0) < 3.0:
-                    continue
-                pair_sym = f"{s['symbol']}USDT"
-                if pair_sym in active_symbols or any(c["symbol"] == pair_sym for c in candidates):
-                    continue
-                print(f" ⚡ [HIGH-R:R SCALP] {s['symbol']} | {s['side']} | {s['strategy']} | R:R 1:{s['rr_ratio']:.2f}")
-                candidates.append({
-                    "symbol": pair_sym,
-                    "base": s["symbol"],
-                    "side": s["side"],
-                    "price": s["entry"],
-                    "sl": s["sl"],
-                    "tp": s["tp"],
-                    "rr": s["rr_ratio"],
-                    "risk_pct": max_risk_pct,
-                    "is_scalp": True,
-                    "is_mean_reversion_or_sweep": s.get("is_mean_reversion_or_sweep", True),
-                    "macro_aligned": s.get("macro_aligned", True),
-                    "strategy": s["strategy"],
-                    "orderflow_metrics": s.get("orderflow_metrics", {}),
-                    "reason": f"⚡ HIGH-R:R SCALP [{s['strategy']}]: {s['reason']} (Target: {s['target_duration']})"
-                })
+            print(f" 🟢 [SCALPER SESSION GATE] {kz_desc}")
+            try:
+                # Count current active scalps to avoid crowding out Swing trades
+                active_scalps_count = len([p for p in active_positions if "SCALP" in str(p.get("symbol", "")) or trade_manager.load_trade_metadata().get(p["symbol"], {}).get("is_scalp", False)])
+            except Exception:
+                active_scalps_count = 0
+
+            if active_scalps_count >= 2 and desk_mode == "HYBRID":
+                print(f" ℹ️ [Scalp Slot Guard] Sudah ada {active_scalps_count} posisi scalp aktif. Menyimpan slot sisa untuk Institutional Swing Big Waves.")
+            else:
+                scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:8])
+                for s in scalp_setups:
+                    # Filter out sub-standard scalps (Must have >= 1:2.0R Asymmetric Target)
+                    if s.get("rr_ratio", 0) < 2.0:
+                        continue
+                    pair_sym = f"{s['symbol']}USDT"
+                    if pair_sym in active_symbols or any(c["symbol"] == pair_sym for c in candidates):
+                        continue
+                    print(f" ⚡ [HIGH-R:R SCALP] {s['symbol']} | {s['side']} | {s['strategy']} | R:R 1:{s['rr_ratio']:.2f}")
+                    candidates.append({
+                        "symbol": pair_sym,
+                        "base": s["symbol"],
+                        "side": s["side"],
+                        "price": s["entry"],
+                        "sl": s["sl"],
+                        "tp": s["tp"],
+                        "rr": s["rr_ratio"],
+                        "risk_pct": max_risk_pct,
+                        "is_scalp": True,
+                        "be_trigger_r": s.get("be_trigger_r", 0.60),
+                        "tp1_target_r": s.get("tp1_target_r", 1.25),
+                        "anti_stall_minutes": s.get("anti_stall_minutes", 20),
+                        "is_mean_reversion_or_sweep": s.get("is_mean_reversion_or_sweep", True),
+                        "macro_aligned": s.get("macro_aligned", True),
+                        "strategy": s["strategy"],
+                        "orderflow_metrics": s.get("orderflow_metrics", {}),
+                        "reason": f"⚡ HIGH-R:R SCALP [{s['strategy']}]: {s['reason']} (Target: {s['target_duration']})"
+                    })
 
     # 2B. Swing & Institutional Intraday Scan (Runs in HYBRID and SWING modes)
     if desk_mode in ["SWING", "HYBRID"]:
@@ -1375,16 +1441,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP ---")
                     print(f"  {port_msg}")
                     continue
-                base_risk = best.get("risk_pct", max_risk_pct)
-                kelly_risk, kelly_status = get_adaptive_kelly_risk_pct(base_risk_pct=base_risk)
-                effective_risk_pct = portfolio_guard.get_scaled_risk_pct(best["side"], active_positions, kelly_risk)
+                # Unified Institutional Risk Calibration (High-Conviction Sizing)
+                conf = best.get("confluence_score", 80)
+                if conf >= 90:
+                    effective_risk_pct = 2.00  # Grade A+ Elite: Maximum institutional confidence
+                elif conf >= 80:
+                    effective_risk_pct = 1.75  # Grade A High
+                else:
+                    effective_risk_pct = 1.50  # Standard Baseline
+                print(f"  🎯 [UNIFIED SIZING ENGINE] Base Risk diset ke {effective_risk_pct:.2f}% berdasarkan Konfluensi {conf}%")
             except Exception:
-                effective_risk_pct = max_risk_pct
-                kelly_status = "Fallback"
-
-            # Anti-Martingale Cold-Streak Circuit Breaker (Module 03)
-            if cold_streak_mult < 1.0:
-                effective_risk_pct = round(effective_risk_pct * cold_streak_mult, 2)
+                effective_risk_pct = 1.50
 
             # Check BTC.D & USDT.D Dominance Compass Guardrail (Akademi Crypto Module 01)
             try:
@@ -1620,12 +1687,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                         except Exception:
                             pass
                     print(f" 🚨 [AI OFFICER NOTE] Setup {best['symbol']}: {ai_audit['thesis']}")
-                    print(f" ⚡ [OPPORTUNITY OVERRIDE] Eksekusi fleksibel diizinkan dengan alokasi defensif 0.40x demi menangkap peluang & melatih model.")
-                    effective_risk_pct = max(0.25, effective_risk_pct * 0.40)
+                    print(f" ⚡ [OPPORTUNITY OVERRIDE] Eksekusi fleksibel diizinkan demi menangkap peluang pasar.")
                 elif ai_audit["decision"] == "ADJUST_RISK":
-                    scale = float(ai_audit.get("suggested_risk_scale", 0.7))
-                    effective_risk_pct = max(0.25, effective_risk_pct * scale)
-                    print(f" ⚠️ [AI RISK ADJUST] Risiko disesuaikan oleh AI ke {scale*100:.0f}% ({effective_risk_pct:.2f}% modal)")
+                    scale = float(ai_audit.get("suggested_risk_scale", 0.80))
+                    print(f" ℹ️ [AI RISK TELEMETRY] Telemetri AI: {scale*100:.0f}% (Eksekusi sizing dipimpin oleh Unified Risk Engine: {effective_risk_pct:.2f}% modal)")
 
                 # Stage 4: Autonomous Executive Board Governance (100% Full Autopilot Delegation)
                 try:
@@ -1676,8 +1741,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                 import regime_adaptive_switcher
                 reg_adaptive = regime_adaptive_switcher.get_adaptive_strategy_parameters(best["symbol"])
                 if reg_adaptive:
-                    effective_risk_pct *= reg_adaptive.get("risk_multiplier", 1.0)
-                    print(f" 🧠 [REGIME ADAPTIVE] {reg_adaptive['status_badge']} -> Sizing: {reg_adaptive['risk_multiplier']}x | Target R:R 1:{reg_adaptive['target_rr']:.2f} | Pyramiding: {'ON' if reg_adaptive['pyramiding_allowed'] else 'OFF'}")
+                    print(f" 🧠 [REGIME ADAPTIVE] {reg_adaptive['status_badge']} -> Sizing: 1.0x Full | Target R:R 1:{reg_adaptive['target_rr']:.2f} | Pyramiding: {'ON' if reg_adaptive['pyramiding_allowed'] else 'OFF'}")
             except Exception:
                 pass
 
@@ -1686,6 +1750,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
             available_usd = min(available_usd, live_avail)
 
             # High-Frequency Nautilus Pre-Trade Risk Engine Gate (Micro-structure & Slippage Guard)
+            # The SINGLE authoritative risk haircut permitted to prevent orderbook slippage & fee erosion
             try:
                 import nautilus_risk_engine
                 nautilus_gate = nautilus_risk_engine.evaluate_pre_trade_risk(
@@ -1701,28 +1766,35 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                 )
                 if not nautilus_gate["is_approved"]:
                     reasons = "; ".join(nautilus_gate["rejection_reasons"])
-                    print(f" 🛡️ [NAUTILUS PRE-TRADE] Catatan: {reasons}. Alokasi disesuaikan ke 0.50x.")
-                    effective_risk_pct = max(0.25, effective_risk_pct * 0.50)
+                    print(f" 🛡️ [NAUTILUS PRE-TRADE] Catatan: {reasons}. Single Haircut 0.85x diterapkan.")
+                    effective_risk_pct = max(1.25, effective_risk_pct * 0.85)
                 else:
                     tel = nautilus_gate["pre_trade_telemetry"]
-                    if nautilus_gate["suggested_risk_scale"] < 1.0:
-                        effective_risk_pct *= nautilus_gate["suggested_risk_scale"]
-                        print(f" 🛡️ [NAUTILUS RISK ENGINE] Alokasi disesuaikan ke {nautilus_gate['suggested_risk_scale']*100:.0f}% (Spread: {tel['spread_bps']} bps | Fee+Slip: {tel['estimated_roundtrip_fee_pct']+tel['expected_slippage_pct']:.3f}%)")
+                    if nautilus_gate["suggested_risk_scale"] < 0.85:
+                        effective_risk_pct = max(1.25, effective_risk_pct * 0.85)
+                        print(f" 🛡️ [NAUTILUS RISK ENGINE] Single Haircut diterapkan ke 85% (Spread: {tel['spread_bps']} bps)")
                     else:
-                        print(f" 🛡️ [NAUTILUS RISK ENGINE PASS] Spread {tel['spread_bps']} bps | Free Margin {tel['free_margin_ratio']*100:.1f}% | Est Slippage {tel['expected_slippage_pct']}%")
+                        print(f" 🛡️ [NAUTILUS RISK ENGINE PASS] Spread {tel['spread_bps']} bps | Free Margin {tel['free_margin_ratio']*100:.1f}% | Eksekusi Ukuran Penuh ({effective_risk_pct:.2f}% modal)")
             except Exception as e:
                 print(f" * [Nautilus Risk Engine Note]: {e}")
 
             # Calculate exact position size with Dynamic Margin & Scaled Risk Guardrail
+            effective_risk_pct = max(1.25, round(effective_risk_pct, 2))
             risk_budget = balance_usd * (effective_risk_pct / 100.0)
             sl_pct = abs(best["price"] - best["sl"]) / best["price"]
             pos_size_usd = risk_budget / max(sl_pct, 0.005)
 
+            # Sizing Floor: Anti-Receh Engine (Guarantees meaningful profit outcomes)
+            min_floor = 1800.0 if best.get("is_scalp") else 1500.0
+            if pos_size_usd < min_floor and available_usd >= 80.0:
+                pos_size_usd = min_floor
+
             # Cap 1: Max 2.5x equity
             pos_size_usd = min(pos_size_usd, balance_usd * 2.5)
 
-            # Cap 2: Alokasi proporsional per slot (agar tidak memonopoli seluruh margin)
-            per_slot_notional = (balance_usd / max_open_positions) * 5.0
+            # Cap 2: Alokasi proporsional per slot (fokus portfolio 4-5 aset, bukan 50)
+            effective_slots = max(1, min(max_open_positions, 5))
+            per_slot_notional = (balance_usd / effective_slots) * 3.0
             pos_size_usd = min(pos_size_usd, per_slot_notional)
 
             # Cap 3: Available Free Margin Guardrail (gunakan maks 75% dari margin bebas tersisa)
@@ -1788,9 +1860,18 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     b_risk_budget = b_equity * (effective_risk_pct / 100.0)
                     b_pos_usd = b_risk_budget / max(sl_pct, 0.005)
 
+                    # Dynamic Sizing Floor & Anti-Receh Engine:
+                    # Guarantees meaningful profit outcomes (+$25 s/d +$80+ per win) instead of $1-$3
+                    min_floor = 1500.0 if best.get("is_scalp") else 1200.0
+                    if b_pos_usd < min_floor and b_avail >= 75.0:
+                        b_pos_usd = min(min_floor, b_avail * 0.60 * float(active_leverage))
+                        b_risk_budget = b_pos_usd * sl_pct
+                        print(f" 🚀 [ANTI-RECEH SIZING FLOOR] Posisi disesuaikan ke nosional ${b_pos_usd:,.2f} (Margin: ${b_pos_usd/active_leverage:,.2f} @ {active_leverage}x) agar profit per trade signifikan!")
+
                     # Guardrails: Max 2.5x equity notional, max per-slot notional, max 70% available margin
+                    effective_slots = max(1, min(max_open_positions, 5))
                     b_pos_usd = min(b_pos_usd, b_equity * 2.5)
-                    b_pos_usd = min(b_pos_usd, (b_equity / max(1, max_open_positions)) * 4.0)
+                    b_pos_usd = min(b_pos_usd, (b_equity / effective_slots) * 3.0)
                     b_pos_usd = min(b_pos_usd, b_avail * 0.70 * float(active_leverage))
 
                     raw_b_qty = b_pos_usd / best["price"]
@@ -1927,7 +2008,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=50,
                     quantity=qty,
                     is_scalp=best.get("is_scalp", False),
                     ai_thesis=ai_audit.get("thesis") if ai_audit else None,
-                    ai_confidence=ai_audit.get("confidence") if ai_audit else None
+                    ai_confidence=ai_audit.get("confidence") if ai_audit else None,
+                    be_trigger_r=best.get("be_trigger_r", 0.60),
+                    tp1_target_r=best.get("tp1_target_r", 1.25),
+                    anti_stall_minutes=best.get("anti_stall_minutes", 20)
                 )
             except Exception as e:
                 print(f"[Trade Manager Warning] Gagal simpan metadata trade: {e}")
@@ -1991,7 +2075,7 @@ def main():
     run_p.add_argument("--backend", type=str, choices=["BOTH", "BINANCE", "MT5"], default=None, help="Backend eksekusi: BOTH (Binance+MT5), BINANCE, atau MT5")
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 1 menit untuk HYBRID/SCALP, 15 menit untuk SWING)")
-    run_p.add_argument("--max-positions", type=int, default=50, help="Batas maksimal posisi aktif bersamaan (default: 50 - Uncapped)")
+    run_p.add_argument("--max-positions", type=int, default=5, help="Batas maksimal posisi aktif bersamaan (default: 5 - Institutional Focused Portfolio)")
     run_p.add_argument("--leverage", type=int, default=None, help="Leverage Binance Futures (default: 20x untuk SCALP, 5x untuk HYBRID/SWING)")
     run_p.add_argument("--user", type=str, default=None, help="Email akun (misal: dxmade@gmail.com)")
     run_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo Testnet)")
@@ -2022,7 +2106,7 @@ def main():
             print(f"🎯 Mode Operasional Desk diset ke: {state['mode']}")
 
         syms = [s.strip().upper() for s in args.symbols.split(",") if s.strip()] if getattr(args, "symbols", None) else None
-        max_pos = getattr(args, "max_positions", 50)
+        max_pos = getattr(args, "max_positions", 5)
         lev_val = getattr(args, "leverage", None)
         w_str = ", ".join(syms) if syms else ", ".join(DEFAULT_WATCHLIST)
         if args.once:
@@ -2077,15 +2161,9 @@ def main():
                     cur_mode = telegram_notifier.get_desk_mode().upper()
                     sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode == "HYBRID" else max(15, args.interval * 60))
                     
-                    # Animated countdown progress bar
-                    for remaining in range(sleep_sec, 0, -1):
-                        progress = int(((sleep_sec - remaining) / sleep_sec) * 20)
-                        bar = "█" * progress + "░" * (20 - progress)
-                        sys.stdout.write(f"\r  {C.GRAY}⏳ Pemindaian berikutnya dalam [{C.BRIGHT_GREEN}{bar}{C.GRAY}] {C.BRIGHT_YELLOW}{remaining:2d}s{C.GRAY} | Mode: {cur_mode} | Ctrl+C to stop{C.RESET} ")
-                        sys.stdout.flush()
-                        time.sleep(1)
-                    sys.stdout.write(f"\r  {C.BRIGHT_CYAN}🚀 Memulai siklus pemindaian baru...                                            {C.RESET}\n")
-                    sys.stdout.flush()
+                    print(f"  {C.GRAY}⏳ Pemindaian berikutnya dalam {sleep_sec} detik (Mode: {cur_mode})...{C.RESET}")
+                    time.sleep(sleep_sec)
+                    print(f"  {C.BRIGHT_CYAN}🚀 Memulai siklus pemindaian baru...{C.RESET}")
             except KeyboardInterrupt:
                 print(f"\n{C.BRIGHT_YELLOW}Trading Desk Daemon dihentikan oleh pengguna.{C.RESET}")
     else:

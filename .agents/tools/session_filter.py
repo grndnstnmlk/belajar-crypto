@@ -105,6 +105,17 @@ def get_current_session_info(dt=None):
         "is_dead_zone": is_dead_zone
     }
 
+def is_scalping_killzone_active(dt=None) -> Tuple[bool, str, str]:
+    """
+    24/7 Continuous Institutional Trading Window:
+    Allows round-the-clock trading across London, New York, Asian Accumulation, and Dini Hari sessions.
+    Returns (is_active: bool, session_code: str, reason: str).
+    """
+    info = get_current_session_info(dt)
+    code = info.get("session_code", "GLOBAL_247")
+    name = info.get("session_name", "24/7 Global Session")
+    return True, code, f"24/7 Active Market: {name} (Round-the-clock opportunistic execution enabled)"
+
 def classify_strategy_archetype(setup: dict) -> dict:
     """
     Classifies trading setup into an institutional strategy archetype:

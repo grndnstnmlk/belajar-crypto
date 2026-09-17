@@ -1431,62 +1431,82 @@ def scan_symbol_scalp(symbol):
     if len(candles) < 25:
         return None
 
+    candidate = None
+
     # Priority 1 [CRAIG PERCOCO MORNING ROUTINE - TOP PRIORITY]:
     # Asian Session Range + PDH/PDL Sweep with FVG Displacement (3R)
-    s_craig = scan_craig_percoco_morning_routine_scalp(symbol, candles)
-    if s_craig:
-        return s_craig
+    candidate = scan_craig_percoco_morning_routine_scalp(symbol, candles)
 
     # Priority 1.5: Order Flow CVD Divergence & DOM Stacked Imbalance Scalp
-    try:
-        import orderflow_cvd_scalper
-        s_of = orderflow_cvd_scalper.scan_5m_orderflow_cvd_scalp(symbol, candles)
-        if s_of:
-            return s_of
-    except Exception:
-        pass
+    if not candidate:
+        try:
+            import orderflow_cvd_scalper
+            candidate = orderflow_cvd_scalper.scan_5m_orderflow_cvd_scalp(symbol, candles)
+        except Exception:
+            pass
 
     # Priority 1.8: 5m/15m Opening Range Breakout (ORB V4.1)
+    if not candidate:
+        try:
+            import orb_scalper
+            candidate = orb_scalper.scan_5m_orb_scalp(symbol, candles)
+        except Exception:
+            pass
+
+    # Priority 2: ICT Rejection Block Mean Threshold Bounce (3R)
+    if not candidate:
+        candidate = scan_rejection_block_scalp(symbol, candles)
+
+    # Priority 3: 4H Range Breakout & Re-Entry Failure (Failed Auction 3R)
+    if not candidate:
+        candidate = scan_4h_range_reentry_scalp(symbol, candles)
+
+    # Priority 4: 5m Inverse FVG (IFVG) Liquidity Scalp (3R)
+    if not candidate:
+        candidate = scan_5m_inverse_fvg_scalp(symbol, candles)
+
+    # Priority 5: 15m Key Level Rectangle Break & Retest (Mulham Sniper 3R)
+    if not candidate:
+        candidate = scan_15m_rectangle_break_retest_scalp(symbol, candles)
+
+    # Priority 6: 5m 20-EMA Dynamic Pullback Trap (3R)
+    if not candidate:
+        candidate = scan_5m_20ema_pullback_trap_scalp(symbol, candles)
+
+    # Priority 7: Liquidity Sweep & Micro-FVG (3R)
+    if not candidate:
+        candidate = scan_5m_liquidity_sweep_fvg(symbol, candles)
+
+    # Priority 8: Akademi Crypto 5m High Win-Rate Blueprint
+    if not candidate:
+        candidate = scan_5m_akademi_crypto_scalp(symbol, candles)
+
+    if not candidate:
+        return None
+
+    # -------------------------------------------------------------
+    # 7 SCALPING ADJUSTMENTS: STANDARDIZE METADATA & MACRO VETO
+    # -------------------------------------------------------------
+    candidate["is_scalp"] = True
+    candidate["timeframe"] = candidate.get("timeframe", "5m")
+    candidate["target_duration"] = candidate.get("target_duration", "10-25 menit")
+    candidate["be_trigger_r"] = 0.60  # Institutional Micro-Breakeven
+    candidate["tp1_target_r"] = 1.25  # Institutional Partial Scale-Out (50%)
+    candidate["anti_stall_minutes"] = 20  # Max life for momentum scalp
+
+    # Penyesuaian 6: HTF Macro Bias Lock Veto (4H / 1D EMA Direction)
     try:
-        import orb_scalper
-        s_orb = orb_scalper.scan_5m_orb_scalp(symbol, candles)
-        if s_orb:
-            return s_orb
+        import htf_macro_lock
+        htf_audit = htf_macro_lock.audit_htf_macro_bias(symbol, candidate["side"])
+        if not htf_audit.get("is_approved", True):
+            # Counter-trend to 4H macro is strictly blocked
+            return None
+        candidate["htf_macro_aligned"] = True
+        candidate["htf_macro_trend"] = htf_audit.get("htf_trend", "ALIGNED")
     except Exception:
         pass
 
-    # Priority 2: ICT Rejection Block Mean Threshold Bounce (3R)
-    s_rb = scan_rejection_block_scalp(symbol, candles)
-    if s_rb:
-        return s_rb
-
-    # Priority 3: 4H Range Breakout & Re-Entry Failure (Failed Auction 3R)
-    s_4h = scan_4h_range_reentry_scalp(symbol, candles)
-    if s_4h:
-        return s_4h
-
-    # Priority 4: 5m Inverse FVG (IFVG) Liquidity Scalp (3R)
-    s_ifvg = scan_5m_inverse_fvg_scalp(symbol, candles)
-    if s_ifvg:
-        return s_ifvg
-
-    # Priority 5: 15m Key Level Rectangle Break & Retest (Mulham Sniper 3R)
-    s_rect = scan_15m_rectangle_break_retest_scalp(symbol, candles)
-    if s_rect:
-        return s_rect
-
-    # Priority 6: 5m 20-EMA Dynamic Pullback Trap (3R)
-    s_ema = scan_5m_20ema_pullback_trap_scalp(symbol, candles)
-    if s_ema:
-        return s_ema
-
-    # Priority 7: Liquidity Sweep & Micro-FVG (3R)
-    s_sweep = scan_5m_liquidity_sweep_fvg(symbol, candles)
-    if s_sweep:
-        return s_sweep
-
-    # Note: Volume Surge, VWAP ±2σ, and Stoch MA Crossover are intentionally bypassed.
-    return None
+    return candidate
 
 def scan_all_scalp_opportunities(symbols=None):
     """

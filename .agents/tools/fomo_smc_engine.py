@@ -51,6 +51,11 @@ try:
 except ImportError:
     prop_desk_strategies = None
 
+try:
+    import hedge_fund_seasonality_engine
+except ImportError:
+    hedge_fund_seasonality_engine = None
+
 SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
 SSL_CTX.verify_mode = ssl.CERT_NONE
@@ -818,6 +823,31 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         except Exception:
             pass
 
+        # 🗓️ Institutional Hedge Fund Seasonality Gate (Lewis Trumpeter / IQCapital)
+        seasonality_intel = None
+        if hedge_fund_seasonality_engine:
+            try:
+                seasonality_intel = hedge_fund_seasonality_engine.calculate_seasonality_confluence(base)
+                if seasonality_intel.get("is_actionable"):
+                    s_dir = seasonality_intel.get("direction", "NEUTRAL")
+                    s_score = seasonality_intel.get("confluence_score", 50.0)
+                    active_strats = ", ".join(seasonality_intel.get("active_strategies", []))
+
+                    if is_buy and (s_dir in ("LONG", "HEDGE_BALANCED") or s_score >= 60):
+                        score += 15
+                        reasons.append(f"🗓️ Institutional Seasonality Confluence ({active_strats}): Bullish Calendar Alignment (+15)")
+                    elif not is_buy and (s_dir in ("SHORT", "HEDGE_BALANCED") or s_score <= 40):
+                        score += 15
+                        reasons.append(f"🗓️ Institutional Seasonality Confluence ({active_strats}): Bearish Calendar Alignment (+15)")
+                    elif is_buy and s_dir == "SHORT" and s_score <= 35:
+                        score = max(0, score - 15)
+                        reasons.append(f"⚠️ Calendar Seasonal Headwind: Setup opposes active {active_strats} (-15)")
+                    elif not is_buy and s_dir == "LONG" and s_score >= 65:
+                        score = max(0, score - 15)
+                        reasons.append(f"⚠️ Calendar Seasonal Headwind: Setup opposes active {active_strats} (-15)")
+            except Exception:
+                pass
+
     score = max(0, min(100, score))
     grade = "A+ (INSTITUTIONAL GRADE)" if score >= 85 else ("A (HIGH CONFLUENCE)" if score >= 75 else ("B (MODERATE)" if score >= 60 else "C (POOR)"))
 
@@ -854,6 +884,7 @@ def audit_fomo_smc_setup(symbol: str, bar: str = "1h", side: str = "BUY", propos
         "sfp_sweep": sfp_intel,
         "cvd_absorption": cvd_intel,
         "vwap_elasticity": vwap_intel,
+        "seasonality_intel": seasonality_intel,
         "confluence_reasons": reasons,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }

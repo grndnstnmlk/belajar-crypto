@@ -50,10 +50,10 @@ def save_trade_metadata(meta):
     except Exception as e:
         print(f"[Trade Manager] Error saving metadata: {e}")
 
-def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity, is_scalp=False, ai_thesis=None, ai_confidence=None):
+def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity, is_scalp=False, ai_thesis=None, ai_confidence=None, be_trigger_r=0.60, tp1_target_r=1.25, anti_stall_minutes=20):
     """
     Registers a newly opened trade to begin dynamic lifecycle tracking.
-    Supports is_scalp flag for accelerated Breakeven (+0.7R) and Time-Stop.
+    Supports is_scalp flag for accelerated Breakeven (+0.60R), Partial Scale-out (+1.25R), and Anti-Stall Time-Stop (20m).
     Stores AI Senior Quant Officer thesis and confidence for dashboard and autopsy.
     """
     meta = load_trade_metadata()
@@ -74,6 +74,9 @@ def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budge
         "quantity": float(quantity),
         "opened_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "is_scalp": is_scalp,
+        "be_trigger_r": be_trigger_r if is_scalp else 1.00,
+        "tp1_target_r": tp1_target_r if is_scalp else 2.00,
+        "anti_stall_minutes": anti_stall_minutes if is_scalp else 120,
         "breakeven_locked": False,
         "trailing_r_locked": 0.0,
         "highest_r_reached": 0.0,
@@ -714,9 +717,8 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     op_dt = datetime.strptime(opened_at, fmt)
                     elapsed_min = (datetime.now() - op_dt).total_seconds() / 60.0
                     
-                    # Adaptive timeout: 35m for slower accumulation assets, 25m for hyper-scalps
-                    slow_movers = {"ADA", "XRP", "LINK", "DOT", "LTC", "BNB"}
-                    timeout_min = 35.0 if any(sym.startswith(sm) for sm in slow_movers) else 25.0
+                    # Institutional Scalping Anti-Stall: 20 minutes strict holding period
+                    timeout_min = float(t_data.get("anti_stall_minutes", 20.0))
 
                     if elapsed_min >= timeout_min:
                         # Case A: Trade is developing healthy momentum (0.20R <= R < 0.60R) -> Lock Breakeven & Let it Run!
@@ -809,6 +811,30 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     management_events.append(f"🐳 {sym} Whale Shock BE Protected @ ${be_price:,.4f}")
         except Exception:
             pass
+
+        # -------------------------------------------------------------
+        # STEP 1A.3: INSTITUTIONAL SCALPER MICRO-BREAKEVEN (+0.60R -> BE + Cushion)
+        # Guarantees zero capital risk once scalping momentum reaches +0.60R
+        # -------------------------------------------------------------
+        scalp_be_r = float(t_data.get("be_trigger_r", 0.60))
+        if t_data.get("is_scalp") and r_multiple >= scalp_be_r and not t_data.get("breakeven_locked"):
+            be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
+            success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
+            if success:
+                t_data["breakeven_locked"] = True
+                t_data["current_sl"] = be_price
+                print(f"🛡️ [SCALPER FAST BREAKEVEN] {sym}: Target +{r_multiple:.2f}R (>={scalp_be_r}R) tercapai. SL dipindahkan ke Breakeven ${be_price:,.4f}. Posisi Zero-Risk!")
+                management_events.append(f"🛡️ {sym} Scalper BE Protected @ ${be_price:,.4f} (+{r_multiple:.2f}R)")
+                try:
+                    telegram_notifier.send_telegram_broadcast(
+                        f"🛡️ <b>SCALPER FAST BREAKEVEN (+0.60R)</b> 🛡️\n"
+                        f"💎 <b>Simbol:</b> <code>{sym}</code>\n"
+                        f"📈 <b>Pencapaian:</b> +{r_multiple:.2f}R\n"
+                        f"🔒 <b>SL Diamankan ke BE:</b> <code>${be_price:,.4f}</code>\n"
+                        f"🎉 <i>Risiko modal kini $0 (Zero Risk). Runner dibiarkan mengejar TP!</i>"
+                    )
+                except Exception:
+                    pass
 
         # -------------------------------------------------------------
         # STEP 1B: CAPITAL PRESERVATION SHIELD (+0.70R Scalp / +1.00R Swing -> SL to -0.20R)
