@@ -2350,10 +2350,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-17 01:32:07",
-    "updated_at": "2026-09-17 04:19:07",
+    "updated_at": "2026-09-17 04:54:57",
     "payload": {
       "entry": 1.2899,
       "sl": 1.3199,
@@ -2464,7 +2464,13 @@
       "authorized_at": "2026-09-17 04:19:07",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (8 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$0.23 USDT)",
+      "realized_pnl": -0.2296,
+      "net_pnl": -0.3786,
+      "closed_at": "2026-09-17 04:54:57"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-17 01:32:07",
@@ -2501,6 +2507,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (8 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-17 04:54:57",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$0.23 USDT) | PnL: $-0.23 USDT (Net: $-0.38)"
       }
     ]
   },
