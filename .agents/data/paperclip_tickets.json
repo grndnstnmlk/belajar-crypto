@@ -96,10 +96,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-17 20:26:59",
-    "updated_at": "2026-09-17 20:57:52",
+    "updated_at": "2026-09-17 21:18:23",
     "payload": {
       "entry": 1.2982,
       "sl": 1.3242,
@@ -210,7 +210,13 @@
       "authorized_at": "2026-09-17 20:57:52",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$3.42 USDT)",
+      "realized_pnl": 3.4229,
+      "net_pnl": 2.3147,
+      "closed_at": "2026-09-17 21:18:23"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-17 20:26:59",
@@ -235,6 +241,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-17 21:18:23",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$3.42 USDT) | PnL: $+3.42 USDT (Net: $+2.31)"
       }
     ]
   },
