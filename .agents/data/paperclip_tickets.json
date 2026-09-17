@@ -1294,10 +1294,10 @@
     "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-17 03:37:08",
-    "updated_at": "2026-09-17 04:18:26",
+    "updated_at": "2026-09-17 06:18:05",
     "payload": {
       "entry": 2430.74,
       "sl": 2434.4178,
@@ -1307,13 +1307,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$1.29 USDT)",
+      "realized_pnl": -1.2941,
+      "net_pnl": -1.4423,
+      "closed_at": "2026-09-17 06:18:05"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-17 03:37:08",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup ETHUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      },
+      {
+        "timestamp": "2026-09-17 06:18:05",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$1.29 USDT) | PnL: $-1.29 USDT (Net: $-1.44)"
       }
     ]
   },
