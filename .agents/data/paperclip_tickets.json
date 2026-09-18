@@ -1104,10 +1104,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-18 14:07:23",
-    "updated_at": "2026-09-18 14:08:25",
+    "updated_at": "2026-09-18 16:14:44",
     "payload": {
       "entry": 757.53,
       "sl": 770.1452,
@@ -1217,7 +1217,13 @@
       "authorized_at": "2026-09-18 14:08:25",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$13.57 USDT)",
+      "realized_pnl": -13.5696,
+      "net_pnl": -14.6834,
+      "closed_at": "2026-09-18 16:14:44"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-18 14:07:23",
@@ -1242,6 +1248,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-18 16:14:44",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$13.57 USDT) | PnL: $-13.57 USDT (Net: $-14.68)"
       }
     ]
   },
