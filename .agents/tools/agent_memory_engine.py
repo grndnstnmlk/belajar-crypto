@@ -18,11 +18,17 @@ Core Capabilities:
 
 import json
 import os
+import sys
 import math
 import time
 import re
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional
+
+TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
+if TOOLS_DIR not in sys.path:
+    sys.path.insert(0, TOOLS_DIR)
+from atomic_json_store import atomic_read_json, atomic_write_json
 
 MEMORY_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "agent_memory_bank.json")
 
@@ -406,21 +412,17 @@ class AgentMemoryEngine:
 
     def load_memories(self) -> None:
         """Load persistent memories from JSON storage, or seed defaults."""
-        if os.path.exists(self.memory_file):
-            try:
-                with open(self.memory_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    self.episodic_memories = data.get("episodic_memories", [])
-                    self.coin_profiles = data.get("coin_profiles", {})
-                    # Ensure all default profiles are present
-                    for sym, prof in DEFAULT_COIN_PROFILES.items():
-                        if sym not in self.coin_profiles:
-                            self.coin_profiles[sym] = dict(prof)
-                    self.tactical_rules = data.get("tactical_rules", DEFAULT_TACTICAL_RULES)
-                    self.meta = data.get("meta", self.meta)
-                    return
-            except Exception as e:
-                print(f"[AgentMemory] Warning loading memory file: {e}. Seeding fresh memory bank.")
+        data = atomic_read_json(self.memory_file, default=None)
+        if data and isinstance(data, dict):
+            self.episodic_memories = data.get("episodic_memories", [])
+            self.coin_profiles = data.get("coin_profiles", {})
+            # Ensure all default profiles are present
+            for sym, prof in DEFAULT_COIN_PROFILES.items():
+                if sym not in self.coin_profiles:
+                    self.coin_profiles[sym] = dict(prof)
+            self.tactical_rules = data.get("tactical_rules", DEFAULT_TACTICAL_RULES)
+            self.meta = data.get("meta", self.meta)
+            return
 
         # Seed initial bank
         self.episodic_memories = list(DEFAULT_EPISODIC_MEMORIES)
@@ -429,7 +431,7 @@ class AgentMemoryEngine:
         self.save_memories()
 
     def save_memories(self) -> None:
-        """Persist current memory bank to disk."""
+        """Persist current memory bank to disk atomically."""
         data = {
             "meta": self.meta,
             "coin_profiles": self.coin_profiles,
@@ -437,9 +439,7 @@ class AgentMemoryEngine:
             "episodic_memories": self.episodic_memories
         }
         try:
-            os.makedirs(os.path.dirname(self.memory_file), exist_ok=True)
-            with open(self.memory_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+            atomic_write_json(self.memory_file, data, indent=2, ensure_ascii=False)
         except Exception as e:
             print(f"[AgentMemory] Error saving memories: {e}")
 
@@ -813,14 +813,35 @@ class AgentMemoryEngine:
         Cognitive post-mortem reflection when a trade is closed in the journal or live engine.
         Synthesizes the root cause, extracts actionable rules, updates coin profile, and logs memory.
         """
-        symbol = trade_data.get("symbol", "UNKNOWN").upper()
-        setup = trade_data.get("setup", trade_data.get("setup_type", "Standard SMC")).strip()
-        direction = trade_data.get("direction", trade_data.get("side", "BUY")).upper()
-        pnl_pct = float(trade_data.get("pnl_pct", trade_data.get("pnl", 0.0)))
-        exit_reason = trade_data.get("exit_reason", trade_data.get("status", "CLOSED")).upper()
-
-        outcome = "WIN" if pnl_pct > 0 else ("LOSS" if pnl_pct < 0 else "BREAKEVEN")
+        raw_symbol = str(trade_data.get("symbol", "UNKNOWN")).upper().replace("-", "").replace("/", "").replace("_", "").strip()
+        symbol = raw_symbol if (raw_symbol.endswith("USDT") or raw_symbol.endswith("USD") or raw_symbol == "UNKNOWN") else (raw_symbol + "USDT")
+        setup = str(trade_data.get("strategy", trade_data.get("setup", trade_data.get("setup_type", "Smart Money Concepts (SMC)")))).strip()
+        direction = str(trade_data.get("side", trade_data.get("direction", "BUY"))).upper()
         
+        net_pnl_usd = float(trade_data.get("net_pnl_usd", trade_data.get("pnl_usd", trade_data.get("pnl", 0.0))))
+        r_multiple = float(trade_data.get("r_multiple", 0.0))
+        pnl_pct = float(trade_data.get("pnl_pct", 0.0))
+        amount_usd = float(trade_data.get("amount_usd", 0.0))
+        if amount_usd <= 0:
+            qty = float(trade_data.get("quantity", 0.0))
+            entry_p = float(trade_data.get("entry_price", 0.0))
+            if qty > 0 and entry_p > 0:
+                amount_usd = qty * entry_p
+        if pnl_pct == 0.0 and amount_usd > 0:
+            pnl_pct = round((net_pnl_usd / amount_usd) * 100.0, 2)
+        elif pnl_pct == 0.0 and r_multiple != 0.0:
+            pnl_pct = round(r_multiple * 2.0, 2)
+
+        exit_reason = str(trade_data.get("exit_reason", trade_data.get("reason", trade_data.get("status", "CLOSED")))).upper()
+
+        # Inferred outcome based on real Net PnL & R-multiple
+        if net_pnl_usd > 0.05 or r_multiple >= 0.1 or pnl_pct >= 0.1:
+            outcome = "WIN"
+        elif net_pnl_usd < -0.05 or r_multiple <= -0.1 or pnl_pct <= -0.1:
+            outcome = "LOSS"
+        else:
+            outcome = "BREAKEVEN"
+
         # Inferred root cause & lesson logic based on Akademi Crypto SMC tenets
         root_cause = ""
         lesson = ""
@@ -828,27 +849,35 @@ class AgentMemoryEngine:
         tags = [symbol.lower().replace("usdt", ""), setup.lower().replace(" ", "_")]
 
         if outcome == "WIN":
-            importance = 8 if pnl_pct >= 3.0 else 6
-            root_cause = f"High confluence execution of {setup}. Price expanded directly into targeted liquidity pool."
-            lesson = f"Continue validating {setup} on {symbol} when higher timeframe trend alignment is preserved."
-            tags.extend(["profit", "take_profit", "high_confluence"])
+            importance = 9 if (r_multiple >= 2.5 or pnl_pct >= 5.0) else 7
+            root_cause = f"High-confluence execution of {setup} on {symbol}. Trend momentum aligned with HTF bias, securing {r_multiple:+.2f}R net profit (+${net_pnl_usd:,.2f})."
+            lesson = f"Continue validating {setup} on {symbol} when higher timeframe order flow confluence is preserved."
+            tags.extend(["profit", "take_profit", "high_confluence", "win"])
         elif outcome == "LOSS":
-            importance = 9 if abs(pnl_pct) >= 1.5 else 7
-            if "breakout" in setup.lower():
-                root_cause = f"Premature entry on {symbol} {setup}. Trapped by smart money liquidity raid/reversal."
-                lesson = f"Avoid entering market orders on {symbol} breakouts without displacement candle confirmation."
-                tags.extend(["stop_loss", "liquidity_trap", "breakout_fail"])
-            elif "fvg" in setup.lower():
-                root_cause = f"FVG invalidated on {symbol}. Momentum was too strong or market structure shifted against bias."
-                lesson = f"When FVG fails on {symbol}, immediately flip bias or wait for HTF equilibrium reclaim."
-                tags.extend(["stop_loss", "fvg_invalidation", "mss"])
+            importance = 10 if (abs(pnl_pct) >= 2.0 or r_multiple <= -1.0) else 8
+            if "LIQUIDATION" in exit_reason or "MARGIN" in exit_reason:
+                root_cause = f"Margin pressure or liquidation threshold breached on {symbol}. Volatility spike exceeded buffer."
+                lesson = f"Mandatory 20x leverage cap and strict 2.0% Fractional Kelly allocation on {symbol} must never be breached."
+                tags.extend(["liquidation_risk", "leverage_cap", "risk_guardrail"])
+            elif "ANTI_STALL" in exit_reason or "TIME_STOP" in exit_reason or "STALL" in exit_reason:
+                root_cause = f"Anti-Stall protection triggered on {symbol}. Price failed to expand within momentum window, avoiding adverse chop."
+                lesson = f"Avoid entering market orders on {symbol} without displacement candle; avoid slow consolidation setups without immediate volume."
+                tags.extend(["anti_stall", "time_stop", "momentum_loss"])
+            elif "BREAKOUT" in setup.lower() or "ORB" in setup.lower() or "TURTLE" in setup.lower():
+                root_cause = f"False breakout trap on {symbol} ({setup}). Price swept liquidity above/below range before sharp reversal."
+                lesson = f"Require 15m/1H candle close confirmation and CVD absorption divergence before taking breakout entries on {symbol}."
+                tags.extend(["stop_loss", "false_breakout", "liquidity_trap", "sfp"])
+            elif "SMC" in setup.lower() or "FVG" in setup.lower() or "ORDER BLOCK" in setup.lower():
+                root_cause = f"FVG/Order Block invalidation on {symbol}. Counter-trend momentum swept structural invalidation level."
+                lesson = f"Wait for Lower Timeframe (1m-5m) Market Structure Shift (MSS) displacement before entering on HTF FVG/OB retests."
+                tags.extend(["stop_loss", "fvg_invalidation", "mss_confirmation"])
             else:
-                root_cause = f"Invalidation hit due to adverse market volatility / stop sweep."
-                lesson = f"Maintain strict fractional Kelly stop loss discipline on {symbol} and check macro news shields."
-                tags.extend(["stop_loss", "risk_management"])
+                root_cause = f"Adverse volatility stop-out on {symbol} {setup} (net: -${abs(net_pnl_usd):,.2f}, {r_multiple:+.2f}R)."
+                lesson = f"Maintain strict fractional Kelly stop loss discipline on {symbol} and check Macro News Blackout Shield."
+                tags.extend(["stop_loss", "risk_discipline"])
         else:
-            root_cause = "Position closed at Breakeven. Trailing stop or BE protection triggered."
-            lesson = "Breakeven management preserved capital effectively against sudden liquidity retracement."
+            root_cause = f"Position closed near Breakeven (+${net_pnl_usd:,.2f} | {r_multiple:+.2f}R). Micro-BE or SMC trailing protection locked."
+            lesson = f"Capital preservation protected portfolio equity from retracement chop on {symbol}."
             tags.extend(["breakeven", "capital_preservation"])
 
         # Create new episodic memory
@@ -860,7 +889,9 @@ class AgentMemoryEngine:
             "setup_type": setup,
             "direction": direction,
             "outcome": outcome,
-            "pnl_pct": pnl_pct,
+            "net_pnl_usd": round(net_pnl_usd, 2),
+            "r_multiple": round(r_multiple, 2),
+            "pnl_pct": round(pnl_pct, 2),
             "root_cause": root_cause,
             "lesson_learned": lesson,
             "tags": tags,
@@ -872,12 +903,44 @@ class AgentMemoryEngine:
         self.episodic_memories.insert(0, new_memory)
 
         # Update Coin Profile Stats
-        if symbol in self.coin_profiles:
-            prof = self.coin_profiles[symbol]
-            if outcome == "LOSS" and "breakout" in setup.lower():
-                prof["false_breakout_bias"] = "HIGH"
-            prof["last_traded_outcome"] = outcome
-            prof["updated_at"] = datetime.now(timezone.utc).isoformat()
+        prof = self.get_or_create_coin_profile(symbol)
+        prof["total_trades"] = prof.get("total_trades", 0) + 1
+        prof["wins"] = prof.get("wins", 0) + (1 if outcome == "WIN" else 0)
+        prof["losses"] = prof.get("losses", 0) + (1 if outcome == "LOSS" else 0)
+        prof["breakevens"] = prof.get("breakevens", 0) + (1 if outcome == "BREAKEVEN" else 0)
+        prof["net_pnl_usd"] = round(prof.get("net_pnl_usd", 0.0) + net_pnl_usd, 2)
+        tot = prof["total_trades"]
+        prof["win_rate_pct"] = round((prof["wins"] / tot * 100.0) if tot > 0 else 0.0, 1)
+        prof["last_traded_outcome"] = outcome
+        prof["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+        # Adaptive behavioral bias
+        if prof["losses"] >= 2 and ("breakout" in setup.lower() or "orb" in setup.lower()):
+            prof["false_breakout_bias"] = "HIGH"
+        if prof["losses"] >= 3 and prof["win_rate_pct"] < 35.0:
+            prof["wick_risk_rating"] = "VERY_HIGH"
+            prof["volatility_regime"] = "HIGH"
+        elif prof["win_rate_pct"] >= 65.0 and prof["total_trades"] >= 4:
+            prof["false_breakout_bias"] = "LOW"
+
+        # Autonomous Tactical Heuristic Rule Synthesis
+        if outcome == "LOSS" and prof["losses"] >= 2:
+            auto_rule_id = f"RULE-AUTO-{symbol}"
+            existing_rule = next((r for r in self.tactical_rules if r.get("id") == auto_rule_id), None)
+            rule_text = f"Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on {symbol} due to elevated wick risk."
+            if existing_rule:
+                existing_rule["rule_text"] = rule_text
+                existing_rule["confidence"] = min(0.99, round(existing_rule.get("confidence", 0.85) + 0.04, 2))
+                existing_rule["updated_at"] = datetime.now(timezone.utc).isoformat()
+            else:
+                self.tactical_rules.append({
+                    "id": auto_rule_id,
+                    "category": "DYNAMIC_DEFENSE",
+                    "rule_text": rule_text,
+                    "confidence": 0.88,
+                    "trigger_conditions": [symbol.lower(), "defensive_entry", "volatility_guard"],
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                })
 
         # Update metadata
         self.meta["last_reflection_at"] = datetime.now(timezone.utc).isoformat()
@@ -894,7 +957,9 @@ class AgentMemoryEngine:
             "status": "SUCCESS",
             "memory_id": mem_id,
             "outcome": outcome,
-            "pnl_pct": pnl_pct,
+            "net_pnl_usd": round(net_pnl_usd, 2),
+            "r_multiple": round(r_multiple, 2),
+            "pnl_pct": round(pnl_pct, 2),
             "root_cause": root_cause,
             "lesson_learned": lesson,
             "system_retention_score": self.meta["system_retention_score"]

@@ -25,16 +25,10 @@ JOURNAL_FILE = os.path.join(DATA_DIR, "trade_journal_ledger.json")
 
 sys.path.insert(0, TOOLS_DIR)
 import binance_client
+from atomic_json_store import atomic_read_json, atomic_write_json
 
 def load_journal():
-    os.makedirs(DATA_DIR, exist_ok=True)
-    if os.path.exists(JOURNAL_FILE):
-        try:
-            with open(JOURNAL_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return []
+    return atomic_read_json(JOURNAL_FILE, default=[])
 
 def load_trade_ledger():
     """Alias for load_journal() to provide full ledger of closed trades."""
@@ -43,20 +37,11 @@ def load_trade_ledger():
 def load_bot_executions():
     """Loads recorded bot executions from trading_desk_history.json."""
     desk_history_file = os.path.join(DATA_DIR, "trading_desk_history.json")
-    if os.path.exists(desk_history_file):
-        try:
-            with open(desk_history_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return [d for d in data if d.get("action") == "EXECUTE_TRADE"]
-        except Exception:
-            pass
-    return []
+    return atomic_read_json(desk_history_file, default=[])
 
 def save_journal(trades):
-    os.makedirs(DATA_DIR, exist_ok=True)
     try:
-        with open(JOURNAL_FILE, "w", encoding="utf-8") as f:
-            json.dump(trades, f, indent=2, ensure_ascii=False)
+        atomic_write_json(JOURNAL_FILE, trades, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"[Trade Journal] Error saving journal: {e}")
 

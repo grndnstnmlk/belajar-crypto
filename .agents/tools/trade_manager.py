@@ -32,22 +32,14 @@ import market_structure
 import trade_journal
 import ai_risk_officer
 import pyramid_runner_engine
+from atomic_json_store import atomic_read_json, atomic_write_json
 
 def load_trade_metadata():
-    os.makedirs(DATA_DIR, exist_ok=True)
-    if os.path.exists(TRADE_META_FILE):
-        try:
-            with open(TRADE_META_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return {}
+    return atomic_read_json(TRADE_META_FILE, default={})
 
 def save_trade_metadata(meta):
-    os.makedirs(DATA_DIR, exist_ok=True)
     try:
-        with open(TRADE_META_FILE, "w", encoding="utf-8") as f:
-            json.dump(meta, f, indent=2, ensure_ascii=False)
+        atomic_write_json(TRADE_META_FILE, meta, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"[Trade Manager] Error saving metadata: {e}")
 
