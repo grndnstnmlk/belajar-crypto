@@ -321,6 +321,35 @@ def get_ticker(symbol="BTCUSDT"):
         print(f"Gagal mengambil ticker dari Binance: {e}")
         return None
 
+def get_realtime_mark_price(symbol, is_demo=True, fallback_rest=True):
+    """
+    Returns high-frequency real-time mark price for a symbol.
+    Prioritizes ultra-low latency (< 0.05ms) in-memory Binance WebSocket stream.
+    Seamlessly falls back to REST HTTP API if stream is offline or symbol is cold.
+    """
+    try:
+        import binance_ws_stream
+        p = binance_ws_stream.get_mark_price(symbol, max_age_seconds=6.0)
+        if p and p > 0:
+            return p
+    except Exception:
+        pass
+
+    if not fallback_rest:
+        return 0.0
+
+    # Fallback to REST
+    try:
+        sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+        if not sym_clean.endswith("USDT") and not sym_clean.endswith("BUSD"):
+            sym_clean += "USDT"
+        res = send_signed_request("/fapi/v1/premiumIndex", method="GET", params={"symbol": sym_clean}, is_demo=is_demo)
+        if res and "markPrice" in res:
+            return float(res["markPrice"])
+    except Exception:
+        pass
+    return 0.0
+
 def set_leverage(symbol, leverage, is_demo=True, user_email=None):
     params = {"symbol": symbol, "leverage": int(leverage)}
     res = send_signed_request("/fapi/v1/leverage", method="POST", params=params, is_demo=is_demo, user_email=user_email)
@@ -597,6 +626,65 @@ def sync_exchange_stop_loss(symbol, side, sl_price, is_demo=True, user_email=Non
                 "symbol": sym_clean
             }
         else:
+            err_code = res.get("code") if isinstance(res, dict) else None
+            err_msg = str(res.get("msg") if isinstance(res, dict) else res)
+            
+            # Emergency Handling for Binance Error -2021 ("Order would immediately trigger")
+            # If triggerPrice is already breached by markPrice, immediately exit via MARKET order to cap risk!
+            if err_code == -2021 or "immediately trigger" in err_msg.lower():
+                print(f"🚨 [EMERGENCY -2021 SL BREACH DETECTED] {sym_clean}: Trigger price ${target_sl_str} sudah terlewati oleh mark price saat ini! Melakukan eksekusi MARKET EXIT darurat...")
+                pos_list = get_positions(user_email=user_email, is_demo=is_demo, verbose=False)
+                target_pos = None
+                for p in pos_list:
+                    if p.get("symbol") == sym_clean:
+                        target_pos = p
+                        break
+                
+                if target_pos and abs(float(target_pos.get("positionAmt", 0))) > 0:
+                    pos_amt = abs(float(target_pos.get("positionAmt", 0)))
+                    formatted_qty = format_qty_precision(sym_clean, pos_amt, is_demo=is_demo)
+                    close_res = send_signed_request(
+                        "/fapi/v1/order",
+                        method="POST",
+                        params={
+                            "symbol": sym_clean,
+                            "side": opp_side,
+                            "type": "MARKET",
+                            "quantity": formatted_qty,
+                            "reduceOnly": "true"
+                        },
+                        is_demo=is_demo,
+                        user_email=user_email
+                    )
+                    print(f"🛑 [EMERGENCY MARKET EXIT EXECUTED] {sym_clean} ({opp_side} {formatted_qty}) ditutup di bursa via MARKET: {close_res}")
+                    try:
+                        import telegram_notifier
+                        telegram_notifier.send_telegram_broadcast(
+                            f"🚨 <b>EMERGENCY STOP LOSS EXIT (ERROR -2021)</b> 🚨\n"
+                            f"💎 <b>Simbol:</b> <code>{sym_clean}</code>\n"
+                            f"🛑 <b>Target SL:</b> <code>${target_sl_str}</code> (Harga telah melampaui level SL)\n"
+                            f"⚡ <b>Tindakan:</b> Posisi seketika ditutup via <b>MARKET ORDER</b> ({opp_side} {formatted_qty}) demi memotong kerugian dan menghentikan pelebaran drawdown!\n"
+                            f"<i>Sistem fail-safe otomatis menjaga modal tersisa.</i>"
+                        )
+                    except Exception:
+                        pass
+
+                    return {
+                        "success": True,
+                        "action": "EMERGENCY_CLOSED",
+                        "code": -2021,
+                        "price": target_sl_str,
+                        "symbol": sym_clean,
+                        "close_res": close_res
+                    }
+                else:
+                    return {
+                        "success": True,
+                        "action": "ALREADY_CLOSED",
+                        "code": -2021,
+                        "symbol": sym_clean
+                    }
+
             print(f"⚠️ [HARD SL SYNC WARNING] Gagal memasang STOP_MARKET di Binance untuk {sym_clean}: {res}")
             return {
                 "success": False,

@@ -25,6 +25,7 @@ TRADE_META_FILE = os.path.join(DATA_DIR, "active_trades_meta.json")
 
 sys.path.insert(0, TOOLS_DIR)
 import binance_client
+import binance_ws_stream
 import telegram_notifier
 import macro_news_shield
 import market_structure
@@ -50,11 +51,11 @@ def save_trade_metadata(meta):
     except Exception as e:
         print(f"[Trade Manager] Error saving metadata: {e}")
 
-def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity, is_scalp=False, ai_thesis=None, ai_confidence=None, be_trigger_r=0.60, tp1_target_r=1.25, anti_stall_minutes=20):
+def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity, is_scalp=False, ai_thesis=None, ai_confidence=None, be_trigger_r=0.60, tp1_target_r=1.25, anti_stall_minutes=20, strategy_name=None):
     """
     Registers a newly opened trade to begin dynamic lifecycle tracking.
     Supports is_scalp flag for accelerated Breakeven (+0.60R), Partial Scale-out (+1.25R), and Anti-Stall Time-Stop (20m).
-    Stores AI Senior Quant Officer thesis and confidence for dashboard and autopsy.
+    Stores AI Senior Quant Officer thesis, confidence, and strategy attribution name for journal analytics.
     """
     meta = load_trade_metadata()
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
@@ -62,9 +63,12 @@ def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budge
     
     r_distance = abs(entry_price - sl_price) if (sl_price and sl_price > 0) else (entry_price * 0.015)
     
+    strat = strategy_name or ("Institutional Scalper (5m)" if is_scalp else "Smart Money Concepts (SMC)")
+    
     meta[sym_clean] = {
         "symbol": sym_clean,
         "side": side_clean,
+        "strategy": strat,
         "entry_price": float(entry_price),
         "initial_sl": float(sl_price) if sl_price else (entry_price - r_distance if side_clean == "BUY" else entry_price + r_distance),
         "current_sl": float(sl_price) if sl_price else None,
@@ -217,10 +221,12 @@ def execute_manual_partial_tp(symbol, user_email=None, is_demo=True):
 
     # 5. Record to trade journal ledger
     try:
+        strat = t_data.get("strategy") or ("Institutional Scalper (5m)" if t_data.get("is_scalp") else "Smart Money Concepts (SMC)")
         trade_journal.record_closed_trade({
             "id": f"SCALEOUT-{sym_clean}-{int(time.time())}",
             "symbol": sym_clean,
             "side": side,
+            "strategy": strat,
             "entry_price": entry_p,
             "exit_price": mark_p,
             "quantity": half_qty,
@@ -549,10 +555,12 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
             # Automated Trade Journal Logging (Akademi Crypto Module 03)
             try:
                 import trade_journal
+                strat = t_info.get("strategy") or ("Institutional Scalper (5m)" if t_info.get("is_scalp") else "Smart Money Concepts (SMC)")
                 trade_journal.record_closed_trade({
                     "id": f"BINANCE-{sym}-{int(time.time())}",
                     "symbol": sym,
                     "side": side,
+                    "strategy": strat,
                     "entry_price": entry_p,
                     "exit_price": exit_price,
                     "quantity": qty,
@@ -596,6 +604,18 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
         entry_price = float(p.get("entryPrice", 0))
         mark_price = float(p.get("markPrice", 0))
         upnl = float(p.get("unRealizedProfit", 0))
+
+        # High-Frequency Sub-50ms WebSocket Mark Price Integration
+        try:
+            ws_mp = binance_ws_stream.get_mark_price(sym, max_age_seconds=6.0)
+            if ws_mp and ws_mp > 0:
+                mark_price = ws_mp
+                if side == "BUY":
+                    upnl = (mark_price - entry_price) * abs(amt)
+                else:
+                    upnl = (entry_price - mark_price) * abs(amt)
+        except Exception:
+            pass
 
         if entry_price <= 0 or mark_price <= 0:
             continue
@@ -928,10 +948,12 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                             print(f"[Telegram Warning] {e}")
 
                         try:
+                            strat = t_data.get("strategy") or "AI Adaptive Harvester"
                             trade_journal.record_closed_trade({
                                 "id": f"AIHARVEST-{sym}-{int(time.time())}",
                                 "symbol": sym,
                                 "side": side,
+                                "strategy": strat,
                                 "entry_price": entry_price,
                                 "exit_price": mark_price,
                                 "quantity": current_amt,
@@ -1058,10 +1080,12 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
 
                     # Record to trade journal ledger
                     try:
+                        strat = t_data.get("strategy") or ("Institutional Scalper (5m)" if t_data.get("is_scalp") else "Smart Money Concepts (SMC)")
                         trade_journal.record_closed_trade({
                             "id": f"SCALEOUT-{sym}-{int(time.time())}",
                             "symbol": sym,
                             "side": side,
+                            "strategy": strat,
                             "entry_price": entry_price,
                             "exit_price": mark_price,
                             "quantity": half_qty,
@@ -1383,6 +1407,11 @@ class FastPositionWatcher(threading.Thread):
 
 def start_fast_watcher(user_email=None, is_demo=True, interval_seconds=8, poll_interval=None):
     global _FAST_WATCHER_THREAD
+    # Ensure real-time WebSocket Mark Price streaming is active (< 50ms)
+    try:
+        binance_ws_stream.start_stream(is_demo=is_demo)
+    except Exception:
+        pass
     actual_interval = poll_interval if poll_interval is not None else interval_seconds
     if _FAST_WATCHER_THREAD is None or not _FAST_WATCHER_THREAD.is_alive():
         _FAST_WATCHER_THREAD = FastPositionWatcher(user_email=user_email, is_demo=is_demo, interval_seconds=actual_interval)

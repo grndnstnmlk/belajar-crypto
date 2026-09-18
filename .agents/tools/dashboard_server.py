@@ -190,6 +190,30 @@ _feed_cache = None
 _last_feed_fetch_time = 0
 _intel_cache = None
 _last_intel_fetch_time = 0
+_feed_updater_started = False
+
+def _run_feed_cache_updater():
+    """
+    High-performance background daemon updater (P1 Optimization).
+    Pre-computes feed data every 1.8 seconds asynchronously so HTTP requests to /api/feed
+    resolve instantly (< 1ms) directly from RAM with zero network blocking.
+    """
+    time.sleep(1.0)
+    while True:
+        try:
+            get_dashboard_feed_data(force_refresh=True)
+        except Exception:
+            pass
+        time.sleep(1.8)
+
+def ensure_feed_updater_running():
+    global _feed_updater_started
+    if not _feed_updater_started:
+        _feed_updater_started = True
+        t = threading.Thread(target=_run_feed_cache_updater, daemon=True, name="DashboardFeedCacheDaemon")
+        t.start()
+
+ensure_feed_updater_running()
 
 def get_live_watchlist_rs():
     """
@@ -208,7 +232,15 @@ def get_live_watchlist_rs():
 def get_dashboard_feed_data(force_refresh=False):
     global _feed_cache, _last_feed_fetch_time
     now = time.time()
-    if not force_refresh and _feed_cache is not None and (now - _last_feed_fetch_time) < 2.5:
+    ensure_feed_updater_running()
+
+    # Fast-Path: Serve from in-memory RAM cache instantly (< 1ms) if not explicitly forced
+    if not force_refresh and _feed_cache is not None:
+        try:
+            import binance_ws_stream
+            _feed_cache["ws_stream"] = binance_ws_stream.get_stream_health()
+        except Exception:
+            pass
         return _feed_cache
 
     feed_path = os.path.join(DATA_DIR, "dashboard_feed.json")
@@ -219,6 +251,17 @@ def get_dashboard_feed_data(force_refresh=False):
                 feed = json.load(f)
         except Exception:
             pass
+
+    # Fallback fast-path: If disk cache exists and refresh not forced, return disk feed while background worker computes
+    if not force_refresh and feed and _feed_cache is None:
+        try:
+            import binance_ws_stream
+            feed["ws_stream"] = binance_ws_stream.get_stream_health()
+        except Exception:
+            pass
+        _feed_cache = feed
+        _last_feed_fetch_time = now
+        return _feed_cache
 
     # Merge with active trades meta
     meta = trade_manager.load_trade_metadata()
@@ -389,6 +432,18 @@ def get_dashboard_feed_data(force_refresh=False):
     # RS Radar Live Watchlist (Prices & Relative Strength vs BTC)
     feed["watchlist"] = get_live_watchlist_rs()
 
+    # Local Cognitive AI Brain Telemetry
+    try:
+        import local_cognitive_brain
+        feed["cognitive_stream"] = local_cognitive_brain.get_latest_cognitive_stream(limit=5)
+        feed["cognitive_brain_status"] = {
+            "reachable": local_cognitive_brain._PROBE_CACHE.get("result", (False, None, None))[0],
+            "model": local_cognitive_brain._PROBE_CACHE.get("result", (False, None, None))[2] or "local_quant_reflex_engine"
+        }
+    except Exception:
+        feed["cognitive_stream"] = []
+        feed["cognitive_brain_status"] = {"reachable": False, "model": "local_quant_reflex_engine"}
+
     # Tauric Adversarial Debates (Bull vs Bear)
     try:
         import adversarial_debate
@@ -433,6 +488,13 @@ def get_dashboard_feed_data(force_refresh=False):
     except Exception:
         feed["nautilus_risk_guard"] = {"status": "ACTIVE_SAFE"}
 
+    # Native Binance Futures WebSocket Sub-50ms Stream Telemetry
+    try:
+        import binance_ws_stream
+        feed["ws_stream"] = binance_ws_stream.get_stream_health()
+    except Exception:
+        feed["ws_stream"] = {"status": "OFFLINE", "connected": False}
+
     # ATLAS GIC - Soros Reflexivity & Karpathy Autoresearch Telemetry
     try:
         import soros_reflexivity_engine
@@ -450,6 +512,11 @@ def get_dashboard_feed_data(force_refresh=False):
 
     _feed_cache = feed
     _last_feed_fetch_time = now
+    try:
+        with open(feed_path, "w", encoding="utf-8") as f:
+            json.dump(feed, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
     return feed
 
 def get_market_intelligence_data(force_refresh=False):
@@ -724,6 +791,27 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
         elif path == "/api/debate":
             import adversarial_debate
             data = adversarial_debate.load_debate_history(limit=15)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/ai/cognitive_stream":
+            import local_cognitive_brain
+            data = local_cognitive_brain.get_latest_cognitive_stream(limit=15)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/ws/status":
+            try:
+                import binance_ws_stream
+                data = binance_ws_stream.get_stream_health()
+            except Exception as e:
+                data = {"error": str(e)}
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
@@ -2386,7 +2474,8 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                         risk_budget_usd=risk_budget,
                         quantity=qty,
                         is_scalp=True,
-                        ai_thesis=f"External TradingView Webhook: {strategy}"
+                        ai_thesis=f"External TradingView Webhook: {strategy}",
+                        strategy_name=strategy or "External TradingView Webhook"
                     )
                     try:
                         telegram_notifier.notify_trade_opened(
@@ -2469,6 +2558,12 @@ def kill_stale_port_holder(port):
 def run_server(port=PORT):
     os.chdir(ROOT_DIR)
     kill_stale_port_holder(port)
+    # Auto-start ultra-low latency WebSocket stream daemon (< 50ms)
+    try:
+        import binance_ws_stream
+        binance_ws_stream.start_stream(is_demo=True)
+    except Exception:
+        pass
     try:
         with ThreadedTCPServer(("", port), MissionControlHandler) as httpd:
             print("=" * 65)

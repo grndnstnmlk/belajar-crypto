@@ -1376,6 +1376,11 @@
           <span class="status-dot-pulse" style="background:var(--color-blue); box-shadow:0 0 8px var(--color-blue);"></span>
           <span>BTC: TRENDING</span>
         </span>
+
+        <span class="status-capsule green" id="header-ws-pill" title="Native Binance Futures WebSocket (<50ms)" style="font-size:10px;">
+          <span class="status-dot-pulse" style="background:var(--color-green); box-shadow:0 0 8px var(--color-green);"></span>
+          <span id="header-ws-text">WS &lt;50MS</span>
+        </span>
       </div>
 
       <!-- Segmented Navigation Tabs -->
@@ -1755,6 +1760,39 @@
             </div>
           </div>
 
+          <!-- Strategy Performance Matrix Section (P2 Telemetry) -->
+          <div class="bento-section-block" style="margin-top: 16px; margin-bottom: 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+              <span style="font-weight:700; font-size:13px; color:var(--text-primary); letter-spacing:-0.02em;">
+                { Strategy Performance Matrix }
+              </span>
+              <span class="status-pill blue mono" style="font-size:9px;">ATTRIBUTION ENGINE</span>
+            </div>
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Strategy Archetype</th>
+                    <th>Total Trades</th>
+                    <th>Win / Loss</th>
+                    <th>Win Rate %</th>
+                    <th>Payoff Ratio</th>
+                    <th>Half-Kelly</th>
+                    <th>Net Realized PnL ($)</th>
+                    <th>Allocated Risk</th>
+                  </tr>
+                </thead>
+                <tbody id="strategy-matrix-body">
+                  <tr>
+                    <td colspan="8" style="text-align:center; padding:18px; color:var(--text-muted);">
+                      Calculating strategy performance matrix & Kelly allocations...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- Table Container -->
           <div class="data-table-wrap">
             <table class="data-table">
@@ -1763,6 +1801,7 @@
                   <th>Close Time</th>
                   <th>Symbol</th>
                   <th>Side</th>
+                  <th>Strategy</th>
                   <th>Entry Price</th>
                   <th>Exit Price</th>
                   <th>Net Realized PnL</th>
@@ -1772,7 +1811,7 @@
               </thead>
               <tbody id="ledger-table-body">
                 <tr>
-                  <td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">
+                  <td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);">
                     Loading closed trades history...
                   </td>
                 </tr>
@@ -1840,6 +1879,25 @@
                 <span class="status-pill green mono" id="col-count-exec">0</span>
               </div>
               <div class="kanban-col-body" id="col-body-exec"></div>
+            </div>
+          </div>
+
+          <!-- Local Cognitive AI Consciousness Stream (P2 Telemetry) -->
+          <div class="bento-section-block" style="margin-top: 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap:wrap; gap:8px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 3.31 2.01 6.16 4.9 7.37L9 22l3-1 3 1 .1-4.63A8.003 8.003 0 0 0 20 10a8 8 0 0 0-8-8z"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>
+                <span style="font-weight:700; font-size:14px; color:var(--text-primary); letter-spacing:-0.02em;">{ Local Cognitive AI Consciousness Stream }</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="status-pill purple mono" id="cognitive-engine-pill"><span class="pulse-dot"></span>ASYNC REASONING WORKER</span>
+                <button class="btn btn-ghost btn-sm" onclick="loadCognitiveStream()">🔄 Refresh Stream</button>
+              </div>
+            </div>
+            <div class="cognitive-stream-grid" id="cognitive-stream-list" style="display:flex; flex-direction:column; gap:12px;">
+              <div style="padding:24px; text-align:center; color:var(--text-muted); background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md);">
+                Connecting to local cognitive brain stream...
+              </div>
             </div>
           </div>
         </div>
@@ -2106,6 +2164,7 @@
         loadJournalData();
       } else if (viewName === 'paperclip') {
         loadPaperclipData();
+        loadCognitiveStream();
       } else if (viewName === 'memory') {
         loadMemoryData();
       } else if (viewName === 'dexradar') {
@@ -2302,6 +2361,24 @@
                 priceEl.classList.add(newPrice > lastActiveSymPrice ? 'data-flash-up' : 'data-flash-down');
               }
               lastActiveSymPrice = newPrice;
+            }
+          }
+        }
+
+        // Update WebSocket Stream Telemetry Pill
+        if (data.ws_stream) {
+          const wsPill = document.getElementById('header-ws-pill');
+          const wsText = document.getElementById('header-ws-text');
+          if (wsPill && wsText) {
+            if (data.ws_stream.connected && data.ws_stream.is_healthy) {
+              wsPill.className = 'status-capsule green';
+              wsText.innerText = `WS <50MS (${data.ws_stream.pairs_streaming || 789})`;
+            } else if (data.ws_stream.connected) {
+              wsPill.className = 'status-capsule blue';
+              wsText.innerText = 'WS CONNECTING';
+            } else {
+              wsPill.className = 'status-capsule amber';
+              wsText.innerText = 'WS REST-FALLBACK';
             }
           }
         }
@@ -2918,6 +2995,50 @@
         }
         if (ttEl) ttEl.innerText = m.total_closed_trades || m.total_trades || (data.ledger ? data.ledger.length : 891);
 
+        // Populate Strategy Performance Matrix (P2 Telemetry)
+        const smBody = document.getElementById('strategy-matrix-body');
+        if (smBody) {
+          const byStrat = m.by_strategy || {};
+          const stratKeys = Object.keys(byStrat);
+          if (stratKeys.length === 0) {
+            smBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:18px; color:var(--text-muted);">No strategy attribution data available yet.</td></tr>`;
+          } else {
+            smBody.innerHTML = stratKeys.map(k => {
+              const s = byStrat[k];
+              const wr = s.win_rate !== undefined ? s.win_rate : (s.trades > 0 ? (s.wins / s.trades * 100) : 0);
+              const wrColor = wr >= 50 ? 'var(--color-green)' : (wr >= 35 ? 'var(--color-amber)' : 'var(--color-red)');
+              const pnl = s.pnl !== undefined ? s.pnl : 0;
+              const pnlColor = pnl >= 0 ? 'var(--color-green)' : 'var(--color-red)';
+              const pnlSign = pnl >= 0 ? '+' : '';
+              const payoff = s.payoff_ratio !== undefined ? s.payoff_ratio : 1.0;
+              const halfKelly = s.half_kelly_pct !== undefined ? s.half_kelly_pct : 0.0;
+              const recRisk = s.recommended_risk_pct !== undefined ? s.recommended_risk_pct : 1.50;
+              const riskBadgeClass = recRisk >= 1.75 ? 'green' : (recRisk >= 1.25 ? 'blue' : 'amber');
+
+              return `
+                <tr>
+                  <td style="font-weight:700; color:var(--text-primary);">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span class="status-pill purple mono" style="font-size:9.5px; padding:2px 8px;">${k}</span>
+                    </div>
+                  </td>
+                  <td class="mono">${s.trades || 0}</td>
+                  <td class="mono"><span style="color:var(--color-green); font-weight:600;">${s.wins || 0}W</span> / <span style="color:var(--color-red); font-weight:600;">${s.losses || 0}L</span></td>
+                  <td class="mono" style="color:${wrColor}; font-weight:700;">${wr.toFixed(1)}%</td>
+                  <td class="mono">1:${payoff.toFixed(2)}</td>
+                  <td class="mono" style="color:${halfKelly > 0 ? 'var(--color-cyan)' : 'var(--text-muted)'}; font-weight:600;">${halfKelly.toFixed(1)}%</td>
+                  <td class="mono" style="color:${pnlColor}; font-weight:700;">${pnlSign}$${pnl.toFixed(2)}</td>
+                  <td>
+                    <span class="status-pill ${riskBadgeClass} mono" style="font-size:9.5px; font-weight:700;">
+                      ${recRisk.toFixed(2)}% RISK
+                    </span>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+          }
+        }
+
         const tbody = document.getElementById('ledger-table-body');
         if (tbody) {
           let trades = data.ledger || data.closed_trades || [];
@@ -2928,7 +3049,7 @@
           }
 
           if (trades.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--text-muted);">No closed trades recorded yet.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">No closed trades recorded yet.</td></tr>`;
             return;
           }
 
@@ -2942,6 +3063,7 @@
                 <td class="mono" style="color:var(--text-muted);">${t.exit_time || t.timestamp || 'Recent'}</td>
                 <td style="font-weight:700;">${t.symbol}</td>
                 <td><span class="pos-side-pill ${(t.side||'BUY').toUpperCase() === 'BUY' || (t.side||'BUY').toUpperCase() === 'LONG' ? 'long' : 'short'}">${t.side || 'LONG'}</span></td>
+                <td><span class="status-pill purple mono" style="font-size:9px; padding:2px 6px;">${t.strategy || 'Smart Money Concepts (SMC)'}</span></td>
                 <td class="mono">$${(t.entry_price || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}</td>
                 <td class="mono">$${(t.exit_price || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}</td>
                 <td class="mono" style="color:${pnlColor}; font-weight:700;">${pnlSign}$${pnl.toFixed(2)}</td>
@@ -3091,8 +3213,96 @@
             }
           }
         });
+        // Trigger live cognitive stream refresh with paperclip
+        loadCognitiveStream();
       } catch (e) {
         console.warn("Could not load paperclip:", e);
+      }
+    }
+
+    // View 4: Local Cognitive AI Consciousness Stream (P2 Telemetry)
+    async function loadCognitiveStream() {
+      const container = document.getElementById('cognitive-stream-list');
+      if (!container) return;
+
+      try {
+        const res = await fetch('/api/ai/cognitive_stream');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const stream = await res.json();
+
+        if (!Array.isArray(stream) || stream.length === 0) {
+          container.innerHTML = `
+            <div style="padding:24px; text-align:center; color:var(--text-muted); background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md);">
+              No cognitive stream decisions recorded yet. Run bot scans to generate real-time AI dialectic reasoning.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = stream.map(item => {
+          const verdict = (item.verdict || 'APPROVE').toUpperCase();
+          let verdictClass = 'green';
+          if (verdict === 'ADJUST_RISK') verdictClass = 'amber';
+          else if (verdict === 'VETO' || verdict === 'REJECT') verdictClass = 'red';
+
+          const side = (item.side || 'BUY').toUpperCase();
+          const sideClass = (side === 'BUY' || side === 'LONG') ? 'long' : 'short';
+          const latency = typeof item.latency_sec === 'number' ? (item.latency_sec < 0.05 ? `${(item.latency_sec * 1000).toFixed(1)}ms` : `${item.latency_sec.toFixed(2)}s`) : '0.00s';
+          const conf = item.confidence !== undefined ? item.confidence : 50;
+          const riskScale = item.risk_scale !== undefined ? `${item.risk_scale}x` : '1.0x';
+          const provider = item.provider || 'local_reflex_engine';
+
+          return `
+            <div class="cognitive-card" style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); padding:16px; transition:border-color 0.2s ease;">
+              <!-- Header: Symbol, Side, Verdict, Confidence, Risk, Latency, Timestamp -->
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px; border-bottom:1px solid var(--border-subtle); padding-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span style="font-weight:800; font-size:14px; letter-spacing:-0.02em; color:var(--text-primary);">${item.symbol || 'ASSET'}</span>
+                  <span class="pos-side-pill ${sideClass}">${side}</span>
+                  <span class="status-pill ${verdictClass} mono" style="font-size:10px; font-weight:700;">${verdict}</span>
+                  <span class="status-pill blue mono" style="font-size:9.5px;">CONF: ${conf}%</span>
+                  <span class="status-pill amber mono" style="font-size:9.5px;">RISK: ${riskScale}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; font-size:10.5px; color:var(--text-muted); flex-wrap:wrap;" class="mono">
+                  <span>⚡ ${latency}</span>
+                  <span>🤖 ${provider}</span>
+                  <span>⏱️ ${item.timestamp || 'Recent'}</span>
+                </div>
+              </div>
+
+              <!-- Inner Monologue / Chain-of-Thought (Terminal Style) -->
+              <div style="background:var(--color-just-black); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:10px 12px; margin-bottom:12px; font-family:var(--font-mono); font-size:11px; line-height:1.5;">
+                <div style="color:var(--color-purple); font-size:10px; font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                  <span>&lt;THINK&gt; AUTONOMOUS INNER REASONING MONOLOGUE:</span>
+                </div>
+                <div style="color:var(--text-secondary); white-space:pre-wrap;">${item.thought_process || item.reason || 'Quantitative rule verification active.'}</div>
+              </div>
+
+              <!-- Dialectic Debate Split: Bull vs Bear -->
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px; margin-bottom:10px;">
+                <!-- Bull Argument -->
+                <div style="background:var(--bg-surface); border-left:3px solid var(--color-green); border-radius:0 var(--radius-sm) var(--radius-sm) 0; padding:10px 12px; font-size:11px;">
+                  <div style="font-weight:700; color:var(--color-green); font-size:10px; margin-bottom:4px;" class="mono">▲ BULL CONFLUENCE THESIS</div>
+                  <div style="color:var(--text-secondary); white-space:pre-wrap; line-height:1.4;">${item.bull_argument || 'Positive structure alignment'}</div>
+                </div>
+                <!-- Bear Critique -->
+                <div style="background:var(--bg-surface); border-left:3px solid var(--color-red); border-radius:0 var(--radius-sm) var(--radius-sm) 0; padding:10px 12px; font-size:11px;">
+                  <div style="font-weight:700; color:var(--color-red); font-size:10px; margin-bottom:4px;" class="mono">▼ BEAR COUNTER-ARGUMENT / RISKS</div>
+                  <div style="color:var(--text-secondary); white-space:pre-wrap; line-height:1.4;">${item.bear_critique || 'Macro liquidity risk profile'}</div>
+                </div>
+              </div>
+
+              <!-- Final Verdict Justification -->
+              <div style="font-size:11.5px; color:var(--text-primary); background:rgba(255, 252, 225, 0.03); border:1px dashed var(--border-light); border-radius:var(--radius-sm); padding:8px 12px;">
+                <span style="font-weight:700; color:var(--color-surface-cream);">Verdict Synthesis:</span>
+                <span style="color:var(--text-secondary); margin-left:4px;">${item.reason || 'Confluence checks completed.'}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.warn("Could not load cognitive stream:", e);
       }
     }
 
@@ -3551,6 +3761,7 @@
       loadIntelligenceData();
       loadJournalData();
       loadPaperclipData();
+      loadCognitiveStream();
       loadMemoryData();
       loadDexRadarData();
       loadWhaleTrackerData();
@@ -3567,6 +3778,7 @@
           loadJournalData();
         } else if (activeView === 'paperclip') {
           loadPaperclipData();
+          loadCognitiveStream();
         } else if (activeView === 'memory') {
           loadMemoryData();
         } else if (activeView === 'dexradar') {

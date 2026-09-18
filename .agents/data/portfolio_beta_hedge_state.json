@@ -1,26 +1,41 @@
 {
-  "timestamp": "2026-09-19 00:17:27",
+  "timestamp": "2026-09-19 00:54:17",
   "exposure_summary": {
-    "timestamp": "2026-09-19 00:17:26",
-    "total_positions_count": 0,
-    "total_long_notional_usd": 0.0,
+    "timestamp": "2026-09-19 00:54:17",
+    "total_positions_count": 2,
+    "total_long_notional_usd": 3890.12,
     "total_short_notional_usd": 0.0,
-    "total_gross_notional_usd": 0.0,
-    "net_beta_weighted_delta_usd": 0.0,
-    "delta_skew_pct": 0.0,
-    "portfolio_posture": "BALANCED_OR_NEUTRAL",
-    "posture_badge": "\u26aa DELTA BALANCED",
-    "positions": []
+    "total_gross_notional_usd": 3890.12,
+    "net_beta_weighted_delta_usd": 4057.85,
+    "delta_skew_pct": 104.3,
+    "portfolio_posture": "HEAVY_BULLISH_EXPOSURE",
+    "posture_badge": "\ud83d\udfe2 HEAVY LONG SKEW (High Beta-Risk)",
+    "positions": [
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "notional_usd": 1118.16,
+        "beta": 1.15,
+        "beta_weighted_delta": 1285.88
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "notional_usd": 2771.96,
+        "beta": 1.0,
+        "beta_weighted_delta": 2771.96
+      }
+    ]
   },
   "flash_shock_summary": {
     "is_shock_active": false,
-    "btc_5m_change_pct": 0.04,
+    "btc_5m_change_pct": 0.14,
     "shock_reason": "\ud83d\udfe2 BTC Price Flow Normal / No Flash Crash Detected",
-    "timestamp": "2026-09-19 00:17:27"
+    "timestamp": "2026-09-19 00:54:17"
   },
   "hedge_required": false,
   "recommended_hedge_size_usd": 0.0,
   "hedge_action": "NO_HEDGE_REQUIRED",
-  "hedge_note": "Portfolio exposure is balanced or macro environment is stable.",
+  "hedge_note": "\u26a0\ufe0f High Directional Exposure ($4,057.85 USD). Hedge disiagakan jika BTC breakdown support.",
   "is_demo": true
 }

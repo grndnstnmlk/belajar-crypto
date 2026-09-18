@@ -57,11 +57,21 @@ def parse_env():
 def get_ai_credentials():
     """
     Detects available AI LLM keys in priority order:
+    0. Local Cognitive Brain (Ollama / LM Studio / llama.cpp)
     1. Google Gemini (GEMINI_API_KEY or GOOGLE_API_KEY)
     2. OpenAI (OPENAI_API_KEY)
     3. DeepSeek (DEEPSEEK_API_KEY)
     4. Groq (GROQ_API_KEY)
     """
+    # Check for active Local LLM Brain
+    try:
+        import local_cognitive_brain
+        is_live, ep, mdl = local_cognitive_brain.test_local_llm_connection(timeout=0.25)
+        if is_live and ep:
+            return {"provider": "local_llm", "key": "local_no_auth", "endpoint": ep, "model": mdl}
+    except Exception:
+        pass
+
     env = parse_env()
     gemini_key = env.get("GEMINI_API_KEY") or env.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     if gemini_key:
@@ -92,6 +102,22 @@ def call_llm(prompt, system_prompt=None, temperature=0.2, response_json=False):
 
     if not key or provider == "fallback_quant":
         return None
+
+    # 0. Local Cognitive Brain (Ollama / LM Studio / llama.cpp)
+    if provider == "local_llm":
+        try:
+            import local_cognitive_brain
+            return local_cognitive_brain.query_local_llm(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                model=creds.get("model", "deepseek-r1:8b"),
+                endpoint=creds.get("endpoint", "http://localhost:11434/v1"),
+                temperature=temperature,
+                timeout=4.0,
+                response_json=response_json
+            )
+        except Exception:
+            return None
 
     # 1. Google Gemini API Call
     if provider == "gemini":

@@ -290,6 +290,20 @@ def get_full_quant_risk_summary(balance_usd=1000.0, active_positions=None):
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
+def compute_strategy_kelly_metrics(strategy_name=None):
+    """
+    Computes empirical Kelly Criterion and statistical edge metrics per strategy
+    or for a specified strategy archetype using trade_journal.
+    """
+    try:
+        import trade_journal
+        if strategy_name:
+            return trade_journal.get_strategy_kelly_profile(strategy_name)
+        metrics = trade_journal.calculate_journal_metrics("all")
+        return metrics.get("by_strategy", {})
+    except Exception:
+        return {}
+
 def main():
     print("\n=======================================================")
     print("      📐 INSTITUTIONAL QUANT RISK ENGINE (FINCEPT SUITE)")

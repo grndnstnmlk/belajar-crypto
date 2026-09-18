@@ -609,10 +609,22 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         ema20 = calculate_ema(closes, min(20, len(closes)))
         ema50 = calculate_ema(closes, min(50, len(closes)))
 
+        # Trading Strategies Academy Adaptive Indicator Suite
+        adaptive_intel = None
+        try:
+            import adaptive_indicators
+            adaptive_intel = adaptive_indicators.get_adaptive_market_intelligence(raw_candles, base_period=14)
+        except Exception:
+            pass
+
         print("-------------------------------------------------------")
         print(f"Timeframe        : {bar_clean}")
         rsi_zone = "Oversold (<30)" if rsi14 and rsi14 < 30 else "Overbought (>70)" if rsi14 and rsi14 > 70 else "Neutral (30-70)"
         print(f"RSI (14)         : {rsi14} [{rsi_zone}]")
+        if adaptive_intel:
+            print(f"Adaptive RSI     : {adaptive_intel['adaptive_rsi']} [Period: {adaptive_intel['adaptive_period']} | Vol: {adaptive_intel['volatility_ratio']}x | {adaptive_intel['volatility_regime']}]")
+            if adaptive_intel.get("kama"):
+                print(f"Kaufman AMA      : ${adaptive_intel['kama']:,.4f} ({adaptive_intel['kama_trend']})")
         print(f"EMA 20 / EMA 50  : ${ema20:,.4f} / ${ema50:,.4f}")
 
         # Trend & Structure
@@ -755,6 +767,7 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         "high_24h": high_24h,
         "low_24h": low_24h,
         "rsi": rsi14,
+        "adaptive_intel": adaptive_intel,
         "ema20": ema20,
         "ema50": ema50,
         "bias": bias,

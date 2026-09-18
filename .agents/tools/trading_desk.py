@@ -99,7 +99,7 @@ EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
 
 # Curated High-Performing Crypto Assets on Binance Futures (High Win-Rate Ledger)
 DEFAULT_WATCHLIST = ["BTC", "BNB", "LINK", "SUI", "XRP", "SOL", "NEAR", "ETH"]
-BLACKLIST_COINS = {"SOPH", "ZEC", "ADA", "DOGE", "AVAX", "PROM", "THE", "HOLO", "WLD", "UNI"}
+BLACKLIST_COINS = {"SOPH", "ZEC", "ADA", "DOGE", "AVAX", "PROM", "THE", "HOLO", "WLD", "UNI", "SOXL", "SNXX", "SNDK"}
 
 try:
     import pairlist_pipeline
@@ -227,7 +227,8 @@ def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
         try:
             champions = pairlist_pipeline.get_active_dynamic_pairlist()
             if champions and len(champions) >= 4:
-                return champions[:top_n]
+                merged = ["BTC", "ETH", "SOL"] + [c for c in champions if c not in ["BTC", "ETH", "SOL"] and c not in BLACKLIST_COINS]
+                return merged[:top_n]
         except Exception:
             pass
 
@@ -289,13 +290,23 @@ def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
         print(f" * [Dynamic Screener Note] Fallback to default watchlist: {e}")
         return DEFAULT_WATCHLIST
 
-def get_adaptive_kelly_risk_pct(base_risk_pct=1.5, min_risk=1.0, max_risk=2.0):
+def get_adaptive_kelly_risk_pct(strategy_name=None, base_risk_pct=1.5, min_risk=0.5, max_risk=2.5):
     """
-    Module 03 Quantitative Risk Sizing (Adaptive Half-Kelly Formula):
-    Dynamically adjusts risk budget according to empirical statistical edge from historical ledger.
-    Scales down risk when win rate or profit factor drops; scales up (capped at max_risk) during high edge.
-    Maintains a robust floor (min_risk 1.0%) to prevent position size strangulation into pocket change.
+    Module 03 Quantitative Risk Sizing (Asymmetric Strategy-Specific Half-Kelly Formula):
+    Dynamically adjusts risk budget according to empirical statistical edge from historical ledger
+    for the specific strategy archetype (SMC, Scalper 5m, ORB, Turtle, KAMA, etc.).
+    Scales down risk defensively during drawdown or negative expectancy; scales up during proven edge.
+    Maintains a robust floor (min_risk 0.50%) to ensure risk safety without total trade starvation.
     """
+    try:
+        import trade_journal
+        strat = strategy_name or "Smart Money Concepts (SMC)"
+        prof = trade_journal.get_strategy_kelly_profile(strat, base_risk_pct=base_risk_pct, min_risk=min_risk, max_risk=max_risk)
+        if prof and prof.get("status") == "EMPIRICAL_KELLY":
+            return prof.get("recommended_risk_pct", base_risk_pct), prof.get("rationale", "")
+    except Exception:
+        pass
+
     try:
         import quant_risk_engine
         metrics = quant_risk_engine.compute_historical_trade_metrics()
@@ -306,22 +317,22 @@ def get_adaptive_kelly_risk_pct(base_risk_pct=1.5, min_risk=1.0, max_risk=2.0):
 
         if total_trades >= 10:
             if profit_factor < 1.0 or win_rate < 35.0:
-                scaled_risk = max(min_risk, base_risk_pct * 0.75)
-                status = f"Defensive Cut (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
+                scaled_risk = max(min_risk, base_risk_pct * 0.50)
+                status = f"Portfolio Defensive Cut (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
             elif half_kelly > 0:
-                kelly_factor = min(1.5, max(0.6, half_kelly / 0.10))
+                kelly_factor = min(1.6, max(0.5, half_kelly / 0.10))
                 scaled_risk = base_risk_pct * kelly_factor
-                status = f"Half-Kelly {half_kelly:.2f} (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
+                status = f"Portfolio Half-Kelly {half_kelly:.2f} (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
             else:
-                scaled_risk = max(min_risk, base_risk_pct * 0.85)
-                status = f"Safe Baseline (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
+                scaled_risk = max(min_risk, base_risk_pct * 0.75)
+                status = f"Portfolio Baseline (WR {win_rate:.1f}%, PF {profit_factor:.2f})"
 
             final_risk = round(min(max_risk, max(min_risk, scaled_risk)), 2)
             return final_risk, status
-    except Exception as e:
+    except Exception:
         pass
 
-    return base_risk_pct, "Standard Fixed (1.50%)"
+    return base_risk_pct, f"Standard Fixed ({base_risk_pct:.2f}%)"
 
 def log_desk_activity(entry):
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -334,6 +345,23 @@ def log_desk_activity(entry):
             history = []
 
     history.append(entry)
+
+    # Circular Buffer Optimization (P1): Keep active file compact (last 300 cycles) to prevent disk I/O lag
+    if len(history) > 350:
+        archive_file = os.path.join(DATA_DIR, "trading_desk_history_archive.json")
+        archived_chunk = history[:-300]
+        history = history[-300:]
+        try:
+            existing_archive = []
+            if os.path.exists(archive_file):
+                with open(archive_file, "r", encoding="utf-8") as f:
+                    existing_archive = json.load(f)
+            existing_archive.extend(archived_chunk)
+            with open(archive_file, "w", encoding="utf-8") as f:
+                json.dump(existing_archive, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"⚠️ [DESK ARCHIVE ERROR] Failed to archive older desk history: {e}")
+
     with open(DESK_HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(history, f, indent=2, ensure_ascii=False)
 
@@ -671,6 +699,7 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
     """
     Scans 1H / 4H swing setups using 4 championship strategies & top-down macro confluence.
     """
+    import htf_macro_lock
     print(f"\n[2. MARKET RESEARCHER AGENT — RELATIVE STRENGTH & WATCHLIST SCAN]")
     rs_matrix, btc_chg = compute_rs_matrix(active_watchlist)
     print(f" * BTC 24h Benchmark Performance: {btc_chg:+.2f}%")
@@ -766,14 +795,20 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
         has_bullish_3touch = bool(three_touch and three_touch.get("type") == "BULLISH_3_TOUCH")
         has_bullish_auction = bool(va_setup and va_setup.get("type") == "BULLISH_FAILED_AUCTION")
         has_bullish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BULLISH_SWEEP_MSS")
-        rsi_safe_long = rsi < sub_gen.get("rsi_overbought", 70) and rsi > sub_gen.get("rsi_oversold", 30)
+        
+        # Trading Strategies Academy: Adaptive RSI Volatility Modulation
+        ad_intel = data.get("adaptive_intel")
+        eff_ob = ad_intel.get("ob_threshold", 75.0) if ad_intel else sub_gen.get("rsi_overbought", 70)
+        eff_os = ad_intel.get("os_threshold", 25.0) if ad_intel else sub_gen.get("rsi_oversold", 30)
+        eval_rsi = ad_intel.get("adaptive_rsi", rsi) if ad_intel else rsi
+        rsi_safe_long = eval_rsi < eff_ob and eval_rsi > eff_os
 
         # Rule B: Bearish Setup (Bearish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, Tim Flossbach MSS, or ICT Rejection Block)
         has_bearish_fvg = "Bearish FVG" in fvg
         has_bearish_3touch = bool(three_touch and three_touch.get("type") == "BEARISH_3_TOUCH")
         has_bearish_auction = bool(va_setup and va_setup.get("type") == "BEARISH_FAILED_AUCTION")
         has_bearish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BEARISH_SWEEP_MSS")
-        rsi_safe_short = rsi > sub_gen.get("rsi_oversold", 30) and rsi < sub_gen.get("rsi_overbought", 70)
+        rsi_safe_short = eval_rsi > eff_os and eval_rsi < eff_ob
 
         # -------------------------------------------------------------
         # SMC EQUILIBRIUM & PREMIUM / DISCOUNT ZONE AUDIT (Akademi Crypto Module 02)
@@ -850,7 +885,26 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                 }
 
         elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) and rsi_safe_short:
-            # 1. Macro Trend Anti-Short Guard: STRICTLY BAN Altcoin Shorts during BTC Bullish / Altseason
+            # 0. Alpha Leader & Structural Quality Gate: Disallow shorting Alpha Leaders or naked FVG without sweep
+            if is_alpha_leader:
+                print(f"   🛡️ [Alpha Leader Shield] {sym} SHORT DIBLOKIR: Koin berstatus ALPHA LEADER dalam RS Matrix. Dilarang men-short pemimpin pasar!")
+                continue
+
+            if not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction):
+                print(f"   🛡️ [Short Quality Gate] {sym} di-skip untuk SHORT: Hanya Bearish FVG polos tanpa konfirmasi BSL Sweep atau Rejection Block.")
+                continue
+
+            # 1. Hard HTF Macro Bias Lock (Akademi Crypto Module 04 & AGENTS.md Rule 2)
+            try:
+                htf_swing_check = htf_macro_lock.audit_htf_macro_bias(pair_sym, "SHORT")
+                if not htf_swing_check.get("is_approved", True):
+                    print(f"   🛡️ [HTF Macro Lock] {sym} SHORT DIBLOKIR: {htf_swing_check.get('rejection_reason')}")
+                    continue
+            except Exception as e:
+                print(f"   🛡️ [HTF Macro Lock Exception] {sym} SHORT DIBLOKIR: {e}")
+                continue
+
+            # 1B. Macro Trend Anti-Short Guard: STRICTLY BAN Altcoin Shorts during BTC Bullish / Altseason
             if sym != "BTC":
                 btc_reg_check = market_regime.detect_market_regime("BTCUSDT", interval="1h")
                 if btc_reg_check and (btc_reg_check.get("bias") == "BULLISH" or "BULLISH" in btc_reg_check.get("regime", "") or btc_reg_check.get("price", 0) > btc_reg_check.get("ema20", 0)):
@@ -1443,17 +1497,21 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP ---")
                     print(f"  {port_msg}")
                     continue
-                # Unified Institutional Risk Calibration (High-Conviction Sizing)
+                # Option C: Asymmetric Strategy-Specific Kelly Sizing Engine (Akademi Crypto Module 03)
+                strat_name = best.get("strategy_name") or best.get("strategy") or best.get("reason") or "Smart Money Concepts (SMC)"
                 conf = best.get("confluence_score", 80)
-                if conf >= 90:
-                    effective_risk_pct = 2.00  # Grade A+ Elite: Maximum institutional confidence
-                elif conf >= 80:
-                    effective_risk_pct = 1.75  # Grade A High
-                else:
-                    effective_risk_pct = 1.50  # Standard Baseline
-                print(f"  🎯 [UNIFIED SIZING ENGINE] Base Risk diset ke {effective_risk_pct:.2f}% berdasarkan Konfluensi {conf}%")
-            except Exception:
+                base_risk = 1.75 if conf >= 85 else 1.50
+                kelly_risk, kelly_status = get_adaptive_kelly_risk_pct(
+                    strategy_name=strat_name,
+                    base_risk_pct=base_risk,
+                    min_risk=0.50,
+                    max_risk=2.50
+                )
+                effective_risk_pct = kelly_risk
+                print(f"  🎯 [ASYMMETRIC KELLY SIZING] Strategi: '{strat_name}' | Alokasi Risiko: {effective_risk_pct:.2f}% modal ({kelly_status})")
+            except Exception as k_err:
                 effective_risk_pct = 1.50
+                print(f"  🎯 [KELLY SIZING NOTE] Fallback baseline 1.50%: {k_err}")
 
             # Check BTC.D & USDT.D Dominance Compass Guardrail (Akademi Crypto Module 01)
             try:
@@ -1471,14 +1529,31 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                 import market_regime
                 is_regime_ok, regime_msg = market_regime.filter_candidate_by_regime(best, btc_regime=btc_regime)
                 if not is_regime_ok:
-                    if best.get("is_scalp") and best.get("is_mean_reversion_or_sweep"):
-                        print(f"  ⚡ [SCALP REGIME BYPASS] {best['symbol']} {best['side']} diizinkan beroperasi sebagai Mean-Reversion Scalp di bawah BTC {btc_regime.get('regime')}.")
+                    # CRITICAL FIX: NEVER allow SCALP REGIME BYPASS for SHORT positions when BTC is Bullish!
+                    if best.get("is_scalp") and best.get("is_mean_reversion_or_sweep") and best.get("side") == "LONG":
+                        print(f"  ⚡ [SCALP REGIME BYPASS] {best['symbol']} {best['side']} diizinkan beroperasi sebagai Mean-Reversion Dip di bawah BTC {btc_regime.get('regime')}.")
                     else:
                         print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [REGIME GATEKEEPER] ---")
                         print(f"  {regime_msg}")
                         continue
             except Exception as e:
                 pass
+
+            # Check Hard HTF Macro Bias Lock (Akademi Crypto Module 04 & AGENTS.md Rule 2)
+            try:
+                import htf_macro_lock
+                htf_audit = htf_macro_lock.audit_htf_macro_bias(best["symbol"], best["side"])
+                if not htf_audit.get("is_approved", True):
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [HTF MACRO LOCK] ---")
+                    print(f"  {htf_audit.get('rejection_reason', 'Counter-trend prohibited by HTF Macro Lock')}")
+                    continue
+                else:
+                    print(f"  🔒 [HTF MACRO LOCK] {best['symbol']} {best['side']} disetujui (4H: {htf_audit.get('htf_trend')} | Score: {htf_audit.get('htf_score')}%)")
+            except Exception as e:
+                if best.get("side") in ["SELL", "SHORT"]:
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [HTF MACRO LOCK EXCEPTION] ---")
+                    print(f"  ⚠️ Error evaluating HTF Macro Lock: {e}. Strict fail-closed policy blocks SHORT.")
+                    continue
 
             # Check Derivatives Funding Rate & Liquidation Hunt Guardrail
             try:
@@ -1617,6 +1692,30 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     ai_ctx["sentiment_summary"] = sentiment_narrative_scanner.get_market_sentiment_narrative_summary()
                     ai_ctx["narrative_info"] = sentiment_narrative_scanner.get_token_narrative_info(best["symbol"])
                     ai_ctx["fear_and_greed"] = ai_ctx["sentiment_summary"].get("fear_and_greed")
+                except Exception:
+                    pass
+                try:
+                    import adaptive_indicators
+                    ai_ctx["adaptive_intel"] = adaptive_indicators.get_adaptive_market_intelligence(best["symbol"])
+                except Exception:
+                    pass
+
+                # --- 🧠 LOCAL COGNITIVE AI BRAIN CONSCIOUSNESS LOOP ---
+                try:
+                    import local_cognitive_brain
+                    cog_review = local_cognitive_brain.conduct_cognitive_review(best, ai_ctx)
+                    best["cognitive_review"] = cog_review
+                    print(f" * 🧠 Cognitive Brain: {cog_review.get('verdict')} ({cog_review.get('confidence')}%) via {cog_review.get('provider')}")
+                    if cog_review.get("thought_process"):
+                        print(f"   Inner Thought  : {cog_review['thought_process']}")
+                    if cog_review.get("verdict") == "VETO":
+                        print(f"   🛑 [COGNITIVE VETO] Otak AI Lokal membatalkan entri: {cog_review.get('reason')}")
+                        continue
+                    elif cog_review.get("verdict") == "WAIT":
+                        print(f"   ⏳ [COGNITIVE WAIT] Otak AI Lokal menyarankan wait & see: {cog_review.get('reason')}")
+                        continue
+                    elif cog_review.get("risk_scale", 1.0) < 1.0:
+                        risk_scaler = min(risk_scaler, float(cog_review["risk_scale"]))
                 except Exception:
                     pass
 
@@ -1769,11 +1868,11 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                 if not nautilus_gate["is_approved"]:
                     reasons = "; ".join(nautilus_gate["rejection_reasons"])
                     print(f" 🛡️ [NAUTILUS PRE-TRADE] Catatan: {reasons}. Single Haircut 0.85x diterapkan.")
-                    effective_risk_pct = max(1.25, effective_risk_pct * 0.85)
+                    effective_risk_pct = max(0.50, effective_risk_pct * 0.85)
                 else:
                     tel = nautilus_gate["pre_trade_telemetry"]
                     if nautilus_gate["suggested_risk_scale"] < 0.85:
-                        effective_risk_pct = max(1.25, effective_risk_pct * 0.85)
+                        effective_risk_pct = max(0.50, effective_risk_pct * 0.85)
                         print(f" 🛡️ [NAUTILUS RISK ENGINE] Single Haircut diterapkan ke 85% (Spread: {tel['spread_bps']} bps)")
                     else:
                         print(f" 🛡️ [NAUTILUS RISK ENGINE PASS] Spread {tel['spread_bps']} bps | Free Margin {tel['free_margin_ratio']*100:.1f}% | Eksekusi Ukuran Penuh ({effective_risk_pct:.2f}% modal)")
@@ -1781,7 +1880,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                 print(f" * [Nautilus Risk Engine Note]: {e}")
 
             # Calculate exact position size with Dynamic Margin & Scaled Risk Guardrail
-            effective_risk_pct = max(1.25, round(effective_risk_pct, 2))
+            effective_risk_pct = max(0.50, round(effective_risk_pct, 2))
             risk_budget = balance_usd * (effective_risk_pct / 100.0)
             sl_pct = abs(best["price"] - best["sl"]) / best["price"]
             pos_size_usd = risk_budget / max(sl_pct, 0.005)
@@ -1807,6 +1906,27 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
             if margin_required < 2.0 or available_usd < 10.0:
                 print(f" ⚠️ [Margin Guardrail] Sisa margin tersedia (${available_usd:,.2f}) tidak cukup untuk membuka posisi {best['symbol']} (Dibutuhkan: ${margin_required:,.2f}). Melewatkan eksekusi.")
                 continue
+
+            # Trading Strategies Academy: Net Profit Hurdle Gate (Fee Economics)
+            try:
+                import transaction_cost_guard
+                qty_calc = pos_size_usd / best["price"] if best["price"] > 0 else 0.0
+                hurdle = transaction_cost_guard.evaluate_net_profit_hurdle(
+                    symbol=best["symbol"],
+                    entry_price=best["price"],
+                    tp_price=best["tp"],
+                    sl_price=best["sl"],
+                    order_quantity=qty_calc,
+                    min_net_rr_ratio=1.50
+                )
+                if not hurdle.get("approved", True):
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [NET PROFIT HURDLE] ---")
+                    print(f"  🛑 {hurdle.get('reason')}")
+                    continue
+                else:
+                    print(f"  💰 [NET PROFIT HURDLE PASS] {hurdle.get('reason')}")
+            except Exception:
+                pass
 
             # Precision & Order Filter Validation
             qty = 0.01
@@ -2013,7 +2133,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     ai_confidence=ai_audit.get("confidence") if ai_audit else None,
                     be_trigger_r=best.get("be_trigger_r", 0.60),
                     tp1_target_r=best.get("tp1_target_r", 1.25),
-                    anti_stall_minutes=best.get("anti_stall_minutes", 20)
+                    anti_stall_minutes=best.get("anti_stall_minutes", 20),
+                    strategy_name=best.get("strategy_name") or best.get("reason") or "Smart Money Concepts (SMC)"
                 )
             except Exception as e:
                 print(f"[Trade Manager Warning] Gagal simpan metadata trade: {e}")

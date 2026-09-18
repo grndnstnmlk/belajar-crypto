@@ -12,8 +12,16 @@ Core Capabilities:
 
 import json
 import os
+import sys
 import time
 from typing import Dict, Any, Tuple, Optional
+
+# UTF-8 safeguard for Windows console
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 STORAGE_FILE = os.path.join(DATA_DIR, "transaction_cost_memory.json")
@@ -186,6 +194,56 @@ def audit_pre_trade_transaction_drag(
             "funding_usd": round(funding_usd, 2)
         },
         "verdict": "🟢 LOW FRICTION (High Edge)" if drag_pct <= 8.0 else ("🟡 ACCEPTABLE FRICTION" if is_safe else "🛑 HIGH FRICTION DRAG (Unfavorable R:R)")
+    }
+
+def evaluate_net_profit_hurdle(
+    symbol: str,
+    entry_price: float,
+    tp_price: float,
+    sl_price: float,
+    order_quantity: float,
+    min_net_rr_ratio: float = 1.50
+) -> Dict[str, Any]:
+    """
+    Trading Strategies Academy Net Profit Hurdle Gate:
+    Calculates actual gross dollar target vs dollar risk and subtracts round-trip exchange fees & slippage.
+    Ensures that (Gross Profit - Total Friction) / Dollar Risk >= min_net_rr_ratio (default 1.50).
+    Rejects setups where transaction drag turns a profitable strategy into a negative-expectancy bleed.
+    """
+    notional_entry = entry_price * order_quantity
+    gross_profit_usd = abs(tp_price - entry_price) * order_quantity
+    dollar_risk_usd = abs(entry_price - sl_price) * order_quantity
+
+    if dollar_risk_usd <= 0:
+        return {"approved": True, "net_rr": 3.0, "reason": "Zero dollar risk"}
+
+    drag_audit = audit_pre_trade_transaction_drag(
+        symbol=symbol,
+        position_notional_usd=notional_entry,
+        expected_profit_usd=gross_profit_usd,
+        force_maker=False
+    )
+    total_friction_usd = drag_audit.get("total_friction_usd", 0.0)
+    net_profit_usd = max(0.0, gross_profit_usd - total_friction_usd)
+    net_rr = net_profit_usd / dollar_risk_usd
+
+    approved = net_rr >= min_net_rr_ratio
+    reason = (
+        f"Net R:R 1:{net_rr:.2f} (Gross 1:{(gross_profit_usd/dollar_risk_usd):.2f}, Friction ${total_friction_usd:.2f})"
+        if approved else
+        f"Net R:R 1:{net_rr:.2f} di bawah batas minimal 1:{min_net_rr_ratio:.2f} akibat friksi bursa (${total_friction_usd:.2f})"
+    )
+
+    return {
+        "approved": approved,
+        "net_rr": round(net_rr, 2),
+        "gross_rr": round(gross_profit_usd / dollar_risk_usd, 2),
+        "gross_profit_usd": round(gross_profit_usd, 2),
+        "net_profit_usd": round(net_profit_usd, 2),
+        "dollar_risk_usd": round(dollar_risk_usd, 2),
+        "total_friction_usd": total_friction_usd,
+        "friction_drag_pct": drag_audit.get("drag_pct", 0.0),
+        "reason": reason
     }
 
 def get_transaction_cost_summary() -> Dict[str, Any]:

@@ -287,6 +287,7 @@ Lakukan sesi DEBAT ADVERSARIAL ketat antara Bull Researcher vs Bear Researcher, 
 - Market Compass (BTC.D & USDT.D): {json.dumps(ctx.get('compass', {}))}
 - Order Book Depth Imbalance: {json.dumps(ctx.get('depth', {}))}
 - Macro News Shield Status: {json.dumps(ctx.get('news_shield', {}))}
+- Adaptive Indicators (KAMA & Adaptive RSI): {json.dumps(ctx.get('adaptive_intel', {}))}
 
 [ATURAN PERDEBATAN]
 1. BULL RESEARCHER: Wajib menyusun argumen kenaikan terkuat, katalis teknikal, FVG, liquidity pools, dan asimetri cuan.
@@ -308,7 +309,23 @@ Format jawaban HANYA berupa JSON valid dengan skema:
 """
     try:
         import ai_risk_officer
-        res = ai_risk_officer.call_llm(prompt, system_prompt="You are the Tauric Research Multi-Agent Trading Debate System.", response_json=True)
+        raw_res = ai_risk_officer.call_llm(prompt, system_prompt="You are the Tauric Research Multi-Agent Trading Debate System.", response_json=True)
+        res = None
+        if isinstance(raw_res, str):
+            cleaned = raw_res.strip()
+            if "<think>" in cleaned and "</think>" in cleaned:
+                cleaned = cleaned.split("</think>")[-1].strip()
+            if "```json" in cleaned:
+                cleaned = cleaned.split("```json")[1].split("```")[0].strip()
+            elif "```" in cleaned:
+                cleaned = cleaned.split("```")[1].split("```")[0].strip()
+            try:
+                res = json.loads(cleaned)
+            except Exception:
+                res = None
+        elif isinstance(raw_res, dict):
+            res = raw_res
+
         if res and isinstance(res, dict) and "verdict" in res and "bull_score" in res:
             res["symbol"] = sym
             res["side"] = side
@@ -317,7 +334,7 @@ Format jawaban HANYA berupa JSON valid dengan skema:
             res["tp_price"] = tp_p
             res["rr_ratio"] = rr
             res["strategy"] = strategy
-            res["engine"] = f"Tauric Cognitive LLM ({creds.get('provider').upper()})"
+            res["engine"] = f"Tauric Cognitive LLM ({creds.get('provider', 'AI').upper()})"
             res["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             return res
     except Exception:

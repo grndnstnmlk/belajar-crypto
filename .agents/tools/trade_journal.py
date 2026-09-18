@@ -69,6 +69,30 @@ def record_closed_trade(trade_entry):
     trades = load_journal()
     t_id = trade_entry.get("id") or f"{trade_entry.get('symbol')}-{trade_entry.get('closed_at')}"
 
+    # Strategy Attribution Auto-Inference (P2 Optimization)
+    if not trade_entry.get("strategy") or trade_entry.get("strategy") == "Unknown":
+        src = str(trade_entry.get("source", "")).upper()
+        rid = str(trade_entry.get("id", "")).upper()
+        reas = str(trade_entry.get("exit_reason", "")).upper()
+        if "SCALEOUT" in rid or "SCALE_OUT" in src or "SCALP" in reas:
+            trade_entry["strategy"] = "Institutional Scalper (5m)"
+        elif "AIHARVEST" in rid or "AI_PROFIT_HARVESTER" in src:
+            trade_entry["strategy"] = "AI Adaptive Harvester"
+        elif "SEASONALITY" in src or "SEASONALITY" in reas:
+            trade_entry["strategy"] = "Lewis Trumpeter Seasonality"
+        elif "PROP_DESK" in src or "PROP_DESK" in reas:
+            trade_entry["strategy"] = "Prop Desk Alpha"
+        elif "TURTLE" in reas:
+            trade_entry["strategy"] = "Turtle Breakout"
+        elif "KAMA" in reas:
+            trade_entry["strategy"] = "KAMA Adaptive Trend"
+        elif "ORB" in reas:
+            trade_entry["strategy"] = "Opening Range Breakout (ORB)"
+        elif "BINANCE_INCOME" in src:
+            trade_entry["strategy"] = "Binance Futures Execution"
+        else:
+            trade_entry["strategy"] = "Smart Money Concepts (SMC)"
+
     # Check for duplicate
     existing_idx = next((i for i, t in enumerate(trades) if t.get("id") == t_id), None)
     if existing_idx is not None:
@@ -267,6 +291,73 @@ def calculate_journal_metrics(timeframe="all"):
         if pnl > 0.1:
             by_coin[sym]["wins"] += 1
 
+    # Per-Strategy Breakdown (P2 & Option C Asymmetric Kelly Sizing Optimization)
+    by_strategy = {}
+    for t in trades:
+        strat = t.get("strategy") or "Smart Money Concepts (SMC)"
+        if strat not in by_strategy:
+            by_strategy[strat] = {
+                "trades": 0, "wins": 0, "losses": 0, "pnl": 0.0,
+                "gross_profit": 0.0, "gross_loss": 0.0
+            }
+        by_strategy[strat]["trades"] += 1
+        pnl = float(t.get("net_pnl_usd", t.get("pnl_usd", 0)))
+        by_strategy[strat]["pnl"] += pnl
+        if pnl > 0.1:
+            by_strategy[strat]["wins"] += 1
+            by_strategy[strat]["gross_profit"] += pnl
+        elif pnl < -0.1:
+            by_strategy[strat]["losses"] += 1
+            by_strategy[strat]["gross_loss"] += abs(pnl)
+
+    for s, s_data in by_strategy.items():
+        tr_cnt = s_data["trades"]
+        w_cnt = s_data["wins"]
+        l_cnt = s_data["losses"]
+        gp = s_data["gross_profit"]
+        gl = s_data["gross_loss"]
+
+        wr = (w_cnt / tr_cnt * 100.0) if tr_cnt > 0 else 0.0
+        avg_w = (gp / w_cnt) if w_cnt > 0 else 0.0
+        avg_l = (gl / l_cnt) if l_cnt > 0 else 0.0
+        payoff = (avg_w / avg_l) if avg_l > 0 else (2.0 if w_cnt > 0 else 1.0)
+        pf = (gp / gl) if gl > 0 else (99.0 if gp > 0 else 0.0)
+
+        # Mathematical Kelly Criterion: K = p - ((1 - p) / b)
+        p_win = (w_cnt / tr_cnt) if tr_cnt > 0 else 0.0
+        p_loss = 1.0 - p_win
+        raw_k = (p_win - (p_loss / payoff)) if payoff > 0 else 0.0
+        half_k = max(0.0, raw_k * 0.5)
+
+        # Adaptive Asymmetric Risk Allocation
+        # Base 1.50%, range 0.50% to 2.50%
+        if tr_cnt < 5:
+            rec_risk = 1.50
+            expectancy_status = "CALIBRATING (<5 trades)"
+        elif pf >= 1.30 and half_k > 0:
+            rec_risk = round(min(2.50, 1.50 + (half_k * 5.0)), 2)
+            expectancy_status = "HIGH ASYMMETRY"
+        elif pf >= 1.00:
+            rec_risk = 1.35
+            expectancy_status = "POSITIVE EXPECTANCY"
+        else:
+            rec_risk = round(max(0.50, min(0.85, 1.50 * 0.5)), 2)
+            expectancy_status = "DEFENSIVE REFINEMENT"
+
+        s_data["win_rate"] = round(wr, 1)
+        s_data["pnl"] = round(s_data["pnl"], 2)
+        s_data["gross_profit"] = round(gp, 2)
+        s_data["gross_loss"] = round(gl, 2)
+        s_data["avg_win"] = round(avg_w, 2)
+        s_data["avg_loss"] = round(avg_l, 2)
+        s_data["payoff_ratio"] = round(payoff, 2)
+        s_data["profit_factor"] = round(pf, 2)
+        s_data["raw_kelly"] = round(raw_k, 3)
+        s_data["half_kelly"] = round(half_k, 3)
+        s_data["half_kelly_pct"] = round(half_k * 100.0, 1)
+        s_data["recommended_risk_pct"] = rec_risk
+        s_data["expectancy_status"] = expectancy_status
+
     return {
         "timeframe": timeframe,
         "total_trades": total_trades,
@@ -291,6 +382,7 @@ def calculate_journal_metrics(timeframe="all"):
         "short_trades": len(shorts),
         "short_win_rate": round((short_wins / len(shorts) * 100.0) if shorts else 0.0, 1),
         "by_coin": by_coin,
+        "by_strategy": by_strategy,
         "recent_trades": trades[-5:]
     }
 
@@ -371,6 +463,65 @@ def format_telegram_journal(timeframe="all"):
         f"━━━━━━━━━━━━━━━━━━\n"
         f"💡 <i>Prinsip Akademi Crypto: Kunci profitabilitas jangka panjang bukanlah 100% Win Rate, melainkan kombinasi Rasio Payoff (&gt;1:2) dan Ekspektansi Matematis Positif!</i>"
     )
+
+def get_strategy_kelly_profile(strategy_name="Smart Money Concepts (SMC)", base_risk_pct=1.5, min_risk=0.5, max_risk=2.5):
+    """
+    Computes empirical Asymmetric Kelly Criterion parameters for a specific strategy archetype.
+    Returns dictionary with win_rate, payoff_ratio, half_kelly, recommended_risk_pct, and rationale.
+    """
+    try:
+        metrics = calculate_journal_metrics("all")
+        by_strat = metrics.get("by_strategy", {}) if metrics else {}
+
+        # Match strategy loosely or exactly
+        s_data = None
+        matched_key = strategy_name
+        if strategy_name in by_strat:
+            s_data = by_strat[strategy_name]
+            matched_key = strategy_name
+        else:
+            # Fuzzy fallback match
+            for k, v in by_strat.items():
+                if strategy_name.lower() in k.lower() or k.lower() in strategy_name.lower():
+                    s_data = v
+                    matched_key = k
+                    break
+
+        if s_data and s_data.get("trades", 0) >= 5:
+            rec_risk = s_data.get("recommended_risk_pct", base_risk_pct)
+            final_risk = round(min(max_risk, max(min_risk, rec_risk)), 2)
+            return {
+                "strategy": strategy_name,
+                "matched_strategy": matched_key,
+                "trades": s_data.get("trades", 0),
+                "win_rate": s_data.get("win_rate", 0.0),
+                "payoff_ratio": s_data.get("payoff_ratio", 1.0),
+                "profit_factor": s_data.get("profit_factor", 0.0),
+                "raw_kelly": s_data.get("raw_kelly", 0.0),
+                "half_kelly": s_data.get("half_kelly", 0.0),
+                "half_kelly_pct": s_data.get("half_kelly_pct", 0.0),
+                "recommended_risk_pct": final_risk,
+                "expectancy_status": s_data.get("expectancy_status", "ACTIVE"),
+                "status": "EMPIRICAL_KELLY",
+                "rationale": f"Kelly {s_data.get('half_kelly_pct', 0.0):.1f}% (WR {s_data.get('win_rate', 0.0):.1f}%, Payoff 1:{s_data.get('payoff_ratio', 1.0):.2f}, PF {s_data.get('profit_factor', 0.0):.2f})"
+            }
+    except Exception:
+        pass
+
+    return {
+        "strategy": strategy_name,
+        "matched_strategy": strategy_name,
+        "trades": 0,
+        "win_rate": 45.0,
+        "payoff_ratio": 2.0,
+        "profit_factor": 1.2,
+        "half_kelly": 0.08,
+        "half_kelly_pct": 8.0,
+        "recommended_risk_pct": base_risk_pct,
+        "expectancy_status": "BASELINE",
+        "status": "BASELINE_KELLY",
+        "rationale": f"Standard Baseline Sizing ({base_risk_pct:.2f}%)"
+    }
 
 if __name__ == "__main__":
     count = sync_binance_history()
