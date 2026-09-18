@@ -1182,7 +1182,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
     max_risk_pct = params.get("max_risk_per_trade_pct", 1.5)
     target_user, _, _, _, mode_label, _ = binance_client.resolve_credentials(user_email, is_demo)
 
-    active_watchlist = symbols if symbols else get_dynamic_futures_watchlist(top_n=12, is_demo=is_demo)
+    active_watchlist = symbols if symbols else get_dynamic_futures_watchlist(top_n=15, is_demo=is_demo)
     session_info = session_filter.get_current_session_info()
     is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
 
