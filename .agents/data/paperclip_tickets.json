@@ -1,5 +1,35 @@
 [
   {
+    "ticket_id": "TCK-20260918-5675",
+    "symbol": "SUIUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-18 22:04:25",
+    "updated_at": "2026-09-18 22:10:09",
+    "payload": {
+      "entry": 0.8187,
+      "sl": 0.8134,
+      "tp": 0.8346,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-18 22:04:25",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup SUIUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260918-5657",
     "symbol": "SOLUSDT",
     "side": "LONG",
@@ -9,11 +39,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-18 21:49:05",
-    "updated_at": "2026-09-18 21:58:39",
+    "updated_at": "2026-09-18 22:08:14",
     "payload": {
-      "entry": 113.21,
+      "entry": 113.27,
       "sl": 111.0249,
-      "tp": 117.5802,
+      "tp": 117.7602,
       "rr": 2.0
     },
     "debate_result": null,
@@ -36,10 +66,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-18 19:39:34",
-    "updated_at": "2026-09-18 21:51:13",
+    "updated_at": "2026-09-18 22:10:23",
     "payload": {
       "entry": 81218.12,
       "sl": 81061.847,
@@ -148,7 +178,13 @@
       "authorized_at": "2026-09-18 21:51:13",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected)",
+      "realized_pnl": 0.7195,
+      "net_pnl": -0.3879,
+      "closed_at": "2026-09-18 22:10:23"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-18 19:39:34",
@@ -173,6 +209,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-18 22:10:23",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected) | PnL: $+0.72 USDT (Net: $-0.39)"
       }
     ]
   },
@@ -352,11 +394,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-18 19:01:23",
-    "updated_at": "2026-09-18 21:56:50",
+    "updated_at": "2026-09-18 22:10:09",
     "payload": {
-      "entry": 12.394,
+      "entry": 12.406,
       "sl": 12.1934,
-      "tp": 12.7952,
+      "tp": 12.8312,
       "rr": 2.0
     },
     "debate_result": null,
