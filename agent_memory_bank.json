@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-18T21:01:23.112098+00:00",
-    "total_reflections": 22,
-    "system_retention_score": 96.3
+    "last_reflection_at": "2026-09-18T21:45:05.641175+00:00",
+    "total_reflections": 23,
+    "system_retention_score": 98.8
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -80,8 +80,8 @@
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
-      "volatility_regime": "LOW_TO_MODERATE",
-      "wick_risk_rating": "HIGH",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -90,16 +90,16 @@
         "Institutional Iceberg Absorption"
       ],
       "notes": "Exchange native anchor. High institutional bid support; low false breakout rate on HTF.",
-      "total_trades": 175,
+      "total_trades": 176,
       "wins": 25,
-      "losses": 37,
+      "losses": 38,
       "breakevens": 113,
-      "win_rate_pct": 14.3,
-      "net_pnl_usd": 265.54,
+      "win_rate_pct": 14.2,
+      "net_pnl_usd": 254.76,
       "avg_r_multiple": 0.04,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-18 23:14:35",
-      "updated_at": "2026-09-18T18:12:26.425296+00:00"
+      "updated_at": "2026-09-18T21:45:05.641160+00:00"
     },
     "XRPUSDT": {
       "symbol": "XRPUSDT",
@@ -818,9 +818,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-18T18:25:45.317172+00:00"
+    },
+    {
+      "id": "RULE-AUTO-BNBUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on BNBUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "bnbusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-18T21:45:05.641173+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260918-027",
+      "timestamp": "2026-09-18T21:45:05.641146+00:00",
+      "symbol": "BNBUSDT",
+      "setup_type": "⚡ HIGH-R:R SCALP [5m ICT Rejection Block Mean Threshold]: Live retest of 1H Bullish Rejection Block (TESTING_MEAN_THRESHOLD) @ $767.3100 with Mean Threshold @ $766.2600 (Target: 15-30 menit)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -10.78,
+      "r_multiple": -0.33,
+      "pnl_pct": -0.39,
+      "root_cause": "Adverse volatility stop-out on BNBUSDT ⚡ HIGH-R:R SCALP [5m ICT Rejection Block Mean Threshold]: Live retest of 1H Bullish Rejection Block (TESTING_MEAN_THRESHOLD) @ $767.3100 with Mean Threshold @ $766.2600 (Target: 15-30 menit) (net: -$10.78, -0.33R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BNBUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "bnb",
+        "⚡_high-r:r_scalp_[5m_ict_rejection_block_mean_threshold]:_live_retest_of_1h_bullish_rejection_block_(testing_mean_threshold)_@_$767.3100_with_mean_threshold_@_$766.2600_(target:_15-30_menit)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-18T21:45:05.641151+00:00"
+    },
     {
       "id": "MEM-20260918-026",
       "timestamp": "2026-09-18T21:01:23.112081+00:00",
@@ -842,8 +876,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 35,
-      "last_accessed": "2026-09-18T21:41:43.375110+00:00"
+      "access_count": 37,
+      "last_accessed": "2026-09-18T21:44:04.664626+00:00"
     },
     {
       "id": "MEM-20260918-025",
@@ -914,8 +948,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 50,
-      "last_accessed": "2026-09-18T21:41:38.806560+00:00"
+      "access_count": 52,
+      "last_accessed": "2026-09-18T21:44:00.140575+00:00"
     },
     {
       "id": "MEM-20260918-022",
@@ -938,8 +972,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 50,
-      "last_accessed": "2026-09-18T21:41:38.806566+00:00"
+      "access_count": 52,
+      "last_accessed": "2026-09-18T21:44:00.140583+00:00"
     },
     {
       "id": "MEM-20260918-021",
@@ -1074,8 +1108,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 237,
-      "last_accessed": "2026-09-18T21:41:43.375116+00:00"
+      "access_count": 243,
+      "last_accessed": "2026-09-18T21:44:04.664633+00:00"
     },
     {
       "id": "MEM-20260918-015",
@@ -1120,8 +1154,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 225,
-      "last_accessed": "2026-09-18T21:41:43.375119+00:00"
+      "access_count": 231,
+      "last_accessed": "2026-09-18T21:44:04.664634+00:00"
     },
     {
       "id": "MEM-20260918-013",
@@ -1180,8 +1214,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 78,
-      "last_accessed": "2026-09-18T21:41:34.032453+00:00"
+      "access_count": 80,
+      "last_accessed": "2026-09-18T21:43:55.353096+00:00"
     },
     {
       "id": "MEM-20260918-010",
@@ -1320,8 +1354,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 514,
-      "last_accessed": "2026-09-18T21:41:43.375120+00:00"
+      "access_count": 518,
+      "last_accessed": "2026-09-18T21:44:04.664636+00:00"
     },
     {
       "id": "MEM-20260901-001",
