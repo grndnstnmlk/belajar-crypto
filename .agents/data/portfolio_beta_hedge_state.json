@@ -1,41 +1,55 @@
 {
-  "timestamp": "2026-09-18 21:31:29",
+  "timestamp": "2026-09-18 22:10:39",
   "exposure_summary": {
-    "timestamp": "2026-09-18 21:31:28",
-    "total_positions_count": 2,
-    "total_long_notional_usd": 0.0,
-    "total_short_notional_usd": 5573.0,
-    "total_gross_notional_usd": 5573.0,
-    "net_beta_weighted_delta_usd": -5854.66,
-    "delta_skew_pct": -105.1,
-    "portfolio_posture": "HEAVY_BEARISH_EXPOSURE",
-    "posture_badge": "\ud83d\udd34 HEAVY SHORT SKEW",
+    "timestamp": "2026-09-18 22:10:38",
+    "total_positions_count": 4,
+    "total_long_notional_usd": 8357.18,
+    "total_short_notional_usd": 2769.67,
+    "total_gross_notional_usd": 11126.85,
+    "net_beta_weighted_delta_usd": 8080.14,
+    "delta_skew_pct": 72.6,
+    "portfolio_posture": "HEAVY_BULLISH_EXPOSURE",
+    "posture_badge": "\ud83d\udfe2 HEAVY LONG SKEW (High Beta-Risk)",
     "positions": [
       {
+        "symbol": "NEARUSDT",
+        "side": "LONG",
+        "notional_usd": 2719.52,
+        "beta": 1.5,
+        "beta_weighted_delta": 4079.28
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "notional_usd": 2768.01,
+        "beta": 1.0,
+        "beta_weighted_delta": 2768.01
+      },
+      {
         "symbol": "HYPEUSDT",
-        "side": "SHORT",
-        "notional_usd": 2794.02,
+        "side": "LONG",
+        "notional_usd": 2869.65,
         "beta": 1.25,
-        "beta_weighted_delta": -3492.52
+        "beta_weighted_delta": 3587.07
       },
       {
         "symbol": "BNBUSDT",
         "side": "SHORT",
-        "notional_usd": 2778.99,
+        "notional_usd": 2769.67,
         "beta": 0.85,
-        "beta_weighted_delta": -2362.14
+        "beta_weighted_delta": -2354.22
       }
     ]
   },
   "flash_shock_summary": {
     "is_shock_active": false,
-    "btc_5m_change_pct": 0.24,
+    "btc_5m_change_pct": -0.21,
     "shock_reason": "\ud83d\udfe2 BTC Price Flow Normal / No Flash Crash Detected",
-    "timestamp": "2026-09-18 21:31:29"
+    "timestamp": "2026-09-18 22:10:39"
   },
   "hedge_required": false,
   "recommended_hedge_size_usd": 0.0,
   "hedge_action": "NO_HEDGE_REQUIRED",
-  "hedge_note": "Portfolio exposure is balanced or macro environment is stable.",
+  "hedge_note": "\u26a0\ufe0f High Directional Exposure ($8,080.14 USD). Hedge disiagakan jika BTC breakdown support.",
   "is_demo": true
 }
