@@ -19,7 +19,9 @@ from datetime import datetime
 if sys.platform == "win32":
     try:
         if hasattr(sys.stdout, "reconfigure"):
-            sys.stdout.reconfigure(encoding="utf-8")
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
         os.system("") # Activates ANSI escape processing on Windows 10/11
     except Exception:
         pass
@@ -2127,45 +2129,57 @@ def main():
                 pass
 
             consecutive_errors = 0
-            try:
-                while True:
+            while True:
+                try:
+                    run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val)
+                    consecutive_errors = 0  # Reset error count on successful cycle completion
+
+                    cur_mode = "HYBRID"
                     try:
-                        run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val)
-                        consecutive_errors = 0  # Reset error count on successful cycle completion
-                    except Exception as cycle_err:
-                        consecutive_errors += 1
-                        err_trace = traceback.format_exc()
-                        err_log_path = os.path.join(DATA_DIR, "daemon_errors.log")
-                        try:
-                            with open(err_log_path, "a", encoding="utf-8") as ef:
-                                ef.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Cycle Error #{consecutive_errors}:\n{err_trace}\n{'-'*60}\n")
-                        except Exception:
-                            pass
-
-                        backoff = min(60, 5 * (2 ** min(consecutive_errors - 1, 4)))
-                        print(f"\n{C.BRIGHT_RED}⚠️ [Auto-Healing Supervisor] Gangguan siklus #{consecutive_errors}: {cycle_err}{C.RESET}")
-                        print(f"  {C.GRAY}Sistem pulih secara otomatis (Auto-Healing). Menunggu {backoff}s sebelum retry siklus...{C.RESET}")
-
-                        if consecutive_errors == 3:
-                            try:
-                                telegram_notifier.send_telegram_msg(
-                                    f"🚨 <b>Trading Desk Supervisor Alert</b>\n"
-                                    f"Terdeteksi {consecutive_errors} kegagalan siklus berturut-turut:\n<code>{str(cycle_err)[:150]}</code>\n"
-                                    f"Sistem sedang menjalankan auto-healing & exponential backoff."
-                                )
-                            except Exception:
-                                pass
-                        time.sleep(backoff)
-                        continue
-
-                    cur_mode = telegram_notifier.get_desk_mode().upper()
+                        cur_mode = telegram_notifier.get_desk_mode().upper()
+                    except Exception:
+                        pass
                     sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode == "HYBRID" else max(15, args.interval * 60))
                     
-                    print(f"  {C.GRAY}⏳ Pemindaian berikutnya dalam {sleep_sec} detik (Mode: {cur_mode})...{C.RESET}")
+                    try:
+                        print(f"  {C.GRAY}⏳ Pemindaian berikutnya dalam {sleep_sec} detik (Mode: {cur_mode})...{C.RESET}")
+                    except Exception:
+                        pass
                     time.sleep(sleep_sec)
-                    print(f"  {C.BRIGHT_CYAN}🚀 Memulai siklus pemindaian baru...{C.RESET}")
-            except KeyboardInterrupt:
-                print(f"\n{C.BRIGHT_YELLOW}Trading Desk Daemon dihentikan oleh pengguna.{C.RESET}")
+                    try:
+                        print(f"  {C.BRIGHT_CYAN}🚀 Memulai siklus pemindaian baru...{C.RESET}")
+                    except Exception:
+                        pass
+                except KeyboardInterrupt:
+                    print(f"\n{C.BRIGHT_YELLOW}Trading Desk Daemon dihentikan oleh pengguna.{C.RESET}")
+                    break
+                except Exception as cycle_err:
+                    consecutive_errors += 1
+                    err_trace = traceback.format_exc()
+                    err_log_path = os.path.join(DATA_DIR, "daemon_errors.log")
+                    try:
+                        with open(err_log_path, "a", encoding="utf-8") as ef:
+                            ef.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Cycle Error #{consecutive_errors}:\n{err_trace}\n{'-'*60}\n")
+                    except Exception:
+                        pass
+
+                    backoff = min(60, 5 * (2 ** min(consecutive_errors - 1, 4)))
+                    try:
+                        print(f"\n{C.BRIGHT_RED}⚠️ [Auto-Healing Supervisor] Gangguan siklus #{consecutive_errors}: {cycle_err}{C.RESET}")
+                        print(f"  {C.GRAY}Sistem pulih secara otomatis (Auto-Healing). Menunggu {backoff}s sebelum retry siklus...{C.RESET}")
+                    except Exception:
+                        pass
+
+                    if consecutive_errors == 3:
+                        try:
+                            telegram_notifier.send_telegram_msg(
+                                f"🚨 <b>Trading Desk Supervisor Alert</b>\n"
+                                f"Terdeteksi {consecutive_errors} kegagalan siklus berturut-turut:\n<code>{str(cycle_err)[:150]}</code>\n"
+                                f"Sistem sedang menjalankan auto-healing & exponential backoff."
+                            )
+                        except Exception:
+                            pass
+                    time.sleep(backoff)
     else:
         show_desk_status(None, is_demo=True)
 

@@ -165,10 +165,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-18 03:26:46",
-    "updated_at": "2026-09-18 03:27:32",
+    "updated_at": "2026-09-18 13:58:36",
     "payload": {
       "entry": 86.591,
       "sl": 85.0333,
@@ -278,7 +278,11 @@
       "authorized_at": "2026-09-18 03:27:32",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-18 13:58:36"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-18 03:26:46",
@@ -303,6 +307,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-18 13:58:36",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -373,10 +383,10 @@
     "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-18 01:08:11",
-    "updated_at": "2026-09-18 01:08:11",
+    "updated_at": "2026-09-18 13:58:39",
     "payload": {
       "entry": 76612.0,
       "sl": 76483.11,
@@ -386,13 +396,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83c\udfaf Trailing Runner Locked (+1.0R | Total Profit: +$5.80 USDT)",
+      "realized_pnl": 5.8009,
+      "net_pnl": 5.3572,
+      "closed_at": "2026-09-18 13:58:39"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-18 01:08:11",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup BTCUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      },
+      {
+        "timestamp": "2026-09-18 13:58:39",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83c\udfaf Trailing Runner Locked (+1.0R | Total Profit: +$5.80 USDT) | PnL: $+5.80 USDT (Net: $+5.36)"
       }
     ]
   },
@@ -433,10 +455,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-18 01:08:11",
-    "updated_at": "2026-09-18 03:27:58",
+    "updated_at": "2026-09-18 13:58:36",
     "payload": {
       "entry": 751.18,
       "sl": 761.54,
@@ -546,7 +568,11 @@
       "authorized_at": "2026-09-18 03:27:58",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-18 13:58:36"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-18 01:08:11",
@@ -571,6 +597,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-18 13:58:36",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },

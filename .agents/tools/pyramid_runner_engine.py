@@ -45,7 +45,7 @@ def audit_and_execute_pyramiding(is_demo: bool = True, user_email: Optional[str]
     Scans all active open positions for pyramiding opportunities on free runners.
     """
     meta = load_trade_metadata()
-    positions = binance_client.get_positions(is_demo=is_demo, user_email=user_email)
+    positions = binance_client.get_positions(is_demo=is_demo, user_email=user_email, verbose=False)
     if not positions:
         return []
 

@@ -18,9 +18,12 @@ import urllib.parse
 import urllib.request
 
 # Ensure UTF-8 output on Windows console
-if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
 
@@ -326,34 +329,37 @@ def set_leverage(symbol, leverage, is_demo=True, user_email=None):
         return True
     return False
 
-def get_positions(user_email=None, is_demo=True):
+def get_positions(user_email=None, is_demo=True, verbose=True):
     target_user, _, _, _, mode_label, _ = resolve_credentials(user_email, is_demo)
-    print("\n=======================================================")
-    print(f"       📊 POSISI AKTIF BINANCE FUTURES")
-    print(f"       👤 Akun: {target_user} | Mode: {mode_label}")
-    print("=======================================================")
+    if verbose:
+        print("\n=======================================================")
+        print(f"       📊 POSISI AKTIF BINANCE FUTURES")
+        print(f"       👤 Akun: {target_user} | Mode: {mode_label}")
+        print("=======================================================")
 
     res = send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=is_demo, user_email=user_email)
     if res is None:
-        return
+        return []
 
     active = [p for p in res if float(p.get("positionAmt", 0)) != 0]
-    if not active:
-        print("Tidak ada posisi aktif yang sedang terbuka.")
-    else:
-        for p in active:
-            amt = float(p.get("positionAmt", 0))
-            side = "LONG 🟢" if amt > 0 else "SHORT 🔴"
-            entry = float(p.get("entryPrice", 0))
-            mark = float(p.get("markPrice", 0))
-            liq = float(p.get("liquidationPrice", 0))
-            upnl = float(p.get("unRealizedProfit", 0))
-            lev = p.get("leverage")
+    if verbose:
+        if not active:
+            print("Tidak ada posisi aktif yang sedang terbuka.")
+        else:
+            for p in active:
+                amt = float(p.get("positionAmt", 0))
+                side = "LONG 🟢" if amt > 0 else "SHORT 🔴"
+                entry = float(p.get("entryPrice", 0))
+                mark = float(p.get("markPrice", 0))
+                liq = float(p.get("liquidationPrice", 0))
+                upnl = float(p.get("unRealizedProfit", 0))
+                lev = p.get("leverage")
 
-            print(f" * [{p['symbol']}] {side} | Ukuran: {abs(amt)} | Lev: {lev}x")
-            print(f"   Entry: ${entry:,.4f} | Mark: ${mark:,.4f} | Liq: ${liq:,.4f}")
-            print(f"   Floating PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}")
-    print("=======================================================\n")
+                print(f" * [{p['symbol']}] {side} | Ukuran: {abs(amt)} | Lev: {lev}x")
+                print(f"   Entry: ${entry:,.4f} | Mark: ${mark:,.4f} | Liq: ${liq:,.4f}")
+                print(f"   Floating PnL: {'+' if upnl>=0 else ''}${upnl:,.2f}")
+        print("=======================================================\n")
+    return active
 
 def get_precision_from_step(step_str):
     s = str(step_str)
