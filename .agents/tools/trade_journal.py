@@ -127,6 +127,103 @@ def save_journal(trades):
     except Exception as e:
         print(f"[Trade Journal] Error saving journal: {e}")
 
+def normalize_strategy_name(name: str) -> str:
+    """
+    Normalizes dynamic setup reason strings or raw strategy names into clean,
+    standardized institutional strategy archetypes for the dashboard analytics.
+    """
+    if not name or not isinstance(name, str):
+        return "Smart Money Concepts (SMC)"
+
+    n = name.strip()
+    # Strip any leading prefixes like "⚡ HIGH-R:R SCALP [" and trailing "]"
+    if "HIGH-R:R SCALP" in n:
+        if "[" in n and "]" in n:
+            start_bracket = n.find("[")
+            end_bracket = n.find("]", start_bracket)
+            if start_bracket != -1 and end_bracket != -1:
+                n = n[start_bracket + 1:end_bracket].strip()
+    elif n.startswith("[") and n.endswith("]"):
+        n = n[1:-1].strip()
+
+    n_lower = n.lower()
+    if "cvd" in n_lower or "order flow" in n_lower or "absorption" in n_lower:
+        return "5m Order Flow CVD Absorption Scalp"
+    if "rejection block" in n_lower or "mean threshold" in n_lower:
+        return "5m ICT Rejection Block Mean Threshold"
+    if "4h-range" in n_lower or "4h range" in n_lower or "failed auction" in n_lower:
+        return "5m 4H-Range Breakout Re-entry"
+    if "inverse fvg" in n_lower or "ifvg" in n_lower:
+        return "5m Inverse Fair Value Gap (IFVG)"
+    if "20-ema" in n_lower or "dynamic pullback" in n_lower or "ema dynamic" in n_lower:
+        return "5m 20-EMA Dynamic Pullback Scalp"
+    if "mulham" in n_lower or "rectangle break" in n_lower or "key level rectangle" in n_lower:
+        return "15m Key Level Rectangle Break & Retest"
+    if "liquidity sweep" in n_lower or "micro-fvg" in n_lower or "smart money hunt" in n_lower:
+        return "5m Session Liquidity Sweep & Micro-FVG"
+    if "craig percoco" in n_lower or "morning routine" in n_lower or "asian range" in n_lower:
+        return "Craig Percoco 5m Morning Routine"
+    if "orb" in n_lower or "opening range" in n_lower:
+        return "Opening Range Breakout (ORB)"
+    if "turtle" in n_lower:
+        return "Turtle Breakout"
+    if "kama" in n_lower:
+        return "KAMA Adaptive Trend"
+    if "seasonality" in n_lower or "trumpeter" in n_lower:
+        return "Lewis Trumpeter Seasonality"
+    if "ai adaptive harvester" in n_lower or "aiharvest" in n_lower:
+        return "AI Adaptive Harvester"
+    if "prop desk" in n_lower:
+        return "Prop Desk Alpha"
+    if "binance_income" in n_lower or "binance futures execution" in n_lower:
+        return "Binance Futures Execution"
+    if "scaleout" in n_lower or "scale_out" in n_lower or "scale-out" in n_lower or "institutional scalper" in n_lower:
+        return "Institutional Scalper (5m)"
+    if "smart money" in n_lower or "smc" in n_lower:
+        return "Smart Money Concepts (SMC)"
+
+    # Dynamic setup strings that were mistakenly stored as strategy names
+    if any(k in n_lower for k in ["tested", "targeting", "close @", "supported by", "dom bid", "dom ask", "pocket rejection"]):
+        return "5m Order Flow CVD Absorption Scalp" if ("order flow" in n_lower or "bid wall" in n_lower or "ask wall" in n_lower) else "Smart Money Concepts (SMC)"
+
+    return n
+
+def normalize_existing_journal_strategies():
+    """
+    One-time / maintenance migration function to normalize strategy names
+    across all historical trades in both trade_journal_ledger.json and trade_journal_archive.json.
+    """
+    total_updated = 0
+    # 1. Hot Ledger
+    hot_trades = atomic_read_json(JOURNAL_FILE, default=[])
+    hot_changed = False
+    for t in hot_trades:
+        orig = t.get("strategy", "")
+        norm = normalize_strategy_name(orig)
+        if norm != orig:
+            t["strategy"] = norm
+            hot_changed = True
+            total_updated += 1
+    if hot_changed:
+        atomic_write_json(JOURNAL_FILE, hot_trades, indent=2, ensure_ascii=False)
+
+    # 2. Historical Archive
+    arch_trades = atomic_read_json(ARCHIVE_FILE, default=[])
+    arch_changed = False
+    for t in arch_trades:
+        orig = t.get("strategy", "")
+        norm = normalize_strategy_name(orig)
+        if norm != orig:
+            t["strategy"] = norm
+            arch_changed = True
+            total_updated += 1
+    if arch_changed:
+        atomic_write_json(ARCHIVE_FILE, arch_trades, indent=2, ensure_ascii=False)
+
+    if total_updated > 0:
+        print(f"🧹 [Trade Journal] Normalized strategy names for {total_updated} historical trades.")
+    return total_updated
+
 def record_closed_trade(trade_entry):
     """
     Appends a verified closed trade into the journal ledger.
@@ -159,6 +256,8 @@ def record_closed_trade(trade_entry):
             trade_entry["strategy"] = "Binance Futures Execution"
         else:
             trade_entry["strategy"] = "Smart Money Concepts (SMC)"
+
+    trade_entry["strategy"] = normalize_strategy_name(trade_entry.get("strategy"))
 
     # Check for duplicate
     existing_idx = next((i for i, t in enumerate(trades) if t.get("id") == t_id), None)

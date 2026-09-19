@@ -1533,7 +1533,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                 import paperclip_orchestrator
                 paperclip_ticket = paperclip_orchestrator.register_candidate_setup(
                     symbol=best["symbol"],
-                    strategy=best.get("strategy_name", best.get("strategy", "Quantitative Confluence Setup")),
+                    strategy=best.get("strategy") or best.get("strategy_name") or "Quantitative Confluence Setup",
                     side=best.get("side", "BUY"),
                     created_by="scalper_specialists" if best.get("is_scalp") else "market_eyes_screener",
                     payload={"entry": best["price"], "sl": best["sl"], "tp": best["tp"], "rr": best.get("rr", 0.0)}
@@ -1727,6 +1727,15 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                 reg_adaptive = regime_adaptive_switcher.get_adaptive_strategy_parameters(best["symbol"])
                 if reg_adaptive:
                     print(f" 🧠 [REGIME ADAPTIVE] {reg_adaptive['status_badge']} -> Sizing: 1.0x Full | Target R:R 1:{reg_adaptive['target_rr']:.2f} | Pyramiding: {'ON' if reg_adaptive['pyramiding_allowed'] else 'OFF'}")
+            except Exception:
+                pass
+
+            # Refresh live price from in-memory WebSocket cache (< 0.05ms)
+            try:
+                import binance_ws_stream
+                ws_price = binance_ws_stream.get_mark_price(best["symbol"])
+                if ws_price and ws_price > 0:
+                    best["price"] = ws_price
             except Exception:
                 pass
 
@@ -2018,7 +2027,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     be_trigger_r=best.get("be_trigger_r", 0.60),
                     tp1_target_r=best.get("tp1_target_r", 1.25),
                     anti_stall_minutes=best.get("anti_stall_minutes", 20),
-                    strategy_name=best.get("strategy_name") or best.get("reason") or "Smart Money Concepts (SMC)"
+                    strategy_name=best.get("strategy") or best.get("strategy_name") or "Smart Money Concepts (SMC)"
                 )
             except Exception as e:
                 print(f"[Trade Manager Warning] Gagal simpan metadata trade: {e}")

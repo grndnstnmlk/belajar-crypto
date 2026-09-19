@@ -52,6 +52,23 @@ def fetch_ticker_data(symbol="BTC"):
     pair = f"{base}USDT"
     inst_id_okx = f"{base}-USDT"
 
+    # 0. Instant In-Memory WebSocket Price Cache Fast-Path (< 0.05ms)
+    try:
+        import binance_ws_stream
+        ws_price = binance_ws_stream.get_mark_price(pair)
+        if ws_price and ws_price > 0:
+            return {
+                "source": "BINANCE_WEBSOCKET",
+                "price": ws_price,
+                "open_24h": ws_price,
+                "high_24h": ws_price,
+                "low_24h": ws_price,
+                "vol_quote_24h": 0.0,
+                "change_pct": 0.0
+            }
+    except Exception:
+        pass
+
     # 1. Primary: Binance Vision
     url_bv = f"https://data-api.binance.vision/api/v3/ticker/24hr?symbol={pair}"
     res = fetch_json(url_bv, timeout=5)

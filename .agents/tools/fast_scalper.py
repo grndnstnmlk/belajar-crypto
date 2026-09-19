@@ -1431,6 +1431,19 @@ def scan_symbol_scalp(symbol):
     if len(candles) < 25:
         return None
 
+    # Ultra-Low Latency In-Memory WebSocket Price Update (< 0.05ms)
+    try:
+        import binance_ws_stream
+        ws_p = binance_ws_stream.get_mark_price(symbol)
+        if ws_p and ws_p > 0:
+            candles[-1]["close"] = ws_p
+            if ws_p > candles[-1]["high"]:
+                candles[-1]["high"] = ws_p
+            if ws_p < candles[-1]["low"]:
+                candles[-1]["low"] = ws_p
+    except Exception:
+        pass
+
     candidate = None
 
     # Priority 1 [CRAIG PERCOCO MORNING ROUTINE - TOP PRIORITY]:
