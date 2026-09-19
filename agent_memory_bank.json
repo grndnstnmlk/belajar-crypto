@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-19T18:09:06.635462+00:00",
-    "total_reflections": 35,
-    "system_retention_score": 97.3
+    "last_reflection_at": "2026-09-19T18:12:01.710018+00:00",
+    "total_reflections": 36,
+    "system_retention_score": 97.6
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -33,7 +33,7 @@
     "ETHUSDT": {
       "symbol": "ETHUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -43,16 +43,16 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 96,
+      "total_trades": 97,
       "wins": 21,
-      "losses": 37,
+      "losses": 38,
       "breakevens": 38,
-      "win_rate_pct": 21.9,
-      "net_pnl_usd": -203.95,
+      "win_rate_pct": 21.6,
+      "net_pnl_usd": -210.47,
       "avg_r_multiple": -0.09,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-19 07:40:30",
-      "updated_at": "2026-09-19T17:45:36.379304+00:00"
+      "updated_at": "2026-09-19T18:12:01.710001+00:00"
     },
     "SOLUSDT": {
       "symbol": "SOLUSDT",
@@ -868,9 +868,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-19T18:09:06.635459+00:00"
+    },
+    {
+      "id": "RULE-AUTO-ETHUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ETHUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "ethusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-19T18:12:01.710016+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260919-040",
+      "timestamp": "2026-09-19T18:12:01.709987+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Order flow delta and price action are aligned neutrally. Supported by DOM Bid Wall @ $2,646.97 ($107,336 USDT). (Target: 15-30 menit)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -6.52,
+      "r_multiple": -0.18,
+      "pnl_pct": -0.22,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT ⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Order flow delta and price action are aligned neutrally. Supported by DOM Bid Wall @ $2,646.97 ($107,336 USDT). (Target: 15-30 menit) (net: -$6.52, -0.18R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "⚡_high-r:r_scalp_[5m_order_flow_cvd_absorption_scalp]:_order_flow_bullish_absorption:_order_flow_delta_and_price_action_are_aligned_neutrally._supported_by_dom_bid_wall_@_$2,646.97_($107,336_usdt)._(target:_15-30_menit)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-19T18:12:01.709992+00:00"
+    },
     {
       "id": "MEM-20260919-039",
       "timestamp": "2026-09-19T18:09:06.635428+00:00",
@@ -890,8 +924,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1,
-      "last_accessed": "2026-09-19T18:09:06.635434+00:00"
+      "access_count": 5,
+      "last_accessed": "2026-09-19T18:11:51.388187+00:00"
     },
     {
       "id": "MEM-20260919-038",
@@ -936,8 +970,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 9,
-      "last_accessed": "2026-09-19T18:01:32.348685+00:00"
+      "access_count": 11,
+      "last_accessed": "2026-09-19T18:10:17.637379+00:00"
     },
     {
       "id": "MEM-20260919-036",
@@ -1120,8 +1154,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 56,
-      "last_accessed": "2026-09-19T18:01:26.464011+00:00"
+      "access_count": 58,
+      "last_accessed": "2026-09-19T18:12:01.558579+00:00"
     },
     {
       "id": "MEM-20260918-028",
@@ -1166,8 +1200,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 50,
-      "last_accessed": "2026-09-19T18:01:32.348687+00:00"
+      "access_count": 52,
+      "last_accessed": "2026-09-19T18:10:17.637381+00:00"
     },
     {
       "id": "MEM-20260918-026",
@@ -1422,8 +1456,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 538,
-      "last_accessed": "2026-09-19T18:02:19.770456+00:00"
+      "access_count": 542,
+      "last_accessed": "2026-09-19T18:12:01.558581+00:00"
     },
     {
       "id": "MEM-20260918-015",
@@ -1468,8 +1502,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 483,
-      "last_accessed": "2026-09-19T18:02:19.770457+00:00"
+      "access_count": 485,
+      "last_accessed": "2026-09-19T18:12:01.558582+00:00"
     },
     {
       "id": "MEM-20260918-013",
@@ -1488,8 +1522,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 65,
-      "last_accessed": "2026-09-18T22:56:37.244799+00:00"
+      "access_count": 69,
+      "last_accessed": "2026-09-19T18:11:51.388195+00:00"
     },
     {
       "id": "MEM-20260918-012",
@@ -1548,8 +1582,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 113,
-      "last_accessed": "2026-09-19T18:01:32.348678+00:00"
+      "access_count": 115,
+      "last_accessed": "2026-09-19T18:10:17.637372+00:00"
     },
     {
       "id": "MEM-20260918-009",
@@ -1628,8 +1662,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 278,
-      "last_accessed": "2026-09-18T22:56:37.244790+00:00"
+      "access_count": 282,
+      "last_accessed": "2026-09-19T18:11:51.388193+00:00"
     },
     {
       "id": "MEM-20260918-005",
@@ -1648,8 +1682,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 407,
-      "last_accessed": "2026-09-19T18:01:26.463981+00:00"
+      "access_count": 409,
+      "last_accessed": "2026-09-19T18:12:01.558571+00:00"
     },
     {
       "id": "MEM-20260918-004",
@@ -1708,8 +1742,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 343,
-      "last_accessed": "2026-09-18T22:55:49.727996+00:00"
+      "access_count": 347,
+      "last_accessed": "2026-09-19T18:11:51.388197+00:00"
     },
     {
       "id": "MEM-20260907-003",
