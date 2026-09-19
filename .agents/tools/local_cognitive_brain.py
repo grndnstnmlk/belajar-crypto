@@ -127,7 +127,7 @@ def query_local_llm(
     model: str = "deepseek-r1:8b",
     endpoint: str = "http://localhost:11434/v1",
     temperature: float = 0.2,
-    timeout: float = 3.5,
+    timeout: float = 12.0,
     response_json: bool = True
 ) -> Optional[str]:
     """
@@ -143,9 +143,9 @@ def query_local_llm(
         "model": model,
         "messages": messages,
         "temperature": temperature,
-        "max_tokens": 768,
+        "max_tokens": 1024,
     }
-    if response_json:
+    if response_json and "deepseek-r1" not in model.lower():
         payload["response_format"] = {"type": "json_object"}
 
     try:
@@ -347,14 +347,20 @@ def _execute_llm_cognitive_review(setup: Dict[str, Any], market_context: Optiona
                 model=model,
                 endpoint=endpoint,
                 temperature=0.2,
-                timeout=3.5,
+                timeout=12.0,
                 response_json=True
             )
             if raw_response:
                 cleaned = raw_response.strip()
+                cot_thought = ""
                 if "<think>" in cleaned and "</think>" in cleaned:
                     parts = cleaned.split("</think>")
+                    cot_thought = parts[0].replace("<think>", "").strip()
                     cleaned = parts[-1].strip()
+                elif "<think>" in cleaned:
+                    parts = cleaned.split("<think>")
+                    cleaned = parts[-1].strip()
+
                 if "```json" in cleaned:
                     cleaned = cleaned.split("```json")[1].split("```")[0].strip()
                 elif "```" in cleaned:
@@ -369,7 +375,7 @@ def _execute_llm_cognitive_review(setup: Dict[str, Any], market_context: Optiona
                     "verdict": parsed.get("verdict", "APPROVE"),
                     "confidence": int(parsed.get("confidence", 75)),
                     "risk_scale": float(parsed.get("risk_scale", 1.0)),
-                    "thought_process": parsed.get("thought_process", ""),
+                    "thought_process": parsed.get("thought_process") or cot_thought[:350] or "Evaluated via local reasoning model.",
                     "bull_argument": parsed.get("bull_argument", ""),
                     "bear_critique": parsed.get("bear_critique", ""),
                     "reason": parsed.get("reason", "Approved by Local Reasoning Core"),
