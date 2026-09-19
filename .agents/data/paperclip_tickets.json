@@ -1,5 +1,35 @@
 [
   {
+    "ticket_id": "TCK-20260919-6637",
+    "symbol": "ETHUSDT",
+    "side": "LONG",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "HIGH",
+    "created_at": "2026-09-19 00:45:26",
+    "updated_at": "2026-09-19 00:52:11",
+    "payload": {
+      "entry": 2621.58,
+      "sl": 2616.4765,
+      "tp": 2636.8905,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-19 00:45:26",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup ETHUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260919-1028",
     "symbol": "LINKUSDT",
     "side": "LONG",
@@ -9,11 +39,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-19 00:20:01",
-    "updated_at": "2026-09-19 00:42:04",
+    "updated_at": "2026-09-19 00:53:50",
     "payload": {
-      "entry": 12.37,
-      "sl": 12.3442,
-      "tp": 12.4474,
+      "entry": 12.389,
+      "sl": 12.3452,
+      "tp": 12.5204,
       "rr": 3.0
     },
     "debate_result": null,
@@ -509,10 +539,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-18 22:34:00",
-    "updated_at": "2026-09-18 23:03:30",
+    "updated_at": "2026-09-19 17:45:36",
     "payload": {
       "entry": 764.2,
       "sl": 755.0037,
@@ -622,7 +652,13 @@
       "authorized_at": "2026-09-18 23:03:30",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$4.87 USDT)",
+      "realized_pnl": -4.8655,
+      "net_pnl": -6.0781,
+      "closed_at": "2026-09-19 17:45:36"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-18 22:34:00",
@@ -653,6 +689,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-19 17:45:36",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$4.87 USDT) | PnL: $-4.87 USDT (Net: $-6.08)"
       }
     ]
   },
@@ -984,11 +1026,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-18 22:04:25",
-    "updated_at": "2026-09-19 00:42:04",
+    "updated_at": "2026-09-19 00:45:26",
     "payload": {
-      "entry": 0.8297,
+      "entry": 0.8298,
       "sl": 0.8177,
-      "tp": 0.8657,
+      "tp": 0.8661,
       "rr": 3.0
     },
     "debate_result": null,
