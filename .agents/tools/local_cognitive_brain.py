@@ -365,40 +365,101 @@ def _execute_llm_cognitive_review(setup: Dict[str, Any], market_context: Optiona
 
     return result
 
+def find_ollama_executable() -> Optional[str]:
+    """Finds ollama.exe in PATH or standard Windows directories."""
+    import shutil
+    p = shutil.which("ollama")
+    if p and os.path.exists(p):
+        return p
+
+    candidates = [
+        os.path.expandvars(r"%LOCALAPPDATA%\Programs\Ollama\ollama.exe"),
+        os.path.expandvars(r"%PROGRAMFILES%\Ollama\ollama.exe"),
+        os.path.expandvars(r"%USERPROFILE%\AppData\Local\Programs\Ollama\ollama.exe")
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return None
+
+def ensure_local_llm_service() -> bool:
+    """
+    Auto-detects and auto-launches local Ollama server in background if available.
+    """
+    is_live, _, _ = test_local_llm_connection(timeout=0.25, max_age=5.0)
+    if is_live:
+        return True
+
+    exe = find_ollama_executable()
+    if exe:
+        try:
+            import subprocess
+            flags = (0x00000008 | 0x00000200) if sys.platform == "win32" else 0
+            subprocess.Popen([exe, "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, creationflags=flags)
+            time.sleep(1.0)
+            is_now_live, _, _ = test_local_llm_connection(timeout=0.5, max_age=0.0)
+            if is_now_live:
+                print(f"🤖 [Cognitive Brain] Auto-launched local Ollama service ({exe})")
+                return True
+        except Exception:
+            pass
+    return False
+
 def _cognitive_worker_loop():
     """
     Dedicated Asynchronous Worker Thread for Local Cognitive AI Brain (P2 Optimization).
     Executes heavy local LLM queries (1-3s) in the background so main trading loops
     operate at institutional ultra-low latency (< 1ms).
+    Also continuously generates market reflections every 45s when queue is idle.
     """
+    last_reflection_time = 0.0
     while True:
         try:
-            task = _COGNITIVE_QUEUE.get()
-            if not task:
-                continue
-            setup, ctx = task
-            sym = setup.get("symbol", "UNKNOWN")
-            side = setup.get("side", "BUY").upper()
-            cache_key = f"{sym}_{side}"
-            
-            review = _execute_llm_cognitive_review(setup, ctx)
-            if review:
-                with _COGNITIVE_LOCK:
-                    _COGNITIVE_CACHE[cache_key] = review
-                save_cognitive_log(sym, side, review)
+            try:
+                task = _COGNITIVE_QUEUE.get(timeout=2.0)
+            except queue.Empty:
+                task = None
+
+            if task:
+                setup, ctx = task
+                sym = setup.get("symbol", "UNKNOWN")
+                side = setup.get("side", "BUY").upper()
+                cache_key = f"{sym}_{side}"
+                
+                review = _execute_llm_cognitive_review(setup, ctx)
+                if review:
+                    with _COGNITIVE_LOCK:
+                        _COGNITIVE_CACHE[cache_key] = review
+                    save_cognitive_log(sym, side, review)
+                try:
+                    _COGNITIVE_QUEUE.task_done()
+                except Exception:
+                    pass
+            else:
+                # Idle reflection: keep consciousness stream active on dashboard every 45s
+                now = time.time()
+                if now - last_reflection_time >= 45.0:
+                    last_reflection_time = now
+                    try:
+                        mock_setup = {
+                            "symbol": "BTCUSDT",
+                            "side": "BUY",
+                            "strategy": "Autonomous Market Continuous Stream"
+                        }
+                        review = _execute_llm_cognitive_review(mock_setup, {})
+                        if review:
+                            save_cognitive_log("BTCUSDT", "MONITOR", review)
+                    except Exception:
+                        pass
         except Exception:
             pass
-        finally:
-            try:
-                _COGNITIVE_QUEUE.task_done()
-            except Exception:
-                pass
-        time.sleep(0.05)
+        time.sleep(0.1)
 
 def ensure_cognitive_worker():
     global _COGNITIVE_WORKER_STARTED
     if not _COGNITIVE_WORKER_STARTED:
         _COGNITIVE_WORKER_STARTED = True
+        ensure_local_llm_service()
         t = threading.Thread(target=_cognitive_worker_loop, daemon=True, name="CognitiveBrainAsyncWorker")
         t.start()
 

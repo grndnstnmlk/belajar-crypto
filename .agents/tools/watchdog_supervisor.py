@@ -181,6 +181,22 @@ def run_supervisor():
 
     services = [dashboard, trading_desk]
 
+    # Auto-detect and supervise Ollama Local LLM if installed
+    try:
+        from local_cognitive_brain import find_ollama_executable
+        ollama_exe = find_ollama_executable()
+        if ollama_exe:
+            ollama_watcher = ServiceWatcher(
+                name="Ollama Local LLM",
+                command=[ollama_exe, "serve"],
+                port=11434,
+                check_endpoint="/api/tags"
+            )
+            services.insert(0, ollama_watcher)
+            print(f"🤖 [Watchdog] Detected Ollama at {ollama_exe}. Adding to supervised services.")
+    except Exception:
+        pass
+
     # Initial start
     for s in services:
         s.start()
