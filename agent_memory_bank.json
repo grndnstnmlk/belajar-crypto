@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-19T18:12:17.425305+00:00",
-    "total_reflections": 37,
-    "system_retention_score": 97.1
+    "last_reflection_at": "2026-09-19T19:03:25.424738+00:00",
+    "total_reflections": 38,
+    "system_retention_score": 98.7
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -57,7 +57,7 @@
     "SOLUSDT": {
       "symbol": "SOLUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 10,
+      "total_trades": 11,
       "wins": 2,
-      "losses": 8,
+      "losses": 9,
       "breakevens": 0,
-      "win_rate_pct": 20.0,
-      "net_pnl_usd": -91.64,
+      "win_rate_pct": 18.2,
+      "net_pnl_usd": -96.0,
       "avg_r_multiple": -0.35,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-20 01:09:00",
-      "updated_at": "2026-09-19T18:56:12.666877+00:00"
+      "updated_at": "2026-09-19T19:03:25.424722+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -861,13 +861,14 @@
       "id": "RULE-AUTO-SOLUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "solusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-19T18:09:06.635459+00:00"
+      "created_at": "2026-09-19T18:09:06.635459+00:00",
+      "updated_at": "2026-09-19T19:03:25.424736+00:00"
     },
     {
       "id": "RULE-AUTO-ETHUSDT",
@@ -883,6 +884,28 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260919-042",
+      "timestamp": "2026-09-19T19:03:25.424707+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Order flow delta and price action are aligned neutrally. Supported by DOM Bid Wall @ $111.03 ($209,742 USDT). (Target: 15-30 menit)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -4.36,
+      "r_multiple": -0.13,
+      "pnl_pct": -0.16,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT ⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Order flow delta and price action are aligned neutrally. Supported by DOM Bid Wall @ $111.03 ($209,742 USDT). (Target: 15-30 menit) (net: -$4.36, -0.13R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "⚡_high-r:r_scalp_[5m_order_flow_cvd_absorption_scalp]:_order_flow_bullish_absorption:_order_flow_delta_and_price_action_are_aligned_neutrally._supported_by_dom_bid_wall_@_$111.03_($209,742_usdt)._(target:_15-30_menit)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-19T19:03:25.424713+00:00"
+    },
     {
       "id": "MEM-20260919-041",
       "timestamp": "2026-09-19T18:12:17.425285+00:00",
