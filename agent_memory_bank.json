@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-18T23:06:13.296795+00:00",
-    "total_reflections": 29,
-    "system_retention_score": 98.9
+    "last_reflection_at": "2026-09-19T00:10:43.762289+00:00",
+    "total_reflections": 30,
+    "system_retention_score": 99.0
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -113,16 +113,16 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 88,
+      "total_trades": 89,
       "wins": 24,
-      "losses": 37,
+      "losses": 38,
       "breakevens": 27,
-      "win_rate_pct": 27.3,
-      "net_pnl_usd": 158.17,
+      "win_rate_pct": 27.0,
+      "net_pnl_usd": 157.46,
       "avg_r_multiple": 0.03,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-18 06:20:57",
-      "updated_at": "2026-09-18T21:01:23.112095+00:00"
+      "updated_at": "2026-09-19T00:10:43.762277+00:00"
     },
     "DOGEUSDT": {
       "symbol": "DOGEUSDT",
@@ -831,9 +831,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-18T21:45:05.641173+00:00"
+    },
+    {
+      "id": "RULE-AUTO-XRPUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on XRPUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "xrpusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-19T00:10:43.762287+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260919-034",
+      "timestamp": "2026-09-19T00:10:43.762263+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Strong convergent taker buy aggression (+13.1% Delta). Supported by DOM Bid Wall @ $1.39 ($125,895 USDT). (Target: 15-30 menit)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -0.71,
+      "r_multiple": 0.01,
+      "pnl_pct": -0.03,
+      "root_cause": "Adverse volatility stop-out on XRPUSDT ⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Strong convergent taker buy aggression (+13.1% Delta). Supported by DOM Bid Wall @ $1.39 ($125,895 USDT). (Target: 15-30 menit) (net: -$0.71, +0.01R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on XRPUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "xrp",
+        "⚡_high-r:r_scalp_[5m_order_flow_cvd_absorption_scalp]:_order_flow_bullish_absorption:_strong_convergent_taker_buy_aggression_(+13.1%_delta)._supported_by_dom_bid_wall_@_$1.39_($125,895_usdt)._(target:_15-30_menit)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-19T00:10:43.762268+00:00"
+    },
     {
       "id": "MEM-20260918-033",
       "timestamp": "2026-09-18T23:06:13.296776+00:00",
