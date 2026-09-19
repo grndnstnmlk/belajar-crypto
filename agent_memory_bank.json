@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-19T00:10:43.762289+00:00",
-    "total_reflections": 30,
+    "last_reflection_at": "2026-09-19T00:18:23.345355+00:00",
+    "total_reflections": 31,
     "system_retention_score": 99.0
   },
   "coin_profiles": {
@@ -251,16 +251,16 @@
         "Wyckoff Spring"
       ],
       "notes": "Oracle leader with strong fundamental holding. Highly respects horizontal support and resistance.",
-      "total_trades": 100,
+      "total_trades": 101,
       "wins": 28,
-      "losses": 31,
+      "losses": 32,
       "breakevens": 41,
-      "win_rate_pct": 28.0,
-      "net_pnl_usd": 47.03,
+      "win_rate_pct": 27.7,
+      "net_pnl_usd": 34.05,
       "avg_r_multiple": -0.04,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-18 05:34:06",
-      "updated_at": "2026-09-18T18:52:39.816316+00:00"
+      "updated_at": "2026-09-19T00:18:23.345343+00:00"
     },
     "UNIUSDT": {
       "symbol": "UNIUSDT",
@@ -843,9 +843,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-19T00:10:43.762287+00:00"
+    },
+    {
+      "id": "RULE-AUTO-LINKUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on LINKUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "linkusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-19T00:18:23.345353+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260919-035",
+      "timestamp": "2026-09-19T00:18:23.345329+00:00",
+      "symbol": "LINKUSDT",
+      "setup_type": "⚡ HIGH-R:R SCALP [5m ICT Rejection Block Mean Threshold]: Live retest of 1H Bullish Rejection Block (TESTING_MEAN_THRESHOLD) @ $12.2870 with Mean Threshold @ $12.2760 (Target: 15-30 menit)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -12.98,
+      "r_multiple": -0.41,
+      "pnl_pct": -0.54,
+      "root_cause": "Adverse volatility stop-out on LINKUSDT ⚡ HIGH-R:R SCALP [5m ICT Rejection Block Mean Threshold]: Live retest of 1H Bullish Rejection Block (TESTING_MEAN_THRESHOLD) @ $12.2870 with Mean Threshold @ $12.2760 (Target: 15-30 menit) (net: -$12.98, -0.41R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on LINKUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "link",
+        "⚡_high-r:r_scalp_[5m_ict_rejection_block_mean_threshold]:_live_retest_of_1h_bullish_rejection_block_(testing_mean_threshold)_@_$12.2870_with_mean_threshold_@_$12.2760_(target:_15-30_menit)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-19T00:18:23.345334+00:00"
+    },
     {
       "id": "MEM-20260919-034",
       "timestamp": "2026-09-19T00:10:43.762263+00:00",
