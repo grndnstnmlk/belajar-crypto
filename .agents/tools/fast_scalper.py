@@ -1510,17 +1510,22 @@ def scan_symbol_scalp(symbol):
 
 def scan_all_scalp_opportunities(symbols=None):
     """
-    Scans list of liquid pairs for fast scalp setups.
+    Scans list of liquid pairs for fast scalp setups in parallel using ThreadPoolExecutor.
     """
     if not symbols:
         symbols = DEFAULT_SCALP_SYMBOLS
 
     results = []
-    for s in symbols:
-        setup = scan_symbol_scalp(s)
-        if setup:
-            results.append(setup)
-        time.sleep(0.08)
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(8, len(symbols))) as executor:
+        future_to_sym = {executor.submit(scan_symbol_scalp, s): s for s in symbols}
+        for future in concurrent.futures.as_completed(future_to_sym):
+            try:
+                setup = future.result()
+                if setup:
+                    results.append(setup)
+            except Exception:
+                pass
 
     return results
 

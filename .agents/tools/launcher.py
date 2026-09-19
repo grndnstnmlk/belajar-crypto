@@ -141,6 +141,7 @@ def main():
     
     choice = get_user_choice(timeout_sec=5)
     
+    watchdog_script = os.path.join(TOOLS_DIR, "watchdog_supervisor.py")
     trading_desk_script = os.path.join(TOOLS_DIR, "trading_desk.py")
     hyperopt_script = os.path.join(TOOLS_DIR, "hyperopt_optimizer.py")
     pairlist_script = os.path.join(TOOLS_DIR, "pairlist_pipeline.py")
@@ -149,10 +150,10 @@ def main():
     if choice == "1":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
-        print(f"{C.BOLD}{C.BRIGHT_GREEN}🤖 MEMULAI DUAL-ENGINE HYBRID AUTOPILOT (1H SWING + 5m FAST SCALP CONFLUENCE){C.RESET}")
-        print(f"{C.GRAY}Fitur: Dual Engine (1H Swing Macro + 5m Scalper) + Level-2 Delta Sniping + Breakeven Lock{C.RESET}")
+        print(f"{C.BOLD}{C.BRIGHT_GREEN}🛡️ 🤖 MEMULAI DUAL-ENGINE HYBRID AUTOPILOT + AUTO-HEALING WATCHDOG SUPERVISOR{C.RESET}")
+        print(f"{C.GRAY}Fitur: Auto-Healing Supervisor + Dual Engine (1H Swing Macro + 5m Scalper) + Level-2 Delta Sniping{C.RESET}")
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
-        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "HYBRID"], cwd=ROOT_DIR)
+        subprocess.run([sys.executable, "-u", watchdog_script], cwd=ROOT_DIR)
         
     elif choice == "2":
         clear_screen()

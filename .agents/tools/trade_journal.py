@@ -22,26 +22,108 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
 TOOLS_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(os.path.dirname(TOOLS_DIR), "data")
 JOURNAL_FILE = os.path.join(DATA_DIR, "trade_journal_ledger.json")
+ARCHIVE_FILE = os.path.join(DATA_DIR, "trade_journal_archive.json")
+MAX_HOT_TRADES = 100
 
 sys.path.insert(0, TOOLS_DIR)
 import binance_client
 from atomic_json_store import atomic_read_json, atomic_write_json
 
-def load_journal():
+def load_journal(include_archive=False):
+    """Loads closed trades ledger. If include_archive is True, loads all trades."""
+    if include_archive:
+        return load_all_trades()
     return atomic_read_json(JOURNAL_FILE, default=[])
 
-def load_trade_ledger():
-    """Alias for load_journal() to provide full ledger of closed trades."""
-    return load_journal()
+def load_archived_trades():
+    """Loads historical archived trades beyond the active hot sliding window."""
+    return atomic_read_json(ARCHIVE_FILE, default=[])
+
+def load_all_trades():
+    """Loads combined historical archived trades and hot ledger trades, deduplicated."""
+    archived = load_archived_trades()
+    hot = atomic_read_json(JOURNAL_FILE, default=[])
+
+    seen_ids = set()
+    combined = []
+    for t in archived:
+        tid = t.get("id") or f"{t.get('symbol')}-{t.get('closed_at')}"
+        if tid not in seen_ids:
+            seen_ids.add(tid)
+            combined.append(t)
+
+    for t in hot:
+        tid = t.get("id") or f"{t.get('symbol')}-{t.get('closed_at')}"
+        if tid not in seen_ids:
+            seen_ids.add(tid)
+            combined.append(t)
+        else:
+            idx = next((i for i, x in enumerate(combined) if (x.get("id") or f"{x.get('symbol')}-{x.get('closed_at')}") == tid), None)
+            if idx is not None:
+                combined[idx] = t
+
+    combined.sort(key=lambda x: str(x.get("closed_at", "")), reverse=False)
+    return combined
+
+def load_trade_ledger(include_archive=False):
+    """Alias for load_journal() to provide ledger of closed trades."""
+    return load_journal(include_archive=include_archive)
 
 def load_bot_executions():
     """Loads recorded bot executions from trading_desk_history.json."""
     desk_history_file = os.path.join(DATA_DIR, "trading_desk_history.json")
     return atomic_read_json(desk_history_file, default=[])
 
+def archive_older_trades(max_hot=MAX_HOT_TRADES):
+    """
+    Partitions trades so that only the most recent `max_hot` trades stay in
+    trade_journal_ledger.json, while older trades are moved to trade_journal_archive.json.
+    """
+    trades = atomic_read_json(JOURNAL_FILE, default=[])
+    if len(trades) <= max_hot:
+        return 0
+
+    trades.sort(key=lambda x: str(x.get("closed_at", "")), reverse=False)
+    to_archive = trades[:-max_hot]
+    hot_trades = trades[-max_hot:]
+
+    existing_archive = load_archived_trades()
+    seen_ids = {t.get("id") or f"{t.get('symbol')}-{t.get('closed_at')}" for t in existing_archive}
+
+    archived_count = 0
+    for t in to_archive:
+        tid = t.get("id") or f"{t.get('symbol')}-{t.get('closed_at')}"
+        if tid not in seen_ids:
+            existing_archive.append(t)
+            seen_ids.add(tid)
+            archived_count += 1
+
+    existing_archive.sort(key=lambda x: str(x.get("closed_at", "")), reverse=False)
+    atomic_write_json(ARCHIVE_FILE, existing_archive, indent=2, ensure_ascii=False)
+    atomic_write_json(JOURNAL_FILE, hot_trades, indent=2, ensure_ascii=False)
+    print(f"📦 [Trade Journal] Archived {archived_count} older trades to {os.path.basename(ARCHIVE_FILE)}. Hot ledger size: {len(hot_trades)}")
+    return archived_count
+
 def save_journal(trades):
     try:
-        atomic_write_json(JOURNAL_FILE, trades, indent=2, ensure_ascii=False)
+        if len(trades) > MAX_HOT_TRADES:
+            trades.sort(key=lambda x: str(x.get("closed_at", "")), reverse=False)
+            to_archive = trades[:-MAX_HOT_TRADES]
+            hot_trades = trades[-MAX_HOT_TRADES:]
+
+            existing_archive = load_archived_trades()
+            seen_ids = {t.get("id") or f"{t.get('symbol')}-{t.get('closed_at')}" for t in existing_archive}
+            for t in to_archive:
+                tid = t.get("id") or f"{t.get('symbol')}-{t.get('closed_at')}"
+                if tid not in seen_ids:
+                    existing_archive.append(t)
+                    seen_ids.add(tid)
+
+            existing_archive.sort(key=lambda x: str(x.get("closed_at", "")), reverse=False)
+            atomic_write_json(ARCHIVE_FILE, existing_archive, indent=2, ensure_ascii=False)
+            atomic_write_json(JOURNAL_FILE, hot_trades, indent=2, ensure_ascii=False)
+        else:
+            atomic_write_json(JOURNAL_FILE, trades, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"[Trade Journal] Error saving journal: {e}")
 
@@ -120,8 +202,9 @@ def sync_binance_history(user_email="dxmade@gmail.com", is_demo=True, limit=50):
     if not res_income or not isinstance(res_income, list):
         return 0
 
+    all_trades = load_all_trades()
+    existing_ids = {t.get("id") for t in all_trades}
     journal = load_journal()
-    existing_ids = {t.get("id") for t in journal}
     new_count = 0
 
     # Group income by tranId or tradeId
@@ -172,7 +255,10 @@ def calculate_journal_metrics(timeframe="all"):
     - Asset-by-Asset breakdown
     - Long vs Short breakdown
     """
-    trades = load_journal()
+    if timeframe in ["all", "30d"]:
+        trades = load_all_trades()
+    else:
+        trades = load_journal()
     if not trades:
         return None
 
@@ -509,6 +595,8 @@ def get_strategy_kelly_profile(strategy_name="Smart Money Concepts (SMC)", base_
     }
 
 if __name__ == "__main__":
+    # Auto-archive if ledger exceeds sliding window
+    archive_older_trades()
     count = sync_binance_history()
     print(f"Synced {count} trades from Binance.")
     report = format_telegram_journal("all")

@@ -1381,6 +1381,11 @@
           <span class="status-dot-pulse" style="background:var(--color-green); box-shadow:0 0 8px var(--color-green);"></span>
           <span id="header-ws-text">WS &lt;50MS</span>
         </span>
+
+        <span class="status-capsule green" id="header-sse-pill" title="Server-Sent Events Realtime Stream (<50ms)" style="font-size:10px;">
+          <span class="status-dot-pulse" style="background:var(--color-green); box-shadow:0 0 8px var(--color-green);"></span>
+          <span id="header-sse-text">⚡ SSE LIVE</span>
+        </span>
       </div>
 
       <!-- Segmented Navigation Tabs -->
@@ -2312,78 +2317,140 @@
       loadChartKlines(activeSymbol, activeTimeframe);
     }
 
-    // Real-time Dashboard Polling with SmoothUI / Magic UI Ticker Micro-Animations
+    // Real-time Dashboard Polling & Native SSE Stream with SmoothUI / Magic UI Ticker Micro-Animations
     let lastEquityValue = null;
     let lastActiveSymPrice = null;
+    let sseSource = null;
+    let sseFallbackInterval = null;
+
+    function applyFeedData(data) {
+      if (!data) return;
+
+      // Render Balance & Equity with Live Number Flash
+      if (data.balance_usd !== undefined) {
+        const eqEl = document.getElementById('header-equity');
+        if (eqEl) {
+          const newEq = Number(data.balance_usd);
+          eqEl.innerText = `$${newEq.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+          if (lastEquityValue !== null && Math.abs(newEq - lastEquityValue) > 0.001) {
+            eqEl.classList.remove('data-flash-up', 'data-flash-down');
+            void eqEl.offsetWidth;
+            eqEl.classList.add(newEq > lastEquityValue ? 'data-flash-up' : 'data-flash-down');
+          }
+          lastEquityValue = newEq;
+        }
+      }
+
+      // Render Watchlist
+      if (data.watchlist && Array.isArray(data.watchlist)) {
+        renderWatchlist(data.watchlist);
+      }
+
+      // Render Positions
+      if (data.positions && Array.isArray(data.positions)) {
+        renderPositions(data.positions);
+      }
+
+      // Update active symbol price with Live Ticker Flash
+      if (data.watchlist) {
+        const activeCoin = data.watchlist.find(w => w.symbol === activeSymbol);
+        if (activeCoin && activeCoin.price) {
+          const priceEl = document.getElementById('active-sym-price');
+          if (priceEl) {
+            const newPrice = Number(activeCoin.price);
+            priceEl.innerText = `$${newPrice.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}`;
+            if (lastActiveSymPrice !== null && Math.abs(newPrice - lastActiveSymPrice) > 0.00001) {
+              priceEl.classList.remove('data-flash-up', 'data-flash-down');
+              void priceEl.offsetWidth;
+              priceEl.classList.add(newPrice > lastActiveSymPrice ? 'data-flash-up' : 'data-flash-down');
+            }
+            lastActiveSymPrice = newPrice;
+          }
+        }
+      }
+
+      // Update WebSocket Stream Telemetry Pill
+      if (data.ws_stream) {
+        const wsPill = document.getElementById('header-ws-pill');
+        const wsText = document.getElementById('header-ws-text');
+        if (wsPill && wsText) {
+          if (data.ws_stream.connected && data.ws_stream.is_healthy) {
+            wsPill.className = 'status-capsule green';
+            wsText.innerText = `WS <50MS (${data.ws_stream.pairs_streaming || 789})`;
+          } else if (data.ws_stream.connected) {
+            wsPill.className = 'status-capsule blue';
+            wsText.innerText = 'WS CONNECTING';
+          } else {
+            wsPill.className = 'status-capsule amber';
+            wsText.innerText = 'WS REST-FALLBACK';
+          }
+        }
+      }
+    }
 
     async function fetchDashboardFeed() {
       try {
         const res = await fetch('/api/feed');
         const data = await res.json();
-        if (!data) return;
-
-        // Render Balance & Equity with Live Number Flash
-        if (data.balance_usd !== undefined) {
-          const eqEl = document.getElementById('header-equity');
-          if (eqEl) {
-            const newEq = Number(data.balance_usd);
-            eqEl.innerText = `$${newEq.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-            if (lastEquityValue !== null && Math.abs(newEq - lastEquityValue) > 0.001) {
-              eqEl.classList.remove('data-flash-up', 'data-flash-down');
-              void eqEl.offsetWidth;
-              eqEl.classList.add(newEq > lastEquityValue ? 'data-flash-up' : 'data-flash-down');
-            }
-            lastEquityValue = newEq;
-          }
-        }
-
-        // Render Watchlist
-        if (data.watchlist && Array.isArray(data.watchlist)) {
-          renderWatchlist(data.watchlist);
-        }
-
-        // Render Positions
-        if (data.positions && Array.isArray(data.positions)) {
-          renderPositions(data.positions);
-        }
-
-        // Update active symbol price with Live Ticker Flash
-        if (data.watchlist) {
-          const activeCoin = data.watchlist.find(w => w.symbol === activeSymbol);
-          if (activeCoin && activeCoin.price) {
-            const priceEl = document.getElementById('active-sym-price');
-            if (priceEl) {
-              const newPrice = Number(activeCoin.price);
-              priceEl.innerText = `$${newPrice.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}`;
-              if (lastActiveSymPrice !== null && Math.abs(newPrice - lastActiveSymPrice) > 0.00001) {
-                priceEl.classList.remove('data-flash-up', 'data-flash-down');
-                void priceEl.offsetWidth;
-                priceEl.classList.add(newPrice > lastActiveSymPrice ? 'data-flash-up' : 'data-flash-down');
-              }
-              lastActiveSymPrice = newPrice;
-            }
-          }
-        }
-
-        // Update WebSocket Stream Telemetry Pill
-        if (data.ws_stream) {
-          const wsPill = document.getElementById('header-ws-pill');
-          const wsText = document.getElementById('header-ws-text');
-          if (wsPill && wsText) {
-            if (data.ws_stream.connected && data.ws_stream.is_healthy) {
-              wsPill.className = 'status-capsule green';
-              wsText.innerText = `WS <50MS (${data.ws_stream.pairs_streaming || 789})`;
-            } else if (data.ws_stream.connected) {
-              wsPill.className = 'status-capsule blue';
-              wsText.innerText = 'WS CONNECTING';
-            } else {
-              wsPill.className = 'status-capsule amber';
-              wsText.innerText = 'WS REST-FALLBACK';
-            }
-          }
-        }
+        applyFeedData(data);
       } catch (e) {
         console.warn("Feed poll error:", e);
+      }
+    }
+
+    function initEventSource() {
+      if (!window.EventSource) {
+        console.warn("EventSource not supported by browser, falling back to polling.");
+        startPollingFallback();
+        return;
+      }
+
+      try {
+        if (sseSource) {
+          sseSource.close();
+        }
+        sseSource = new EventSource('/api/stream/events');
+
+        sseSource.onopen = function() {
+          const ssePill = document.getElementById('header-sse-pill');
+          const sseText = document.getElementById('header-sse-text');
+          if (ssePill && sseText) {
+            ssePill.className = 'status-capsule green';
+            sseText.innerText = '⚡ SSE LIVE (<50ms)';
+          }
+          if (sseFallbackInterval) {
+            clearInterval(sseFallbackInterval);
+            sseFallbackInterval = null;
+          }
+        };
+
+        sseSource.onmessage = function(event) {
+          try {
+            const data = JSON.parse(event.data);
+            applyFeedData(data);
+          } catch (e) {
+            console.warn("SSE data parse error:", e);
+          }
+        };
+
+        sseSource.onerror = function() {
+          const ssePill = document.getElementById('header-sse-pill');
+          const sseText = document.getElementById('header-sse-text');
+          if (ssePill && sseText) {
+            ssePill.className = 'status-capsule amber';
+            sseText.innerText = 'SSE RECONNECTING';
+          }
+          startPollingFallback();
+        };
+      } catch (e) {
+        console.warn("SSE initialization error:", e);
+        startPollingFallback();
+      }
+    }
+
+    function startPollingFallback() {
+      if (!sseFallbackInterval) {
+        sseFallbackInterval = setInterval(fetchDashboardFeed, 2000);
       }
     }
 
@@ -3757,6 +3824,7 @@
     // Bootstrapping on Load
     window.addEventListener('DOMContentLoaded', () => {
       initChart();
+      initEventSource();
       fetchDashboardFeed();
       loadIntelligenceData();
       loadJournalData();
@@ -3768,7 +3836,7 @@
       loadDexBridgeStatus();
       fetchSeasonalityStatus();
       
-      setInterval(fetchDashboardFeed, 2000);
+      startPollingFallback();
       setInterval(() => {
         if (activeView === 'terminal') {
           loadChartKlines(activeSymbol, activeTimeframe);

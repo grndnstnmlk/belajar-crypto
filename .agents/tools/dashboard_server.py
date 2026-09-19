@@ -734,6 +734,11 @@ def get_chart_data(symbol="BTC", bar="1H"):
     }
 
 class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, format, *args):
+        # Route HTTP access logs to stdout to prevent Windows PowerShell NativeCommandError
+        sys.stdout.write("%s - - [%s] %s\n" % (self.address_string(), self.log_date_time_string(), format % args))
+        sys.stdout.flush()
+
     def end_headers(self):
         # Enable CORS for seamless local development
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -769,6 +774,59 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/stream/events":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "keep-alive")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+
+            # Push initial snapshot immediately
+            try:
+                initial_feed = get_dashboard_feed_data()
+                self.wfile.write(f"data: {json.dumps(initial_feed, ensure_ascii=False)}\n\n".encode("utf-8"))
+                self.wfile.flush()
+            except Exception:
+                return
+
+            last_feed_dump = ""
+            heartbeat_interval = 15.0
+            last_heartbeat = time.time()
+
+            while True:
+                try:
+                    time.sleep(0.3)
+                    now = time.time()
+                    feed = get_dashboard_feed_data()
+
+                    # Compare critical state
+                    current_dump = json.dumps({
+                        "positions": feed.get("positions"),
+                        "active_positions_count": feed.get("active_positions_count"),
+                        "orders": feed.get("orders"),
+                        "ai_logs": feed.get("ai_logs")[:5] if feed.get("ai_logs") else [],
+                        "ai_agent_status": feed.get("ai_agent_status"),
+                        "market_regime": feed.get("market_regime"),
+                        "balance_usd": feed.get("balance_usd"),
+                        "watchlist": [{"s": w.get("symbol"), "p": w.get("price")} for w in feed.get("watchlist", [])]
+                    }, sort_keys=True)
+
+                    if current_dump != last_feed_dump:
+                        last_feed_dump = current_dump
+                        self.wfile.write(f"data: {json.dumps(feed, ensure_ascii=False)}\n\n".encode("utf-8"))
+                        self.wfile.flush()
+                        last_heartbeat = now
+                    elif now - last_heartbeat >= heartbeat_interval:
+                        self.wfile.write(b": ping\n\n")
+                        self.wfile.flush()
+                        last_heartbeat = now
+                except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+                    break
+                except Exception:
+                    break
             return
 
         elif path == "/api/watchlist":

@@ -695,146 +695,99 @@ def compute_rs_matrix(symbols):
 
     return matrix, btc_chg_24h
 
-def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct):
+def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pct, rs_matrix):
     """
-    Scans 1H / 4H swing setups using 4 championship strategies & top-down macro confluence.
+    Evaluates all swing strategies for a single symbol concurrently.
+    Returns a candidate setup dict or None.
     """
     import htf_macro_lock
-    print(f"\n[2. MARKET RESEARCHER AGENT — RELATIVE STRENGTH & WATCHLIST SCAN]")
-    rs_matrix, btc_chg = compute_rs_matrix(active_watchlist)
-    print(f" * BTC 24h Benchmark Performance: {btc_chg:+.2f}%")
-    for s_name, r_info in sorted(rs_matrix.items(), key=lambda x: x[1]["rs_score"], reverse=True):
-        print(f"   - {s_name:<5}: 24h {r_info['change_24h']:+6.2f}% | Alpha MTF: {r_info['composite_alpha']:+6.2f}% | {r_info['badge']}")
+    pair_sym = f"{sym}USDT"
+    if pair_sym in active_symbols:
+        return None
 
-    candidates = []
+    data = market_eyes.get_market_eyes(sym, bar="1H")
+    if not data or not data.get("price"):
+        return None
 
-    for sym in active_watchlist:
-        pair_sym = f"{sym}USDT"
-        if pair_sym in active_symbols:
-            print(f"\n - {pair_sym}: Sudah ada posisi aktif yang sedang berjalan. Dilewati.")
-            continue
+    # Detect Market Regime first
+    reg = market_regime.detect_market_regime(sym, interval="1h")
+    reg_name = reg["regime"] if reg else "UNKNOWN"
+    reg_label = reg["regime_label"] if reg else "UNKNOWN"
+    adx_val = reg["adx"] if reg else 0.0
 
-        data = market_eyes.get_market_eyes(sym, bar="1H")
-        if not data or not data.get("price"):
-            continue
+    price = data["price"]
+    rsi = data.get("rsi") or 50.0
+    ema20 = data.get("ema20")
+    ema50 = data.get("ema50")
+    fvg = data.get("fvg") or ""
+    funding = data.get("funding_rate") or 0.0
 
-        # Detect Market Regime first
-        reg = market_regime.detect_market_regime(sym, interval="1h")
-        reg_name = reg["regime"] if reg else "UNKNOWN"
-        reg_label = reg["regime_label"] if reg else "UNKNOWN"
-        adx_val = reg["adx"] if reg else 0.0
+    # Guardrail: Skip if market is in low-liquidity volatility squeeze
+    if reg_name == "VOLATILITY_SQUEEZE":
+        return None
 
-        price = data["price"]
-        rsi = data.get("rsi") or 50.0
-        ema20 = data.get("ema20")
-        ema50 = data.get("ema50")
-        fvg = data.get("fvg") or ""
-        funding = data.get("funding_rate") or 0.0
+    # Select Specialized Sub-Genome
+    reg_genomes = genome.get("regime_genomes", {})
+    if "TRENDING" in reg_name:
+        sub_gen = reg_genomes.get("TRENDING", {})
+    elif "RANGING" in reg_name or "DEVELOPING" in reg_name or "MIXED" in reg_name:
+        sub_gen = reg_genomes.get("RANGING", {})
+    else:
+        sub_gen = reg_genomes.get("DEFENSIVE", {})
 
-        print(f"   🧭 Rezim Pasar: {reg_label} (ADX: {adx_val})")
+    effective_min_rr = sub_gen.get("min_risk_reward", min_rr)
+    effective_max_risk = sub_gen.get("max_risk_per_trade_pct", max_risk_pct)
+    sub_label = sub_gen.get("label", "STANDARD ENGINE")
 
-        # Guardrail: Skip if market is in low-liquidity volatility squeeze
-        if reg_name == "VOLATILITY_SQUEEZE":
-            print(f"   [Peringatan] Volatilitas squeeze terdeteksi. Menghindari entry prematur.")
-            continue
+    # Confluence Rules
+    three_touch = data.get("three_touch")
+    volume_profile = data.get("volume_profile")
+    va_setup = volume_profile.get("setup") if volume_profile else None
+    liquidity_sweep = data.get("liquidity_sweep")
+    vwap_data = data.get("vwap")
+    rb_setup = data.get("rejection_block")
+    rs_info = rs_matrix.get(sym, {})
+    is_alpha_leader = rs_info.get("tier") == "LEADER"
+    is_beta_laggard = rs_info.get("tier") == "LAGGARD"
+    deriv_intel = data.get("derivatives_intel")
+    cb_intel = data.get("coinbase_intel")
 
-        # Select Specialized Sub-Genome
-        reg_genomes = genome.get("regime_genomes", {})
-        if "TRENDING" in reg_name:
-            sub_gen = reg_genomes.get("TRENDING", {})
-        elif "RANGING" in reg_name or "DEVELOPING" in reg_name or "MIXED" in reg_name:
-            sub_gen = reg_genomes.get("RANGING", {})
+    # Rule A: Bullish Setup
+    has_bullish_fvg = "Bullish FVG" in fvg
+    has_bullish_3touch = bool(three_touch and three_touch.get("type") == "BULLISH_3_TOUCH")
+    has_bullish_auction = bool(va_setup and va_setup.get("type") == "BULLISH_FAILED_AUCTION")
+    has_bullish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BULLISH_SWEEP_MSS")
+    has_bullish_rb = bool(rb_setup and rb_setup.get("has_setup") and rb_setup.get("side") == "BUY")
+
+    ad_intel = data.get("adaptive_intel")
+    eff_ob = ad_intel.get("ob_threshold", 75.0) if ad_intel else sub_gen.get("rsi_overbought", 70)
+    eff_os = ad_intel.get("os_threshold", 25.0) if ad_intel else sub_gen.get("rsi_oversold", 30)
+    eval_rsi = ad_intel.get("adaptive_rsi", rsi) if ad_intel else rsi
+    rsi_safe_long = eval_rsi < eff_ob and eval_rsi > eff_os
+
+    # Rule B: Bearish Setup
+    has_bearish_fvg = "Bearish FVG" in fvg
+    has_bearish_3touch = bool(three_touch and three_touch.get("type") == "BEARISH_3_TOUCH")
+    has_bearish_auction = bool(va_setup and va_setup.get("type") == "BEARISH_FAILED_AUCTION")
+    has_bearish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BEARISH_SWEEP_MSS")
+    has_bearish_rb = bool(rb_setup and rb_setup.get("has_setup") and rb_setup.get("side") == "SELL")
+    rsi_safe_short = eval_rsi > eff_os and eval_rsi < eff_ob
+
+    # SMC EQUILIBRIUM & PREMIUM / DISCOUNT ZONE AUDIT
+    h_24 = data.get("high_24h") or (price * 1.02)
+    l_24 = data.get("low_24h") or (price * 0.98)
+    range_24 = h_24 - l_24
+    price_equilibrium_pct = ((price - l_24) / range_24 * 100.0) if range_24 > 0 else 50.0
+
+    signal = None
+    if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb) and rsi_safe_long:
+        if price_equilibrium_pct > 75.0 and not (has_bullish_sweep or has_bullish_rb):
+            pass
+        elif deriv_intel and deriv_intel.get("bias") == "BEARISH_SQUEEZE_RISK":
+            pass
+        elif cb_intel and cb_intel.get("is_us_dump"):
+            pass
         else:
-            sub_gen = reg_genomes.get("DEFENSIVE", {})
-
-        effective_min_rr = sub_gen.get("min_risk_reward", min_rr)
-        effective_max_risk = sub_gen.get("max_risk_per_trade_pct", max_risk_pct)
-        sub_label = sub_gen.get("label", "STANDARD ENGINE")
-        print(f"   🧬 Sub-Genome Aktif: {sub_label} | Min R:R: 1:{effective_min_rr:.2f}")
-
-        # Confluence Rules
-        three_touch = data.get("three_touch")
-        volume_profile = data.get("volume_profile")
-        va_setup = volume_profile.get("setup") if volume_profile else None
-        liquidity_sweep = data.get("liquidity_sweep")
-        vwap_data = data.get("vwap")
-
-        rs_info = rs_matrix.get(sym, {})
-        is_alpha_leader = rs_info.get("tier") == "LEADER"
-        is_beta_laggard = rs_info.get("tier") == "LAGGARD"
-
-        # 4. CoinGlass & Institutional Derivatives Order Flow Audit
-        deriv_intel = None
-        try:
-            import coinglass_derivatives
-            deriv_intel = coinglass_derivatives.get_derivatives_intelligence(sym)
-            oi_info = f"OI: {deriv_intel['open_interest_formatted']} (1H: {deriv_intel['oi_change_1h_pct']:+.2f}%) | L/S: {deriv_intel['long_short_ratio']:.2f}"
-            print(f"   📊 Derivatives Flow : {oi_info} -> {deriv_intel['regime']}")
-        except Exception:
-            deriv_intel = None
-
-        # 5. Coinbase US Institutional Premium Index Check (Macro Spot Flow for BTC, ETH, SOL)
-        cb_intel = None
-        if sym in ["BTC", "ETH", "SOL"]:
-            try:
-                import coinbase_premium
-                cb_intel = coinbase_premium.get_coinbase_premium(sym)
-                cb_sign = "+" if cb_intel["premium_pct"] >= 0 else ""
-                print(f"   🏛️ Coinbase Premium : {cb_sign}{cb_intel['premium_pct']:+.4f}% (${cb_intel['premium_usd']:+,.2f}) -> {cb_intel['regime']}")
-            except Exception:
-                cb_intel = None
-
-        # 6. ICT Rejection Block & Mean Threshold (50% Wick Reversal)
-        rb_intel = data.get("rejection_block")
-        rb_setup = rb_intel.get("retest_setup") if rb_intel else None
-        has_bullish_rb = bool(rb_setup and rb_setup.get("side") == "LONG")
-        has_bearish_rb = bool(rb_setup and rb_setup.get("side") == "SHORT")
-
-        # Rule A: Bullish Setup (Bullish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, Tim Flossbach MSS, or ICT Rejection Block)
-        has_bullish_fvg = "Bullish FVG" in fvg
-        has_bullish_3touch = bool(three_touch and three_touch.get("type") == "BULLISH_3_TOUCH")
-        has_bullish_auction = bool(va_setup and va_setup.get("type") == "BULLISH_FAILED_AUCTION")
-        has_bullish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BULLISH_SWEEP_MSS")
-        
-        # Trading Strategies Academy: Adaptive RSI Volatility Modulation
-        ad_intel = data.get("adaptive_intel")
-        eff_ob = ad_intel.get("ob_threshold", 75.0) if ad_intel else sub_gen.get("rsi_overbought", 70)
-        eff_os = ad_intel.get("os_threshold", 25.0) if ad_intel else sub_gen.get("rsi_oversold", 30)
-        eval_rsi = ad_intel.get("adaptive_rsi", rsi) if ad_intel else rsi
-        rsi_safe_long = eval_rsi < eff_ob and eval_rsi > eff_os
-
-        # Rule B: Bearish Setup (Bearish FVG, Patrick Nill 3-Touch, Fabio Valentini Auction, Tim Flossbach MSS, or ICT Rejection Block)
-        has_bearish_fvg = "Bearish FVG" in fvg
-        has_bearish_3touch = bool(three_touch and three_touch.get("type") == "BEARISH_3_TOUCH")
-        has_bearish_auction = bool(va_setup and va_setup.get("type") == "BEARISH_FAILED_AUCTION")
-        has_bearish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BEARISH_SWEEP_MSS")
-        rsi_safe_short = eval_rsi > eff_os and eval_rsi < eff_ob
-
-        # -------------------------------------------------------------
-        # SMC EQUILIBRIUM & PREMIUM / DISCOUNT ZONE AUDIT (Akademi Crypto Module 02)
-        # -------------------------------------------------------------
-        h_24 = data.get("high_24h") or (price * 1.02)
-        l_24 = data.get("low_24h") or (price * 0.98)
-        range_24 = h_24 - l_24
-        price_equilibrium_pct = ((price - l_24) / range_24 * 100.0) if range_24 > 0 else 50.0
-
-        signal = None
-        if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb) and rsi_safe_long:
-            # SMC Equilibrium Guard: Skip Long if price is already in Extreme Premium (> 75%)
-            if price_equilibrium_pct > 75.0 and not (has_bullish_sweep or has_bullish_rb):
-                print(f"   🛡️ [SMC Equilibrium Guard] {sym} di-skip untuk LONG: Harga berada di zona Premium Ekstrem ({price_equilibrium_pct:.1f}%). Dilarang membeli di pucuk resistance!")
-                continue
-
-            # Derivatives Crowd Shield: Skip Long if retail is dangerously overleveraged (e.g. L/S > 3.0)
-            if deriv_intel and deriv_intel.get("bias") == "BEARISH_SQUEEZE_RISK":
-                print(f"   🚨 [Derivatives Squeeze Shield] {sym} di-skip untuk LONG: Retail overleveraged ({deriv_intel['long_short_ratio']:.2f}x L/S). Rawan Liquidity Hunt / Long Squeeze!")
-                continue
-
-            # Coinbase US Discount Shield: Skip Long if US institutions are heavily dumping spot (< -0.040%)
-            if cb_intel and cb_intel.get("is_us_dump"):
-                print(f"   🚨 [Coinbase US Discount Shield] {sym} di-skip untuk LONG: Institusi AS sedang jualan spot (Diskon {cb_intel['premium_pct']:+.4f}%). Rawan Bull Trap!")
-                continue
-            # Plan Long with Dynamic Anti-Liquidity-Hunt SL Buffer
             sweep_buf = get_asset_sweep_buffer(sym)
             if has_bullish_rb and rb_setup:
                 sl = round(rb_setup["sl_price"], 4)
@@ -884,292 +837,223 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
                     "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
                 }
 
-        elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) and rsi_safe_short:
-            # 0. Alpha Leader & Structural Quality Gate: Disallow shorting Alpha Leaders or naked FVG without sweep
-            if is_alpha_leader:
-                print(f"   🛡️ [Alpha Leader Shield] {sym} SHORT DIBLOKIR: Koin berstatus ALPHA LEADER dalam RS Matrix. Dilarang men-short pemimpin pasar!")
-                continue
+    elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) and rsi_safe_short:
+        if is_alpha_leader or not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction):
+            pass
+        else:
+            htf_swing_check = htf_macro_lock.audit_htf_macro_bias(pair_sym, "SHORT")
+            if not htf_swing_check.get("is_approved", True):
+                pass
+            elif sym != "BTC" and market_regime.detect_market_regime("BTCUSDT", interval="1h") and market_regime.detect_market_regime("BTCUSDT", interval="1h").get("bias") == "BULLISH":
+                pass
+            elif price_equilibrium_pct < 50.0 and not (has_bearish_sweep or has_bearish_rb):
+                pass
+            elif deriv_intel and deriv_intel.get("bias") == "BULLISH_SQUEEZE":
+                pass
+            else:
+                sweep_buf = get_asset_sweep_buffer(sym)
+                if has_bearish_rb and rb_setup:
+                    sl = round(rb_setup["sl_price"], 4)
+                    reason_tag = f"🕯️ ICT REJECTION BLOCK (MT ${rb_setup['mean_threshold']:,.4f} | {rb_setup['retest_state']})"
+                elif has_bearish_sweep and liquidity_sweep:
+                    sl = round(liquidity_sweep["sweep_level"] * (1.0 + sweep_buf), 4)
+                    reason_tag = f"⚡ TIM FLOSSBACH MSS (BSL Sweep ${liquidity_sweep['sweep_level']})"
+                elif has_bearish_auction and va_setup:
+                    base_high = max(volume_profile.get("vah", price), price * 1.015)
+                    sl = round(base_high * (1.0 + sweep_buf), 4)
+                    reason_tag = f"🔥 FABIO AUCTION (VAH ${volume_profile['vah']} -> POC ${volume_profile['poc']})"
+                elif has_bearish_3touch and three_touch:
+                    sl = round(three_touch["level"] * (1.0 + sweep_buf), 4)
+                    reason_tag = f"🌟 3-TOUCH RESISTANCE (${three_touch['level']})"
+                else:
+                    high_24h = data.get("high_24h") or (price * 1.02)
+                    sl = round(high_24h * (1.0 + sweep_buf), 4)
+                    reason_tag = "Bearish FVG"
 
-            if not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction):
-                print(f"   🛡️ [Short Quality Gate] {sym} di-skip untuk SHORT: Hanya Bearish FVG polos tanpa konfirmasi BSL Sweep atau Rejection Block.")
-                continue
+                if is_beta_laggard:
+                    reason_tag += f" + 🛡️ BETA LAGGARD (RS {rs_info['rs_score']:+,.2f}%)"
+                if vwap_data and "Below VWAP" in vwap_data.get("state", ""):
+                    reason_tag += " + VWAP Bearish"
 
-            # 1. Hard HTF Macro Bias Lock (Akademi Crypto Module 04 & AGENTS.md Rule 2)
-            try:
-                htf_swing_check = htf_macro_lock.audit_htf_macro_bias(pair_sym, "SHORT")
-                if not htf_swing_check.get("is_approved", True):
-                    print(f"   🛡️ [HTF Macro Lock] {sym} SHORT DIBLOKIR: {htf_swing_check.get('rejection_reason')}")
-                    continue
-            except Exception as e:
-                print(f"   🛡️ [HTF Macro Lock Exception] {sym} SHORT DIBLOKIR: {e}")
-                continue
+                dist_sl = sl - price
+                if dist_sl > 0:
+                    bonus_rr = 0.5 if is_beta_laggard else 0.0
+                    target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) else (effective_min_rr + bonus_rr))
+                    tp = round(price - (dist_sl * target_rr), 4)
+                    rr = (price - tp) / dist_sl
+                    signal = {
+                        "symbol": pair_sym,
+                        "base": sym,
+                        "side": "SHORT",
+                        "price": price,
+                        "sl": sl,
+                        "tp": tp,
+                        "rr": rr,
+                        "is_3touch": has_bearish_3touch,
+                        "is_fabio": has_bearish_auction,
+                        "is_tim": has_bearish_sweep,
+                        "is_rejection_block": has_bearish_rb,
+                        "rejection_block_setup": rb_setup if has_bearish_rb else None,
+                        "is_beta_laggard": is_beta_laggard,
+                        "sub_genome": sub_label,
+                        "risk_pct": effective_max_risk,
+                        "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
+                    }
 
-            # 1B. Macro Trend Anti-Short Guard: STRICTLY BAN Altcoin Shorts during BTC Bullish / Altseason
-            if sym != "BTC":
-                btc_reg_check = market_regime.detect_market_regime("BTCUSDT", interval="1h")
-                if btc_reg_check and (btc_reg_check.get("bias") == "BULLISH" or "BULLISH" in btc_reg_check.get("regime", "") or btc_reg_check.get("price", 0) > btc_reg_check.get("ema20", 0)):
-                    print(f"   🛡️ [Macro Anti-Short Guard] {sym} SHORT DIBLOKIR: BTC 1H sedang Bullish (${btc_reg_check.get('price', 0):,.0f} > EMA20 ${btc_reg_check.get('ema20', 0):,.0f}). Dilarang melawan arus tren naik makro!")
-                    continue
+    if signal and signal["rr"] >= effective_min_rr:
+        is_approved, macro_info, macro_rationale = topdown_confluence.check_topdown_alignment(
+            symbol=sym, proposed_side=signal["side"], setup_name=signal["reason"]
+        )
+        if is_approved:
+            htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, signal["side"])
+            if htf_audit.get("is_approved", True):
+                # FOMO SMC check
                 try:
-                    import dominance_compass
-                    d_comp = dominance_compass.get_dominance_compass()
-                    if d_comp.get("regime_code") == "ALTSEASON_BOOM" or d_comp.get("usdt_bias") == "RISK_ON":
-                        print(f"   🛡️ [Dominance Anti-Short Guard] {sym} SHORT DIBLOKIR: Pasar dalam Kuadran 2 (Altseason Boom / Risk-On). Shorting Altcoin dilarang!")
-                        continue
+                    import fomo_smc_engine
+                    fomo_check = fomo_smc_engine.audit_fomo_smc_setup(
+                        symbol=sym, bar="1h", side="BUY" if signal["side"] == "LONG" else "SELL"
+                    )
+                    if fomo_check and fomo_check.get("is_approved", True):
+                        dr = fomo_check.get("dealing_range", {})
+                        signal["reason"] += f" + 💎 FOMO SMC ({dr.get('zone')})"
                 except Exception:
                     pass
 
-            # SMC Equilibrium Guard: Skip Short if price is in Discount (< 50%)
-            if price_equilibrium_pct < 50.0 and not (has_bearish_sweep or has_bearish_rb):
-                print(f"   🛡️ [SMC Equilibrium Guard] {sym} di-skip untuk SHORT: Harga berada di zona Diskon ({price_equilibrium_pct:.1f}%). Dilarang shorting di area diskon/support!")
-                continue
+                signal["reason"] += f" + {macro_rationale}"
+                signal["macro_aligned"] = True
+                return signal
 
-            # Derivatives Crowd Shield: Skip Short if retail is crowded short (<0.75 L/S), high risk of short squeeze pump!
-            if deriv_intel and deriv_intel.get("bias") == "BULLISH_SQUEEZE":
-                print(f"   🚨 [Derivatives Squeeze Shield] {sym} di-skip untuk SHORT: Retail overleveraged Short ({deriv_intel['long_short_ratio']:.2f}x L/S). Rawan Short Squeeze pump!")
-                continue
-
-            # Coinbase US Inflow Shield: Skip Short if US institutions are aggressively buying spot (> +0.035%)
-            if cb_intel and cb_intel.get("is_us_inflow") and cb_intel.get("premium_pct", 0) >= 0.035:
-                print(f"   🚨 [Coinbase US Inflow Shield] {sym} di-skip untuk SHORT: Institusi AS sedang memborong spot ({cb_intel['premium_pct']:+.4f}%). Rawan dilibas tren!")
-                continue
-            # Plan Short with Dynamic Anti-Liquidity-Hunt SL Buffer
-            sweep_buf = get_asset_sweep_buffer(sym)
-            if has_bearish_rb and rb_setup:
-                sl = round(rb_setup["sl_price"], 4)
-                reason_tag = f"🕯️ ICT REJECTION BLOCK (MT ${rb_setup['mean_threshold']:,.4f} | {rb_setup['retest_state']})"
-            elif has_bearish_sweep and liquidity_sweep:
-                sl = round(liquidity_sweep["sweep_level"] * (1.0 + sweep_buf), 4)
-                reason_tag = f"⚡ TIM FLOSSBACH MSS (BSL Sweep ${liquidity_sweep['sweep_level']})"
-            elif has_bearish_auction and va_setup:
-                base_high = max(volume_profile.get("vah", price), price * 1.015)
-                sl = round(base_high * (1.0 + sweep_buf), 4)
-                reason_tag = f"🔥 FABIO AUCTION (VAH ${volume_profile['vah']} -> POC ${volume_profile['poc']})"
-            elif has_bearish_3touch and three_touch:
-                sl = round(three_touch["level"] * (1.0 + sweep_buf), 4)
-                reason_tag = f"🌟 3-TOUCH RESISTANCE (${three_touch['level']})"
-            else:
-                high_24h = data.get("high_24h") or (price * 1.02)
-                sl = round(high_24h * (1.0 + sweep_buf), 4)
-                reason_tag = "Bearish FVG"
-
-            if is_beta_laggard:
-                reason_tag += f" + ⭐ BETA LAGGARD (RS {rs_info['rs_score']:+,.2f}%)"
-            if vwap_data and "Below VWAP" in vwap_data.get("state", ""):
-                reason_tag += " + VWAP Bearish"
-
-            dist_sl = sl - price
-            if dist_sl > 0:
-                bonus_rr = 0.5 if is_beta_laggard else 0.0
-                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) else (effective_min_rr + bonus_rr))
-                tp = round(price - (dist_sl * target_rr), 4)
-                rr = (price - tp) / dist_sl
-                signal = {
-                    "symbol": pair_sym,
-                    "base": sym,
-                    "side": "SHORT",
-                    "price": price,
-                    "sl": sl,
-                    "tp": tp,
-                    "rr": rr,
-                    "is_3touch": has_bearish_3touch,
-                    "is_fabio": has_bearish_auction,
-                    "is_tim": has_bearish_sweep,
-                    "is_rejection_block": has_bearish_rb,
-                    "rejection_block_setup": rb_setup if has_bearish_rb else None,
-                    "is_beta_laggard": is_beta_laggard,
-                    "sub_genome": sub_label,
-                    "risk_pct": effective_max_risk,
-                    "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
-                }
-
-        if signal and signal["rr"] >= effective_min_rr:
-            # Check Top-Down Multi-Timeframe Confluence (4H Macro Trend Alignment)
-            is_approved, macro_info, macro_rationale = topdown_confluence.check_topdown_alignment(
-                symbol=sym,
-                proposed_side=signal["side"],
-                setup_name=signal["reason"]
-            )
-            if not is_approved:
-                print(f"   [Macro Guardrail] {macro_rationale}")
-                continue
-
-            # Hard HTF Macro Bias Lock (Akademi Crypto Module 04 Anti-Counter Trend Filter)
-            htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, signal["side"])
-            if not htf_audit.get("is_approved", True):
-                print(f"   {htf_audit.get('rejection_reason')}")
-                continue
-
-            # FOMO Trading 14-Course Master SMC Gatekeeper (Dealing Range 50% Eq & IDM Sweep)
-            try:
-                import fomo_smc_engine
-                fomo_check = fomo_smc_engine.audit_fomo_smc_setup(
-                    symbol=sym,
-                    bar="1h",
-                    side="BUY" if signal["side"] == "LONG" else "SELL"
-                )
-                if fomo_check:
-                    if not fomo_check.get("is_approved", True):
-                        print(f"   [FOMO SMC Gatekeeper] 🛑 DITOLAK: {fomo_check.get('rejection_reason')}")
-                        continue
-                    
-                    idm_info = fomo_check.get("inducement", {})
-                    if idm_info.get("status") == "INDUCEMENT_PENDING_SWEEP":
-                        print(f"   [FOMO SMC Trap Alert] ⚠️ Inducement belum di-sweep (${idm_info.get('idm_price', 0):,.2f}). Menghindari retail trap entry!")
-                        continue
-                    
-                    dr = fomo_check.get("dealing_range", {})
-                    signal["fomo_smc"] = {
-                        "zone": dr.get("zone"),
-                        "dist_from_eq_pct": dr.get("dist_from_eq_pct"),
-                        "idm_status": idm_info.get("status"),
-                        "confluence_score": fomo_check.get("smc_confluence_score")
-                    }
-                    signal["reason"] += f" + 💎 FOMO SMC ({dr.get('zone')} | IDM {idm_info.get('status')})"
-            except Exception:
-                pass
-
-            # Open Interest (OI) Delta Archetype & Liquidation Magnet Shield
-            try:
-                import coinglass_derivatives
-                oi_eval = coinglass_derivatives.get_oi_archetype_and_liquidation_magnets(
-                    symbol=sym,
-                    current_price=signal.get("entry_price", price)
-                )
-                if oi_eval:
-                    arch = oi_eval.get("archetype", {})
-                    arch_code = arch.get("code")
-                    if arch_code == "SHORT_SQUEEZE" and signal["side"] == "BUY":
-                        print(f"   [Derivatives Guard] ⚠️ SHORT_SQUEEZE VETO: {pair_sym} Long breakout ditolak karena kenaikan hanya akibat likuidasi short (Bull Trap).")
-                        continue
-                    elif arch_code == "SHORT_BUILDUP" and signal["side"] == "BUY":
-                        print(f"   [Derivatives Guard] 🔴 SHORT_BUILDUP VETO: {pair_sym} Long ditolak karena ada tekanan jual institusional baru yang masif.")
-                        continue
-                    
-                    # Align Take Profit to Liquidation Magnet if favorable
-                    liq_m = oi_eval.get("liquidation_magnets", {})
-                    if signal["side"] == "BUY" and liq_m.get("upper_shorts_pool_price"):
-                        up_p = liq_m["upper_shorts_pool_price"]
-                        if up_p > signal["entry_price"]:
-                            signal["reason"] += f" | 🧲 Target Short Liq Magnet: ${up_p:,.2f} (+{liq_m['upper_dist_pct']}%)"
-                    elif signal["side"] == "SELL" and liq_m.get("lower_longs_pool_price"):
-                        low_p = liq_m["lower_longs_pool_price"]
-                        if low_p < signal["entry_price"]:
-                            signal["reason"] += f" | 🧲 Target Long Liq Magnet: ${low_p:,.2f} ({liq_m['lower_dist_pct']}%)"
-            except Exception:
-                pass
-
-            signal["reason"] += f" + {macro_rationale}"
-            signal["macro_aligned"] = True
-            print(f"   🎯 [TOP-DOWN CONFLUENCE]: {macro_rationale}")
-            candidates.append(signal)
-
-    # 2. Institutional & Prop-Desk Alpha Strategy Suite (Naked POC, OI Divergence, Flash Dip, SFP Stop Hunt, CVD Iceberg)
+    # Institutional Quant Strategies
     try:
         import institutional_quant_strategies
-        import prop_desk_strategies
-        
-        for sym in active_watchlist:
-            pair_sym = f"{sym}USDT"
-            if pair_sym in active_symbols or any(c["symbol"] == pair_sym for c in candidates):
-                continue
-            
-            # Module A: Institutional Quant Suite (Volume Profile nPOC, OI Divergence, Flash Dip)
-            inst_res = institutional_quant_strategies.scan_all_institutional_strategies(sym)
-            if inst_res.get("has_any_setup"):
-                for s in inst_res.get("active_setups", []):
-                    entry = s.get("entry", 0.0)
-                    sl = s.get("sl", 0.0)
-                    tp = s.get("tp", 0.0)
-                    rr = s.get("rr", 3.5)
-                    side = "LONG" if "BUY" in s.get("signal", "") or "LONG" in s.get("signal", "") else "SHORT"
-                    
-                    if entry > 0 and sl > 0 and tp > 0 and rr >= max(3.0, min_rr):
-                        is_approved, _, macro_rationale = topdown_confluence.check_topdown_alignment(
-                            symbol=sym, proposed_side=side, setup_name=s.get("strategy", "INSTITUTIONAL_QUANT")
-                        )
-                        htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, side)
-                        if is_approved and htf_audit.get("is_approved", True):
-                            print(f"   🏛️ [INSTITUTIONAL QUANT]: {s.get('summary')} | R:R 1:{rr:.2f}")
-                            candidates.append({
-                                "symbol": pair_sym,
-                                "base": sym,
-                                "side": side,
-                                "price": entry,
-                                "sl": sl,
-                                "tp": tp,
-                                "rr": rr,
-                                "is_scalp": False,
-                                "is_institutional": True,
-                                "strategy_name": s.get("strategy", "Institutional Quant Setup"),
-                                "risk_pct": max_risk_pct,
-                                "reason": f"🏛️ {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
-                            })
-                            break
-            
-            # Module B: Prop-Desk Alpha Suite (SFP Key Level Stop Hunt, CVD Iceberg Absorption, VWAP Elasticity)
-            prop_res = prop_desk_strategies.scan_all_prop_desk_strategies(sym)
-            if prop_res.get("has_any_setup") and not any(c["symbol"] == pair_sym for c in candidates):
-                for s in prop_res.get("active_setups", []):
-                    entry = s.get("entry", 0.0)
-                    sl = s.get("sl", 0.0)
-                    tp = s.get("tp", 0.0)
-                    rr = s.get("rr", 3.5)
-                    side = "LONG" if "BUY" in s.get("signal", "") or "LONG" in s.get("signal", "") else "SHORT"
-                    
-                    if entry > 0 and sl > 0 and tp > 0 and rr >= max(3.0, min_rr):
-                        is_approved, _, macro_rationale = topdown_confluence.check_topdown_alignment(
-                            symbol=sym, proposed_side=side, setup_name=s.get("strategy", "PROP_DESK_ALPHA")
-                        )
-                        htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, side)
-                        if is_approved and htf_audit.get("is_approved", True):
-                            print(f"   🏢 [PROP DESK ALPHA]: {s.get('summary')} | R:R 1:{rr:.2f}")
-                            candidates.append({
-                                "symbol": pair_sym,
-                                "base": sym,
-                                "side": side,
-                                "price": entry,
-                                "sl": sl,
-                                "tp": tp,
-                                "rr": rr,
-                                "is_scalp": False,
-                                "is_prop_desk": True,
-                                "strategy_name": s.get("strategy", "Prop Desk Alpha Setup"),
-                                "risk_pct": max_risk_pct,
-                                "reason": f"🏢 {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
-                            })
-                            break
+        inst_res = institutional_quant_strategies.scan_all_institutional_strategies(sym)
+        if inst_res.get("has_any_setup"):
+            for s in inst_res.get("active_setups", []):
+                entry = s.get("entry", 0.0)
+                sl = s.get("sl", 0.0)
+                tp = s.get("tp", 0.0)
+                rr = s.get("rr", 3.5)
+                side = "LONG" if "BUY" in s.get("signal", "") or "LONG" in s.get("signal", "") else "SHORT"
+                if entry > 0 and sl > 0 and tp > 0 and rr >= max(3.0, min_rr):
+                    is_approved, _, macro_rationale = topdown_confluence.check_topdown_alignment(
+                        symbol=sym, proposed_side=side, setup_name=s.get("strategy", "INSTITUTIONAL_QUANT")
+                    )
+                    htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, side)
+                    if is_approved and htf_audit.get("is_approved", True):
+                        return {
+                            "symbol": pair_sym,
+                            "base": sym,
+                            "side": side,
+                            "price": entry,
+                            "sl": sl,
+                            "tp": tp,
+                            "rr": rr,
+                            "is_scalp": False,
+                            "is_institutional": True,
+                            "strategy_name": s.get("strategy", "Institutional Quant Setup"),
+                            "risk_pct": max_risk_pct,
+                            "reason": f"🏛️ {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
+                        }
+    except Exception:
+        pass
 
-            # Module C: Lewis Trumpeter Hedge Fund Seasonality Suite (Payday Inflow / Autumn Short / Day Drift)
-            if hedge_fund_seasonality_engine and not any(c["symbol"] == pair_sym for c in candidates):
-                s_intel = hedge_fund_seasonality_engine.calculate_seasonality_confluence(sym)
-                if s_intel.get("is_actionable") and s_intel.get("confluence_score", 50) >= 70:
-                    s_side = "LONG" if s_intel.get("direction") in ("LONG", "HEDGE_BALANCED") else "SHORT"
-                    htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, s_side)
-                    if htf_audit.get("is_approved", True):
-                        curr_p = binance_client.get_ticker_price(pair_sym) or 0.0
-                        if curr_p > 0:
-                            mae_pct = s_intel.get("mae_circuit_stop_pct", 3.14) / 100.0
-                            sl_p = curr_p * (1.0 - mae_pct) if s_side == "LONG" else curr_p * (1.0 + mae_pct)
-                            tp_p = curr_p * (1.0 + mae_pct * 3.5) if s_side == "LONG" else curr_p * (1.0 - mae_pct * 3.5)
-                            active_s_names = ", ".join(s_intel.get("active_strategies", ["HEDGE_FUND_SEASONALITY"]))
-                            print(f"   🗓️ [HEDGE FUND SEASONALITY]: {pair_sym} {s_side} | Strategy: {active_s_names} | MAE Stop: {mae_pct*100:.2f}%")
-                            candidates.append({
-                                "symbol": pair_sym,
-                                "base": sym,
-                                "side": s_side,
-                                "price": curr_p,
-                                "sl": sl_p,
-                                "tp": tp_p,
-                                "rr": 3.5,
-                                "is_scalp": False,
-                                "is_seasonality": True,
-                                "strategy_name": f"Seasonality: {active_s_names}",
-                                "risk_pct": max_risk_pct,
-                                "reason": f"🗓️ {active_s_names}: Calendar edge | MAE stop {mae_pct*100:.2f}%"
-                            })
-    except Exception as e:
-        print(f" * [Institutional Quant Scan Note]: {e}")
+    # Prop Desk Alpha Strategies
+    try:
+        import prop_desk_strategies
+        prop_res = prop_desk_strategies.scan_all_prop_desk_strategies(sym)
+        if prop_res.get("has_any_setup"):
+            for s in prop_res.get("active_setups", []):
+                entry = s.get("entry", 0.0)
+                sl = s.get("sl", 0.0)
+                tp = s.get("tp", 0.0)
+                rr = s.get("rr", 3.5)
+                side = "LONG" if "BUY" in s.get("signal", "") or "LONG" in s.get("signal", "") else "SHORT"
+                if entry > 0 and sl > 0 and tp > 0 and rr >= max(3.0, min_rr):
+                    is_approved, _, macro_rationale = topdown_confluence.check_topdown_alignment(
+                        symbol=sym, proposed_side=side, setup_name=s.get("strategy", "PROP_DESK_ALPHA")
+                    )
+                    htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, side)
+                    if is_approved and htf_audit.get("is_approved", True):
+                        return {
+                            "symbol": pair_sym,
+                            "base": sym,
+                            "side": side,
+                            "price": entry,
+                            "sl": sl,
+                            "tp": tp,
+                            "rr": rr,
+                            "is_scalp": False,
+                            "is_prop_desk": True,
+                            "strategy_name": s.get("strategy", "Prop Desk Alpha Setup"),
+                            "risk_pct": max_risk_pct,
+                            "reason": f"🏢 {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
+                        }
+    except Exception:
+        pass
+
+    # Seasonality
+    if hedge_fund_seasonality_engine:
+        try:
+            s_intel = hedge_fund_seasonality_engine.calculate_seasonality_confluence(sym)
+            if s_intel.get("is_actionable") and s_intel.get("confluence_score", 50) >= 70:
+                s_side = "LONG" if s_intel.get("direction") in ("LONG", "HEDGE_BALANCED") else "SHORT"
+                htf_audit = htf_macro_lock.audit_htf_macro_bias(pair_sym, s_side)
+                if htf_audit.get("is_approved", True):
+                    curr_p = binance_client.get_ticker_price(pair_sym) or 0.0
+                    if curr_p > 0:
+                        mae_pct = s_intel.get("mae_circuit_stop_pct", 3.14) / 100.0
+                        sl_p = curr_p * (1.0 - mae_pct) if s_side == "LONG" else curr_p * (1.0 + mae_pct)
+                        tp_p = curr_p * (1.0 + mae_pct * 3.5) if s_side == "LONG" else curr_p * (1.0 - mae_pct * 3.5)
+                        active_s_names = ", ".join(s_intel.get("active_strategies", ["HEDGE_FUND_SEASONALITY"]))
+                        return {
+                            "symbol": pair_sym,
+                            "base": sym,
+                            "side": s_side,
+                            "price": curr_p,
+                            "sl": sl_p,
+                            "tp": tp_p,
+                            "rr": 3.5,
+                            "is_scalp": False,
+                            "is_seasonality": True,
+                            "strategy_name": f"Seasonality: {active_s_names}",
+                            "risk_pct": max_risk_pct,
+                            "reason": f"🗓️ {active_s_names}: Calendar edge | MAE stop {mae_pct*100:.2f}%"
+                        }
+        except Exception:
+            pass
+
+    return None
+
+def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct):
+    """
+    Scans 1H / 4H swing setups in parallel using ThreadPoolExecutor (< 400ms scan).
+    """
+    import htf_macro_lock
+    print(f"\n[2. MARKET RESEARCHER AGENT — RELATIVE STRENGTH & WATCHLIST SCAN]")
+    rs_matrix, btc_chg = compute_rs_matrix(active_watchlist)
+    print(f" * BTC 24h Benchmark Performance: {btc_chg:+.2f}%")
+    for s_name, r_info in sorted(rs_matrix.items(), key=lambda x: x[1]["rs_score"], reverse=True):
+        print(f"   - {s_name:<5}: 24h {r_info['change_24h']:+6.2f}% | Alpha MTF: {r_info['composite_alpha']:+6.2f}% | {r_info['badge']}")
+
+    candidates = []
+    # Parallel Multi-Pair Scanner using ThreadPoolExecutor (< 400ms scan)
+    start_scan_t = time.time()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(8, len(active_watchlist))) as executor:
+        future_to_sym = {
+            executor.submit(scan_symbol_swing_candidate, sym, active_symbols, genome, min_rr, max_risk_pct, rs_matrix): sym 
+            for sym in active_watchlist
+        }
+        for future in concurrent.futures.as_completed(future_to_sym):
+            try:
+                cand = future.result()
+                if cand:
+                    print(f"   🎯 [PARALLEL SCAN DETECTED]: {cand['symbol']} ({cand['side']}) | {cand.get('strategy_name', 'SMC Setup')} | R:R 1:{cand['rr']:.2f}")
+                    candidates.append(cand)
+            except Exception:
+                pass
+
+    scan_dur_ms = (time.time() - start_scan_t) * 1000.0
+    print(f" ⚡ [Parallel Scanner Engine] {len(active_watchlist)} pairs scanned in {scan_dur_ms:.1f} ms ({len(candidates)} candidates detected).")
 
     return candidates
 
