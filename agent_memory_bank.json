@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-19T23:57:59.384604+00:00",
-    "total_reflections": 45,
-    "system_retention_score": 101.0
+    "last_reflection_at": "2026-09-20T00:27:25.548477+00:00",
+    "total_reflections": 46,
+    "system_retention_score": 101.1
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -19,16 +19,16 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 24,
+      "total_trades": 25,
       "wins": 6,
-      "losses": 8,
+      "losses": 9,
       "breakevens": 10,
-      "win_rate_pct": 25.0,
-      "net_pnl_usd": 3.15,
+      "win_rate_pct": 24.0,
+      "net_pnl_usd": -1.09,
       "avg_r_multiple": 0.02,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-19 05:37:20",
-      "updated_at": "2026-09-19T20:51:20.434550+00:00"
+      "updated_at": "2026-09-20T00:27:25.548467+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -811,14 +811,14 @@
       "id": "RULE-AUTO-BTCUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on BTCUSDT due to elevated wick risk.",
-      "confidence": 0.96,
+      "confidence": 0.99,
       "trigger_conditions": [
         "btcusdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-09-18T18:25:45.317172+00:00",
-      "updated_at": "2026-09-18T22:37:28.019849+00:00"
+      "updated_at": "2026-09-20T00:27:25.548475+00:00"
     },
     {
       "id": "RULE-AUTO-BNBUSDT",
@@ -886,6 +886,28 @@
   ],
   "episodic_memories": [
     {
+      "id": "MEM-20260920-050",
+      "timestamp": "2026-09-20T00:27:25.548453+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "5m ICT Rejection Block Mean Threshold",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -4.24,
+      "r_multiple": -0.07,
+      "pnl_pct": -0.08,
+      "root_cause": "Adverse volatility stop-out on BTCUSDT 5m ICT Rejection Block Mean Threshold (net: -$4.24, -0.07R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BTCUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "btc",
+        "5m_ict_rejection_block_mean_threshold",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T00:27:25.548457+00:00"
+    },
+    {
       "id": "MEM-20260919-049",
       "timestamp": "2026-09-19T23:57:59.384586+00:00",
       "symbol": "SOLUSDT",
@@ -928,8 +950,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 52,
-      "last_accessed": "2026-09-20T00:15:24.001562+00:00"
+      "access_count": 63,
+      "last_accessed": "2026-09-20T00:26:27.123885+00:00"
     },
     {
       "id": "MEM-20260919-047",
@@ -1020,8 +1042,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 97,
-      "last_accessed": "2026-09-20T00:15:24.001539+00:00"
+      "access_count": 108,
+      "last_accessed": "2026-09-20T00:26:27.123874+00:00"
     },
     {
       "id": "MEM-20260919-043",
@@ -1270,8 +1292,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 272,
-      "last_accessed": "2026-09-20T00:15:24.091987+00:00"
+      "access_count": 284,
+      "last_accessed": "2026-09-20T00:26:26.042940+00:00"
     },
     {
       "id": "MEM-20260918-032",
@@ -1362,8 +1384,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 263,
-      "last_accessed": "2026-09-20T00:15:06.778288+00:00"
+      "access_count": 270,
+      "last_accessed": "2026-09-20T00:26:10.621533+00:00"
     },
     {
       "id": "MEM-20260918-028",
@@ -1504,8 +1526,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 213,
-      "last_accessed": "2026-09-20T00:15:24.001568+00:00"
+      "access_count": 224,
+      "last_accessed": "2026-09-20T00:26:27.123890+00:00"
     },
     {
       "id": "MEM-20260918-022",
@@ -1528,8 +1550,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 213,
-      "last_accessed": "2026-09-20T00:15:24.001572+00:00"
+      "access_count": 224,
+      "last_accessed": "2026-09-20T00:26:27.123893+00:00"
     },
     {
       "id": "MEM-20260918-021",
@@ -1596,8 +1618,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 282,
-      "last_accessed": "2026-09-20T00:15:24.092005+00:00"
+      "access_count": 294,
+      "last_accessed": "2026-09-20T00:26:26.042962+00:00"
     },
     {
       "id": "MEM-20260918-018",
@@ -1664,8 +1686,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 1380,
-      "last_accessed": "2026-09-20T00:15:24.092012+00:00"
+      "access_count": 1399,
+      "last_accessed": "2026-09-20T00:26:26.042968+00:00"
     },
     {
       "id": "MEM-20260918-015",
@@ -1710,8 +1732,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 1141,
-      "last_accessed": "2026-09-20T00:15:24.092013+00:00"
+      "access_count": 1160,
+      "last_accessed": "2026-09-20T00:26:26.042972+00:00"
     },
     {
       "id": "MEM-20260918-013",
@@ -1890,8 +1912,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 614,
-      "last_accessed": "2026-09-20T00:15:06.778268+00:00"
+      "access_count": 621,
+      "last_accessed": "2026-09-20T00:26:10.621503+00:00"
     },
     {
       "id": "MEM-20260918-004",
