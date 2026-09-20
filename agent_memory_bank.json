@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-20T07:52:18.060961+00:00",
-    "total_reflections": 36,
-    "system_retention_score": 103.0
+    "last_reflection_at": "2026-09-20T07:52:53.535300+00:00",
+    "total_reflections": 40,
+    "system_retention_score": 102.7
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -19,16 +19,16 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 27,
+      "total_trades": 28,
       "wins": 6,
-      "losses": 15,
+      "losses": 16,
       "breakevens": 6,
-      "win_rate_pct": 22.2,
-      "net_pnl_usd": -10.85,
+      "win_rate_pct": 21.4,
+      "net_pnl_usd": -12.02,
       "avg_r_multiple": 0.02,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-20 07:27:09",
-      "updated_at": "2026-09-20T07:51:13.607162+00:00"
+      "updated_at": "2026-09-20T07:52:24.391601+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -43,16 +43,16 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 18,
+      "total_trades": 20,
       "wins": 5,
-      "losses": 10,
+      "losses": 12,
       "breakevens": 3,
-      "win_rate_pct": 27.8,
-      "net_pnl_usd": -211.33,
+      "win_rate_pct": 25.0,
+      "net_pnl_usd": -299.61,
       "avg_r_multiple": 0.02,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-20 01:11:53",
-      "updated_at": "2026-09-20T07:51:09.445125+00:00"
+      "updated_at": "2026-09-20T07:52:53.535300+00:00"
     },
     "SOLUSDT": {
       "symbol": "SOLUSDT",
@@ -113,16 +113,16 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 19,
+      "total_trades": 20,
       "wins": 9,
-      "losses": 6,
+      "losses": 7,
       "breakevens": 4,
-      "win_rate_pct": 47.4,
-      "net_pnl_usd": 63.69,
+      "win_rate_pct": 45.0,
+      "net_pnl_usd": 56.78,
       "avg_r_multiple": 0.25,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-20 07:43:53",
-      "updated_at": "2026-09-20T07:51:11.659187+00:00"
+      "updated_at": "2026-09-20T07:52:22.346737+00:00"
     },
     "DOGEUSDT": {
       "symbol": "DOGEUSDT",
@@ -797,7 +797,7 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-20T06:21:47.095562+00:00",
-      "updated_at": "2026-09-20T07:51:13.607162+00:00"
+      "updated_at": "2026-09-20T07:52:24.391601+00:00"
     },
     {
       "id": "RULE-AUTO-ETHUSDT",
@@ -810,23 +810,111 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-20T07:45:52.055343+00:00",
-      "updated_at": "2026-09-20T07:51:09.445125+00:00"
+      "updated_at": "2026-09-20T07:52:53.535300+00:00"
     },
     {
       "id": "RULE-AUTO-XRPUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on XRPUSDT due to elevated wick risk.",
-      "confidence": 0.96,
+      "confidence": 0.99,
       "trigger_conditions": [
         "xrpusdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-09-20T07:49:52.390802+00:00",
-      "updated_at": "2026-09-20T07:51:11.660183+00:00"
+      "updated_at": "2026-09-20T07:52:22.346737+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260920-043",
+      "timestamp": "2026-09-20T07:52:53.535300+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -44.14,
+      "r_multiple": -2.15,
+      "pnl_pct": -1.63,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT Smart Money Concepts (SMC) (net: -$44.14, -2.15R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T07:52:53.535300+00:00"
+    },
+    {
+      "id": "MEM-20260920-042",
+      "timestamp": "2026-09-20T07:52:24.391601+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -1.17,
+      "r_multiple": -0.0,
+      "pnl_pct": -0.04,
+      "root_cause": "Adverse volatility stop-out on BTCUSDT Smart Money Concepts (SMC) (net: -$1.17, -0.00R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BTCUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "btc",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T07:52:24.391601+00:00"
+    },
+    {
+      "id": "MEM-20260920-041",
+      "timestamp": "2026-09-20T07:52:22.346737+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -6.91,
+      "r_multiple": -0.3,
+      "pnl_pct": -0.29,
+      "root_cause": "Adverse volatility stop-out on XRPUSDT Smart Money Concepts (SMC) (net: -$6.91, -0.30R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on XRPUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T07:52:22.346737+00:00"
+    },
+    {
+      "id": "MEM-20260920-040",
+      "timestamp": "2026-09-20T07:52:20.188025+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -44.14,
+      "r_multiple": -2.15,
+      "pnl_pct": -1.63,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT Smart Money Concepts (SMC) (net: -$44.14, -2.15R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T07:52:20.188025+00:00"
+    },
     {
       "id": "MEM-20260920-039",
       "timestamp": "2026-09-20T07:52:18.060961+00:00",
@@ -1288,8 +1376,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 842,
-      "last_accessed": "2026-09-20T07:51:23.913995+00:00"
+      "access_count": 845,
+      "last_accessed": "2026-09-20T07:52:42.543567+00:00"
     },
     {
       "id": "MEM-20260920-018",
@@ -1310,8 +1398,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 809,
-      "last_accessed": "2026-09-20T07:51:23.913995+00:00"
+      "access_count": 812,
+      "last_accessed": "2026-09-20T07:52:42.543567+00:00"
     },
     {
       "id": "MEM-20260920-017",
@@ -1332,8 +1420,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 659,
-      "last_accessed": "2026-09-20T07:50:45.901428+00:00"
+      "access_count": 661,
+      "last_accessed": "2026-09-20T07:52:42.543567+00:00"
     },
     {
       "id": "MEM-20260920-016",
@@ -1354,8 +1442,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 468,
-      "last_accessed": "2026-09-20T07:51:23.913995+00:00"
+      "access_count": 470,
+      "last_accessed": "2026-09-20T07:52:42.543567+00:00"
     },
     {
       "id": "MEM-20260920-015",
@@ -1378,8 +1466,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 188,
-      "last_accessed": "2026-09-20T07:50:45.562655+00:00"
+      "access_count": 189,
+      "last_accessed": "2026-09-20T07:52:41.741855+00:00"
     },
     {
       "id": "MEM-20260918-014",
@@ -1538,8 +1626,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 199,
-      "last_accessed": "2026-09-20T07:50:45.562655+00:00"
+      "access_count": 200,
+      "last_accessed": "2026-09-20T07:52:41.741855+00:00"
     },
     {
       "id": "MEM-20260918-006",
