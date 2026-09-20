@@ -3,18 +3,18 @@
     "ticket_id": "TCK-20260920-5374",
     "symbol": "ETHUSDT",
     "side": "LONG",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-20 21:40:35",
-    "updated_at": "2026-09-20 21:46:11",
+    "updated_at": "2026-09-20 21:59:37",
     "payload": {
-      "entry": 2621.8057,
-      "sl": 2582.2269,
-      "tp": 2700.9634,
-      "rr": 2.0
+      "entry": 2628.55,
+      "sl": 2618.0393,
+      "tp": 2660.0821,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -36,10 +36,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-20 21:13:22",
-    "updated_at": "2026-09-20 21:33:39",
+    "updated_at": "2026-09-20 22:06:51",
     "payload": {
       "entry": 109.95,
       "sl": 108.901,
@@ -149,7 +149,13 @@
       "authorized_at": "2026-09-20 21:33:39",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$7.58 USDT)",
+      "realized_pnl": -7.575,
+      "net_pnl": -8.6828,
+      "closed_at": "2026-09-20 22:06:51"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-20 21:13:22",
@@ -180,6 +186,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-20 22:06:51",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$7.58 USDT) | PnL: $-7.58 USDT (Net: $-8.68)"
       }
     ]
   },
@@ -187,18 +199,18 @@
     "ticket_id": "TCK-20260920-4588",
     "symbol": "LINKUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-20 21:11:54",
-    "updated_at": "2026-09-20 21:46:11",
+    "updated_at": "2026-09-20 22:06:15",
     "payload": {
-      "entry": 12.406,
-      "sl": 12.3587,
-      "tp": 12.5479,
-      "rr": 3.0
+      "entry": 12.455,
+      "sl": 12.2388,
+      "tp": 12.8874,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -383,18 +395,18 @@
     "ticket_id": "TCK-20260920-8516",
     "symbol": "BNBUSDT",
     "side": "LONG",
-    "strategy": "Quantitative Confluence Setup",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-20 18:30:58",
-    "updated_at": "2026-09-20 21:46:11",
+    "updated_at": "2026-09-20 22:06:15",
     "payload": {
-      "entry": 764.94,
-      "sl": 751.8456,
-      "tp": 817.3176,
-      "rr": 3.999999999999974
+      "entry": 767.44622247,
+      "sl": 765.6501,
+      "tp": 772.8346,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -1727,18 +1739,18 @@
     "ticket_id": "TCK-20260920-6696",
     "symbol": "SUIUSDT",
     "side": "LONG",
-    "strategy": "5m 20-EMA Dynamic Pullback Trap",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-20 13:06:36",
-    "updated_at": "2026-09-20 21:32:45",
+    "updated_at": "2026-09-20 22:06:15",
     "payload": {
-      "entry": 0.8849,
-      "sl": 0.8704,
-      "tp": 0.9284,
-      "rr": 3.0
+      "entry": 0.8877,
+      "sl": 0.8647,
+      "tp": 0.9337,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
