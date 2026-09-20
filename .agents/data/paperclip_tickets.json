@@ -343,10 +343,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-20 14:02:52",
-    "updated_at": "2026-09-20 14:34:54",
+    "updated_at": "2026-09-20 17:12:21",
     "payload": {
       "entry": 2578.8133,
       "sl": 2571.2062,
@@ -456,7 +456,13 @@
       "authorized_at": "2026-09-20 14:34:54",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83c\udfaf Full Take Profit Hit (+$34.05 USDT)",
+      "realized_pnl": 34.0484,
+      "net_pnl": 33.5938,
+      "closed_at": "2026-09-20 17:12:21"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-20 14:02:52",
@@ -487,6 +493,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-20 17:12:21",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83c\udfaf Full Take Profit Hit (+$34.05 USDT) | PnL: $+34.05 USDT (Net: $+33.59)"
       }
     ]
   },
