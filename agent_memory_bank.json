@@ -1,15 +1,15 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-20T12:59:20.134675+00:00",
-    "total_reflections": 1,
-    "system_retention_score": 74.5
+    "last_reflection_at": "2026-09-20T13:26:22.383201+00:00",
+    "total_reflections": 9,
+    "system_retention_score": 93.2
   },
   "coin_profiles": {
     "BTCUSDT": {
       "symbol": "BTCUSDT",
-      "volatility_regime": "LOW_TO_MODERATE",
-      "wick_risk_rating": "HIGH",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -19,16 +19,16 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 59,
-      "wins": 0,
+      "total_trades": 61,
+      "wins": 2,
       "losses": 59,
       "breakevens": 0,
-      "win_rate_pct": 0.0,
-      "net_pnl_usd": -69.03,
+      "win_rate_pct": 3.3,
+      "net_pnl_usd": -65.39,
       "avg_r_multiple": 0.0,
-      "last_traded_outcome": "LOSS",
+      "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-20 14:23:05",
-      "updated_at": "2026-09-20T12:59:20.132347+00:00"
+      "updated_at": "2026-09-20T12:59:23.444100+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -42,12 +42,20 @@
         "4H FVG Bounce",
         "Naked POC Retest"
       ],
-      "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion."
+      "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
+      "total_trades": 2,
+      "wins": 2,
+      "losses": 0,
+      "breakevens": 0,
+      "net_pnl_usd": 7.72,
+      "win_rate_pct": 100.0,
+      "last_traded_outcome": "WIN",
+      "updated_at": "2026-09-20T12:59:25.143601+00:00"
     },
     "SOLUSDT": {
       "symbol": "SOLUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -57,16 +65,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 40,
+      "total_trades": 43,
       "wins": 0,
-      "losses": 40,
+      "losses": 43,
       "breakevens": 0,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -740.0,
+      "net_pnl_usd": -760.22,
       "avg_r_multiple": -0.87,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-20 13:42:44",
-      "updated_at": "2026-09-20T12:59:20.132336+00:00"
+      "updated_at": "2026-09-20T13:26:22.383189+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -80,16 +88,16 @@
         "Institutional Iceberg Absorption"
       ],
       "notes": "Exchange native anchor. High institutional bid support; low false breakout rate on HTF.",
-      "total_trades": 2,
-      "wins": 2,
+      "total_trades": 3,
+      "wins": 3,
       "losses": 0,
       "breakevens": 0,
       "win_rate_pct": 100.0,
-      "net_pnl_usd": 8.8,
+      "net_pnl_usd": 13.2,
       "avg_r_multiple": 0.22,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-20 19:59:09",
-      "updated_at": "2026-09-20T12:59:20.134673+00:00"
+      "updated_at": "2026-09-20T12:59:20.601366+00:00"
     },
     "XRPUSDT": {
       "symbol": "XRPUSDT",
@@ -456,9 +464,208 @@
         "continuation_mss"
       ],
       "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "RULE-AUTO-SOLUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
+      "confidence": 0.96,
+      "trigger_conditions": [
+        "solusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-20T12:59:21.470804+00:00",
+      "updated_at": "2026-09-20T13:26:22.383199+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260920-012",
+      "timestamp": "2026-09-20T13:26:22.383176+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -2.14,
+      "r_multiple": -0.05,
+      "pnl_pct": -0.08,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT 5m Order Flow CVD Absorption Scalp (net: -$2.14, -0.05R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "5m_order_flow_cvd_absorption_scalp",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T13:26:22.383181+00:00"
+    },
+    {
+      "id": "MEM-20260920-011",
+      "timestamp": "2026-09-20T12:59:25.143588+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 3.86,
+      "r_multiple": 0.25,
+      "pnl_pct": 0.14,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on ETHUSDT. Trend momentum aligned with HTF bias, securing +0.25R net profit (+$3.86).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on ETHUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 17,
+      "last_accessed": "2026-09-20T13:13:27.123846+00:00"
+    },
+    {
+      "id": "MEM-20260920-010",
+      "timestamp": "2026-09-20T12:59:24.749457+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 3.86,
+      "r_multiple": 0.25,
+      "pnl_pct": 0.14,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on ETHUSDT. Trend momentum aligned with HTF bias, securing +0.25R net profit (+$3.86).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on ETHUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 8,
+      "last_accessed": "2026-09-20T13:11:51.754936+00:00"
+    },
+    {
+      "id": "MEM-20260920-009",
+      "timestamp": "2026-09-20T12:59:23.444087+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "5m ICT Rejection Block Mean Threshold",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 1.82,
+      "r_multiple": 0.14,
+      "pnl_pct": 0.03,
+      "root_cause": "High-confluence execution of 5m ICT Rejection Block Mean Threshold on BTCUSDT. Trend momentum aligned with HTF bias, securing +0.14R net profit (+$1.82).",
+      "lesson_learned": "Continue validating 5m ICT Rejection Block Mean Threshold on BTCUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "btc",
+        "5m_ict_rejection_block_mean_threshold",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 6,
+      "last_accessed": "2026-09-20T13:08:20.128006+00:00"
+    },
+    {
+      "id": "MEM-20260920-008",
+      "timestamp": "2026-09-20T12:59:22.831624+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "5m ICT Rejection Block Mean Threshold",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 1.82,
+      "r_multiple": 0.14,
+      "pnl_pct": 0.03,
+      "root_cause": "High-confluence execution of 5m ICT Rejection Block Mean Threshold on BTCUSDT. Trend momentum aligned with HTF bias, securing +0.14R net profit (+$1.82).",
+      "lesson_learned": "Continue validating 5m ICT Rejection Block Mean Threshold on BTCUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "btc",
+        "5m_ict_rejection_block_mean_threshold",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 6,
+      "last_accessed": "2026-09-20T13:08:20.128013+00:00"
+    },
+    {
+      "id": "MEM-20260920-007",
+      "timestamp": "2026-09-20T12:59:22.108258+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -9.04,
+      "r_multiple": -0.33,
+      "pnl_pct": -0.32,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT Smart Money Concepts (SMC) (net: -$9.04, -0.33R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 30,
+      "last_accessed": "2026-09-20T13:13:27.123837+00:00"
+    },
+    {
+      "id": "MEM-20260920-006",
+      "timestamp": "2026-09-20T12:59:21.470780+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -9.04,
+      "r_multiple": -0.33,
+      "pnl_pct": -0.32,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT Smart Money Concepts (SMC) (net: -$9.04, -0.33R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 19,
+      "last_accessed": "2026-09-20T13:13:27.123842+00:00"
+    },
+    {
+      "id": "MEM-20260920-005",
+      "timestamp": "2026-09-20T12:59:20.601352+00:00",
+      "symbol": "BNBUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 4.4,
+      "r_multiple": 0.22,
+      "pnl_pct": 0.19,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on BNBUSDT. Trend momentum aligned with HTF bias, securing +0.22R net profit (+$4.40).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on BNBUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "bnb",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 18,
+      "last_accessed": "2026-09-20T13:13:27.123844+00:00"
+    },
     {
       "id": "MEM-20260920-004",
       "timestamp": "2026-09-20T12:59:20.134661+00:00",
@@ -480,8 +687,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1,
-      "last_accessed": "2026-09-20T12:59:20.134666+00:00"
+      "access_count": 6,
+      "last_accessed": "2026-09-20T13:10:46.347628+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -500,8 +707,8 @@
         "absorption"
       ],
       "importance": 9,
-      "access_count": 14,
-      "last_accessed": "2026-09-09T20:00:00Z"
+      "access_count": 18,
+      "last_accessed": "2026-09-20T13:06:20.366748+00:00"
     },
     {
       "id": "MEM-20260903-002",
@@ -520,8 +727,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 22,
-      "last_accessed": "2026-09-09T21:00:00Z"
+      "access_count": 25,
+      "last_accessed": "2026-09-20T13:02:20.737022+00:00"
     },
     {
       "id": "MEM-20260907-003",
@@ -540,8 +747,8 @@
         "orderflow"
       ],
       "importance": 8,
-      "access_count": 9,
-      "last_accessed": "2026-09-09T22:30:00Z"
+      "access_count": 16,
+      "last_accessed": "2026-09-20T13:11:51.754938+00:00"
     }
   ]
 }
