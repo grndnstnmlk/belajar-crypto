@@ -6,10 +6,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-20 07:50:49",
-    "updated_at": "2026-09-20 07:50:49",
+    "updated_at": "2026-09-20 07:51:11",
     "payload": {
       "entry": 1.3796,
       "sl": 1.3725,
@@ -19,13 +19,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$5.96 USDT)",
+      "realized_pnl": -5.9559,
+      "net_pnl": -6.9149,
+      "closed_at": "2026-09-20 07:51:11"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-20 07:50:49",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup XRPUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-20 07:51:11",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$5.96 USDT) | PnL: $-5.96 USDT (Net: $-6.91)"
       }
     ]
   },
@@ -237,27 +249,157 @@
     "side": "LONG",
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-20 06:49:07",
-    "updated_at": "2026-09-20 07:50:55",
+    "updated_at": "2026-09-20 07:52:17",
     "payload": {
       "entry": 108.47,
       "sl": 108.1151,
       "tp": 109.5347,
       "rr": 3.0
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
-    "execution_result": null,
+    "debate_result": {
+      "symbol": "SOLUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 108.1151,
+      "tp_price": 109.5347,
+      "rr_ratio": 3.0,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "bull_score": 65,
+      "bear_score": 35,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset SOLUSDT tergabung dalam sektor narasi terkuat hari ini (\u26a1 Solana & High-Speed L1), menikmati rotasi modal institusional prima.",
+      "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (65% vs 35%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 108.1151,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-20 14:51:16"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup SOLUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (100.215 / +0.57%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Global Macro Risk-Off: DXY Surging (100.215 / +0.57%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $108.1151.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 108.1151,
+        "tp_price": 109.5347,
+        "rr_ratio": 3.0,
+        "strategy": "5m Order Flow CVD Absorption Scalp",
+        "bull_score": 65,
+        "bear_score": 35,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset SOLUSDT tergabung dalam sektor narasi terkuat hari ini (\u26a1 Solana & High-Speed L1), menikmati rotasi modal institusional prima.",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (65% vs 35%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 108.1151,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-20 14:51:16"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-20 14:51:22",
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 65% menunjukkan dorongan positif moderat. | ADX momentum kuat (36.3) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 63,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 64.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 78,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "SOL",
+        "sector_key": "SOL_L1",
+        "sector_title": "Solana & High-Speed L1",
+        "sector_icon": "\u26a1",
+        "sector_rank": 1,
+        "is_leading_sector": true,
+        "sector_24h_avg": 2.69,
+        "relative_strength_vs_btc": 3.56,
+        "confluence_boost": 15
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-20 07:51:22",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$17.36 USDT)",
+      "realized_pnl": -17.3645,
+      "net_pnl": -18.496,
+      "closed_at": "2026-09-20 07:52:17"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-20 06:49:07",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup SOLUSDT (LONG) teridentifikasi via 5m ICT Rejection Block Mean Threshold."
+      },
+      {
+        "timestamp": "2026-09-20 07:51:22",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 65% vs Bear 35% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-20 07:51:22",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-20 07:51:22",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-20 07:52:17",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$17.36 USDT) | PnL: $-17.36 USDT (Net: $-18.50)"
       }
     ]
   },
