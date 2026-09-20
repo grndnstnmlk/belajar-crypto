@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-20T03:26:39.090105+00:00",
-    "total_reflections": 16,
-    "system_retention_score": 82.3
+    "last_reflection_at": "2026-09-20T05:12:09.974287+00:00",
+    "total_reflections": 17,
+    "system_retention_score": 105.4
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -57,7 +57,7 @@
     "SOLUSDT": {
       "symbol": "SOLUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 15,
+      "total_trades": 16,
       "wins": 3,
-      "losses": 12,
+      "losses": 13,
       "breakevens": 0,
-      "win_rate_pct": 20.0,
-      "net_pnl_usd": -227.42,
+      "win_rate_pct": 18.8,
+      "net_pnl_usd": -230.81,
       "avg_r_multiple": -0.63,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-20 09:44:45",
-      "updated_at": "2026-09-20T03:55:59.359901+00:00"
+      "updated_at": "2026-09-20T05:12:09.974287+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -741,13 +741,14 @@
       "id": "RULE-AUTO-SOLUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "solusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-20T03:26:24.439423+00:00"
+      "created_at": "2026-09-20T03:26:24.439423+00:00",
+      "updated_at": "2026-09-20T05:12:09.974287+00:00"
     },
     {
       "id": "RULE-AUTO-NEARUSDT",
@@ -788,6 +789,28 @@
   ],
   "episodic_memories": [
     {
+      "id": "MEM-20260920-020",
+      "timestamp": "2026-09-20T05:12:09.974287+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -3.39,
+      "r_multiple": -0.04,
+      "pnl_pct": -0.12,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT 5m Order Flow CVD Absorption Scalp (net: -$3.39, -0.04R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "5m_order_flow_cvd_absorption_scalp",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T05:12:09.974287+00:00"
+    },
+    {
       "id": "MEM-20260920-019",
       "timestamp": "2026-09-20T03:26:39.090105+00:00",
       "symbol": "UNIUSDT",
@@ -806,8 +829,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 268,
-      "last_accessed": "2026-09-20T04:55:29.773025+00:00"
+      "access_count": 307,
+      "last_accessed": "2026-09-20T05:11:53.112260+00:00"
     },
     {
       "id": "MEM-20260920-018",
@@ -828,8 +851,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 235,
-      "last_accessed": "2026-09-20T04:55:29.773025+00:00"
+      "access_count": 274,
+      "last_accessed": "2026-09-20T05:11:53.112260+00:00"
     },
     {
       "id": "MEM-20260920-017",
@@ -850,8 +873,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 207,
-      "last_accessed": "2026-09-20T04:55:29.774026+00:00"
+      "access_count": 246,
+      "last_accessed": "2026-09-20T05:11:53.169681+00:00"
     },
     {
       "id": "MEM-20260920-016",
@@ -872,8 +895,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 123,
-      "last_accessed": "2026-09-20T04:55:29.648388+00:00"
+      "access_count": 136,
+      "last_accessed": "2026-09-20T05:11:52.919431+00:00"
     },
     {
       "id": "MEM-20260920-015",
@@ -896,8 +919,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 63,
-      "last_accessed": "2026-09-20T04:55:29.725876+00:00"
+      "access_count": 76,
+      "last_accessed": "2026-09-20T05:11:53.112260+00:00"
     },
     {
       "id": "MEM-20260918-014",
@@ -956,8 +979,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 66,
-      "last_accessed": "2026-09-20T04:55:29.753036+00:00"
+      "access_count": 79,
+      "last_accessed": "2026-09-20T05:11:53.169681+00:00"
     },
     {
       "id": "MEM-20260918-011",
@@ -976,8 +999,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 66,
-      "last_accessed": "2026-09-20T04:55:29.753036+00:00"
+      "access_count": 79,
+      "last_accessed": "2026-09-20T05:11:53.169681+00:00"
     },
     {
       "id": "MEM-20260918-010",
@@ -996,8 +1019,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 98,
-      "last_accessed": "2026-09-20T04:55:29.753036+00:00"
+      "access_count": 111,
+      "last_accessed": "2026-09-20T05:11:53.169681+00:00"
     },
     {
       "id": "MEM-20260918-009",
@@ -1056,8 +1079,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 74,
-      "last_accessed": "2026-09-20T04:55:29.725876+00:00"
+      "access_count": 87,
+      "last_accessed": "2026-09-20T05:11:53.112260+00:00"
     },
     {
       "id": "MEM-20260918-006",
@@ -1116,8 +1139,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 64,
-      "last_accessed": "2026-09-20T04:55:29.773025+00:00"
+      "access_count": 77,
+      "last_accessed": "2026-09-20T05:11:53.042916+00:00"
     },
     {
       "id": "MEM-20260901-001",
