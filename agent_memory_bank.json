@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-20T05:55:27.565770+00:00",
-    "total_reflections": 18,
+    "last_reflection_at": "2026-09-20T06:21:47.095562+00:00",
+    "total_reflections": 19,
     "system_retention_score": 106.2
   },
   "coin_profiles": {
@@ -19,16 +19,16 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 20,
+      "total_trades": 21,
       "wins": 6,
-      "losses": 8,
+      "losses": 9,
       "breakevens": 6,
-      "win_rate_pct": 30.0,
-      "net_pnl_usd": -2.07,
+      "win_rate_pct": 28.6,
+      "net_pnl_usd": -3.83,
       "avg_r_multiple": 0.02,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-20 07:27:09",
-      "updated_at": "2026-09-20T05:55:27.565770+00:00"
+      "updated_at": "2026-09-20T06:21:47.095562+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -785,9 +785,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-20T03:26:39.090105+00:00"
+    },
+    {
+      "id": "RULE-AUTO-BTCUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on BTCUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "btcusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-20T06:21:47.095562+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260920-022",
+      "timestamp": "2026-09-20T06:21:47.095562+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -1.76,
+      "r_multiple": -0.01,
+      "pnl_pct": -0.05,
+      "root_cause": "Adverse volatility stop-out on BTCUSDT 5m Order Flow CVD Absorption Scalp (net: -$1.76, -0.01R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BTCUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "btc",
+        "5m_order_flow_cvd_absorption_scalp",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T06:21:47.095562+00:00"
+    },
     {
       "id": "MEM-20260920-021",
       "timestamp": "2026-09-20T05:55:27.565770+00:00",
@@ -853,8 +887,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 466,
-      "last_accessed": "2026-09-20T05:54:27.673444+00:00"
+      "access_count": 546,
+      "last_accessed": "2026-09-20T06:21:02.417451+00:00"
     },
     {
       "id": "MEM-20260920-018",
@@ -875,8 +909,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 433,
-      "last_accessed": "2026-09-20T05:54:27.673444+00:00"
+      "access_count": 513,
+      "last_accessed": "2026-09-20T06:21:02.417451+00:00"
     },
     {
       "id": "MEM-20260920-017",
@@ -897,8 +931,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 371,
-      "last_accessed": "2026-09-20T05:54:27.673444+00:00"
+      "access_count": 434,
+      "last_accessed": "2026-09-20T06:19:45.963815+00:00"
     },
     {
       "id": "MEM-20260920-016",
@@ -919,8 +953,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 227,
-      "last_accessed": "2026-09-20T05:54:27.673444+00:00"
+      "access_count": 274,
+      "last_accessed": "2026-09-20T06:21:02.417451+00:00"
     },
     {
       "id": "MEM-20260920-015",
@@ -943,8 +977,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 110,
-      "last_accessed": "2026-09-20T05:54:26.832959+00:00"
+      "access_count": 126,
+      "last_accessed": "2026-09-20T06:20:05.052893+00:00"
     },
     {
       "id": "MEM-20260918-014",
@@ -1003,8 +1037,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 113,
-      "last_accessed": "2026-09-20T05:54:26.836370+00:00"
+      "access_count": 128,
+      "last_accessed": "2026-09-20T06:19:36.220152+00:00"
     },
     {
       "id": "MEM-20260918-011",
@@ -1023,8 +1057,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 113,
-      "last_accessed": "2026-09-20T05:54:26.836370+00:00"
+      "access_count": 128,
+      "last_accessed": "2026-09-20T06:19:36.220152+00:00"
     },
     {
       "id": "MEM-20260918-010",
@@ -1043,8 +1077,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 145,
-      "last_accessed": "2026-09-20T05:54:26.836370+00:00"
+      "access_count": 160,
+      "last_accessed": "2026-09-20T06:19:36.220152+00:00"
     },
     {
       "id": "MEM-20260918-009",
@@ -1103,8 +1137,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 121,
-      "last_accessed": "2026-09-20T05:54:26.832959+00:00"
+      "access_count": 137,
+      "last_accessed": "2026-09-20T06:20:05.052893+00:00"
     },
     {
       "id": "MEM-20260918-006",
@@ -1123,8 +1157,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 104,
-      "last_accessed": "2026-09-20T05:54:26.791143+00:00"
+      "access_count": 120,
+      "last_accessed": "2026-09-20T06:21:02.417451+00:00"
     },
     {
       "id": "MEM-20260918-005",
@@ -1143,8 +1177,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 23,
-      "last_accessed": "2026-09-20T03:52:05.398401+00:00"
+      "access_count": 25,
+      "last_accessed": "2026-09-20T05:56:52.695101+00:00"
     },
     {
       "id": "MEM-20260918-004",
@@ -1163,8 +1197,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 111,
-      "last_accessed": "2026-09-20T05:54:26.808374+00:00"
+      "access_count": 126,
+      "last_accessed": "2026-09-20T06:19:41.665595+00:00"
     },
     {
       "id": "MEM-20260901-001",
