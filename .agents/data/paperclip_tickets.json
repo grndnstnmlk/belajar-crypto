@@ -36,10 +36,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-20 17:15:39",
-    "updated_at": "2026-09-20 18:44:22",
+    "updated_at": "2026-09-20 19:33:02",
     "payload": {
       "entry": 2631.99,
       "sl": 2595.7602,
@@ -149,7 +149,13 @@
       "authorized_at": "2026-09-20 18:44:22",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$0.27 USDT)",
+      "realized_pnl": 0.2717,
+      "net_pnl": -0.8109,
+      "closed_at": "2026-09-20 19:33:02"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-20 17:15:39",
@@ -180,6 +186,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-20 19:33:02",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$0.27 USDT) | PnL: $+0.27 USDT (Net: $-0.81)"
       }
     ]
   },

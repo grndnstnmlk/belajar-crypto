@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-20T17:12:29.498665+00:00",
-    "total_reflections": 15,
-    "system_retention_score": 101.4
+    "last_reflection_at": "2026-09-20T19:33:02.250931+00:00",
+    "total_reflections": 18,
+    "system_retention_score": 104.5
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -28,7 +28,7 @@
       "avg_r_multiple": 0.04,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-20 19:59:09",
-      "updated_at": "2026-09-20T18:27:04.739674+00:00"
+      "updated_at": "2026-09-20T18:17:37.187510+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -43,14 +43,14 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 7,
+      "total_trades": 8,
       "wins": 5,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 1,
-      "net_pnl_usd": 82.57,
-      "win_rate_pct": 71.4,
-      "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-20T18:27:04.739684+00:00",
+      "net_pnl_usd": 81.76,
+      "win_rate_pct": 62.5,
+      "last_traded_outcome": "LOSS",
+      "updated_at": "2026-09-20T19:33:02.250919+00:00",
       "avg_r_multiple": 0.53,
       "last_closed_at": "2026-09-21 00:12:10"
     },
@@ -76,7 +76,7 @@
       "avg_r_multiple": -0.18,
       "last_traded_outcome": "BREAKEVEN",
       "last_closed_at": "2026-09-20 21:14:13",
-      "updated_at": "2026-09-20T18:27:04.739661+00:00"
+      "updated_at": "2026-09-20T18:17:37.187498+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -90,16 +90,16 @@
         "Institutional Iceberg Absorption"
       ],
       "notes": "Exchange native anchor. High institutional bid support; low false breakout rate on HTF.",
-      "total_trades": 2,
-      "wins": 2,
+      "total_trades": 4,
+      "wins": 4,
       "losses": 0,
       "breakevens": 0,
       "win_rate_pct": 100.0,
-      "net_pnl_usd": 9.73,
+      "net_pnl_usd": 100.97,
       "avg_r_multiple": 0.2,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-20 19:59:09",
-      "updated_at": "2026-09-20T18:27:04.739680+00:00"
+      "updated_at": "2026-09-20T18:30:39.807735+00:00"
     },
     "XRPUSDT": {
       "symbol": "XRPUSDT",
@@ -120,7 +120,7 @@
       "net_pnl_usd": -18.63,
       "win_rate_pct": 0.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-20T18:27:04.739688+00:00",
+      "updated_at": "2026-09-20T18:17:37.187522+00:00",
       "avg_r_multiple": -0.35,
       "last_closed_at": "2026-09-20 21:59:20"
     },
@@ -208,7 +208,7 @@
       "net_pnl_usd": 29.36,
       "win_rate_pct": 100.0,
       "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-20T18:27:04.739691+00:00",
+      "updated_at": "2026-09-20T18:17:37.187526+00:00",
       "avg_r_multiple": 1.51,
       "last_closed_at": "2026-09-20 23:15:48"
     },
@@ -499,9 +499,91 @@
       ],
       "created_at": "2026-09-20T12:59:21.470804+00:00",
       "updated_at": "2026-09-20T14:14:18.516548+00:00"
+    },
+    {
+      "id": "RULE-AUTO-ETHUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ETHUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "ethusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-20T19:33:02.250929+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260920-021",
+      "timestamp": "2026-09-20T19:33:02.250905+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "5m ICT Rejection Block Mean Threshold",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -0.81,
+      "r_multiple": 0.01,
+      "pnl_pct": -0.03,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT 5m ICT Rejection Block Mean Threshold (net: -$0.81, +0.01R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "5m_ict_rejection_block_mean_threshold",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T19:33:02.250910+00:00"
+    },
+    {
+      "id": "MEM-20260920-020",
+      "timestamp": "2026-09-20T18:30:39.807721+00:00",
+      "symbol": "BNBUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 45.62,
+      "r_multiple": 2.32,
+      "pnl_pct": 2.22,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on BNBUSDT. Trend momentum aligned with HTF bias, securing +2.32R net profit (+$45.62).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on BNBUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "bnb",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 11,
+      "last_accessed": "2026-09-20T18:43:23.225634+00:00"
+    },
+    {
+      "id": "MEM-20260920-019",
+      "timestamp": "2026-09-20T18:30:30.358043+00:00",
+      "symbol": "BNBUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 45.62,
+      "r_multiple": 2.32,
+      "pnl_pct": 2.22,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on BNBUSDT. Trend momentum aligned with HTF bias, securing +2.32R net profit (+$45.62).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on BNBUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "bnb",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 11,
+      "last_accessed": "2026-09-20T18:43:23.225636+00:00"
+    },
     {
       "id": "MEM-20260920-018",
       "timestamp": "2026-09-20T17:12:29.498648+00:00",
@@ -523,8 +605,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 10,
-      "last_accessed": "2026-09-20T17:23:42.346012+00:00"
+      "access_count": 21,
+      "last_accessed": "2026-09-20T18:44:23.260098+00:00"
     },
     {
       "id": "MEM-20260920-017",
@@ -613,8 +695,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 27,
-      "last_accessed": "2026-09-20T17:23:42.346007+00:00"
+      "access_count": 38,
+      "last_accessed": "2026-09-20T18:44:23.260094+00:00"
     },
     {
       "id": "MEM-20260920-013",
@@ -635,8 +717,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 48,
-      "last_accessed": "2026-09-20T19:04:50.965177+00:00"
+      "access_count": 42,
+      "last_accessed": "2026-09-20T18:13:35.704706+00:00"
     },
     {
       "id": "MEM-20260920-012",
@@ -657,8 +739,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 53,
-      "last_accessed": "2026-09-20T19:04:50.965176+00:00"
+      "access_count": 47,
+      "last_accessed": "2026-09-20T18:13:35.704705+00:00"
     },
     {
       "id": "MEM-20260920-011",
@@ -681,8 +763,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 92,
-      "last_accessed": "2026-09-20T17:23:42.491722+00:00"
+      "access_count": 113,
+      "last_accessed": "2026-09-20T18:44:23.260088+00:00"
     },
     {
       "id": "MEM-20260920-010",
@@ -705,8 +787,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 34,
-      "last_accessed": "2026-09-20T17:23:42.346009+00:00"
+      "access_count": 45,
+      "last_accessed": "2026-09-20T18:44:23.260096+00:00"
     },
     {
       "id": "MEM-20260920-009",
@@ -729,8 +811,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 24,
-      "last_accessed": "2026-09-20T19:06:18.505148+00:00"
+      "access_count": 15,
+      "last_accessed": "2026-09-20T18:15:04.793957+00:00"
     },
     {
       "id": "MEM-20260920-008",
@@ -753,8 +835,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 24,
-      "last_accessed": "2026-09-20T19:06:18.505155+00:00"
+      "access_count": 15,
+      "last_accessed": "2026-09-20T18:15:04.793964+00:00"
     },
     {
       "id": "MEM-20260920-007",
@@ -775,8 +857,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 170,
-      "last_accessed": "2026-09-20T19:06:18.505157+00:00"
+      "access_count": 168,
+      "last_accessed": "2026-09-20T18:43:23.143802+00:00"
     },
     {
       "id": "MEM-20260920-006",
@@ -797,8 +879,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 143,
-      "last_accessed": "2026-09-20T19:06:18.505159+00:00"
+      "access_count": 141,
+      "last_accessed": "2026-09-20T18:43:23.143810+00:00"
     },
     {
       "id": "MEM-20260920-005",
@@ -821,8 +903,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 61,
-      "last_accessed": "2026-09-20T17:23:42.382061+00:00"
+      "access_count": 81,
+      "last_accessed": "2026-09-20T18:43:23.225626+00:00"
     },
     {
       "id": "MEM-20260920-004",
@@ -845,8 +927,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 17,
-      "last_accessed": "2026-09-20T14:04:03.513302+00:00"
+      "access_count": 27,
+      "last_accessed": "2026-09-20T18:43:23.225632+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -865,8 +947,8 @@
         "absorption"
       ],
       "importance": 9,
-      "access_count": 24,
-      "last_accessed": "2026-09-20T19:04:48.951853+00:00"
+      "access_count": 21,
+      "last_accessed": "2026-09-20T18:13:33.688796+00:00"
     },
     {
       "id": "MEM-20260903-002",
