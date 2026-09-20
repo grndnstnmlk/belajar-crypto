@@ -1,6 +1,7 @@
 # 🤖 Autonomous AI Trading Desk — User Guide & Manual (HOW TO USE)
 
 Panduan operasional lengkap untuk menjalankan, mengendalikan, dan memantau **Autonomous AI Crypto Trading Agent** (Binance Futures Testnet & Live).
+python .agents/tools/auto_git_sync.py
 
 ---
 
@@ -41,13 +42,14 @@ GEMINI_API_KEY=your_gemini_api_key_here
 
 ---
 
-## 2. 3 Mode Operasional Trading Desk
+## 2. 4 Mode Operasional Trading Desk
 
-Trading desk memiliki 3 mode eksekusi yang dapat diganti sewaktu-waktu melalui CLI maupun Telegram:
+Trading desk memiliki 4 mode eksekusi yang dapat diganti sewaktu-waktu melalui CLI maupun Telegram:
 
 | Mode | Timeframe | Fokus Strategi | Alokasi Risiko | Target R:R | Karakteristik |
-| :--- | :---: | :--- | :--- | :---: | :--- |
-| **`SWING`** *(Default & Rekomendasi)* | **1H & 4H** (Makro) | SMC, Wyckoff Accumulation, Volume Profile VAH/VAL, FVG Retest, Tim Flossbach MSS | **1.05% – 1.50%** (Full Kelly) | **1:3.00 – 1:5.00+** | **Profit Maksimal**: Menunggangi ekspansi tren besar multi-jam/hari, proteksi SMC Trailing (+2R/+3R), tanpa time-stop prematur |
+| :--- | :---: | :--- | :--- | :--- :---: | :--- |
+| **`LONG_ONLY`** *(Rekomendasi Alpha Edge)* | **5m + 1H** | Dual Engine (Swing + Scalp) Long-Only | **1.05% – 1.50%** (Full Kelly) | **1:3.00 – 1:5.00+** | **Zero Short Drag**: Profit Factor 2.56, bebas 100% loss short trap pada bull market |
+| **`SWING`** | **1H & 4H** (Makro) | SMC, Wyckoff Accumulation, Volume Profile VAH/VAL, FVG Retest, Tim Flossbach MSS | **1.05% – 1.50%** (Full Kelly) | **1:3.00 – 1:5.00+** | **Profit Maksimal**: Menunggangi ekspansi tren besar multi-jam/hari, proteksi SMC Trailing (+2R/+3R), tanpa time-stop prematur |
 | **`HYBRID`** | **5m + 1H** | Dual Engine: Menangkap Swing 1H sekaligus Scalp 5m | **0.50% s/d 1.05%** | **1:2.00 – 1:3.50** | Fleksibel: Eksekusi scalp kilat ke slot kosong saat menunggu setup swing matang |
 | **`SCALP`** | **5m** (Mikro) | 5 Setup Elite Kripto: ICT Rejection Block (50% Mean Threshold), 4H-Range Breakout Re-entry, IFVG, 15m Rectangle Break & Retest | **0.35% – 0.50%** (Micro-Kelly) | **1:1.80 – 1:2.50** | Eksekusi cepat 15–35 menit, Micro-BE (+0.60R), Scale-Out TP1 (+1.25R), 20-min Anti-Stall Time-Stop |
 
@@ -57,7 +59,16 @@ Trading desk memiliki 3 mode eksekusi yang dapat diganti sewaktu-waktu melalui C
 
 Buka PowerShell di folder proyek (`c:\Users\USER\Downloads\Githubku\belajar kripto`):
 
-### A. Menjalankan Mode SWING (Tren Besar 1H/4H - Rekomendasi Profit Maksimal)
+### A. Menjalankan Mode LONG_ONLY (Zero Short Drag - Rekomendasi Profit Factor 2.56)
+```powershell
+# 1. Siklus Autopilot Terjadwal (Long-Only Dual Engine)
+python .agents/tools/trading_desk.py run --mode LONG_ONLY --long-only
+
+# 2. Siklus Uji Coba Sekali Jalan (Single Run Test)
+python .agents/tools/trading_desk.py run --mode LONG_ONLY --long-only --once
+```
+
+### B. Menjalankan Mode SWING (Tren Besar 1H/4H - Rekomendasi Profit Maksimal)
 ```powershell
 # 1. Siklus Autopilot Terjadwal (Memindai watchlist koin teratas)
 python .agents/tools/trading_desk.py run --mode SWING
@@ -66,12 +77,12 @@ python .agents/tools/trading_desk.py run --mode SWING
 python .agents/tools/trading_desk.py run --mode SWING --once
 ```
 
-### B. Menjalankan Mode HYBRID (Swing + Scalp Otomatis)
+### C. Menjalankan Mode HYBRID (Swing + Scalp Otomatis)
 ```powershell
 python .agents/tools/trading_desk.py run --mode HYBRID --interval 1
 ```
 
-### C. Menjalankan Mode SCALP (Fast Scalper 5m)
+### D. Menjalankan Mode SCALP (Fast Scalper 5m)
 ```powershell
 python .agents/tools/trading_desk.py run --mode SCALP --interval 1
 ```

@@ -101,26 +101,28 @@ def print_menu():
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_GREEN}[1] 🤖 FULL DUAL-ENGINE HYBRID AUTOPILOT (1H Swing + 5m Fast Scalper + Delta Sniping){C.RESET} {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_CYAN}[2] 🎯 SWING AUTOPILOT ONLY (1H/4H Big Wave + SMC Trailing + Max R:R){C.RESET}                {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[3] ⚡ FAST SCALPER ONLY (5m/15m Micro-SMC, ORB Breakout & Anti-Stall){C.RESET}              {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_WHITE}[4] 🧠 HYPEROPT STRATEGY OPTIMIZER (Optuna Bayesian Parameter Search){C.RESET}                {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_CYAN}[5] 🌐 DYNAMIC PAIRLIST PIPELINE (6-Stage Multi-Filter Binance Universe Scanner){C.RESET}    {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[6] 🔬 ADAPTIVE ML & ANOMALY EVALUATOR (Live Dissimilarity Index / OOD Gate){C.RESET}         {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_GREEN}[7] 🖥️ BUKA WEB DASHBOARD VISUAL DI BROWSER (http://localhost:5000){C.RESET}                   {C.BRIGHT_CYAN}║{C.RESET}")
-    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}[8] ❌ KELUAR{C.RESET}                                                                       {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_GREEN}[4] 🟢 LONG-ONLY HYBRID AUTOPILOT (1H Swing + 5m Scalper — Zero Short Drag, PF 2.56){C.RESET}  {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_WHITE}[5] 🧠 HYPEROPT STRATEGY OPTIMIZER (Optuna Bayesian Parameter Search){C.RESET}                {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_CYAN}[6] 🌐 DYNAMIC PAIRLIST PIPELINE (6-Stage Multi-Filter Binance Universe Scanner){C.RESET}    {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_YELLOW}[7] 🔬 ADAPTIVE ML & ANOMALY EVALUATOR (Live Dissimilarity Index / OOD Gate){C.RESET}         {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BRIGHT_GREEN}[8] 🖥️ BUKA WEB DASHBOARD VISUAL DI BROWSER (http://localhost:5000){C.RESET}                   {C.BRIGHT_CYAN}║{C.RESET}")
+    print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}[9] ❌ KELUAR{C.RESET}                                                                       {C.BRIGHT_CYAN}║{C.RESET}")
     print(f"{C.BRIGHT_CYAN}╚═══════════════════════════════════════════════════════════════════════════════════════╝{C.RESET}")
 
 def get_user_choice(timeout_sec=5):
     print(f"\n{C.GRAY}⏳ Otomatis menjalankan mode {C.BRIGHT_GREEN}[1] 🤖 HYBRID AUTOPILOT{C.GRAY} dalam {timeout_sec} detik jika tidak ada tombol ditekan...{C.RESET}")
     
+    valid_choices = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
     if sys.platform == "win32":
         import msvcrt
         start_time = time.time()
         while time.time() - start_time < timeout_sec:
             remaining = int(timeout_sec - (time.time() - start_time)) + 1
-            sys.stdout.write(f"\r  {C.GRAY}👉 Masukkan pilihan Anda [1-8] (Auto-boot dalam {C.BRIGHT_YELLOW}{remaining}s{C.GRAY}): {C.RESET}")
+            sys.stdout.write(f"\r  {C.GRAY}👉 Masukkan pilihan Anda [1-9] (Auto-boot dalam {C.BRIGHT_YELLOW}{remaining}s{C.GRAY}): {C.RESET}")
             sys.stdout.flush()
             if msvcrt.kbhit():
                 ch = msvcrt.getch().decode("utf-8", errors="ignore").strip()
-                if ch in ["1", "2", "3", "4", "5", "6", "7", "8"]:
+                if ch in valid_choices:
                     print(f"{ch}\n")
                     return ch
             time.sleep(0.1)
@@ -128,8 +130,8 @@ def get_user_choice(timeout_sec=5):
         return "1"
     else:
         try:
-            val = input(f"👉 Masukkan pilihan Anda [1-8] (default 1): ").strip()
-            return val if val in ["1", "2", "3", "4", "5", "6", "7", "8"] else "1"
+            val = input(f"👉 Masukkan pilihan Anda [1-9] (default 1): ").strip()
+            return val if val in valid_choices else "1"
         except Exception:
             return "1"
 
@@ -170,8 +172,16 @@ def main():
         print(f"{C.GRAY}Target: 1:2.0R s/d 1:3.5R Asymmetric Targets | Anti-Stall 20m Time-Stop | Delta Sniping{C.RESET}")
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
         subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "SCALP"], cwd=ROOT_DIR)
-        
+
     elif choice == "4":
+        clear_screen()
+        print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
+        print(f"{C.BOLD}{C.BRIGHT_GREEN}🟢 🛡️ MEMULAI LONG-ONLY HYBRID AUTOPILOT DESK (ZERO SHORT EXPOSURE){C.RESET}")
+        print(f"{C.GRAY}Fitur: Dual Engine (1H Swing + 5m Scalper) | 100% Bullish Edge (PF 2.56) | Bebas Short Trap{C.RESET}")
+        print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}\n")
+        subprocess.run([sys.executable, "-u", trading_desk_script, "run", "--mode", "LONG_ONLY", "--long-only"], cwd=ROOT_DIR)
+        
+    elif choice == "5":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
         print(f"{C.BOLD}{C.BRIGHT_WHITE}🧠 MENJALANKAN HYPEROPT STRATEGY PARAMETER OPTIMIZER (OPTUNA BAYESIAN){C.RESET}")
@@ -180,7 +190,7 @@ def main():
         input(f"\n{C.GRAY}Tekan Enter untuk kembali ke menu...{C.RESET}")
         main()
 
-    elif choice == "5":
+    elif choice == "6":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
         print(f"{C.BOLD}{C.BRIGHT_CYAN}🌐 MENJALANKAN CHAINABLE DYNAMIC PAIRLIST PIPELINE (6-STAGE FILTER){C.RESET}")
@@ -189,7 +199,7 @@ def main():
         input(f"\n{C.GRAY}Tekan Enter untuk kembali ke menu...{C.RESET}")
         main()
 
-    elif choice == "6":
+    elif choice == "7":
         clear_screen()
         print(f"{C.BRIGHT_CYAN}========================================================================================={C.RESET}")
         print(f"{C.BOLD}{C.BRIGHT_YELLOW}🔬 MENJALANKAN ADAPTIVE ML & OUT-OF-DISTRIBUTION ANOMALY EVALUATOR{C.RESET}")
@@ -198,13 +208,13 @@ def main():
         input(f"\n{C.GRAY}Tekan Enter untuk kembali ke menu...{C.RESET}")
         main()
         
-    elif choice == "7":
+    elif choice == "8":
         print(f"\n{C.BRIGHT_CYAN}🌐 Membuka browser ke http://localhost:5000 ...{C.RESET}")
         webbrowser.open("http://localhost:5000")
         print(f"{C.BRIGHT_GREEN}Selesai! Web Dashboard terbuka di browser Anda.{C.RESET}\n")
         time.sleep(2)
         
-    elif choice == "8":
+    elif choice == "9":
         print(f"\n{C.GRAY}Menutup AI Trading Desk. Selamat trading!{C.RESET}")
         time.sleep(1)
         sys.exit(0)

@@ -36,6 +36,9 @@ Every visual modification to [`dashboard.html`](dashboard.html) must strictly ad
 - `crypto-journal-tracker`: Quant metrics and performance analytics.
 - `smoothui-magicui-library`: Curated high-end SaaS component patterns from SmoothUI, Magic UI, Aceternity, Motion Primitives, and Origin UI.
 - `antislop`: Core anti-AI-slop filter across UI, copywriting, and code.
+- `graft`: Codebase knowledge graph and architectural context layer powered by Graft (trailhq/graft).
+- `jev-ultrafast`: Ultra-fast AI browser automation using indexed action spaces for rapid web scraping and OSINT.
+- `iris`: High-speed camera and visual verification skill for coding agents powered by Iris (brijr/iris).
 
 <!-- antislop:start -->
 ## antislop

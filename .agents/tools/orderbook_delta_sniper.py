@@ -136,8 +136,20 @@ def analyze_orderbook_and_delta(symbol: str = "BTCUSDT") -> Dict[str, Any]:
     if not bids or not asks:
         return {"symbol": sym_clean, "status": "ERROR", "message": "Failed to fetch orderbook"}
 
-    best_bid = bids[0][0]
-    best_ask = asks[0][0]
+    # Check if WebSocket book ticker has fresher top-of-book prices (< 0.05ms)
+    try:
+        import binance_ws_stream
+        ws_book = binance_ws_stream.get_book_ticker(sym_clean, max_age_seconds=2.0)
+        if ws_book and ws_book.get("best_bid", 0) > 0 and ws_book.get("best_ask", 0) > 0:
+            best_bid = float(ws_book["best_bid"])
+            best_ask = float(ws_book["best_ask"])
+        else:
+            best_bid = bids[0][0]
+            best_ask = asks[0][0]
+    except Exception:
+        best_bid = bids[0][0]
+        best_ask = asks[0][0]
+
     mid_price = (best_bid + best_ask) / 2.0
     spread_usd = best_ask - best_bid
     spread_bps = (spread_usd / mid_price * 10000.0) if mid_price > 0 else 0.0

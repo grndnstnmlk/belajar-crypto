@@ -113,7 +113,7 @@ def call_llm(prompt, system_prompt=None, temperature=0.2, response_json=False):
                 model=creds.get("model", "deepseek-r1:8b"),
                 endpoint=creds.get("endpoint", "http://localhost:11434/v1"),
                 temperature=temperature,
-                timeout=4.0,
+                timeout=8.0,
                 response_json=response_json
             )
         except Exception:

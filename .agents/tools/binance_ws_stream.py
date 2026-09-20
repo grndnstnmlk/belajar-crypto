@@ -12,6 +12,7 @@ import sys
 import threading
 import time
 from datetime import datetime
+from typing import Optional, Tuple, Dict, Any
 
 # Ensure UTF-8 output on Windows console
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
@@ -27,17 +28,18 @@ try:
 except ImportError:
     HAS_WEBSOCKET = False
 
-# Global In-Memory Thread-Safe Cache for Live Mark Prices
+# Global In-Memory Thread-Safe Cache for Live Mark Prices & Book Tickers
 _LIVE_MARK_PRICES = {}
+_LIVE_BOOK_TICKERS = {}
 _CACHE_LOCK = threading.Lock()
 
 # Stream Singleton Instance
 _STREAM_INSTANCE = None
 _STREAM_LOCK = threading.Lock()
 
-# Endpoints
-TESTNET_WS_URL = "wss://stream.binancefuture.com/ws/!markPrice@arr@1s"
-LIVE_WS_URL = "wss://fstream.binance.com/ws/!markPrice@arr@1s"
+# Endpoints (Combined Streams: Mark Price 1s Array + Real-Time BookTicker Best Bid/Ask)
+TESTNET_WS_URL = "wss://stream.binancefuture.com/stream?streams=!markPrice@arr@1s/!bookTicker"
+LIVE_WS_URL = "wss://fstream.binance.com/stream?streams=!markPrice@arr@1s/!bookTicker"
 
 
 class BinanceWebSocketStream:
@@ -61,7 +63,7 @@ class BinanceWebSocketStream:
         self.current_delay = self.reconnect_delay
         self.last_error = None
         mode = "DEMO (Testnet)" if self.is_demo else "PRODUCTION (Live)"
-        print(f"⚡ [Binance WS Stream] Connected to Binance Futures stream ({mode})! Streaming all pairs...")
+        print(f"⚡ [Binance WS Stream] Connected to Binance Futures stream ({mode})! Streaming all pairs (Mark Price + Book Ticker)...")
 
     def _on_message(self, ws, message):
         try:
@@ -70,41 +72,75 @@ class BinanceWebSocketStream:
             self.messages_count += 1
             self.last_msg_timestamp = now
 
-            # !markPrice@arr@1s returns an array of objects
-            # [{ 's': 'BTCUSDT', 'p': '80787.34', 'i': '80744.95', 'r': '-0.001', 'T': 1789776000000, 'E': 1789752405000 }, ...]
-            if isinstance(data, list):
-                updates = {}
-                for item in data:
-                    sym = item.get("s")
-                    if not sym:
-                        continue
-                    p_str = item.get("p")
-                    if p_str:
-                        try:
-                            updates[sym] = {
+            # Support combined stream wrapper: {"stream": "...", "data": ...}
+            stream_name = ""
+            payload = data
+            if isinstance(data, dict) and "stream" in data and "data" in data:
+                stream_name = data.get("stream", "")
+                payload = data.get("data")
+
+            # 1. Handle !markPrice@arr@1s
+            if "!markPrice" in stream_name or (isinstance(payload, list) and not stream_name):
+                if isinstance(payload, list):
+                    updates = {}
+                    for item in payload:
+                        sym = item.get("s")
+                        if not sym:
+                            continue
+                        p_str = item.get("p")
+                        if p_str:
+                            try:
+                                updates[sym] = {
+                                    "mark_price": float(p_str),
+                                    "index_price": float(item.get("i", 0.0) or 0.0),
+                                    "funding_rate": float(item.get("r", 0.0) or 0.0),
+                                    "event_time_ms": int(item.get("E", 0) or 0),
+                                    "updated_at": now
+                                }
+                            except (ValueError, TypeError):
+                                continue
+                    with _CACHE_LOCK:
+                        _LIVE_MARK_PRICES.update(updates)
+
+                elif isinstance(payload, dict):
+                    sym = payload.get("s")
+                    p_str = payload.get("p")
+                    if sym and p_str:
+                        with _CACHE_LOCK:
+                            _LIVE_MARK_PRICES[sym] = {
                                 "mark_price": float(p_str),
-                                "index_price": float(item.get("i", 0.0) or 0.0),
-                                "funding_rate": float(item.get("r", 0.0) or 0.0),
-                                "event_time_ms": int(item.get("E", 0) or 0),
+                                "index_price": float(payload.get("i", 0.0) or 0.0),
+                                "funding_rate": float(payload.get("r", 0.0) or 0.0),
+                                "event_time_ms": int(payload.get("E", 0) or 0),
                                 "updated_at": now
                             }
-                        except (ValueError, TypeError):
-                            continue
-                with _CACHE_LOCK:
-                    _LIVE_MARK_PRICES.update(updates)
 
-            elif isinstance(data, dict):
-                sym = data.get("s")
-                p_str = data.get("p")
-                if sym and p_str:
-                    with _CACHE_LOCK:
-                        _LIVE_MARK_PRICES[sym] = {
-                            "mark_price": float(p_str),
-                            "index_price": float(data.get("i", 0.0) or 0.0),
-                            "funding_rate": float(data.get("r", 0.0) or 0.0),
-                            "event_time_ms": int(data.get("E", 0) or 0),
-                            "updated_at": now
-                        }
+            # 2. Handle !bookTicker (Real-time Best Bid & Best Ask)
+            elif "!bookTicker" in stream_name or (isinstance(payload, dict) and payload.get("e") == "bookTicker") or (isinstance(payload, dict) and "b" in payload and "a" in payload and "s" in payload):
+                if isinstance(payload, dict):
+                    sym = payload.get("s")
+                    b_str = payload.get("b")
+                    a_str = payload.get("a")
+                    if sym and b_str and a_str:
+                        try:
+                            bid = float(b_str)
+                            ask = float(a_str)
+                            bid_qty = float(payload.get("B", 0.0) or 0.0)
+                            ask_qty = float(payload.get("A", 0.0) or 0.0)
+                            spread_pct = ((ask - bid) / bid * 100.0) if bid > 0 else 0.0
+                            with _CACHE_LOCK:
+                                _LIVE_BOOK_TICKERS[sym] = {
+                                    "symbol": sym,
+                                    "best_bid": bid,
+                                    "best_ask": ask,
+                                    "bid_qty": bid_qty,
+                                    "ask_qty": ask_qty,
+                                    "spread_pct": spread_pct,
+                                    "event_time_ms": int(payload.get("E", 0) or 0),
+                                    "updated_at": now
+                                }
+                        except (ValueError, TypeError):
+                            pass
 
         except Exception as e:
             pass
@@ -237,6 +273,44 @@ def get_all_mark_prices() -> dict:
         return {k: v["mark_price"] for k, v in _LIVE_MARK_PRICES.items()}
 
 
+def get_book_ticker(symbol: str, max_age_seconds: float = 4.0) -> Optional[dict]:
+    """
+    Returns the real-time best bid, best ask, and spread for a cryptocurrency symbol.
+    Performs an instant O(1) in-memory lookup (< 0.05ms latency).
+    Returns None if symbol not found or if data is older than max_age_seconds.
+    """
+    if not symbol:
+        return None
+    sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    if not sym_clean.endswith("USDT") and not sym_clean.endswith("BUSD"):
+        sym_clean += "USDT"
+
+    now = time.time()
+    with _CACHE_LOCK:
+        item = _LIVE_BOOK_TICKERS.get(sym_clean)
+        if item:
+            if now - item.get("updated_at", 0.0) <= max_age_seconds:
+                return item
+    return None
+
+
+def get_best_bid_ask(symbol: str, max_age_seconds: float = 4.0) -> Tuple[float, float]:
+    """
+    Returns (best_bid, best_ask) tuple for a given symbol from the live WebSocket RAM cache.
+    Returns (0.0, 0.0) if data is unavailable or stale.
+    """
+    ticker = get_book_ticker(symbol, max_age_seconds=max_age_seconds)
+    if ticker:
+        return ticker.get("best_bid", 0.0), ticker.get("best_ask", 0.0)
+    return 0.0, 0.0
+
+
+def get_all_book_tickers() -> dict:
+    """Returns a snapshot dictionary of all streaming book tickers."""
+    with _CACHE_LOCK:
+        return dict(_LIVE_BOOK_TICKERS)
+
+
 def get_stream_health() -> dict:
     """
     Returns a telemetry status summary of the WebSocket streaming daemon.
@@ -245,6 +319,7 @@ def get_stream_health() -> dict:
     global _STREAM_INSTANCE
     with _CACHE_LOCK:
         pairs_count = len(_LIVE_MARK_PRICES)
+        book_tickers_count = len(_LIVE_BOOK_TICKERS)
 
     inst = _STREAM_INSTANCE
     if inst is None:
@@ -252,6 +327,7 @@ def get_stream_health() -> dict:
             "status": "STOPPED",
             "connected": False,
             "pairs_streaming": pairs_count,
+            "book_tickers_streaming": book_tickers_count,
             "messages_received": 0,
             "uptime_sec": 0.0,
             "latency_ms": 0.0,
@@ -268,6 +344,7 @@ def get_stream_health() -> dict:
         "is_healthy": is_healthy,
         "mode": "DEMO (Testnet)" if inst.is_demo else "PRODUCTION (Live)",
         "pairs_streaming": pairs_count,
+        "book_tickers_streaming": book_tickers_count,
         "messages_received": inst.messages_count,
         "uptime_sec": round(now - inst.start_time, 1) if inst.start_time > 0 else 0.0,
         "last_message_ago_sec": round(last_msg_ago, 2) if last_msg_ago is not None else None,

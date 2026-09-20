@@ -1115,7 +1115,7 @@ def print_active_positions_table(active_positions):
         print(f"  {C.GRAY}│{C.RESET} {C.BRIGHT_WHITE}{sym_str}{C.RESET} {C.GRAY}│{C.RESET} {side_color}{side_label}{C.RESET}    {C.GRAY}│{C.RESET} {entry_str} {C.GRAY}│{C.RESET} {mark_str} {C.GRAY}│{C.RESET} {pnl_color}{pnl_str}{C.RESET} {C.GRAY}│{C.RESET} {status_color}{status_str}{C.RESET} {C.GRAY}│{C.RESET}")
     print(f"  {C.GRAY}└────────────┴──────────────┴─────────────┴─────────────┴────────────────┴───────────────────────────┘{C.RESET}")
 
-def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, symbols=None, leverage=None):
+def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, symbols=None, leverage=None, long_only=False):
     genome = load_genome()
     params = genome.get("parameters", {})
     min_rr = params.get("min_risk_reward", 2.0)
@@ -1239,20 +1239,26 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
         return
 
     desk_mode = telegram_notifier.get_desk_mode().upper()
-    if desk_mode not in ["SCALP", "SWING", "HYBRID"]:
+    if desk_mode not in ["SCALP", "SWING", "HYBRID", "LONG_ONLY"]:
         desk_mode = "HYBRID"
+
+    is_long_only = (desk_mode == "LONG_ONLY") or (os.environ.get("DESK_LONG_ONLY", "0") == "1") or long_only
 
     mode_labels = {
         "HYBRID": "🤖 HYBRID AUTO (Simultaneous 1H Swing + 5m Fast Scalp)",
         "SCALP": "⚡ FAST SCALPER ONLY (5m/15m Protocol)",
-        "SWING": "🎯 SWING INTRADAY ONLY (1H/4H Confluence)"
+        "SWING": "🎯 SWING INTRADAY ONLY (1H/4H Confluence)",
+        "LONG_ONLY": "🟢 LONG-ONLY HYBRID (1H Swing + 5m Scalp — Zero Short Exposure)"
     }
-    print(f"\n * Mode Operasional Trading Desk: {mode_labels.get(desk_mode, desk_mode)}")
+    mode_display = mode_labels.get(desk_mode, desk_mode)
+    if is_long_only and desk_mode != "LONG_ONLY":
+        mode_display += " [🛡️ LONG-ONLY ENFORCED]"
+    print(f"\n * Mode Operasional Trading Desk: {mode_display}")
 
     candidates = []
 
-    # 2A. Fast Scalper Scan (Runs in HYBRID and SCALP modes with High-RR Quality Gate)
-    if desk_mode in ["SCALP", "HYBRID"]:
+    # 2A. Fast Scalper Scan (Runs in HYBRID, SCALP, and LONG_ONLY modes with High-RR Quality Gate)
+    if desk_mode in ["SCALP", "HYBRID", "LONG_ONLY"]:
         print(f"\n[2A. FAST SCALPER ENGINE — 5m / 15m MICRO-STRUCTURE SCAN]")
         
         # Penyesuaian 5: Strict Session Kill Zone Gatekeeper (London 14-18 WIB & NY 19:30-23:30 WIB)
@@ -1270,13 +1276,16 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
             except Exception:
                 active_scalps_count = 0
 
-            if active_scalps_count >= 2 and desk_mode == "HYBRID":
+            if active_scalps_count >= 2 and desk_mode in ["HYBRID", "LONG_ONLY"]:
                 print(f" ℹ️ [Scalp Slot Guard] Sudah ada {active_scalps_count} posisi scalp aktif. Menyimpan slot sisa untuk Institutional Swing Big Waves.")
             else:
                 scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:8])
                 for s in scalp_setups:
                     # Filter out sub-standard scalps (Must have >= 1:2.0R Asymmetric Target)
                     if s.get("rr_ratio", 0) < 2.0:
+                        continue
+                    if is_long_only and s.get("side", "").upper() in ["SELL", "SHORT"]:
+                        print(f" 🛡️ [LONG-ONLY FILTER] Vetoed SHORT on {s['symbol']} (Long-Only mode active)")
                         continue
                     pair_sym = f"{s['symbol']}USDT"
                     if pair_sym in active_symbols or any(c["symbol"] == pair_sym for c in candidates):
@@ -1302,11 +1311,20 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                         "reason": f"⚡ HIGH-R:R SCALP [{s['strategy']}]: {s['reason']} (Target: {s['target_duration']})"
                     })
 
-    # 2B. Swing & Institutional Intraday Scan (Runs in HYBRID and SWING modes)
-    if desk_mode in ["SWING", "HYBRID"]:
+    # 2B. Swing & Institutional Intraday Scan (Runs in HYBRID, SWING, and LONG_ONLY modes)
+    if desk_mode in ["SWING", "HYBRID", "LONG_ONLY"]:
         print(f"\n[2B. SWING & INSTITUTIONAL ENGINE — 1H / 4H MACRO CONFLUENCE SCAN]")
         swing_cands = scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_risk_pct)
-        candidates.extend(swing_cands)
+        if is_long_only:
+            filtered_swing = []
+            for sc in swing_cands:
+                if sc.get("side", "").upper() in ["SELL", "SHORT"]:
+                    print(f" 🛡️ [LONG-ONLY FILTER] Vetoed SHORT on {sc['symbol']} (Long-Only mode active)")
+                else:
+                    filtered_swing.append(sc)
+            candidates.extend(filtered_swing)
+        else:
+            candidates.extend(swing_cands)
 
     # Register discovered candidates into Paperclip Swarm (Stage 1: DISCOVERED)
     try:
@@ -1778,9 +1796,11 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
             sl_pct = abs(best["price"] - best["sl"]) / best["price"]
             pos_size_usd = risk_budget / max(sl_pct, 0.005)
 
-            # Sizing Floor: Anti-Receh Engine (Guarantees meaningful profit outcomes)
-            min_floor = 1800.0 if best.get("is_scalp") else 1500.0
-            if pos_size_usd < min_floor and available_usd >= 80.0:
+            # Sizing Floor: Anti-Receh Engine with Dynamic Capital Scaling
+            # Proportional floor: 35% of equity for 5m scalps, 30% of equity for 1H swings (min $300 to meet exchange minimums)
+            min_floor = max(300.0, balance_usd * 0.35 if best.get("is_scalp") else balance_usd * 0.30)
+            min_avail_req = max(15.0, min_floor / 5.0 * 0.25)
+            if pos_size_usd < min_floor and available_usd >= min_avail_req:
                 pos_size_usd = min_floor
 
             # Cap 1: Max 2.5x equity
@@ -1876,9 +1896,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     b_pos_usd = b_risk_budget / max(sl_pct, 0.005)
 
                     # Dynamic Sizing Floor & Anti-Receh Engine:
-                    # Guarantees meaningful profit outcomes (+$25 s/d +$80+ per win) instead of $1-$3
-                    min_floor = 1500.0 if best.get("is_scalp") else 1200.0
-                    if b_pos_usd < min_floor and b_avail >= 75.0:
+                    # Guarantees meaningful profit outcomes scaled proportionally to account equity
+                    min_floor = max(300.0, b_equity * 0.35 if best.get("is_scalp") else b_equity * 0.30)
+                    min_avail_req = max(15.0, min_floor / float(active_leverage) * 0.5)
+                    if b_pos_usd < min_floor and b_avail >= min_avail_req:
                         b_pos_usd = min(min_floor, b_avail * 0.60 * float(active_leverage))
                         b_risk_budget = b_pos_usd * sl_pct
                         print(f" 🚀 [ANTI-RECEH SIZING FLOOR] Posisi disesuaikan ke nosional ${b_pos_usd:,.2f} (Margin: ${b_pos_usd/active_leverage:,.2f} @ {active_leverage}x) agar profit per trade signifikan!")
@@ -2060,10 +2081,14 @@ def show_desk_status(user_email=None, is_demo=True):
 
     print(f"\n{C.BRIGHT_CYAN}┌─ [DESK RULES & MACRO REGIME] ────────────────────────────────────────────────────{C.RESET}")
     desk_mode = telegram_notifier.get_desk_mode().upper()
+    if os.environ.get("DESK_LONG_ONLY", "0") == "1":
+        desk_mode = "LONG_ONLY"
     if desk_mode == "HYBRID":
         mode_desc = f"{C.BRIGHT_GREEN}🤖 HYBRID (Dual-Engine: 5m Fast Scalp + 1H Swing Confluence){C.RESET}"
     elif desk_mode == "SCALP":
         mode_desc = f"{C.BRIGHT_YELLOW}⚡ SCALP ONLY (5m Micro-Structure Protocol){C.RESET}"
+    elif desk_mode == "LONG_ONLY":
+        mode_desc = f"{C.BRIGHT_GREEN}🟢 LONG-ONLY HYBRID (Dual-Engine: Zero Short Exposure — 100% Bullish Edge){C.RESET}"
     else:
         mode_desc = f"{C.BRIGHT_CYAN}🎯 SWING ONLY (1H/4H Macro Confluence Focus){C.RESET}"
     print(f"{C.BRIGHT_CYAN}│{C.RESET} Mode Operasi Desk   : {mode_desc}")
@@ -2087,7 +2112,8 @@ def main():
     # Run command
     run_p = sub.add_parser("run", help="Jalankan siklus pemindaian dan eksekusi trading desk")
     run_p.add_argument("--once", action="store_true", help="Jalankan 1 siklus lalu selesai")
-    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID"], default="HYBRID", help="Set mode operasional desk (default: HYBRID)")
+    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID", "LONG_ONLY"], default="HYBRID", help="Set mode operasional desk (default: HYBRID)")
+    run_p.add_argument("--long-only", action="store_true", help="Paksa trading desk hanya membuka posisi LONG (Zero Short Exposure)")
     run_p.add_argument("--backend", type=str, choices=["BOTH", "BINANCE", "MT5"], default=None, help="Backend eksekusi: BOTH (Binance+MT5), BINANCE, atau MT5")
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
     run_p.add_argument("--interval", type=int, default=30, help="Interval menit jika berjalan berkelanjutan (default: 1 menit untuk HYBRID/SCALP, 15 menit untuk SWING)")
@@ -2121,17 +2147,22 @@ def main():
             telegram_notifier.save_desk_state(state)
             print(f"🎯 Mode Operasional Desk diset ke: {state['mode']}")
 
+        is_long_only_flag = getattr(args, "long_only", False) or (getattr(args, "mode", "").upper() == "LONG_ONLY")
+        if is_long_only_flag:
+            os.environ["DESK_LONG_ONLY"] = "1"
+
         syms = [s.strip().upper() for s in args.symbols.split(",") if s.strip()] if getattr(args, "symbols", None) else None
         max_pos = getattr(args, "max_positions", 5)
         lev_val = getattr(args, "leverage", None)
         w_str = ", ".join(syms) if syms else ", ".join(DEFAULT_WATCHLIST)
         if args.once:
-            run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val)
+            run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val, long_only=is_long_only_flag)
         else:
             cur_mode = telegram_notifier.get_desk_mode().upper()
-            sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode == "HYBRID" else max(15, args.interval * 60))
+            sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode in ["HYBRID", "LONG_ONLY"] else max(15, args.interval * 60))
             lev_str = f" | Leverage: {lev_val}x" if lev_val else f" | Leverage: {'20x' if cur_mode == 'SCALP' else '5x'}"
-            print(f"{C.BRIGHT_GREEN}🚀 Memulai Autonomous Trading Desk Daemon{C.RESET} ({C.BRIGHT_WHITE}Watchlist: {w_str} | Mode: {cur_mode}{lev_str} | Max Positions: {max_pos}{C.RESET})...")
+            long_only_tag = " [LONG-ONLY]" if is_long_only_flag or cur_mode == "LONG_ONLY" else ""
+            print(f"{C.BRIGHT_GREEN}🚀 Memulai Autonomous Trading Desk Daemon{C.RESET} ({C.BRIGHT_WHITE}Watchlist: {w_str} | Mode: {cur_mode}{long_only_tag}{lev_str} | Max Positions: {max_pos}{C.RESET})...")
             # Start background Telegram interactive remote control listener thread
             telegram_notifier.start_command_listener(args.user, is_demo=is_demo)
 
@@ -2145,7 +2176,7 @@ def main():
             consecutive_errors = 0
             while True:
                 try:
-                    run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val)
+                    run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val, long_only=is_long_only_flag)
                     consecutive_errors = 0  # Reset error count on successful cycle completion
 
                     cur_mode = "HYBRID"

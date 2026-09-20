@@ -51,13 +51,16 @@ DEFAULT_LOCAL_ENDPOINTS = [
     "http://localhost:8080/v1",                                   # llama.cpp server
 ]
 
-# Preferred reasoning models in priority order
+# Preferred reasoning models in priority order (Multi-Tier: 12GB RTX 5070 vs 6GB GTX 1660)
 RECOMMENDED_REASONING_MODELS = [
     "deepseek-r1:8b",
-    "deepseek-r1:7b",
     "deepseek-r1:14b",
-    "qwen2.5-coder:7b",
     "qwen2.5:7b",
+    "qwen2.5-coder:7b",
+    "deepseek-r1:1.5b",
+    "qwen2.5:3b",
+    "qwen2.5:1.5b",
+    "llama3.2:3b",
     "llama3.1:8b",
     "mistral:7b"
 ]
@@ -70,6 +73,95 @@ HEADERS = {
     "Content-Type": "application/json",
     "User-Agent": "BelajarKripto-CognitiveBrain/2.0"
 }
+
+_HARDWARE_PROFILE = None
+
+def detect_gpu_hardware_profile() -> Dict[str, Any]:
+    """
+    Detects GPU hardware and VRAM to calibrate local LLM configuration:
+    - HIGH_PERF (VRAM >= 9.5GB, e.g. RTX 5070 12GB): 8B/14B models, 2048 ctx, 350 tokens.
+    - EFFICIENCY_TURBO (VRAM 4.0-9.0GB, e.g. GTX 1660 6GB): 1.5B/3B/7B/8B (1536 ctx), 250 tokens.
+    - CPU_FALLBACK (< 4GB or no GPU): 1.5B or ultra-fast in-memory quant reflex (< 1ms).
+    """
+    global _HARDWARE_PROFILE
+    if _HARDWARE_PROFILE is not None:
+        return _HARDWARE_PROFILE
+
+    profile = {
+        "gpu_name": "Standard GPU / CPU",
+        "vram_mb": 0,
+        "vram_gb": 0.0,
+        "tier": "STANDARD",
+        "recommended_models": ["deepseek-r1:8b", "deepseek-r1:1.5b", "qwen2.5:3b"],
+        "num_ctx": 2048,
+        "num_predict": 300,
+        "keep_alive": "60m"
+    }
+
+    try:
+        import subprocess
+        res = subprocess.run(
+            ["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=1.5
+        )
+        if res.returncode == 0 and res.stdout.strip():
+            lines = res.stdout.strip().split("\n")
+            if lines:
+                parts = lines[0].split(",")
+                gpu_name = parts[0].strip()
+                vram_mb = float(parts[1].strip()) if len(parts) > 1 else 0.0
+                vram_gb = round(vram_mb / 1024.0, 1)
+                profile["gpu_name"] = gpu_name
+                profile["vram_mb"] = int(vram_mb)
+                profile["vram_gb"] = vram_gb
+
+                if vram_gb >= 9.5:  # e.g. RTX 5070 (12GB)
+                    profile["tier"] = "HIGH_PERF (RTX 5070+)"
+                    profile["recommended_models"] = [
+                        "deepseek-r1:8b",
+                        "deepseek-r1:14b",
+                        "qwen2.5:7b",
+                        "qwen2.5-coder:7b",
+                        "llama3.1:8b"
+                    ]
+                    profile["num_ctx"] = 2048
+                    profile["num_predict"] = 350
+                elif vram_gb >= 4.0:  # e.g. GTX 1660 (6GB)
+                    profile["tier"] = "EFFICIENCY_TURBO (GTX 1660 / 6GB VRAM)"
+                    profile["recommended_models"] = [
+                        "deepseek-r1:8b",     # Fits with 1536 ctx
+                        "deepseek-r1:1.5b",   # Ultra-fast < 1s
+                        "qwen2.5:3b",
+                        "llama3.2:3b",
+                        "qwen2.5:1.5b"
+                    ]
+                    profile["num_ctx"] = 1536
+                    profile["num_predict"] = 250
+    except Exception:
+        pass
+
+    _HARDWARE_PROFILE = profile
+    return profile
+
+
+def get_hardware_ai_profile() -> Dict[str, Any]:
+    """Returns real-time GPU hardware profile, active Ollama model, and execution metrics."""
+    hw = detect_gpu_hardware_profile()
+    is_live, ep, mdl = test_local_llm_connection(timeout=0.25)
+    return {
+        "is_live": is_live,
+        "endpoint": ep,
+        "active_model": mdl or "local_quant_reflex_engine",
+        "gpu_name": hw.get("gpu_name", "NVIDIA GPU"),
+        "vram_gb": hw.get("vram_gb", 0.0),
+        "tier": hw.get("tier", "STANDARD"),
+        "context_window": hw.get("num_ctx", 2048),
+        "max_predict_tokens": hw.get("num_predict", 300),
+        "status": "ONLINE (GPU Accelerated)" if is_live else "OFFLINE (Quant Reflex Ready)"
+    }
 
 
 _PROBE_CACHE = {
@@ -88,6 +180,9 @@ def test_local_llm_connection(timeout: float = 0.25, max_age: float = 20.0) -> T
     if now - _PROBE_CACHE["timestamp"] < max_age:
         return _PROBE_CACHE["result"]
 
+    hw = detect_gpu_hardware_profile()
+    rec_models = hw.get("recommended_models", RECOMMENDED_REASONING_MODELS)
+
     for ep in DEFAULT_LOCAL_ENDPOINTS:
         try:
             models_url = ep.rstrip("/") + "/models"
@@ -97,9 +192,9 @@ def test_local_llm_connection(timeout: float = 0.25, max_age: float = 20.0) -> T
                     data = json.loads(resp.read().decode("utf-8"))
                     available_models = [m.get("id", "") for m in data.get("data", [])]
                     
-                    # Match against recommended models
+                    # Match against recommended models according to hardware tier
                     selected_model = None
-                    for rec in RECOMMENDED_REASONING_MODELS:
+                    for rec in rec_models:
                         for av in available_models:
                             if rec.lower() in av.lower():
                                 selected_model = av
@@ -131,8 +226,13 @@ def query_local_llm(
     response_json: bool = True
 ) -> Optional[str]:
     """
-    Sends a reasoning query to the local LLM with strict latency timeout (3.5s).
+    Sends a reasoning query to the local LLM with GPU-calibrated options and keep_alive.
     """
+    hw = detect_gpu_hardware_profile()
+    num_ctx = hw.get("num_ctx", 2048)
+    num_predict = hw.get("num_predict", 300)
+    keep_alive = hw.get("keep_alive", "60m")
+
     url = endpoint.rstrip("/") + "/chat/completions"
     messages = []
     if system_prompt:
@@ -143,7 +243,13 @@ def query_local_llm(
         "model": model,
         "messages": messages,
         "temperature": temperature,
-        "max_tokens": 1024,
+        "max_tokens": num_predict,
+        "options": {
+            "num_ctx": num_ctx,
+            "num_predict": num_predict,
+            "temperature": temperature
+        },
+        "keep_alive": keep_alive
     }
     if response_json and "deepseek-r1" not in model.lower():
         payload["response_format"] = {"type": "json_object"}
@@ -257,6 +363,7 @@ Entry: {entry} | Invalidation (SL): {sl} | Target (TP): {tp} | R:R: 1:{rr:.2f}
 [COGNITIVE TASK]
 Conduct an internal dialectical debate (Bull Thesis vs Bear Risk/Trap vs Risk Officer).
 Are we getting trapped by a fakeout or liquidity raid? Does this trade strictly comply with capital preservation?
+<think>Keep inner reasoning strictly under 3 sentences for ultra-fast latency.</think>
 Return ONLY valid JSON matching this schema:
 {{
   "thought_process": "<Short 1-2 sentence inner reasoning>",

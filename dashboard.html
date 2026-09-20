@@ -1426,6 +1426,11 @@
           <span class="equity-num mono" id="header-equity">$5,250.00</span>
         </div>
 
+        <div class="equity-capsule" id="header-ai-capsule" style="cursor:pointer;" onclick="openAiModal()" title="Local AI Brain Status (Ollama / GPU)">
+          <span class="equity-lbl">AI Core</span>
+          <span class="equity-num mono" id="header-ai-text" style="color:var(--color-purple); font-size:11px;">🤖 Detecting GPU...</span>
+        </div>
+
         <button class="btn btn-primary btn-sm" id="mode-badge-btn" onclick="toggleTradingMode()" title="Toggle Strategy Regime (HYBRID / SCALP / SWING)">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
           <span id="mode-text">HYBRID</span>
@@ -1731,8 +1736,8 @@
               <span class="bento-sub-title">Real-time Binance Futures closed trade audit, Math Expectancy, SMC post-mortem autopsy, and date filtering.</span>
             </div>
             <div style="display:flex; gap:8px; align-items:center;">
-              <button class="btn btn-sm" onclick="setJournalDateFilter('today')">⭐ Today</button>
-              <button class="btn btn-sm" onclick="setJournalDateFilter('all')">Show All</button>
+              <button class="btn btn-sm" id="btn-journal-today" onclick="setJournalDateFilter('today')">⭐ Today</button>
+              <button class="btn btn-sm" id="btn-journal-all" onclick="setJournalDateFilter('all')">Show All</button>
               <button class="btn btn-primary btn-sm" onclick="syncBinanceLedger()">🔄 Sync Binance</button>
             </div>
           </div>
@@ -2238,7 +2243,7 @@
           ro.observe(container);
         }
         window.addEventListener('resize', resizeChart);
-        loadChartKlines(activeSymbol, activeTimeframe);
+        loadChartKlines(activeSymbol, activeTimeframe, true);
       } catch (e) {
         console.error("Failed to init chart:", e);
       }
@@ -2255,9 +2260,21 @@
       }
     }
 
-    async function loadChartKlines(symbol, interval) {
+    let lastChartSymbol = null;
+    let lastChartTf = null;
+
+    async function loadChartKlines(symbol, interval, forceResetZoom = false) {
       try {
         const tf = interval || activeTimeframe || '1H';
+        const isContextChange = forceResetZoom || (symbol !== lastChartSymbol) || (tf !== lastChartTf);
+
+        let savedRange = null;
+        if (chartInstance && !isContextChange) {
+          try {
+            savedRange = chartInstance.timeScale().getVisibleLogicalRange();
+          } catch (e) {}
+        }
+
         const res = await fetch(`/api/klines?symbol=${symbol}&bar=${tf}`);
         const data = await res.json();
         const rawCandles = data.candles || data.klines || [];
@@ -2271,8 +2288,18 @@
             })));
           }
           if (chartInstance) {
-            chartInstance.timeScale().fitContent();
+            if (savedRange && !isContextChange) {
+              try {
+                chartInstance.timeScale().setVisibleLogicalRange(savedRange);
+              } catch (e) {
+                chartInstance.timeScale().fitContent();
+              }
+            } else {
+              chartInstance.timeScale().fitContent();
+            }
           }
+          lastChartSymbol = symbol;
+          lastChartTf = tf;
         }
 
         // Populate bottom statistics bar
@@ -2298,11 +2325,11 @@
       document.querySelectorAll('.tf-pill-btn').forEach(b => b.classList.remove('active'));
       const activeBtn = Array.from(document.querySelectorAll('.tf-pill-btn')).find(b => b.innerText.includes(tf));
       if (activeBtn) activeBtn.classList.add('active');
-      loadChartKlines(activeSymbol, activeTimeframe);
+      loadChartKlines(activeSymbol, activeTimeframe, true);
     }
 
     function refreshChartData() {
-      loadChartKlines(activeSymbol, activeTimeframe);
+      loadChartKlines(activeSymbol, activeTimeframe, false);
       showToast(`Refreshed chart for ${activeSymbol} (${activeTimeframe})`);
     }
 
@@ -2314,7 +2341,7 @@
       document.querySelectorAll('.watch-coin-card').forEach(c => c.classList.remove('active'));
       const activeCard = document.getElementById(`watch-card-${sym}`);
       if (activeCard) activeCard.classList.add('active');
-      loadChartKlines(activeSymbol, activeTimeframe);
+      loadChartKlines(activeSymbol, activeTimeframe, true);
     }
 
     // Real-time Dashboard Polling & Native SSE Stream with SmoothUI / Magic UI Ticker Micro-Animations
@@ -2383,6 +2410,27 @@
           } else {
             wsPill.className = 'status-capsule amber';
             wsText.innerText = 'WS REST-FALLBACK';
+          }
+        }
+      }
+
+      // Update Desk Mode Pill
+      if (data.mode) {
+        const statusPill = document.getElementById('header-status-pill');
+        if (statusPill) {
+          const m = (data.mode || '').toUpperCase();
+          if (m === 'LONG_ONLY') {
+            statusPill.className = 'status-capsule green';
+            statusPill.innerHTML = '<span class="status-dot-pulse"></span><span>🟢 LONG-ONLY (PF 2.56)</span>';
+          } else if (m === 'SCALP') {
+            statusPill.className = 'status-capsule amber';
+            statusPill.innerHTML = '<span class="status-dot-pulse"></span><span>⚡ SCALP (5m)</span>';
+          } else if (m === 'SWING') {
+            statusPill.className = 'status-capsule blue';
+            statusPill.innerHTML = '<span class="status-dot-pulse"></span><span>🎯 SWING (1H/4H)</span>';
+          } else {
+            statusPill.className = 'status-capsule green';
+            statusPill.innerHTML = '<span class="status-dot-pulse"></span><span>AUTOPILOT LIVE</span>';
           }
         }
       }
@@ -3035,12 +3083,51 @@
     }
 
     // View 3: Journal Loader
-    async function loadJournalData(dateFilter = 'all') {
+    let currentJournalFilter = 'today';
+
+    async function loadJournalData(dateFilter = currentJournalFilter) {
       try {
+        currentJournalFilter = dateFilter || 'today';
+
+        // Update button visual state
+        const btnToday = document.getElementById('btn-journal-today');
+        const btnAll = document.getElementById('btn-journal-all');
+        if (btnToday && btnAll) {
+          if (currentJournalFilter === 'today') {
+            btnToday.classList.add('active');
+            btnToday.style.borderColor = 'var(--color-blue)';
+            btnToday.style.color = 'var(--text-primary)';
+            btnAll.classList.remove('active');
+            btnAll.style.borderColor = '';
+            btnAll.style.color = '';
+          } else {
+            btnAll.classList.add('active');
+            btnAll.style.borderColor = 'var(--color-blue)';
+            btnAll.style.color = 'var(--text-primary)';
+            btnToday.classList.remove('active');
+            btnToday.style.borderColor = '';
+            btnToday.style.color = '';
+          }
+        }
+
         const res = await fetch('/api/journal');
         const data = await res.json();
         const m = data.metrics || data.scorecard || {};
-        
+        const allTrades = data.ledger || data.closed_trades || [];
+
+        // Filter trades
+        let trades = allTrades;
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+        if (currentJournalFilter === 'today') {
+          trades = allTrades.filter(t => {
+            const dt = String(t.closed_at || t.exit_time || t.timestamp || '');
+            return dt.startsWith(todayStr);
+          });
+        }
+
+        // Compute or update Scorecard
         const wrEl = document.getElementById('sc-winrate');
         const pfEl = document.getElementById('sc-pf');
         const expEl = document.getElementById('sc-expectancy');
@@ -3048,19 +3135,61 @@
         const pnlEl = document.getElementById('sc-netpnl');
         const ttEl = document.getElementById('sc-totaltrades');
 
-        if (wrEl) wrEl.innerText = `${(m.win_rate !== undefined ? m.win_rate : (m.winrate_pct !== undefined ? m.winrate_pct : 41.4)).toFixed(1)}%`;
-        if (pfEl) pfEl.innerText = (m.profit_factor !== undefined ? m.profit_factor : 0.65).toFixed(2);
-        if (expEl) {
-          const exp = m.expectancy !== undefined ? m.expectancy : -1.24;
-          expEl.innerText = `${exp >= 0 ? '+' : ''}$${exp.toFixed(2)}`;
+        if (currentJournalFilter === 'today') {
+          let wins = 0;
+          let losses = 0;
+          let grossWin = 0;
+          let grossLoss = 0;
+          let netPnl = 0;
+
+          trades.forEach(t => {
+            const pnl = Number(t.net_pnl_usd !== undefined ? t.net_pnl_usd : (t.pnl_usd !== undefined ? t.pnl_usd : (t.pnl || 0)));
+            netPnl += pnl;
+            if (pnl > 0) {
+              wins++;
+              grossWin += pnl;
+            } else if (pnl < 0) {
+              losses++;
+              grossLoss += Math.abs(pnl);
+            }
+          });
+
+          const totalT = trades.length;
+          const wr = totalT > 0 ? (wins / totalT * 100) : 0;
+          const pf = grossLoss > 0 ? (grossWin / grossLoss) : (grossWin > 0 ? 99.0 : 0.0);
+          const avgWin = wins > 0 ? (grossWin / wins) : 0;
+          const avgLoss = losses > 0 ? (grossLoss / losses) : 0;
+          const payoff = avgLoss > 0 ? (avgWin / avgLoss) : 0;
+          const exp = totalT > 0 ? (netPnl / totalT) : 0;
+
+          if (wrEl) {
+            wrEl.innerText = `${wr.toFixed(1)}%`;
+            wrEl.style.color = wr >= 50 ? 'var(--color-green)' : (wr >= 35 ? 'var(--color-amber)' : 'var(--color-red)');
+          }
+          if (pfEl) pfEl.innerText = pf.toFixed(2);
+          if (expEl) expEl.innerText = `${exp >= 0 ? '+' : ''}$${exp.toFixed(2)}`;
+          if (poEl) poEl.innerText = payoff.toFixed(2);
+          if (pnlEl) {
+            pnlEl.innerText = `${netPnl >= 0 ? '+' : ''}$${netPnl.toFixed(2)}`;
+            pnlEl.style.color = netPnl >= 0 ? 'var(--color-green)' : 'var(--color-red)';
+          }
+          if (ttEl) ttEl.innerText = totalT;
+        } else {
+          // 'all' filter: use server-computed metrics
+          if (wrEl) wrEl.innerText = `${(m.win_rate !== undefined ? m.win_rate : (m.winrate_pct !== undefined ? m.winrate_pct : 41.4)).toFixed(1)}%`;
+          if (pfEl) pfEl.innerText = (m.profit_factor !== undefined ? m.profit_factor : 0.65).toFixed(2);
+          if (expEl) {
+            const exp = m.expectancy !== undefined ? m.expectancy : -1.24;
+            expEl.innerText = `${exp >= 0 ? '+' : ''}$${exp.toFixed(2)}`;
+          }
+          if (poEl) poEl.innerText = (m.payoff_ratio !== undefined ? m.payoff_ratio : 1.12).toFixed(2);
+          if (pnlEl) {
+            const net = m.net_realized_pnl !== undefined ? m.net_realized_pnl : (m.net_pnl !== undefined ? m.net_pnl : -1102.38);
+            pnlEl.innerText = `${net >= 0 ? '+' : ''}$${net.toFixed(2)}`;
+            pnlEl.style.color = net >= 0 ? 'var(--color-green)' : 'var(--color-red)';
+          }
+          if (ttEl) ttEl.innerText = m.total_closed_trades || m.total_trades || allTrades.length;
         }
-        if (poEl) poEl.innerText = (m.payoff_ratio !== undefined ? m.payoff_ratio : 1.12).toFixed(2);
-        if (pnlEl) {
-          const net = m.net_realized_pnl !== undefined ? m.net_realized_pnl : (m.net_pnl !== undefined ? m.net_pnl : -1102.38);
-          pnlEl.innerText = `${net >= 0 ? '+' : ''}$${net.toFixed(2)}`;
-          pnlEl.style.color = net >= 0 ? 'var(--color-green)' : 'var(--color-red)';
-        }
-        if (ttEl) ttEl.innerText = m.total_closed_trades || m.total_trades || (data.ledger ? data.ledger.length : 891);
 
         // Populate Strategy Performance Matrix (P2 Telemetry)
         const smBody = document.getElementById('strategy-matrix-body');
@@ -3108,33 +3237,27 @@
 
         const tbody = document.getElementById('ledger-table-body');
         if (tbody) {
-          let trades = data.ledger || data.closed_trades || [];
-          if (dateFilter === 'today') {
-            const todayStr = new Date().toISOString().slice(0, 10);
-            const todayTrades = trades.filter(t => (t.exit_time || t.timestamp || '').includes(todayStr));
-            if (todayTrades.length > 0) trades = todayTrades;
-          }
-
           if (trades.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">No closed trades recorded yet.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">${currentJournalFilter === 'today' ? `No closed trades recorded yet today (${todayStr}). Click "Show All" to view full history.` : 'No closed trades recorded yet.'}</td></tr>`;
             return;
           }
 
           tbody.innerHTML = trades.slice(-50).reverse().map(t => {
-            const pnl = t.pnl_usd !== undefined ? t.pnl_usd : (t.net_pnl !== undefined ? t.net_pnl : (t.pnl || 0));
+            const pnl = Number(t.net_pnl_usd !== undefined ? t.net_pnl_usd : (t.pnl_usd !== undefined ? t.pnl_usd : (t.pnl || 0)));
             const isWin = pnl >= 0;
             const pnlColor = isWin ? 'var(--color-green)' : 'var(--color-red)';
             const pnlSign = isWin ? '+' : '';
+            const closeTimeStr = t.closed_at || t.exit_time || t.timestamp || 'N/A';
             return `
               <tr>
-                <td class="mono" style="color:var(--text-muted);">${t.exit_time || t.timestamp || 'Recent'}</td>
+                <td class="mono" style="color:var(--text-primary); font-size:11px; white-space:nowrap;">${closeTimeStr}</td>
                 <td style="font-weight:700;">${t.symbol}</td>
                 <td><span class="pos-side-pill ${(t.side||'BUY').toUpperCase() === 'BUY' || (t.side||'BUY').toUpperCase() === 'LONG' ? 'long' : 'short'}">${t.side || 'LONG'}</span></td>
                 <td><span class="status-pill purple mono" style="font-size:9px; padding:2px 6px;">${t.strategy || 'Smart Money Concepts (SMC)'}</span></td>
                 <td class="mono">$${(t.entry_price || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}</td>
                 <td class="mono">$${(t.exit_price || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}</td>
                 <td class="mono" style="color:${pnlColor}; font-weight:700;">${pnlSign}$${pnl.toFixed(2)}</td>
-                <td class="mono" style="color:${pnlColor};">${t.r_multiple || (isWin ? '+2.5R' : '-1.0R')}</td>
+                <td class="mono" style="color:${pnlColor};">${t.r_multiple !== undefined ? (typeof t.r_multiple === 'number' ? (t.r_multiple >= 0 ? `+${t.r_multiple.toFixed(1)}R` : `${t.r_multiple.toFixed(1)}R`) : t.r_multiple) : (isWin ? '+2.5R' : '-1.0R')}</td>
                 <td style="font-size:11px; color:var(--text-secondary);">${t.exit_reason || t.autopsy_reason || 'SMC Take Profit Magnet Hit'}</td>
               </tr>
             `;
@@ -3146,6 +3269,7 @@
     }
 
     function setJournalDateFilter(f) {
+      currentJournalFilter = f;
       loadJournalData(f);
       showToast(`Filtering journal: ${f.toUpperCase()}`);
     }
@@ -3767,11 +3891,46 @@
       sendAiQuery();
     }
 
+    async function loadAiHardwareProfile() {
+      try {
+        const res = await fetch('/api/ai/hardware_profile');
+        if (!res.ok) return;
+        const d = await res.json();
+        const textEl = document.getElementById('header-ai-text');
+        const modalBadge = document.getElementById('ai-provider-badge');
+        if (textEl) {
+          if (d.is_live) {
+            const shortGpu = (d.gpu_name || 'GPU').replace('NVIDIA GeForce ', '').replace('NVIDIA ', '');
+            const shortMdl = (d.active_model || '8B').replace('deepseek-r1:', 'R1-').replace('qwen2.5:', 'Qwen-');
+            textEl.innerHTML = `<span style="color:var(--color-green);">●</span> ${shortGpu} · ${shortMdl}`;
+            textEl.title = `${d.gpu_name} (${d.vram_gb}GB VRAM) | Model: ${d.active_model} | Tier: ${d.tier}`;
+          } else {
+            textEl.innerHTML = `<span style="color:var(--color-amber);">●</span> Quant Reflex`;
+            textEl.title = `Ollama server offline, ultra-fast in-memory quant heuristic active.`;
+          }
+        }
+        if (modalBadge) {
+          if (d.is_live) {
+            modalBadge.textContent = `${d.gpu_name || 'GPU'} · ${d.active_model || 'Local LLM'}`;
+            modalBadge.className = 'status-pill purple mono';
+          } else {
+            modalBadge.textContent = 'FAST QUANT REFLEX';
+            modalBadge.className = 'status-pill amber mono';
+          }
+        }
+      } catch (e) {}
+    }
+
     async function sendAiQuery() {
       const q = document.getElementById('ai-query-input').value.trim();
       if (!q) return;
       const box = document.getElementById('ai-response-box');
-      box.innerHTML = `Analyzing with Senior Quant Officer...`;
+      box.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px; color:var(--color-purple);">
+          <span class="pulse-dot"></span>
+          <span>Analyzing with Senior Quant Officer (Local GPU)...</span>
+        </div>
+      `;
       try {
         const res = await fetch('/api/ai/ask', {
           method: 'POST',
@@ -3779,9 +3938,25 @@
           body: JSON.stringify({ query: q })
         });
         const d = await res.json();
-        box.innerHTML = d.answer || d.response || `Market confluence for active pairs is BULLISH. Order flow and CVD indicate net accumulation. Risk budget remains within 1.5% Kelly criterion bounds.`;
+        if (d.success && d.answer) {
+          const lat = typeof d.latency_sec === 'number' ? `${d.latency_sec}s` : 'fast';
+          const gpuBadge = d.gpu ? `<span class="status-pill purple mono" style="font-size:9.5px; padding:2px 6px;">🎮 ${d.gpu} (${d.vram_gb}GB)</span>` : '';
+          const modelBadge = d.model ? `<span class="status-pill blue mono" style="font-size:9.5px; padding:2px 6px;">🤖 ${d.model}</span>` : '';
+          const latBadge = `<span class="status-pill green mono" style="font-size:9.5px; padding:2px 6px;">⚡ ${lat}</span>`;
+          
+          box.innerHTML = `
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; border-bottom:1px solid var(--border-subtle); padding-bottom:8px;">
+              ${gpuBadge}
+              ${modelBadge}
+              ${latBadge}
+            </div>
+            <div style="color:var(--color-surface-cream); font-size:12.5px; line-height:1.6; white-space:pre-wrap;">${d.answer}</div>
+          `;
+        } else {
+          box.innerHTML = `<div style="color:var(--text-secondary); line-height:1.5;">${d.error || 'No response generated.'}</div>`;
+        }
       } catch (e) {
-        box.innerHTML = `Market confluence for active pairs is BULLISH. Order flow and CVD indicate net accumulation. Risk budget remains within 1.5% Kelly criterion bounds.`;
+        box.innerHTML = `<div style="color:var(--color-red);">Connection error: ${e.message}</div>`;
       }
     }
 
@@ -3835,9 +4010,11 @@
       loadWhaleTrackerData();
       loadDexBridgeStatus();
       fetchSeasonalityStatus();
+      loadAiHardwareProfile();
       
       startPollingFallback();
       setInterval(() => {
+        loadAiHardwareProfile();
         if (activeView === 'terminal') {
           loadChartKlines(activeSymbol, activeTimeframe);
         } else if (activeView === 'intel') {

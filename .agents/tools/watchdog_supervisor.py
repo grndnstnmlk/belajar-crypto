@@ -37,11 +37,12 @@ except Exception:
     telegram_notifier = None
 
 class ServiceWatcher:
-    def __init__(self, name, command, port=None, check_endpoint=None):
+    def __init__(self, name, command, port=None, check_endpoint=None, grace_period=15):
         self.name = name
         self.command = command
         self.port = port
         self.check_endpoint = check_endpoint
+        self.grace_period = grace_period
         self.process = None
         self.restart_count = 0
         self.last_start_time = 0
@@ -50,6 +51,8 @@ class ServiceWatcher:
 
     def is_alive(self):
         if self.process is None:
+            if self.port and self.check_endpoint:
+                return self.check_http_health()
             return False
         return self.process.poll() is None
 
@@ -68,19 +71,26 @@ class ServiceWatcher:
     def kill_stale_port(self):
         if not self.port:
             return
+        flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
         try:
-            out = subprocess.check_output(f"netstat -ano | findstr :{self.port}", shell=True).decode("utf-8", errors="ignore")
+            out = subprocess.check_output(f"netstat -ano | findstr :{self.port}", shell=True, creationflags=flags).decode("utf-8", errors="ignore")
             for line in out.splitlines():
                 if "LISTENING" in line:
                     parts = line.strip().split()
                     pid = int(parts[-1])
                     if self.process is None or pid != self.process.pid:
-                        subprocess.run(f"taskkill /F /PID {pid}", shell=True, capture_output=True)
+                        subprocess.run(f"taskkill /F /PID {pid}", shell=True, capture_output=True, creationflags=flags)
                         time.sleep(0.5)
         except Exception:
             pass
 
     def start(self):
+        # If an external service instance is already running healthy on this port (e.g. Ollama system tray app), adopt it!
+        if self.port and self.check_endpoint and self.check_http_health():
+            print(f"✅ [{datetime.now().strftime('%H:%M:%S')}] {self.name} is already running healthy on port {self.port}. Adopting active instance.")
+            self.last_start_time = time.time()
+            return True
+
         self.kill_stale_port()
         flags = (0x00000008 | 0x00000200) if sys.platform == "win32" else 0  # DETACHED_PROCESS / CREATE_NEW_PROCESS_GROUP
         try:
@@ -142,6 +152,10 @@ class ServiceWatcher:
 
     def tick(self):
         """Performs a health check cycle."""
+        # Allow startup grace period for service initialization
+        if time.time() - self.last_start_time < self.grace_period:
+            return True
+
         if not self.is_alive():
             exit_code = self.process.poll() if self.process else "None"
             self.restart(f"Exit code: {exit_code}")
@@ -174,9 +188,22 @@ def run_supervisor():
         check_endpoint="/api/ws/status"
     )
 
+    desk_mode = "HYBRID"
+    if telegram_notifier:
+        try:
+            desk_mode = telegram_notifier.get_desk_mode().upper()
+        except Exception:
+            pass
+    if os.environ.get("DESK_LONG_ONLY", "0") == "1":
+        desk_mode = "LONG_ONLY"
+
+    td_cmd = [sys.executable, "-u", os.path.join(TOOLS_DIR, "trading_desk.py"), "run", "--mode", desk_mode]
+    if desk_mode == "LONG_ONLY" or os.environ.get("DESK_LONG_ONLY", "0") == "1":
+        td_cmd.append("--long-only")
+
     trading_desk = ServiceWatcher(
         name="Trading Desk Autopilot",
-        command=[sys.executable, "-u", os.path.join(TOOLS_DIR, "trading_desk.py"), "run", "--mode", "HYBRID"]
+        command=td_cmd
     )
 
     services = [dashboard, trading_desk]
@@ -190,7 +217,8 @@ def run_supervisor():
                 name="Ollama Local LLM",
                 command=[ollama_exe, "serve"],
                 port=11434,
-                check_endpoint="/api/tags"
+                check_endpoint="/api/version",
+                grace_period=35
             )
             services.insert(0, ollama_watcher)
             print(f"🤖 [Watchdog] Detected Ollama at {ollama_exe}. Adding to supervised services.")

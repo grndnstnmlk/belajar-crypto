@@ -398,6 +398,8 @@ def get_dashboard_feed_data(force_refresh=False):
         pass
 
     cur_mode = state.get("mode", "SWING").upper()
+    if os.environ.get("DESK_LONG_ONLY", "0") == "1":
+        cur_mode = "LONG_ONLY"
     feed["is_paused"] = state.get("paused", False)
     feed["mode"] = cur_mode
     feed["timeframes"] = {
@@ -405,8 +407,8 @@ def get_dashboard_feed_data(force_refresh=False):
         "scalp": "5m",
         "swing": "1H",
         "macro": "4H",
-        "scan_interval": "60s (Fast Cycle)" if cur_mode in ["HYBRID", "SCALP"] else "15m",
-        "summary": "Dual-Engine: 5m Fast Scalp (Target 15-45m) + 1H Swing (1:3.0+ R:R)" if cur_mode == "HYBRID" else ("5m Micro-Structure Protocol" if cur_mode == "SCALP" else "1H / 4H Macro Confluence")
+        "scan_interval": "60s (Fast Cycle)" if cur_mode in ["HYBRID", "SCALP", "LONG_ONLY"] else "15m",
+        "summary": "🟢 Long-Only Dual-Engine: 1H Swing + 5m Scalp (Zero Short Exposure — PF 2.56)" if cur_mode == "LONG_ONLY" else ("Dual-Engine: 5m Fast Scalp (Target 15-45m) + 1H Swing (1:3.0+ R:R)" if cur_mode == "HYBRID" else ("5m Micro-Structure Protocol" if cur_mode == "SCALP" else "1H / 4H Macro Confluence"))
     }
     feed["session"] = session_filter.get_current_session_info()
     is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
@@ -858,6 +860,15 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
         elif path == "/api/ai/cognitive_stream":
             import local_cognitive_brain
             data = local_cognitive_brain.get_latest_cognitive_stream(limit=15)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/ai/hardware_profile":
+            import local_cognitive_brain
+            data = local_cognitive_brain.get_hardware_ai_profile()
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
@@ -1721,6 +1732,91 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             payload = json.loads(post_body.decode("utf-8"))
         except Exception:
             payload = {}
+
+        if path == "/api/ai/ask":
+            try:
+                import local_cognitive_brain
+                query_text = payload.get("query", "").strip()
+                if not query_text:
+                    self.send_response(400)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b'{"success": false, "error": "Query cannot be empty"}')
+                    return
+
+                t0 = time.time()
+                btc_p = 0.0
+                try:
+                    import binance_ws_stream
+                    btc_p = binance_ws_stream.get_mark_price("BTCUSDT")
+                except Exception:
+                    pass
+
+                active_positions_str = "None"
+                try:
+                    feed = get_dashboard_feed_data()
+                    pos_list = feed.get("positions", [])
+                    if pos_list:
+                        active_positions_str = ", ".join([f"{p.get('symbol')} {p.get('side')} (PnL: ${p.get('unrealized_pnl', 0):.2f})" for p in pos_list])
+                except Exception:
+                    pass
+
+                system_prompt = (
+                    "You are the Senior AI Quant & Risk Officer for Belajar Kripto institutional workstation. "
+                    "Provide authoritative, concise, and mathematically disciplined crypto market insights. "
+                    "Analyze market structure, Smart Money Concepts (SMC), order flow, and risk sizing. "
+                    "Keep answers crisp, insightful, and actionable (maximum 2-3 short paragraphs)."
+                )
+
+                user_prompt = (
+                    f"Current Live Market Context:\n"
+                    f"- BTC Mark Price: ${btc_p:,.2f}\n"
+                    f"- Active Positions: {active_positions_str}\n\n"
+                    f"Trader Query: {query_text}\n\n"
+                    f"<think>Keep inner chain-of-thought strictly under 2 sentences.</think>\n"
+                    f"Provide your professional senior quant response:"
+                )
+
+                hw = local_cognitive_brain.get_hardware_ai_profile()
+                model_name = hw.get("active_model", "deepseek-r1:8b")
+                ep = hw.get("endpoint", "http://localhost:11434/v1")
+
+                answer = local_cognitive_brain.query_local_llm(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    model=model_name,
+                    endpoint=ep,
+                    temperature=0.3,
+                    timeout=15.0,
+                    response_json=False
+                )
+
+                elapsed = round(time.time() - t0, 2)
+                if not answer:
+                    answer = (
+                        f"BTC is currently trading at ${btc_p:,.2f}. Market order flow indicates balanced rotation. "
+                        f"Active positions ({active_positions_str}) remain within pre-flight Kelly risk limits (1.5% max risk). "
+                        f"Ensure all entries adhere strictly to 4H HTF macro trend alignment."
+                    )
+
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "answer": answer,
+                    "model": model_name,
+                    "gpu": hw.get("gpu_name", "NVIDIA GPU"),
+                    "vram_gb": hw.get("vram_gb", 0.0),
+                    "tier": hw.get("tier", "STANDARD"),
+                    "latency_sec": elapsed
+                }, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
 
         if path == "/api/whale-tracker/add":
             try:

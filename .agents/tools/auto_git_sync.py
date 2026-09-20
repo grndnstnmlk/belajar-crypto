@@ -25,6 +25,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(TOOLS_DIR))
 
 _LAST_PUSH_TIME = 0
 _SYNC_LOCK = threading.Lock()
+_SUBPROCESS_FLAGS = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
 
 def sync_pull():
     """Silently pulls the latest commits from remote main branch with autostash."""
@@ -34,7 +35,8 @@ def sync_pull():
             cwd=ROOT_DIR,
             capture_output=True,
             text=True,
-            timeout=15
+            timeout=15,
+            creationflags=_SUBPROCESS_FLAGS
         )
         if res.returncode == 0:
             return True, "✅ Git pull successful (Up to date with GitHub)"
@@ -57,7 +59,8 @@ def _do_push(reason="trade_journal_update"):
                 ["git", "add", ".agents/data/", "agent_memory_bank.json"],
                 cwd=ROOT_DIR,
                 capture_output=True,
-                timeout=10
+                timeout=10,
+                creationflags=_SUBPROCESS_FLAGS
             )
 
             # Check if there are changes to commit
@@ -66,7 +69,8 @@ def _do_push(reason="trade_journal_update"):
                 cwd=ROOT_DIR,
                 capture_output=True,
                 text=True,
-                timeout=10
+                timeout=10,
+                creationflags=_SUBPROCESS_FLAGS
             )
 
             if not status.stdout.strip():
@@ -77,7 +81,8 @@ def _do_push(reason="trade_journal_update"):
                 ["git", "commit", "-m", commit_msg],
                 cwd=ROOT_DIR,
                 capture_output=True,
-                timeout=10
+                timeout=10,
+                creationflags=_SUBPROCESS_FLAGS
             )
 
             push_res = subprocess.run(
@@ -85,7 +90,8 @@ def _do_push(reason="trade_journal_update"):
                 cwd=ROOT_DIR,
                 capture_output=True,
                 text=True,
-                timeout=25
+                timeout=25,
+                creationflags=_SUBPROCESS_FLAGS
             )
 
             if push_res.returncode == 0:

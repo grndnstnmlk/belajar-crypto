@@ -83,10 +83,8 @@ def audit_and_execute_pyramiding(is_demo: bool = True, user_email: Optional[str]
         if r_mult >= 2.0 and (t_data.get("breakeven_locked") or t_data.get("tp1_taken")) and pyramid_count < max_pyramids:
             try:
                 # Check continuation signal on 15m/1H
-                base_coin = sym.replace("USDT", "")
-                intel = market_eyes.fetch_market_intelligence(base_coin)
-                tf_1h = intel.get("timeframe_data", {}).get("1H", {})
-                ema20_1h = float(tf_1h.get("ema20", 0.0))
+                intel = market_eyes.get_market_eyes(base_coin, bar="1H")
+                ema20_1h = float(intel.get("ema20", 0.0))
                 
                 # Check pullback proximity to EMA20 / FVG
                 is_pullback_ready = False

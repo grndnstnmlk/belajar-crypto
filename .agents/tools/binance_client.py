@@ -477,9 +477,41 @@ def check_order_book_depth(symbol, quantity, side="BUY", is_demo=True, max_slipp
     """
     Audits order book depth for the specified symbol before order execution.
     Calculates spread percentage and estimated slippage impact.
+    Fast-Path: Uses in-memory WebSocket BookTicker (< 0.05ms) if available & fresh.
+    Fallback: Calls Binance REST API /fapi/v1/depth if WebSocket data unavailable or deep order requires multi-level depth.
     Returns: (is_safe: bool, details: dict)
     """
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
+    qty_needed = float(quantity)
+
+    # 1. Fast-Path: In-Memory WebSocket BookTicker (< 0.05ms)
+    try:
+        import binance_ws_stream
+        book_ticker = binance_ws_stream.get_book_ticker(sym_clean, max_age_seconds=3.0)
+        if book_ticker:
+            best_bid = float(book_ticker["best_bid"])
+            best_ask = float(book_ticker["best_ask"])
+            spread_pct = float(book_ticker["spread_pct"])
+            top_qty = float(book_ticker["ask_qty"] if side.upper() in ["BUY", "LONG"] else book_ticker["bid_qty"])
+
+            if best_bid > 0 and best_ask > 0:
+                is_safe = spread_pct <= 0.35
+                notional = qty_needed * (best_ask if side.upper() in ["BUY", "LONG"] else best_bid)
+                # If order fits top-of-book or standard position size (< $10,000 USD notional)
+                if qty_needed <= top_qty or notional <= 10000.0:
+                    slippage_est = 0.0 if qty_needed <= top_qty else min(max_slippage_pct, spread_pct * 0.5)
+                    return is_safe, {
+                        "best_bid": best_bid,
+                        "best_ask": best_ask,
+                        "spread_pct": round(spread_pct, 4),
+                        "slippage_pct": round(slippage_est, 4),
+                        "is_safe": is_safe,
+                        "source": "WS_RAM_CACHE"
+                    }
+    except Exception:
+        pass
+
+    # 2. Fallback: REST API Multi-Level Depth Snapshot (~300-500ms)
     target_user, _, _, base_url, _, _ = resolve_credentials(None, is_demo)
 
     url = f"{base_url}/fapi/v1/depth?symbol={sym_clean}&limit=10"
@@ -490,13 +522,12 @@ def check_order_book_depth(symbol, quantity, side="BUY", is_demo=True, max_slipp
             bids = data.get("bids", [])
             asks = data.get("asks", [])
             if not bids or not asks:
-                return True, {"warning": "Empty book", "slippage_pct": 0.0, "spread_pct": 0.0, "is_safe": True}
+                return True, {"warning": "Empty book", "slippage_pct": 0.0, "spread_pct": 0.0, "is_safe": True, "source": "REST_FALLBACK"}
 
             best_bid = float(bids[0][0])
             best_ask = float(asks[0][0])
             spread_pct = ((best_ask - best_bid) / best_bid) * 100.0
 
-            qty_needed = float(quantity)
             target_levels = asks if side.upper() in ["BUY", "LONG"] else bids
             cum_qty = 0.0
             cum_cost = 0.0
@@ -523,7 +554,8 @@ def check_order_book_depth(symbol, quantity, side="BUY", is_demo=True, max_slipp
                 "best_ask": best_ask,
                 "spread_pct": round(spread_pct, 4),
                 "slippage_pct": round(slippage_pct, 4),
-                "is_safe": is_safe
+                "is_safe": is_safe,
+                "source": "REST_DEPTH"
             }
     except Exception as e:
         return True, {"warning": str(e), "slippage_pct": 0.0, "spread_pct": 0.0, "is_safe": True}
@@ -742,8 +774,9 @@ def place_futures_order(symbol, side, quantity, leverage=20, sl=None, tp=None, i
             limit_res = send_signed_request("/fapi/v1/order", method="POST", params=limit_params, is_demo=is_demo, user_email=user_email)
             if limit_res and limit_res.get("orderId"):
                 chase_id = limit_res.get("orderId")
-                for _ in range(6):
-                    time.sleep(0.8)
+                # Sub-Second Limit Chase: 4 attempts x 0.25s = 1.0s max wait time
+                for _ in range(4):
+                    time.sleep(0.25)
                     q_res = send_signed_request("/fapi/v1/order", method="GET", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
                     if q_res and q_res.get("status") == "FILLED":
                         res = q_res
@@ -754,11 +787,11 @@ def place_futures_order(symbol, side, quantity, leverage=20, sl=None, tp=None, i
 
                 if not order_id:
                     if exec_mode.upper() in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER"]:
-                        print(f"⚡ [MAKER SNIPER SKIP/CANCEL] Harga tidak menyentuh kalkulasi ${price_str}. Membatalkan antrean tanpa biaya fee...")
+                        print(f"⚡ [MAKER SNIPER SKIP/CANCEL] Harga tidak menyentuh kalkulasi ${price_str} dalam 1.0s. Membatalkan antrean tanpa biaya fee...")
                         send_signed_request("/fapi/v1/order", method="DELETE", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
                         return None
                     else:
-                        print("⚠️ [LIMIT CHASE UNFILLED] 4s belum terisi. Membatalkan Maker Order & mengonversi ke Market...")
+                        print("⚠️ [LIMIT CHASE UNFILLED] 1.0s belum terisi. Membatalkan Maker Order & seketika mengonversi ke Market demi mencegah slippage...")
                         send_signed_request("/fapi/v1/order", method="DELETE", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
 
     if not order_id and exec_mode.upper() not in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER"]:

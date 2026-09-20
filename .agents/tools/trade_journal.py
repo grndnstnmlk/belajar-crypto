@@ -259,8 +259,31 @@ def record_closed_trade(trade_entry):
 
     trade_entry["strategy"] = normalize_strategy_name(trade_entry.get("strategy"))
 
-    # Check for duplicate
-    existing_idx = next((i for i, t in enumerate(trades) if t.get("id") == t_id), None)
+    # Check for duplicate with high-confluence matching (ID, timestamp, or prices+PnL)
+    existing_idx = None
+    new_sym = trade_entry.get("symbol")
+    new_closed = str(trade_entry.get("closed_at") or "")
+    new_entry_p = float(trade_entry.get("entry_price") or 0)
+    new_exit_p = float(trade_entry.get("exit_price") or 0)
+    new_pnl = float(trade_entry.get("net_pnl_usd", trade_entry.get("pnl_usd", 0)) or 0)
+
+    for i, t in enumerate(trades):
+        if t.get("id") and t.get("id") == t_id:
+            existing_idx = i
+            break
+        if t.get("symbol") == new_sym:
+            t_closed = str(t.get("closed_at") or "")
+            if t_closed and new_closed and t_closed == new_closed:
+                existing_idx = i
+                break
+            t_entry_p = float(t.get("entry_price") or 0)
+            t_exit_p = float(t.get("exit_price") or 0)
+            t_pnl = float(t.get("net_pnl_usd", t.get("pnl_usd", 0)) or 0)
+            if abs(t_entry_p - new_entry_p) < 1e-4 and abs(t_exit_p - new_exit_p) < 1e-4 and abs(t_pnl - new_pnl) < 1e-3:
+                if t_closed[:16] == new_closed[:16]:
+                    existing_idx = i
+                    break
+
     if existing_idx is not None:
         trades[existing_idx].update(trade_entry)
     else:
