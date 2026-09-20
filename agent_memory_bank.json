@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-20T07:23:14.767937+00:00",
-    "total_reflections": 22,
-    "system_retention_score": 105.4
+    "last_reflection_at": "2026-09-20T07:45:52.055343+00:00",
+    "total_reflections": 23,
+    "system_retention_score": 106.0
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -43,16 +43,16 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 13,
+      "total_trades": 14,
       "wins": 5,
-      "losses": 5,
+      "losses": 6,
       "breakevens": 3,
-      "win_rate_pct": 38.5,
-      "net_pnl_usd": 9.37,
+      "win_rate_pct": 35.7,
+      "net_pnl_usd": -34.77,
       "avg_r_multiple": 0.02,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-20 01:11:53",
-      "updated_at": "2026-09-20T03:55:59.359901+00:00"
+      "updated_at": "2026-09-20T07:45:52.055343+00:00"
     },
     "SOLUSDT": {
       "symbol": "SOLUSDT",
@@ -798,9 +798,43 @@
       ],
       "created_at": "2026-09-20T06:21:47.095562+00:00",
       "updated_at": "2026-09-20T07:23:14.767937+00:00"
+    },
+    {
+      "id": "RULE-AUTO-ETHUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ETHUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "ethusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-20T07:45:52.055343+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260920-026",
+      "timestamp": "2026-09-20T07:45:52.055343+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -44.14,
+      "r_multiple": -2.15,
+      "pnl_pct": -1.63,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT Smart Money Concepts (SMC) (net: -$44.14, -2.15R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T07:45:52.055343+00:00"
+    },
     {
       "id": "MEM-20260920-025",
       "timestamp": "2026-09-20T07:23:14.767937+00:00",
@@ -954,8 +988,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 740,
-      "last_accessed": "2026-09-20T07:25:48.758455+00:00"
+      "access_count": 819,
+      "last_accessed": "2026-09-20T07:44:54.476262+00:00"
     },
     {
       "id": "MEM-20260920-018",
@@ -976,8 +1010,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 707,
-      "last_accessed": "2026-09-20T07:25:48.758455+00:00"
+      "access_count": 786,
+      "last_accessed": "2026-09-20T07:44:54.476262+00:00"
     },
     {
       "id": "MEM-20260920-017",
@@ -998,8 +1032,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 597,
-      "last_accessed": "2026-09-20T07:25:48.758455+00:00"
+      "access_count": 645,
+      "last_accessed": "2026-09-20T07:44:54.476262+00:00"
     },
     {
       "id": "MEM-20260920-016",
@@ -1020,8 +1054,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 387,
-      "last_accessed": "2026-09-20T07:25:48.758455+00:00"
+      "access_count": 450,
+      "last_accessed": "2026-09-20T07:44:54.476262+00:00"
     },
     {
       "id": "MEM-20260920-015",
@@ -1044,8 +1078,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 168,
-      "last_accessed": "2026-09-20T07:25:48.440472+00:00"
+      "access_count": 184,
+      "last_accessed": "2026-09-20T07:44:54.426682+00:00"
     },
     {
       "id": "MEM-20260918-014",
@@ -1104,8 +1138,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 169,
-      "last_accessed": "2026-09-20T07:25:48.433293+00:00"
+      "access_count": 170,
+      "last_accessed": "2026-09-20T07:27:01.178139+00:00"
     },
     {
       "id": "MEM-20260918-011",
@@ -1124,8 +1158,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 169,
-      "last_accessed": "2026-09-20T07:25:48.433293+00:00"
+      "access_count": 170,
+      "last_accessed": "2026-09-20T07:27:01.178139+00:00"
     },
     {
       "id": "MEM-20260918-010",
@@ -1144,8 +1178,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 201,
-      "last_accessed": "2026-09-20T07:25:48.433293+00:00"
+      "access_count": 202,
+      "last_accessed": "2026-09-20T07:27:01.178139+00:00"
     },
     {
       "id": "MEM-20260918-009",
@@ -1204,8 +1238,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 179,
-      "last_accessed": "2026-09-20T07:25:48.440472+00:00"
+      "access_count": 195,
+      "last_accessed": "2026-09-20T07:44:54.426682+00:00"
     },
     {
       "id": "MEM-20260918-006",
@@ -1224,8 +1258,8 @@
         "capital_preservation"
       ],
       "importance": 6,
-      "access_count": 150,
-      "last_accessed": "2026-09-20T07:25:48.637971+00:00"
+      "access_count": 166,
+      "last_accessed": "2026-09-20T07:44:54.473114+00:00"
     },
     {
       "id": "MEM-20260918-005",
