@@ -1,5 +1,65 @@
 [
   {
+    "ticket_id": "TCK-20260920-6344",
+    "symbol": "INJUSDT",
+    "side": "LONG",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-20 05:28:46",
+    "updated_at": "2026-09-20 05:44:35",
+    "payload": {
+      "entry": 7.65,
+      "sl": 7.6358,
+      "tp": 7.6926,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-20 05:28:46",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup INJUSDT (LONG) teridentifikasi via 5m ICT Rejection Block Mean Threshold."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260920-6302",
+    "symbol": "XRPUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "HIGH",
+    "created_at": "2026-09-20 05:28:46",
+    "updated_at": "2026-09-20 05:47:03",
+    "payload": {
+      "entry": 1.3813,
+      "sl": 1.376,
+      "tp": 1.3972,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-20 05:28:46",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup XRPUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260920-4239",
     "symbol": "SOLUSDT",
     "side": "LONG",
@@ -9,11 +69,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-20 05:13:14",
-    "updated_at": "2026-09-20 05:25:08",
+    "updated_at": "2026-09-20 05:54:32",
     "payload": {
-      "entry": 108.75,
-      "sl": 108.4645,
-      "tp": 109.6065,
+      "entry": 108.74,
+      "sl": 108.3547,
+      "tp": 109.8959,
       "rr": 3.0
     },
     "debate_result": null,
@@ -196,10 +256,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-20 03:51:35",
-    "updated_at": "2026-09-20 03:52:03",
+    "updated_at": "2026-09-20 05:55:24",
     "payload": {
       "entry": 80456.0486,
       "sl": 80215.674,
@@ -308,7 +368,11 @@
       "authorized_at": "2026-09-20 03:52:03",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-20 05:55:24"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-20 03:51:35",
@@ -333,6 +397,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-20 05:55:24",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -343,10 +413,10 @@
     "strategy": "Quantitative Confluence Setup",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-20 03:29:07",
-    "updated_at": "2026-09-20 03:51:10",
+    "updated_at": "2026-09-20 05:55:24",
     "payload": {
       "entry": 80469.249,
       "sl": 80239.6262,
@@ -455,7 +525,11 @@
       "authorized_at": "2026-09-20 03:51:10",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-20 05:55:24"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-20 03:29:07",
@@ -480,6 +554,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-20 05:55:24",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -493,12 +573,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-20 03:27:07",
-    "updated_at": "2026-09-20 05:25:08",
+    "updated_at": "2026-09-20 05:26:23",
     "payload": {
-      "entry": 90.917,
+      "entry": 90.895,
       "sl": 89.6399,
-      "tp": 96.0254,
-      "rr": 3.999999999999989
+      "tp": 95.9154,
+      "rr": 4.0000000000000115
     },
     "debate_result": null,
     "risk_result": null,
@@ -523,11 +603,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-20 03:27:07",
-    "updated_at": "2026-09-20 05:23:49",
+    "updated_at": "2026-09-20 05:54:32",
     "payload": {
-      "entry": 3.471,
-      "sl": 3.3987,
-      "tp": 3.6156,
+      "entry": 3.481,
+      "sl": 3.3948,
+      "tp": 3.6534,
       "rr": 2.0
     },
     "debate_result": null,
@@ -2095,18 +2175,18 @@
     "ticket_id": "TCK-20260918-1144",
     "symbol": "ETHUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-18 01:08:11",
-    "updated_at": "2026-09-20 05:23:49",
+    "updated_at": "2026-09-20 05:54:32",
     "payload": {
-      "entry": 2577.74,
-      "sl": 2573.2618,
-      "tp": 2591.1746,
-      "rr": 3.0
+      "entry": 2577.2,
+      "sl": 2538.6867,
+      "tp": 2654.2266,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
