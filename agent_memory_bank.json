@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-20T03:26:10.844190+00:00",
-    "total_reflections": 12,
-    "system_retention_score": 74.8
+    "last_reflection_at": "2026-09-20T03:26:39.090105+00:00",
+    "total_reflections": 16,
+    "system_retention_score": 82.3
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -57,7 +57,7 @@
     "SOLUSDT": {
       "symbol": "SOLUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 15,
+      "total_trades": 16,
       "wins": 3,
-      "losses": 12,
+      "losses": 13,
       "breakevens": 0,
-      "win_rate_pct": 20.0,
-      "net_pnl_usd": -148.01,
+      "win_rate_pct": 18.8,
+      "net_pnl_usd": -241.76,
       "avg_r_multiple": -0.36,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-20 06:57:48",
-      "updated_at": "2026-09-20T03:26:10.836848+00:00"
+      "updated_at": "2026-09-20T03:26:24.439423+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -219,7 +219,7 @@
     "NEARUSDT": {
       "symbol": "NEARUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -228,16 +228,16 @@
         "Volume Surge Pullback"
       ],
       "notes": "AI and Web3 infrastructure bellwether. Clean price action on 1H timeframes.",
-      "total_trades": 3,
+      "total_trades": 4,
       "wins": 1,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
-      "win_rate_pct": 33.3,
-      "net_pnl_usd": -46.52,
+      "win_rate_pct": 25.0,
+      "net_pnl_usd": -88.99,
       "avg_r_multiple": -0.91,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-18 22:10:34",
-      "updated_at": "2026-09-20T03:26:10.836848+00:00"
+      "updated_at": "2026-09-20T03:26:28.278957+00:00"
     },
     "LINKUSDT": {
       "symbol": "LINKUSDT",
@@ -274,16 +274,16 @@
         "Liquidation Dip Reversal"
       ],
       "notes": "DeFi sector leader. High sensitivity to Ethereum gas and regulatory news.",
-      "total_trades": 1,
+      "total_trades": 2,
       "wins": 0,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 0,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -1.06,
+      "net_pnl_usd": -46.07,
       "avg_r_multiple": -0.05,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-18 08:05:45",
-      "updated_at": "2026-09-20T03:26:10.836848+00:00"
+      "updated_at": "2026-09-20T03:26:39.090105+00:00"
     },
     "THEUSDT": {
       "symbol": "THEUSDT",
@@ -668,13 +668,13 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset HYPEUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 4,
-      "win_rate_pct": 50.0,
-      "net_pnl_usd": 145.04,
+      "total_trades": 5,
+      "win_rate_pct": 40.0,
+      "net_pnl_usd": 113.24,
       "created_dynamically": true,
-      "updated_at": "2026-09-20T03:26:10.837439+00:00",
+      "updated_at": "2026-09-20T03:26:34.619024+00:00",
       "wins": 2,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
       "avg_r_multiple": 0.64,
       "last_traded_outcome": "LOSS",
@@ -736,9 +736,145 @@
         "continuation_mss"
       ],
       "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "RULE-AUTO-SOLUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "solusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-20T03:26:24.439423+00:00"
+    },
+    {
+      "id": "RULE-AUTO-NEARUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on NEARUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "nearusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-20T03:26:28.278957+00:00"
+    },
+    {
+      "id": "RULE-AUTO-HYPEUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on HYPEUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "hypeusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-20T03:26:34.619024+00:00"
+    },
+    {
+      "id": "RULE-AUTO-UNIUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on UNIUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "uniusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-20T03:26:39.090105+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260920-019",
+      "timestamp": "2026-09-20T03:26:39.090105+00:00",
+      "symbol": "UNIUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -45.01,
+      "r_multiple": -2.19,
+      "pnl_pct": -1.63,
+      "root_cause": "Adverse volatility stop-out on UNIUSDT Smart Money Concepts (SMC) (net: -$45.01, -2.19R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on UNIUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "uni",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T03:26:39.090105+00:00"
+    },
+    {
+      "id": "MEM-20260920-018",
+      "timestamp": "2026-09-20T03:26:34.619024+00:00",
+      "symbol": "HYPEUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -31.8,
+      "r_multiple": -1.52,
+      "pnl_pct": -1.13,
+      "root_cause": "Adverse volatility stop-out on HYPEUSDT Smart Money Concepts (SMC) (net: -$31.80, -1.52R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on HYPEUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "hype",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T03:26:34.619024+00:00"
+    },
+    {
+      "id": "MEM-20260920-017",
+      "timestamp": "2026-09-20T03:26:28.278957+00:00",
+      "symbol": "NEARUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -42.47,
+      "r_multiple": -2.07,
+      "pnl_pct": -1.64,
+      "root_cause": "Adverse volatility stop-out on NEARUSDT Smart Money Concepts (SMC) (net: -$42.47, -2.07R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on NEARUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "near",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T03:26:28.278957+00:00"
+    },
+    {
+      "id": "MEM-20260920-016",
+      "timestamp": "2026-09-20T03:26:24.439423+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -93.75,
+      "r_multiple": -4.61,
+      "pnl_pct": -2.36,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT Smart Money Concepts (SMC) (net: -$93.75, -4.61R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-20T03:26:24.439423+00:00"
+    },
     {
       "id": "MEM-20260920-015",
       "timestamp": "2026-09-20T03:26:10.844190+00:00",
