@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-21T13:28:33.991820+00:00",
-    "total_reflections": 101,
-    "system_retention_score": 99.9
+    "last_reflection_at": "2026-09-21T13:37:21.354896+00:00",
+    "total_reflections": 103,
+    "system_retention_score": 100.4
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -19,16 +19,16 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 23,
+      "total_trades": 24,
       "wins": 10,
-      "losses": 12,
+      "losses": 13,
       "breakevens": 1,
-      "win_rate_pct": 43.5,
-      "net_pnl_usd": -258.78,
+      "win_rate_pct": 41.7,
+      "net_pnl_usd": -260.46,
       "avg_r_multiple": -0.41,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-21 19:08:24",
-      "updated_at": "2026-09-21T13:01:36.385989+00:00"
+      "updated_at": "2026-09-21T13:37:21.354886+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -168,21 +168,21 @@
       "volatility_regime": "VERY_HIGH",
       "wick_risk_rating": "HIGH",
       "funding_sensitivity": "HIGH",
-      "false_breakout_bias": "HIGH",
+      "false_breakout_bias": "LOW",
       "optimal_setups": [
         "Hyper-Trend ORB Breakout",
         "Liquidity Cluster Raid",
         "Smart Pyramiding at +2R"
       ],
       "notes": "High momentum layer-1 leader. High R:R potential on trending days; avoid counter-trend shorts.",
-      "total_trades": 3,
+      "total_trades": 4,
       "wins": 3,
-      "losses": 0,
+      "losses": 1,
       "breakevens": 0,
-      "net_pnl_usd": 54.42,
-      "win_rate_pct": 100.0,
-      "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-21T13:01:31.439968+00:00",
+      "net_pnl_usd": 27.93,
+      "win_rate_pct": 75.0,
+      "last_traded_outcome": "LOSS",
+      "updated_at": "2026-09-21T13:31:37.845443+00:00",
       "avg_r_multiple": 0.84,
       "last_closed_at": "2026-09-21 13:44:14"
     },
@@ -567,7 +567,7 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-21T01:40:51.587805+00:00",
-      "updated_at": "2026-09-21T09:39:56.367080+00:00"
+      "updated_at": "2026-09-21T13:37:21.354894+00:00"
     },
     {
       "id": "RULE-AUTO-LINKUSDT",
@@ -597,6 +597,50 @@
   ],
   "episodic_memories": [
     {
+      "id": "MEM-20260921-106",
+      "timestamp": "2026-09-21T13:37:21.354873+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -1.68,
+      "r_multiple": -0.03,
+      "pnl_pct": -0.06,
+      "root_cause": "Adverse volatility stop-out on BTCUSDT 5m Order Flow CVD Absorption Scalp (net: -$1.68, -0.03R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BTCUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "btc",
+        "5m_order_flow_cvd_absorption_scalp",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T13:37:21.354878+00:00"
+    },
+    {
+      "id": "MEM-20260921-105",
+      "timestamp": "2026-09-21T13:31:37.845420+00:00",
+      "symbol": "SUIUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -26.49,
+      "r_multiple": -1.29,
+      "pnl_pct": -1.63,
+      "root_cause": "Adverse volatility stop-out on SUIUSDT Smart Money Concepts (SMC) (net: -$26.49, -1.29R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SUIUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sui",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 5,
+      "last_accessed": "2026-09-21T13:36:32.074185+00:00"
+    },
+    {
       "id": "MEM-20260921-104",
       "timestamp": "2026-09-21T13:28:33.991792+00:00",
       "symbol": "ENAUSDT",
@@ -615,8 +659,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2,
-      "last_accessed": "2026-09-21T13:29:22.962854+00:00"
+      "access_count": 6,
+      "last_accessed": "2026-09-21T13:36:28.744496+00:00"
     },
     {
       "id": "MEM-20260921-103",
@@ -821,8 +865,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 4,
-      "last_accessed": "2026-09-21T13:29:22.962844+00:00"
+      "access_count": 8,
+      "last_accessed": "2026-09-21T13:36:28.744489+00:00"
     },
     {
       "id": "MEM-20260921-094",
@@ -1005,8 +1049,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 30,
-      "last_accessed": "2026-09-21T13:29:22.962852+00:00"
+      "access_count": 34,
+      "last_accessed": "2026-09-21T13:36:28.744499+00:00"
     },
     {
       "id": "MEM-20260921-086",
@@ -1167,8 +1211,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 54,
-      "last_accessed": "2026-09-21T13:04:54.351842+00:00"
+      "access_count": 58,
+      "last_accessed": "2026-09-21T13:36:32.074192+00:00"
     },
     {
       "id": "MEM-20260921-079",
@@ -1417,8 +1461,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 346,
-      "last_accessed": "2026-09-21T13:07:57.527361+00:00"
+      "access_count": 350,
+      "last_accessed": "2026-09-21T13:36:32.074196+00:00"
     },
     {
       "id": "MEM-20260921-068",
@@ -2283,8 +2327,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 386,
-      "last_accessed": "2026-09-21T13:29:23.513385+00:00"
+      "access_count": 398,
+      "last_accessed": "2026-09-21T13:36:32.074194+00:00"
     },
     {
       "id": "MEM-20260921-031",
@@ -2467,8 +2511,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 139,
-      "last_accessed": "2026-09-21T13:29:23.513393+00:00"
+      "access_count": 143,
+      "last_accessed": "2026-09-21T13:36:29.867087+00:00"
     },
     {
       "id": "MEM-20260920-023",
@@ -2699,8 +2743,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 181,
-      "last_accessed": "2026-09-21T13:29:23.513395+00:00"
+      "access_count": 185,
+      "last_accessed": "2026-09-21T13:36:29.867089+00:00"
     },
     {
       "id": "MEM-20260920-013",
@@ -2767,8 +2811,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 308,
-      "last_accessed": "2026-09-21T13:29:23.513397+00:00"
+      "access_count": 312,
+      "last_accessed": "2026-09-21T13:36:29.867091+00:00"
     },
     {
       "id": "MEM-20260920-010",
