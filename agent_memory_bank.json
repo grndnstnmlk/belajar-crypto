@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-21T01:40:51.587805+00:00",
-    "total_reflections": 31,
-    "system_retention_score": 105.7
+    "last_reflection_at": "2026-09-21T01:40:56.604551+00:00",
+    "total_reflections": 32,
+    "system_retention_score": 105.8
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -57,7 +57,7 @@
     "SOLUSDT": {
       "symbol": "SOLUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 13,
+      "total_trades": 14,
       "wins": 3,
-      "losses": 9,
+      "losses": 10,
       "breakevens": 1,
-      "win_rate_pct": 23.1,
-      "net_pnl_usd": 103.23,
+      "win_rate_pct": 21.4,
+      "net_pnl_usd": 61.52,
       "avg_r_multiple": 0.25,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-21 07:30:29",
-      "updated_at": "2026-09-21T01:40:45.968856+00:00"
+      "updated_at": "2026-09-21T01:40:56.604551+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -498,7 +498,7 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-20T12:59:21.470804+00:00",
-      "updated_at": "2026-09-20T22:06:51.317682+00:00"
+      "updated_at": "2026-09-21T01:40:56.604551+00:00"
     },
     {
       "id": "RULE-AUTO-ETHUSDT",
@@ -540,6 +540,28 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260921-035",
+      "timestamp": "2026-09-21T01:40:56.604551+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -41.71,
+      "r_multiple": -2.08,
+      "pnl_pct": -1.5,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT Smart Money Concepts (SMC) (net: -$41.71, -2.08R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T01:40:56.604551+00:00"
+    },
     {
       "id": "MEM-20260921-034",
       "timestamp": "2026-09-21T01:40:51.587805+00:00",
