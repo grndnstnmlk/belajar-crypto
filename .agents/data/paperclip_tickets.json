@@ -5,20 +5,119 @@
     "side": "LONG",
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
     "priority": "HIGH",
     "created_at": "2026-09-21 18:15:19",
-    "updated_at": "2026-09-21 18:29:19",
+    "updated_at": "2026-09-21 18:41:14",
     "payload": {
-      "entry": 2747.13,
-      "sl": 2741.8654,
-      "tp": 2762.9238,
+      "entry": 2748.91,
+      "sl": 2741.9653,
+      "tp": 2769.7441,
       "rr": 3.0
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
+    "debate_result": {
+      "symbol": "ETHUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 2741.9653,
+      "tp_price": 2769.7441,
+      "rr_ratio": 3.0,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "bull_score": 55,
+      "bear_score": 45,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset ETHUSDT berada dalam 3 besar rotasi sektor (\ud83d\udc51 Macro Heavyweights).",
+      "bear_critique": " \u2022 Dinding ask resistansi masif (0.68x Bids/Asks) membatasi potensi kenaikan.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (55% vs 45%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 2741.9653,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-22 01:41:06"
+    },
+    "risk_result": {
+      "decision": "APPROVE",
+      "confidence": 85,
+      "suggested_risk_scale": 1.0,
+      "thesis": "APPROVED: Setup ETHUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "Normal market volatility risk"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $2,741.9653.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 2741.9653,
+        "tp_price": 2769.7441,
+        "rr_ratio": 3.0,
+        "strategy": "5m Order Flow CVD Absorption Scalp",
+        "bull_score": 55,
+        "bear_score": 45,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset ETHUSDT berada dalam 3 besar rotasi sektor (\ud83d\udc51 Macro Heavyweights).",
+        "bear_critique": " \u2022 Dinding ask resistansi masif (0.68x Bids/Asks) membatasi potensi kenaikan.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (55% vs 45%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 2741.9653,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-22 01:41:06"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-22 01:41:14",
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 55% menunjukkan dorongan positif moderat. | ADX momentum kuat (52.4) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 60,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 60.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 63,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.25,
+            "neutral": 0.4,
+            "conservative": 0.35
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "ETH",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 3,
+        "is_leading_sector": false,
+        "sector_24h_avg": 4.72,
+        "relative_strength_vs_btc": -1.1,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-21 18:41:14",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
     "execution_result": null,
     "timeline": [
       {
@@ -26,6 +125,24 @@
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup ETHUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-21 18:41:14",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 55% vs Bear 45% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-21 18:41:14",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: APPROVE (85%)"
+      },
+      {
+        "timestamp": "2026-09-21 18:41:14",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
@@ -327,18 +444,18 @@
     "ticket_id": "TCK-20260921-1248",
     "symbol": "BNBUSDT",
     "side": "LONG",
-    "strategy": "5m Opening Range Breakout (ORB V4.1)",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 15:38:21",
-    "updated_at": "2026-09-21 18:25:10",
+    "updated_at": "2026-09-21 18:44:54",
     "payload": {
-      "entry": 800.21,
-      "sl": 798.3908,
-      "tp": 805.6676,
-      "rr": 3.0
+      "entry": 800.15,
+      "sl": 790.3764,
+      "tp": 819.6972,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -357,17 +474,17 @@
     "ticket_id": "TCK-20260921-3078",
     "symbol": "LINKUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 15:10:13",
-    "updated_at": "2026-09-21 18:29:19",
+    "updated_at": "2026-09-21 18:44:54",
     "payload": {
-      "entry": 12.86054452,
-      "sl": 12.8319,
-      "tp": 12.9465,
+      "entry": 12.917,
+      "sl": 12.8785,
+      "tp": 13.0325,
       "rr": 3.0
     },
     "debate_result": null,
@@ -864,18 +981,18 @@
     "ticket_id": "TCK-20260921-0588",
     "symbol": "SUIUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 14:31:30",
-    "updated_at": "2026-09-21 18:26:34",
+    "updated_at": "2026-09-21 18:44:54",
     "payload": {
-      "entry": 1.00343591,
-      "sl": 0.9966,
-      "tp": 1.0239,
-      "rr": 3.0
+      "entry": 1.0046,
+      "sl": 0.9827,
+      "tp": 1.0484,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
