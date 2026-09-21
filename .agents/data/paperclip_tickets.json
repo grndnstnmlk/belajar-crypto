@@ -505,10 +505,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-21 04:11:51",
-    "updated_at": "2026-09-21 04:52:57",
+    "updated_at": "2026-09-21 06:44:20",
     "payload": {
       "entry": 0.9439,
       "sl": 0.9205,
@@ -617,7 +617,13 @@
       "authorized_at": "2026-09-21 04:52:57",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83c\udfaf Trailing Runner Locked (+1.0R | Total Profit: +$36.92 USDT)",
+      "realized_pnl": 36.9182,
+      "net_pnl": 36.5893,
+      "closed_at": "2026-09-21 06:44:20"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-21 04:11:51",
@@ -648,6 +654,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-21 06:44:20",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83c\udfaf Trailing Runner Locked (+1.0R | Total Profit: +$36.92 USDT) | PnL: $+36.92 USDT (Net: $+36.59)"
       }
     ]
   },
