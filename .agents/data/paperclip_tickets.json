@@ -1,5 +1,162 @@
 [
   {
+    "ticket_id": "TCK-20260921-9880",
+    "symbol": "BTCUSDT",
+    "side": "LONG",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-21 09:27:49",
+    "updated_at": "2026-09-21 09:36:59",
+    "payload": {
+      "entry": 84457.0468,
+      "sl": 83912.0645,
+      "tp": 86137.7265,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 83912.0645,
+      "tp_price": 86137.7265,
+      "rr_ratio": 3.0,
+      "strategy": "5m Opening Range Breakout (ORB V4.1)",
+      "bull_score": 60,
+      "bear_score": 40,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (41.23x Bids/Asks) menahan tekanan jual di bawah entry.",
+      "bear_critique": " \u2022 Aset BTCUSDT berada di sektor narasi laggard (\ud83d\udc51 Macro Heavyweights), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 83912.0645,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-21 16:29:00"
+    },
+    "risk_result": {
+      "decision": "APPROVE",
+      "confidence": 85,
+      "suggested_risk_scale": 1.12,
+      "thesis": "APPROVED: Setup BTCUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "Normal market volatility risk"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $83,912.0645.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 83912.0645,
+        "tp_price": 86137.7265,
+        "rr_ratio": 3.0,
+        "strategy": "5m Opening Range Breakout (ORB V4.1)",
+        "bull_score": 60,
+        "bear_score": 40,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (41.23x Bids/Asks) menahan tekanan jual di bawah entry.",
+        "bear_critique": " \u2022 Aset BTCUSDT berada di sektor narasi laggard (\ud83d\udc51 Macro Heavyweights), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 83912.0645,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-21 16:29:00"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-21 16:29:10",
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 60% menunjukkan dorongan positif moderat. | ADX momentum kuat (28.1) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 62,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 62.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 78,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BTC",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 5,
+        "is_leading_sector": false,
+        "sector_24h_avg": 4.87,
+        "relative_strength_vs_btc": -0.23,
+        "confluence_boost": -5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-21 09:30:32",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-21 09:36:59"
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-09-21 09:27:49",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BTCUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      },
+      {
+        "timestamp": "2026-09-21 09:30:32",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 60% vs Bear 40% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-21 09:30:32",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: APPROVE (85%)"
+      },
+      {
+        "timestamp": "2026-09-21 09:30:32",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-21 09:36:59",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260921-3299",
     "symbol": "BTCUSDT",
     "side": "LONG",
@@ -166,11 +323,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 08:55:48",
-    "updated_at": "2026-09-21 09:26:21",
+    "updated_at": "2026-09-21 09:33:42",
     "payload": {
-      "entry": 1.4746,
+      "entry": 1.4807,
       "sl": 1.4418,
-      "tp": 1.573,
+      "tp": 1.5974,
       "rr": 3.0
     },
     "debate_result": null,
@@ -190,18 +347,18 @@
     "ticket_id": "TCK-20260921-4469",
     "symbol": "ENAUSDT",
     "side": "LONG",
-    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 08:49:54",
-    "updated_at": "2026-09-21 09:26:21",
+    "updated_at": "2026-09-21 09:36:05",
     "payload": {
-      "entry": 0.2214,
-      "sl": 0.2173,
-      "tp": 0.2337,
-      "rr": 3.0
+      "entry": 0.219,
+      "sl": 0.214,
+      "tp": 0.229,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -377,18 +534,18 @@
     "ticket_id": "TCK-20260921-8289",
     "symbol": "NEARUSDT",
     "side": "LONG",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 08:41:38",
-    "updated_at": "2026-09-21 09:19:33",
+    "updated_at": "2026-09-21 09:36:05",
     "payload": {
-      "entry": 4.264,
-      "sl": 4.1666,
-      "tp": 4.4588,
-      "rr": 2.0
+      "entry": 4.31,
+      "sl": 4.2527,
+      "tp": 4.4819,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -570,17 +727,17 @@
     "ticket_id": "TCK-20260921-7951",
     "symbol": "BNBUSDT",
     "side": "LONG",
-    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 07:59:17",
-    "updated_at": "2026-09-21 08:55:48",
+    "updated_at": "2026-09-21 09:36:05",
     "payload": {
-      "entry": 782.21,
-      "sl": 773.0961,
-      "tp": 809.5517,
+      "entry": 783.95,
+      "sl": 780.2725,
+      "tp": 794.9825,
       "rr": 3.0
     },
     "debate_result": null,
@@ -600,17 +757,17 @@
     "ticket_id": "TCK-20260921-7855",
     "symbol": "ETHUSDT",
     "side": "LONG",
-    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 07:59:17",
-    "updated_at": "2026-09-21 09:26:21",
+    "updated_at": "2026-09-21 09:36:05",
     "payload": {
-      "entry": 2705.38,
-      "sl": 2689.2481,
-      "tp": 2753.7757,
+      "entry": 2730.93,
+      "sl": 2711.8119,
+      "tp": 2788.2843,
       "rr": 3.0
     },
     "debate_result": null,
@@ -630,17 +787,17 @@
     "ticket_id": "TCK-20260921-3238",
     "symbol": "SOLUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 07:12:23",
-    "updated_at": "2026-09-21 09:26:21",
+    "updated_at": "2026-09-21 09:36:05",
     "payload": {
-      "entry": 115.25,
-      "sl": 114.8351,
-      "tp": 116.4947,
+      "entry": 116.19,
+      "sl": 113.1367,
+      "tp": 125.3499,
       "rr": 3.0
     },
     "debate_result": null,
@@ -831,11 +988,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 06:52:03",
-    "updated_at": "2026-09-21 09:26:21",
+    "updated_at": "2026-09-21 09:36:05",
     "payload": {
-      "entry": 1.0051,
-      "sl": 0.9845,
-      "tp": 1.0669,
+      "entry": 1.0183,
+      "sl": 0.9891,
+      "tp": 1.1059,
       "rr": 3.0
     },
     "debate_result": null,
