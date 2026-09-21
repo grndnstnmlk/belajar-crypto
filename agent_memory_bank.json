@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-21T01:25:23.587599+00:00",
-    "total_reflections": 26,
-    "system_retention_score": 104.9
+    "last_reflection_at": "2026-09-21T01:40:33.428676+00:00",
+    "total_reflections": 27,
+    "system_retention_score": 105.0
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -28,7 +28,7 @@
       "avg_r_multiple": 0.04,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-20 19:59:09",
-      "updated_at": "2026-09-20T18:17:37.187510+00:00"
+      "updated_at": "2026-09-21T01:40:33.421514+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -43,21 +43,21 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 9,
+      "total_trades": 11,
       "wins": 5,
-      "losses": 3,
+      "losses": 5,
       "breakevens": 1,
-      "net_pnl_usd": 71.83,
-      "win_rate_pct": 55.6,
+      "net_pnl_usd": -11.39,
+      "win_rate_pct": 45.5,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-20T21:39:22.417629+00:00",
-      "avg_r_multiple": 0.53,
-      "last_closed_at": "2026-09-21 00:12:10"
+      "updated_at": "2026-09-21T01:40:33.428676+00:00",
+      "avg_r_multiple": 0.12,
+      "last_closed_at": "2026-09-21 08:40:33"
     },
     "SOLUSDT": {
       "symbol": "SOLUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "VERY_HIGH",
+      "wick_risk_rating": "HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -73,10 +73,10 @@
       "breakevens": 1,
       "win_rate_pct": 23.1,
       "net_pnl_usd": 103.23,
-      "avg_r_multiple": -0.18,
+      "avg_r_multiple": 0.25,
       "last_traded_outcome": "WIN",
-      "last_closed_at": "2026-09-20 21:14:13",
-      "updated_at": "2026-09-21T00:30:34.626984+00:00"
+      "last_closed_at": "2026-09-21 07:30:29",
+      "updated_at": "2026-09-21T01:40:33.421514+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -90,16 +90,16 @@
         "Institutional Iceberg Absorption"
       ],
       "notes": "Exchange native anchor. High institutional bid support; low false breakout rate on HTF.",
-      "total_trades": 5,
-      "wins": 5,
+      "total_trades": 4,
+      "wins": 4,
       "losses": 0,
       "breakevens": 0,
       "win_rate_pct": 100.0,
-      "net_pnl_usd": 136.95,
-      "avg_r_multiple": 0.2,
+      "net_pnl_usd": 91.33,
+      "avg_r_multiple": 1.14,
       "last_traded_outcome": "WIN",
-      "last_closed_at": "2026-09-20 19:59:09",
-      "updated_at": "2026-09-21T01:25:23.587597+00:00"
+      "last_closed_at": "2026-09-21 08:25:16",
+      "updated_at": "2026-09-21T01:40:33.421514+00:00"
     },
     "XRPUSDT": {
       "symbol": "XRPUSDT",
@@ -120,7 +120,7 @@
       "net_pnl_usd": -18.63,
       "win_rate_pct": 0.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-20T18:17:37.187522+00:00",
+      "updated_at": "2026-09-21T01:40:33.421514+00:00",
       "avg_r_multiple": -0.35,
       "last_closed_at": "2026-09-20 21:59:20"
     },
@@ -208,9 +208,9 @@
       "net_pnl_usd": 84.17,
       "win_rate_pct": 100.0,
       "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-21T00:30:19.296348+00:00",
-      "avg_r_multiple": 1.51,
-      "last_closed_at": "2026-09-20 23:15:48"
+      "updated_at": "2026-09-21T01:40:33.421514+00:00",
+      "avg_r_multiple": 1.44,
+      "last_closed_at": "2026-09-21 07:30:10"
     },
     "UNIUSDT": {
       "symbol": "UNIUSDT",
@@ -504,17 +504,39 @@
       "id": "RULE-AUTO-ETHUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ETHUSDT due to elevated wick risk.",
-      "confidence": 0.92,
+      "confidence": 0.96,
       "trigger_conditions": [
         "ethusdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-09-20T19:33:02.250929+00:00",
-      "updated_at": "2026-09-20T21:39:22.417639+00:00"
+      "updated_at": "2026-09-21T01:40:33.428676+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260921-030",
+      "timestamp": "2026-09-21T01:40:33.428676+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -41.61,
+      "r_multiple": -2.08,
+      "pnl_pct": -1.5,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT Smart Money Concepts (SMC) (net: -$41.61, -2.08R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T01:40:33.428676+00:00"
+    },
     {
       "id": "MEM-20260921-029",
       "timestamp": "2026-09-21T01:25:23.587584+00:00",
