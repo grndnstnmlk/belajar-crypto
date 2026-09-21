@@ -3642,10 +3642,10 @@
     "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-20 13:06:36",
-    "updated_at": "2026-09-21 03:23:39",
+    "updated_at": "2026-09-21 03:52:36",
     "payload": {
       "entry": 0.9404,
       "sl": 0.9204,
@@ -3754,7 +3754,13 @@
       "authorized_at": "2026-09-21 03:23:39",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$6.37 USDT)",
+      "realized_pnl": 6.3746,
+      "net_pnl": 5.7239,
+      "closed_at": "2026-09-21 03:52:36"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-20 13:06:36",
@@ -3785,6 +3791,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-21 03:52:36",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$6.37 USDT) | PnL: $+6.37 USDT (Net: $+5.72)"
       }
     ]
   },
