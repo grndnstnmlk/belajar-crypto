@@ -3,17 +3,17 @@
     "ticket_id": "TCK-20260921-9923",
     "symbol": "ETHUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 02:01:49",
-    "updated_at": "2026-09-21 02:15:03",
+    "updated_at": "2026-09-21 02:23:43",
     "payload": {
-      "entry": 2659.72,
+      "entry": 2666.49,
       "sl": 2641.0663,
-      "tp": 2715.6811,
+      "tp": 2742.7611,
       "rr": 3.0
     },
     "debate_result": null,
@@ -36,10 +36,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 01:58:24",
-    "updated_at": "2026-09-21 02:03:48",
+    "updated_at": "2026-09-21 02:24:10",
     "payload": {
       "entry": 776.0,
       "sl": 763.6662,
@@ -149,7 +149,13 @@
       "authorized_at": "2026-09-21 02:03:48",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$6.18 USDT)",
+      "realized_pnl": 6.182,
+      "net_pnl": 5.3051,
+      "closed_at": "2026-09-21 02:24:10"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-21 01:58:24",
@@ -180,6 +186,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-21 02:24:10",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$6.18 USDT) | PnL: $+6.18 USDT (Net: $+5.31)"
       }
     ]
   },
@@ -193,12 +205,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 01:56:17",
-    "updated_at": "2026-09-21 02:15:03",
+    "updated_at": "2026-09-21 02:23:43",
     "payload": {
-      "entry": 12.578,
+      "entry": 12.606,
       "sl": 12.2941,
-      "tp": 13.7136,
-      "rr": 4.000000000000012
+      "tp": 13.8536,
+      "rr": 4.000000000000005
     },
     "debate_result": null,
     "risk_result": null,
