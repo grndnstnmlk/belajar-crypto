@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-21T13:01:31.444155+00:00",
-    "total_reflections": 93,
-    "system_retention_score": 100.3
+    "last_reflection_at": "2026-09-21T13:28:33.991820+00:00",
+    "total_reflections": 101,
+    "system_retention_score": 99.9
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -19,21 +19,21 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 22,
-      "wins": 9,
+      "total_trades": 23,
+      "wins": 10,
       "losses": 12,
       "breakevens": 1,
-      "win_rate_pct": 40.9,
-      "net_pnl_usd": -263.75,
+      "win_rate_pct": 43.5,
+      "net_pnl_usd": -258.78,
       "avg_r_multiple": -0.41,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-21 19:08:24",
-      "updated_at": "2026-09-21T13:01:31.444153+00:00"
+      "updated_at": "2026-09-21T13:01:36.385989+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -43,14 +43,14 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 20,
+      "total_trades": 22,
       "wins": 5,
-      "losses": 10,
+      "losses": 12,
       "breakevens": 5,
-      "net_pnl_usd": -44.1,
-      "win_rate_pct": 25.0,
+      "net_pnl_usd": -73.54,
+      "win_rate_pct": 22.7,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-21T13:01:31.439959+00:00",
+      "updated_at": "2026-09-21T13:01:39.712693+00:00",
       "avg_r_multiple": -0.11,
       "last_closed_at": "2026-09-21 14:57:17"
     },
@@ -113,14 +113,14 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 8,
-      "wins": 4,
+      "total_trades": 10,
+      "wins": 6,
       "losses": 4,
       "breakevens": 0,
-      "net_pnl_usd": 62.89,
-      "win_rate_pct": 50.0,
+      "net_pnl_usd": 137.95,
+      "win_rate_pct": 60.0,
       "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-21T13:01:31.439962+00:00",
+      "updated_at": "2026-09-21T13:01:38.202438+00:00",
       "avg_r_multiple": 0.31,
       "last_closed_at": "2026-09-21 15:45:49"
     },
@@ -221,14 +221,14 @@
         "Wyckoff Spring"
       ],
       "notes": "Oracle leader with strong fundamental holding. Highly respects horizontal support and resistance.",
-      "total_trades": 4,
+      "total_trades": 6,
       "wins": 3,
-      "losses": 1,
+      "losses": 3,
       "breakevens": 0,
-      "net_pnl_usd": 40.93,
-      "win_rate_pct": 75.0,
+      "net_pnl_usd": -45.55,
+      "win_rate_pct": 50.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-21T13:01:31.439965+00:00",
+      "updated_at": "2026-09-21T13:01:43.355299+00:00",
       "avg_r_multiple": 0.55,
       "last_closed_at": "2026-09-21 08:55:20"
     },
@@ -316,14 +316,14 @@
         "15m FVG Reversal"
       ],
       "notes": "Synthetic dollar yield token; strongly skewed by funding rates.",
-      "total_trades": 4,
+      "total_trades": 5,
       "wins": 3,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 0,
-      "net_pnl_usd": 49.2,
-      "win_rate_pct": 75.0,
+      "net_pnl_usd": -9.9,
+      "win_rate_pct": 60.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-21T13:01:31.439971+00:00",
+      "updated_at": "2026-09-21T13:28:33.991806+00:00",
       "avg_r_multiple": 0.46,
       "last_closed_at": "2026-09-21 18:32:22"
     },
@@ -541,7 +541,7 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-20T19:33:02.250929+00:00",
-      "updated_at": "2026-09-21T07:57:23.695391+00:00"
+      "updated_at": "2026-09-21T13:01:39.712703+00:00"
     },
     {
       "id": "RULE-AUTO-XRPUSDT",
@@ -568,9 +568,216 @@
       ],
       "created_at": "2026-09-21T01:40:51.587805+00:00",
       "updated_at": "2026-09-21T09:39:56.367080+00:00"
+    },
+    {
+      "id": "RULE-AUTO-LINKUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on LINKUSDT due to elevated wick risk.",
+      "confidence": 0.92,
+      "trigger_conditions": [
+        "linkusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-21T13:01:36.119536+00:00",
+      "updated_at": "2026-09-21T13:01:43.355307+00:00"
+    },
+    {
+      "id": "RULE-AUTO-ENAUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ENAUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "enausdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-21T13:28:33.991817+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260921-104",
+      "timestamp": "2026-09-21T13:28:33.991792+00:00",
+      "symbol": "ENAUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -59.1,
+      "r_multiple": -1.39,
+      "pnl_pct": -2.24,
+      "root_cause": "Adverse volatility stop-out on ENAUSDT 5m Order Flow CVD Absorption Scalp (net: -$59.10, -1.39R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ENAUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "ena",
+        "5m_order_flow_cvd_absorption_scalp",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T13:28:33.991797+00:00"
+    },
+    {
+      "id": "MEM-20260921-103",
+      "timestamp": "2026-09-21T13:01:43.355285+00:00",
+      "symbol": "LINKUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -43.24,
+      "r_multiple": -2.11,
+      "pnl_pct": -1.54,
+      "root_cause": "Adverse volatility stop-out on LINKUSDT Smart Money Concepts (SMC) (net: -$43.24, -2.11R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on LINKUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "link",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T13:01:43.355291+00:00"
+    },
+    {
+      "id": "MEM-20260921-102",
+      "timestamp": "2026-09-21T13:01:39.712674+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -14.72,
+      "r_multiple": -0.68,
+      "pnl_pct": -0.53,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT Smart Money Concepts (SMC) (net: -$14.72, -0.68R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T13:01:39.712682+00:00"
+    },
+    {
+      "id": "MEM-20260921-101",
+      "timestamp": "2026-09-21T13:01:38.202421+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 37.53,
+      "r_multiple": 1.44,
+      "pnl_pct": 2.39,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on XRPUSDT. Trend momentum aligned with HTF bias, securing +1.44R net profit (+$37.53).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on XRPUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T13:01:38.202428+00:00"
+    },
+    {
+      "id": "MEM-20260921-100",
+      "timestamp": "2026-09-21T13:01:36.385975+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 4.97,
+      "r_multiple": 0.3,
+      "pnl_pct": 0.19,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on BTCUSDT. Trend momentum aligned with HTF bias, securing +0.30R net profit (+$4.97).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on BTCUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "btc",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T13:01:36.385980+00:00"
+    },
+    {
+      "id": "MEM-20260921-099",
+      "timestamp": "2026-09-21T13:01:36.119514+00:00",
+      "symbol": "LINKUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -43.24,
+      "r_multiple": -2.11,
+      "pnl_pct": -1.54,
+      "root_cause": "Adverse volatility stop-out on LINKUSDT Smart Money Concepts (SMC) (net: -$43.24, -2.11R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on LINKUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "link",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T13:01:36.119520+00:00"
+    },
+    {
+      "id": "MEM-20260921-098",
+      "timestamp": "2026-09-21T13:01:34.438610+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -14.72,
+      "r_multiple": -0.68,
+      "pnl_pct": -0.53,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT Smart Money Concepts (SMC) (net: -$14.72, -0.68R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T13:01:34.438616+00:00"
+    },
+    {
+      "id": "MEM-20260921-097",
+      "timestamp": "2026-09-21T13:01:33.044835+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 37.53,
+      "r_multiple": 1.44,
+      "pnl_pct": 2.39,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on XRPUSDT. Trend momentum aligned with HTF bias, securing +1.44R net profit (+$37.53).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on XRPUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T13:01:33.044841+00:00"
+    },
     {
       "id": "MEM-20260921-096",
       "timestamp": "2026-09-21T13:01:31.444138+00:00",
@@ -614,8 +821,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1,
-      "last_accessed": "2026-09-21T11:32:31.889235+00:00"
+      "access_count": 3,
+      "last_accessed": "2026-09-21T13:03:24.930713+00:00"
     },
     {
       "id": "MEM-20260921-094",
@@ -726,8 +933,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 11,
-      "last_accessed": "2026-09-21T09:47:44.851449+00:00"
+      "access_count": 13,
+      "last_accessed": "2026-09-21T13:06:28.329463+00:00"
     },
     {
       "id": "MEM-20260921-089",
@@ -798,8 +1005,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 27,
-      "last_accessed": "2026-09-21T11:05:59.779043+00:00"
+      "access_count": 29,
+      "last_accessed": "2026-09-21T13:03:24.930720+00:00"
     },
     {
       "id": "MEM-20260921-086",
@@ -820,8 +1027,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 31,
-      "last_accessed": "2026-09-21T11:16:45.687434+00:00"
+      "access_count": 34,
+      "last_accessed": "2026-09-21T13:07:57.527351+00:00"
     },
     {
       "id": "MEM-20260921-085",
@@ -844,8 +1051,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 13,
-      "last_accessed": "2026-09-21T09:47:44.851449+00:00"
+      "access_count": 15,
+      "last_accessed": "2026-09-21T13:06:28.329465+00:00"
     },
     {
       "id": "MEM-20260921-084",
@@ -868,8 +1075,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 13,
-      "last_accessed": "2026-09-21T09:47:44.851449+00:00"
+      "access_count": 15,
+      "last_accessed": "2026-09-21T13:06:28.329466+00:00"
     },
     {
       "id": "MEM-20260921-083",
@@ -960,8 +1167,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 52,
-      "last_accessed": "2026-09-21T11:01:53.019627+00:00"
+      "access_count": 54,
+      "last_accessed": "2026-09-21T13:04:54.351842+00:00"
     },
     {
       "id": "MEM-20260921-079",
@@ -1210,8 +1417,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 339,
-      "last_accessed": "2026-09-21T11:16:45.687434+00:00"
+      "access_count": 346,
+      "last_accessed": "2026-09-21T13:07:57.527361+00:00"
     },
     {
       "id": "MEM-20260921-068",
@@ -2032,8 +2239,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 14,
-      "last_accessed": "2026-09-21T09:47:44.851449+00:00"
+      "access_count": 16,
+      "last_accessed": "2026-09-21T13:06:28.329456+00:00"
     },
     {
       "id": "MEM-20260921-033",
@@ -2054,8 +2261,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 310,
-      "last_accessed": "2026-09-21T11:16:45.687434+00:00"
+      "access_count": 315,
+      "last_accessed": "2026-09-21T13:07:57.527363+00:00"
     },
     {
       "id": "MEM-20260921-032",
@@ -2076,8 +2283,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 375,
-      "last_accessed": "2026-09-21T11:16:45.687434+00:00"
+      "access_count": 384,
+      "last_accessed": "2026-09-21T13:07:57.527359+00:00"
     },
     {
       "id": "MEM-20260921-031",
@@ -2260,8 +2467,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 136,
-      "last_accessed": "2026-09-21T11:01:55.967431+00:00"
+      "access_count": 138,
+      "last_accessed": "2026-09-21T13:06:26.130988+00:00"
     },
     {
       "id": "MEM-20260920-023",
@@ -2492,8 +2699,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 178,
-      "last_accessed": "2026-09-21T11:01:55.967431+00:00"
+      "access_count": 180,
+      "last_accessed": "2026-09-21T13:06:26.130990+00:00"
     },
     {
       "id": "MEM-20260920-013",
@@ -2560,8 +2767,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 305,
-      "last_accessed": "2026-09-21T11:01:55.967431+00:00"
+      "access_count": 307,
+      "last_accessed": "2026-09-21T13:06:26.130991+00:00"
     },
     {
       "id": "MEM-20260920-010",
