@@ -1562,5 +1562,39 @@
       },
       "synthesis": "APPROVED DEFENSIVE: Risiko terdeteksi namun terukur. Alokasi disesuaikan ke 0.60x dengan kunci Break-Even cepat di +0.6R."
     }
+  },
+  {
+    "timestamp": "2026-09-21 09:03:48",
+    "symbol": "BNBUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 75,
+      "desired_scale": 1.1,
+      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 63% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 45,
+      "desired_scale": 0.85,
+      "thesis": "Portofolio memiliki 3 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+    },
+    "neutral": {
+      "score": 63,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 63.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_BALANCED",
+      "composite_risk_score": 57,
+      "allocated_risk_scale": 0.99,
+      "stop_loss_profile": "ATR_TRAILING",
+      "regime_weights": {
+        "aggressive": 0.2,
+        "neutral": 0.35,
+        "conservative": 0.45
+      },
+      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 0.99x dan trailing stop berbasis ATR dinamis."
+    }
   }
 ]
