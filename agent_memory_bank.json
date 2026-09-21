@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-21T01:40:33.428676+00:00",
-    "total_reflections": 27,
-    "system_retention_score": 105.0
+    "last_reflection_at": "2026-09-21T01:40:36.209782+00:00",
+    "total_reflections": 28,
+    "system_retention_score": 105.2
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -28,7 +28,7 @@
       "avg_r_multiple": 0.04,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-20 19:59:09",
-      "updated_at": "2026-09-21T01:40:33.421514+00:00"
+      "updated_at": "2026-09-21T01:40:36.252040+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -43,14 +43,14 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 11,
+      "total_trades": 10,
       "wins": 5,
-      "losses": 5,
+      "losses": 4,
       "breakevens": 1,
-      "net_pnl_usd": -11.39,
-      "win_rate_pct": 45.5,
+      "net_pnl_usd": 30.22,
+      "win_rate_pct": 50.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-21T01:40:33.428676+00:00",
+      "updated_at": "2026-09-21T01:40:36.252040+00:00",
       "avg_r_multiple": 0.12,
       "last_closed_at": "2026-09-21 08:40:33"
     },
@@ -76,7 +76,7 @@
       "avg_r_multiple": 0.25,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-21 07:30:29",
-      "updated_at": "2026-09-21T01:40:33.421514+00:00"
+      "updated_at": "2026-09-21T01:40:36.252040+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -99,12 +99,12 @@
       "avg_r_multiple": 1.14,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-21 08:25:16",
-      "updated_at": "2026-09-21T01:40:33.421514+00:00"
+      "updated_at": "2026-09-21T01:40:36.252040+00:00"
     },
     "XRPUSDT": {
       "symbol": "XRPUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "VERY_HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -113,16 +113,16 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 2,
+      "total_trades": 3,
       "wins": 0,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
-      "net_pnl_usd": -18.63,
+      "net_pnl_usd": -83.4,
       "win_rate_pct": 0.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-21T01:40:33.421514+00:00",
-      "avg_r_multiple": -0.35,
-      "last_closed_at": "2026-09-20 21:59:20"
+      "updated_at": "2026-09-21T01:40:36.252040+00:00",
+      "avg_r_multiple": -1.31,
+      "last_closed_at": "2026-09-21 08:40:36"
     },
     "DOGEUSDT": {
       "symbol": "DOGEUSDT",
@@ -208,7 +208,7 @@
       "net_pnl_usd": 84.17,
       "win_rate_pct": 100.0,
       "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-21T01:40:33.421514+00:00",
+      "updated_at": "2026-09-21T01:40:36.252040+00:00",
       "avg_r_multiple": 1.44,
       "last_closed_at": "2026-09-21 07:30:10"
     },
@@ -512,9 +512,43 @@
       ],
       "created_at": "2026-09-20T19:33:02.250929+00:00",
       "updated_at": "2026-09-21T01:40:33.428676+00:00"
+    },
+    {
+      "id": "RULE-AUTO-XRPUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on XRPUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "xrpusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-21T01:40:36.209782+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260921-031",
+      "timestamp": "2026-09-21T01:40:36.209782+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -64.77,
+      "r_multiple": -3.24,
+      "pnl_pct": -1.5,
+      "root_cause": "Adverse volatility stop-out on XRPUSDT Smart Money Concepts (SMC) (net: -$64.77, -3.24R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on XRPUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T01:40:36.209782+00:00"
+    },
     {
       "id": "MEM-20260921-030",
       "timestamp": "2026-09-21T01:40:33.428676+00:00",
