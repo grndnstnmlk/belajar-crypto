@@ -1,5 +1,65 @@
 [
   {
+    "ticket_id": "TCK-20260921-3970",
+    "symbol": "ENAUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "HIGH",
+    "created_at": "2026-09-21 14:12:13",
+    "updated_at": "2026-09-21 14:12:13",
+    "payload": {
+      "entry": 0.22032374,
+      "sl": 0.2174,
+      "tp": 0.2291,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-21 14:12:13",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup ENAUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260921-3947",
+    "symbol": "NEARUSDT",
+    "side": "LONG",
+    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-21 14:12:13",
+    "updated_at": "2026-09-21 14:23:37",
+    "payload": {
+      "entry": 4.12309695,
+      "sl": 4.0709,
+      "tp": 4.2797,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-21 14:12:13",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup NEARUSDT (LONG) teridentifikasi via 5m Craig Percoco Morning Routine (SSL Sweep & FVG)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260921-9179",
     "symbol": "BTCUSDT",
     "side": "LONG",
@@ -9,11 +69,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 13:53:19",
-    "updated_at": "2026-09-21 13:53:19",
+    "updated_at": "2026-09-21 14:23:37",
     "payload": {
-      "entry": 85642.40266304,
-      "sl": 84693.222,
-      "tp": 88489.9447,
+      "entry": 85472.51655797,
+      "sl": 84964.95,
+      "tp": 86995.2162,
       "rr": 3.0
     },
     "debate_result": null,
@@ -199,10 +259,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 13:41:48",
-    "updated_at": "2026-09-21 13:56:18",
+    "updated_at": "2026-09-21 14:25:26",
     "payload": {
       "entry": 1.05,
       "sl": 1.0154,
@@ -311,7 +371,13 @@
       "authorized_at": "2026-09-21 13:56:18",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$1.24 USDT)",
+      "realized_pnl": 1.2425,
+      "net_pnl": 0.5948,
+      "closed_at": "2026-09-21 14:25:26"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-21 13:41:48",
@@ -342,6 +408,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-21 14:25:26",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$1.24 USDT) | PnL: $+1.24 USDT (Net: $+0.59)"
       }
     ]
   },
