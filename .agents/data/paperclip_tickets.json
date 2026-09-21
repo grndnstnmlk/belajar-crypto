@@ -1,19 +1,49 @@
 [
   {
+    "ticket_id": "TCK-20260921-6076",
+    "symbol": "BTCUSDT",
+    "side": "LONG",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-21 08:35:26",
+    "updated_at": "2026-09-21 08:35:37",
+    "payload": {
+      "entry": 82638.864,
+      "sl": 82089.3744,
+      "tp": 84291.8768,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-21 08:35:26",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BTCUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260921-7951",
     "symbol": "BNBUSDT",
     "side": "LONG",
-    "strategy": "5m Craig Percoco Morning Routine (SSL Sweep & FVG)",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 07:59:17",
-    "updated_at": "2026-09-21 08:29:12",
+    "updated_at": "2026-09-21 08:35:25",
     "payload": {
-      "entry": 774.2,
-      "sl": 769.8893,
-      "tp": 787.1321,
+      "entry": 776.62,
+      "sl": 772.9314,
+      "tp": 787.6858,
       "rr": 3.0
     },
     "debate_result": null,
@@ -39,11 +69,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 07:59:17",
-    "updated_at": "2026-09-21 08:29:12",
+    "updated_at": "2026-09-21 08:35:26",
     "payload": {
-      "entry": 2680.47,
-      "sl": 2671.1508,
-      "tp": 2708.4276,
+      "entry": 2688.66,
+      "sl": 2676.3945,
+      "tp": 2725.4565,
       "rr": 3.0
     },
     "debate_result": null,
@@ -63,18 +93,18 @@
     "ticket_id": "TCK-20260921-3238",
     "symbol": "SOLUSDT",
     "side": "LONG",
-    "strategy": "Quantitative Confluence Setup",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 07:12:23",
-    "updated_at": "2026-09-21 08:27:37",
+    "updated_at": "2026-09-21 08:35:25",
     "payload": {
-      "entry": 113.4,
-      "sl": 109.8136,
-      "tp": 129.5388,
-      "rr": 4.499999999999986
+      "entry": 113.91,
+      "sl": 113.2739,
+      "tp": 115.8183,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -264,11 +294,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 06:52:03",
-    "updated_at": "2026-09-21 08:29:12",
+    "updated_at": "2026-09-21 08:35:25",
     "payload": {
-      "entry": 0.9727,
-      "sl": 0.9645,
-      "tp": 0.9973,
+      "entry": 0.9808,
+      "sl": 0.9682,
+      "tp": 1.0186,
       "rr": 3.0
     },
     "debate_result": null,
@@ -1418,10 +1448,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 03:57:09",
-    "updated_at": "2026-09-21 06:48:42",
+    "updated_at": "2026-09-21 08:39:55",
     "payload": {
       "entry": 4.269,
       "sl": 4.2188,
@@ -1530,7 +1560,13 @@
       "authorized_at": "2026-09-21 06:48:42",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected)",
+      "realized_pnl": 0.65,
+      "net_pnl": -0.4633,
+      "closed_at": "2026-09-21 08:39:55"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-21 03:57:09",
@@ -1561,6 +1597,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-21 08:39:55",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected) | PnL: $+0.65 USDT (Net: $-0.46)"
       }
     ]
   },
