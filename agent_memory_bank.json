@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-21T01:42:19.565622+00:00",
-    "total_reflections": 38,
-    "system_retention_score": 103.5
+    "last_reflection_at": "2026-09-21T01:45:40.212853+00:00",
+    "total_reflections": 41,
+    "system_retention_score": 102.8
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -19,16 +19,16 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 9,
-      "wins": 3,
+      "total_trades": 10,
+      "wins": 4,
       "losses": 6,
       "breakevens": 0,
-      "win_rate_pct": 33.3,
-      "net_pnl_usd": -81.42,
+      "win_rate_pct": 40.0,
+      "net_pnl_usd": -79.6,
       "avg_r_multiple": 0.04,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-20 19:59:09",
-      "updated_at": "2026-09-21T01:41:56.911157+00:00"
+      "updated_at": "2026-09-21T01:42:23.726691+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -43,14 +43,14 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 13,
+      "total_trades": 14,
       "wins": 5,
-      "losses": 7,
+      "losses": 8,
       "breakevens": 1,
-      "net_pnl_usd": -31.25,
-      "win_rate_pct": 38.5,
+      "net_pnl_usd": -41.18,
+      "win_rate_pct": 35.7,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-21T01:42:19.565622+00:00",
+      "updated_at": "2026-09-21T01:45:40.212853+00:00",
       "avg_r_multiple": 0.12,
       "last_closed_at": "2026-09-21 08:40:45"
     },
@@ -201,14 +201,14 @@
         "Wyckoff Spring"
       ],
       "notes": "Oracle leader with strong fundamental holding. Highly respects horizontal support and resistance.",
-      "total_trades": 4,
-      "wins": 4,
+      "total_trades": 5,
+      "wins": 5,
       "losses": 0,
       "breakevens": 0,
-      "net_pnl_usd": 138.44,
+      "net_pnl_usd": 192.71,
       "win_rate_pct": 100.0,
       "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-21T01:41:54.901127+00:00",
+      "updated_at": "2026-09-21T01:42:21.555778+00:00",
       "avg_r_multiple": 1.44,
       "last_closed_at": "2026-09-21 07:30:10"
     },
@@ -511,7 +511,7 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-20T19:33:02.250929+00:00",
-      "updated_at": "2026-09-21T01:42:19.565622+00:00"
+      "updated_at": "2026-09-21T01:45:40.212853+00:00"
     },
     {
       "id": "RULE-AUTO-XRPUSDT",
@@ -540,6 +540,76 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260921-044",
+      "timestamp": "2026-09-21T01:45:40.212853+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -9.93,
+      "r_multiple": -0.44,
+      "pnl_pct": -0.35,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT Smart Money Concepts (SMC) (net: -$9.93, -0.44R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T01:45:40.212853+00:00"
+    },
+    {
+      "id": "MEM-20260921-043",
+      "timestamp": "2026-09-21T01:42:23.726691+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 1.82,
+      "r_multiple": 0.2,
+      "pnl_pct": 0.03,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on BTCUSDT. Trend momentum aligned with HTF bias, securing +0.20R net profit (+$1.82).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on BTCUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "btc",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T01:42:23.726691+00:00"
+    },
+    {
+      "id": "MEM-20260921-042",
+      "timestamp": "2026-09-21T01:42:21.555778+00:00",
+      "symbol": "LINKUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 54.27,
+      "r_multiple": 2.77,
+      "pnl_pct": 1.91,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on LINKUSDT. Trend momentum aligned with HTF bias, securing +2.77R net profit (+$54.27).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on LINKUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "link",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 9,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T01:42:21.555778+00:00"
+    },
     {
       "id": "MEM-20260921-041",
       "timestamp": "2026-09-21T01:42:19.565622+00:00",
@@ -653,8 +723,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1,
-      "last_accessed": "2026-09-21T01:41:23.020440+00:00"
+      "access_count": 2,
+      "last_accessed": "2026-09-21T01:43:09.815848+00:00"
     },
     {
       "id": "MEM-20260921-036",
@@ -743,8 +813,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2,
-      "last_accessed": "2026-09-21T01:41:13.309927+00:00"
+      "access_count": 3,
+      "last_accessed": "2026-09-21T01:43:09.815848+00:00"
     },
     {
       "id": "MEM-20260921-032",
@@ -787,8 +857,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2,
-      "last_accessed": "2026-09-21T01:41:13.309927+00:00"
+      "access_count": 3,
+      "last_accessed": "2026-09-21T01:43:09.815848+00:00"
     },
     {
       "id": "MEM-20260921-030",
@@ -1137,8 +1207,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 9,
-      "last_accessed": "2026-09-21T01:41:13.309927+00:00"
+      "access_count": 10,
+      "last_accessed": "2026-09-21T01:43:09.815848+00:00"
     },
     {
       "id": "MEM-20260920-015",
