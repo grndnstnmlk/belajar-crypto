@@ -341,10 +341,17 @@ def sync_binance_history(user_email="dxmade@gmail.com", is_demo=True, limit=50):
             dt_str = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
             sym = inc.get("symbol", "UNKNOWN")
 
+            # Infer real position side from journal history or active metadata to prevent skewed Long/Short metrics
+            inferred_side = "LONG"
+            for prev_t in reversed(journal):
+                if prev_t.get("symbol") == sym and prev_t.get("source") != "BINANCE_INCOME" and prev_t.get("side"):
+                    inferred_side = prev_t.get("side")
+                    break
+
             journal.append({
                 "id": t_id,
                 "symbol": sym,
-                "side": "LONG" if pnl >= 0 else "SHORT",
+                "side": inferred_side,
                 "entry_price": 0.0,
                 "exit_price": 0.0,
                 "quantity": 0.0,

@@ -434,6 +434,16 @@ def get_dashboard_feed_data(force_refresh=False):
     # RS Radar Live Watchlist (Prices & Relative Strength vs BTC)
     feed["watchlist"] = get_live_watchlist_rs()
 
+    # DeFiLlama On-Chain Fundamentals & Wall Street Equities (MSTR, COIN, QQQ)
+    try:
+        import open_quant_pipeline
+        pipeline_data = open_quant_pipeline.get_unified_quant_pipeline()
+        feed["onchain_fundamental"] = pipeline_data.get("onchain_intelligence", {})
+        feed["wallstreet_sentiment"] = pipeline_data.get("wallstreet_crypto_sentiment", {})
+        feed["macro_equities"] = pipeline_data.get("macro_assets", {})
+    except Exception:
+        pass
+
     # Local Cognitive AI Brain Telemetry
     try:
         import local_cognitive_brain
@@ -524,7 +534,7 @@ def get_dashboard_feed_data(force_refresh=False):
 def get_market_intelligence_data(force_refresh=False):
     global _intel_cache, _last_intel_fetch_time
     now = time.time()
-    if not force_refresh and _intel_cache is not None and (now - _last_intel_fetch_time) < 3.0:
+    if not force_refresh and _intel_cache is not None and (now - _last_intel_fetch_time) < 20.0:
         return _intel_cache
 
     try:
@@ -601,6 +611,25 @@ def get_market_intelligence_data(force_refresh=False):
     except Exception as e:
         memory_summary = {"error": str(e)}
 
+    # Open Quant Pipeline: Wall Street Equities (MSTR, COIN, QQQ) & On-Chain Fundamental
+    try:
+        import open_quant_pipeline
+        pipeline_data = open_quant_pipeline.get_unified_quant_pipeline()
+        wallstreet_sentiment = pipeline_data.get("wallstreet_crypto_sentiment", {})
+        macro_equities = pipeline_data.get("macro_assets", {})
+        onchain_fundamental = pipeline_data.get("onchain_intelligence", {})
+    except Exception as e:
+        wallstreet_sentiment = {"error": str(e)}
+        macro_equities = {}
+        onchain_fundamental = {}
+
+    # TypeSafe Jev AI Microstructure Decision (jarrodwatts/jev-trader)
+    try:
+        import jev_trader_adapter
+        jev_intelligence = jev_trader_adapter.evaluate_jev_decision("BTCUSDT")
+    except Exception as e:
+        jev_intelligence = {"error": str(e)}
+
     res_data = {
         "compass": compass,
         "heat": heat,
@@ -613,6 +642,10 @@ def get_market_intelligence_data(force_refresh=False):
         "active_scalps": active_scalps,
         "sentiment_narrative": sentiment_intel,
         "memory_summary": memory_summary,
+        "wallstreet_sentiment": wallstreet_sentiment,
+        "macro_equities": macro_equities,
+        "onchain_fundamental": onchain_fundamental,
+        "jev_intelligence": jev_intelligence,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     _intel_cache = res_data
@@ -848,6 +881,17 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/fundamental/defillama_fees" or path == "/api/quant/protocol_revenue":
+            import open_quant_pipeline
+            top_n = int(params.get("top_n", [15])[0])
+            data = open_quant_pipeline.fetch_defillama_fees_and_revenue(top_n=top_n)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "data": data}, ensure_ascii=False).encode("utf-8"))
+            return
+
         elif path == "/api/debate":
             import adversarial_debate
             data = adversarial_debate.load_debate_history(limit=15)
@@ -874,6 +918,32 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
+
+        elif path == "/api/ai/laya/status" or path == "/api/ai/laya_status":
+            try:
+                import laya_reflex_engine
+                data = laya_reflex_engine.get_laya_status()
+            except Exception as e:
+                data = {"error": str(e), "installed": False}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path in ("/api/ai/jev/decision", "/api/ai/jev_decision"):
+            try:
+                import jev_trader_adapter
+                q_sym = params.get("symbol", ["BTCUSDT"])[0]
+                data = jev_trader_adapter.evaluate_jev_decision(q_sym)
+            except Exception as e:
+                data = {"error": str(e), "success": False}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
 
         elif path == "/api/ws/status":
             try:
@@ -1818,6 +1888,44 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path == "/api/ai/laya/vet_trade":
+            try:
+                import laya_reflex_engine
+                symbol = payload.get("symbol", "BTCUSDT")
+                side = payload.get("side", "LONG")
+                timeframe = payload.get("timeframe", "4H")
+                rr_ratio = float(payload.get("rr_ratio", 2.5))
+                confluence = payload.get("confluence_notes", "Trend alignment with EMA50")
+                regime = payload.get("market_regime", "Trending")
+                res = laya_reflex_engine.vet_trade_setup(symbol, side, timeframe, rr_ratio, confluence, regime)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/ai/laya/classify_news":
+            try:
+                import laya_reflex_engine
+                headline = payload.get("headline", "")
+                source = payload.get("source", "Bloomberg Crypto")
+                res = laya_reflex_engine.classify_market_headline(headline, source)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         if path == "/api/whale-tracker/add":
             try:
                 addr = payload.get("address")
@@ -2606,16 +2714,19 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 if not is_valid_f and adj_qty > 0:
                     qty = adj_qty
 
-                # 5. Place Futures Order via Limit-Chase (Maker fee savings)
+                # 5. Place Futures Order via Post-Only Maker (GTX) or Limit-Chase / Market
+                req_exec_mode = str(payload.get("exec_mode") or "POST_ONLY").upper()
+                req_leverage = int(payload.get("leverage") or os.getenv("DEFAULT_LEVERAGE", 20))
+                
                 order_res = binance_client.place_futures_order(
                     symbol=target_sym,
                     side=side,
                     quantity=qty,
-                    leverage=int(data.get("leverage") or os.getenv("DEFAULT_LEVERAGE", 20)),
+                    leverage=req_leverage,
                     sl=sl,
                     tp=tp,
                     is_demo=is_demo,
-                    exec_mode="LIMIT_CHASE"
+                    exec_mode=req_exec_mode
                 )
 
                 if order_res and order_res.get("orderId"):
@@ -2628,8 +2739,8 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                         risk_budget_usd=risk_budget,
                         quantity=qty,
                         is_scalp=True,
-                        ai_thesis=f"External TradingView Webhook: {strategy}",
-                        strategy_name=strategy or "External TradingView Webhook"
+                        ai_thesis=f"External Webhook / Terminal Order: {strategy} [{req_exec_mode}]",
+                        strategy_name=f"{strategy} ({req_exec_mode})"
                     )
                     try:
                         telegram_notifier.notify_trade_opened(
@@ -2640,7 +2751,7 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                                 "sl": sl,
                                 "tp": tp,
                                 "rr": abs(tp - price) / r_dist if r_dist > 0 else 2.5,
-                                "reason": f"📡 TRADINGVIEW WEBHOOK: {strategy}"
+                                "reason": f"📡 ORDER: {strategy} [{req_exec_mode}]"
                             },
                             quantity=qty,
                             risk_budget_usd=risk_budget,
@@ -2661,6 +2772,8 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                         "price": price,
                         "sl": sl,
                         "tp": tp,
+                        "exec_mode": req_exec_mode,
+                        "is_maker": order_res.get("is_maker", True),
                         "strategy": strategy
                     }).encode("utf-8"))
                     return

@@ -57,6 +57,8 @@ def audit_and_execute_pyramiding(is_demo: bool = True, user_email: Optional[str]
         if abs(pos_amt) <= 0:
             continue
         
+        base_coin = sym.replace("USDT", "")
+        
         t_data = meta.get(sym, {})
         entry_price = float(pos.get("entryPrice", 0))
         mark_price = float(pos.get("markPrice", 0))

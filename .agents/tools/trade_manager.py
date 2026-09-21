@@ -89,9 +89,9 @@ def format_qty_precision(symbol, qty_val, is_demo=True):
     formatted = binance_client.format_qty_precision(symbol, qty_val, is_demo=is_demo)
     return float(formatted)
 
-def calculate_breakeven_price(symbol, side, entry_price, fee_offset_pct=0.0008, is_demo=True):
+def calculate_breakeven_price(symbol, side, entry_price, fee_offset_pct=0.0015, is_demo=True):
     """
-    Computes Breakeven price with taker/maker fee offset to ensure a net-zero exit.
+    Computes Breakeven price with taker/maker fee offset (0.15%) to ensure a 100% net-positive exit after exchange fees.
     """
     side_clean = "BUY" if side.upper() in ["BUY", "LONG"] else "SELL"
     if side_clean == "BUY":
@@ -754,32 +754,43 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
 
                         # Case B: Trade is completely dead-flat (0.0 <= R < 0.20) -> Safe Reallocation to Free Capital
                         elif 0.0 <= r_multiple < 0.20:
-                            close_side = "SELL" if amt > 0 else "BUY"
-                            binance_client.send_signed_request(
-                                "/fapi/v1/order",
-                                method="POST",
-                                params={
-                                    "symbol": sym,
-                                    "side": close_side,
-                                    "type": "MARKET",
-                                    "quantity": abs(amt),
-                                    "reduceOnly": "true"
-                                },
-                                is_demo=is_demo,
-                                user_email=user_email
-                            )
-                            print(f"⏱️ [SCALP STAGNANT CLOSE] {sym}: Ditutup setelah {int(elapsed_min)} menit (Dead-flat di +{r_multiple:.2f}R). Modal direalokasi.")
-                            try:
-                                telegram_notifier.send_telegram_broadcast(
-                                    f"⏱️ *STAGNANT TRADE CLOSED (CAPITAL REALLOCATION)* ⏱️\n"
-                                    f"Aset: *{sym}*\n"
-                                    f"Durasi Aktif: *{int(elapsed_min)} menit*\n"
-                                    f"PnL: *${upnl:+,.2f} USDT* (+{r_multiple:.2f}R)\n"
-                                    f"Posisi ditutup karena flat tanpa agresi volume untuk memutar modal ke setup baru."
+                            # Anti-Fee-Churning Guard: Only market-close if gross profit covers taker fees with net positive cushion (>= $1.50 USDT)
+                            if upnl >= 1.50:
+                                close_side = "SELL" if amt > 0 else "BUY"
+                                binance_client.send_signed_request(
+                                    "/fapi/v1/order",
+                                    method="POST",
+                                    params={
+                                        "symbol": sym,
+                                        "side": close_side,
+                                        "type": "MARKET",
+                                        "quantity": abs(amt),
+                                        "reduceOnly": "true"
+                                    },
+                                    is_demo=is_demo,
+                                    user_email=user_email
                                 )
-                            except Exception:
-                                pass
-                            continue
+                                print(f"⏱️ [SCALP STAGNANT CLOSE] {sym}: Ditutup setelah {int(elapsed_min)} menit (Dead-flat di +{r_multiple:.2f}R | +${upnl:.2f} USDT). Modal direalokasi.")
+                                try:
+                                    telegram_notifier.send_telegram_broadcast(
+                                        f"⏱️ *STAGNANT TRADE CLOSED (CAPITAL REALLOCATION)* ⏱️\n"
+                                        f"Aset: *{sym}*\n"
+                                        f"Durasi Aktif: *{int(elapsed_min)} menit*\n"
+                                        f"PnL: *${upnl:+,.2f} USDT* (+{r_multiple:.2f}R)\n"
+                                        f"Posisi ditutup karena flat tanpa agresi volume untuk memutar modal ke setup baru."
+                                    )
+                                except Exception:
+                                    pass
+                                continue
+                            else:
+                                # Micro profit (< $1.50) would be eaten by taker fees (~$1.10). Move SL to Breakeven instead of market closing.
+                                if not t_data.get("breakeven_locked"):
+                                    be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
+                                    success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
+                                    if success:
+                                        t_data["breakeven_locked"] = True
+                                        t_data["current_sl"] = be_price
+                                        print(f"🛡️ [ANTI-FEE BE LOCK] {sym}: Profit mikro (${upnl:+.2f} USDT) rentan tergerus fee komisi market close. SL diamankan ke Breakeven ${be_price:,.4f}.")
                 except Exception:
                     pass
 

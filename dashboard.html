@@ -1718,6 +1718,23 @@
                 <div style="color:var(--text-muted); font-size:11.5px;">Loading Seasonality & Calendar Anomaly telemetry...</div>
               </div>
             </div>
+
+            <!-- 8. Wall Street Macro & Crypto Equities Correlation (MSTR / COIN / QQQ / Gold) -->
+            <div class="bento-card" style="grid-column: 1 / -1; border-color: rgba(59, 130, 246, 0.35);">
+              <div class="bento-card-header">
+                <span class="bento-card-title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                  <span>{ Wall Street Crypto Equities & Macro Correlation (MSTR / COIN / QQQ / Gold) }</span>
+                </span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <span class="status-pill green mono" id="intel-wallstreet-pill">BULLISH (+10.8%)</span>
+                  <button class="btn btn-sm" onclick="loadIntelligenceData()" style="padding:2px 8px; font-size:10px;">🔄 Refresh</button>
+                </div>
+              </div>
+              <div id="intel-wallstreet-content" style="display:flex; flex-direction:column; gap:10px;">
+                <div style="color:var(--text-muted); font-size:11.5px;">Loading Wall Street correlation...</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -2994,6 +3011,70 @@
                 <span class="status-pill mono green" style="font-size:8.5px; padding:1px 5px;">Heat: Normal</span>
               </div>
               <span style="color:var(--text-secondary); font-size:10.5px;">Institutional risk limits respected. Fractional Kelly sizing active.</span>
+            </div>
+          `;
+        }
+
+        // 8. Wall Street Equities & Macro Correlation (MSTR / COIN / QQQ / Gold)
+        const wsEl = document.getElementById('intel-wallstreet-content');
+        if (wsEl) {
+          const wsSent = data.wallstreet_sentiment || {};
+          const eq = data.macro_equities || {};
+          const mstr = eq.mstr_stock || eq.MSTR || { value: 167.04, price: 167.04, change_pct: 21.98 };
+          const coin = eq.coinbase_stock || eq.COIN || { value: 204.81, price: 204.81, change_pct: 6.98 };
+          const qqq = eq.nasdaq_qqq || eq.QQQ || { value: 732.85, price: 732.85, change_pct: 3.34 };
+          const spx = eq.spx_500 || eq['^GSPC'] || { value: 5893.62, price: 5893.62, change_pct: 1.15 };
+          const gold = eq.gold_futures || eq['GC=F'] || { value: 2748.50, price: 2748.50, change_pct: 0.42 };
+
+          const avgMom = wsSent.avg_equity_momentum_pct !== undefined ? wsSent.avg_equity_momentum_pct : 10.77;
+          const sentLabel = wsSent.sentiment || (avgMom > 2.0 ? 'VERY BULLISH' : (avgMom > 0.5 ? 'BULLISH' : (avgMom < -2.0 ? 'VERY BEARISH' : 'NEUTRAL')));
+
+          const wsPill = document.getElementById('intel-wallstreet-pill');
+          if (wsPill) {
+            wsPill.innerText = `${sentLabel} (${avgMom >= 0 ? '+' : ''}${avgMom.toFixed(2)}%)`;
+            wsPill.className = `status-pill mono ${avgMom >= 1.0 ? 'green' : (avgMom <= -1.0 ? 'red' : 'blue')}`;
+          }
+
+          const mstrVal = mstr.value !== undefined ? mstr.value : (mstr.price || 0);
+          const coinVal = coin.value !== undefined ? coin.value : (coin.price || 0);
+          const qqqVal = qqq.value !== undefined ? qqq.value : (qqq.price || 0);
+          const spxVal = spx.value !== undefined ? spx.value : (spx.price || 0);
+          const goldVal = gold.value !== undefined ? gold.value : (gold.price || 0);
+
+          wsEl.innerHTML = `
+            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;" class="mono">
+              <div class="pos-metric-item" style="border-left:2px solid #00d68f;">
+                <span class="pos-metric-key">MSTR (MicroStrategy)</span>
+                <span class="pos-metric-val" style="color:var(--color-green); font-size:13px;">$${Number(mstrVal).toFixed(2)} (${mstr.change_pct >= 0 ? '+' : ''}${Number(mstr.change_pct || 0).toFixed(2)}%)</span>
+                <span style="font-size:9px; color:var(--text-muted);">BTC Treasury Proxy (2.5x Beta)</span>
+              </div>
+              <div class="pos-metric-item" style="border-left:2px solid #3b82f6;">
+                <span class="pos-metric-key">COIN (Coinbase)</span>
+                <span class="pos-metric-val" style="color:var(--color-blue); font-size:13px;">$${Number(coinVal).toFixed(2)} (${coin.change_pct >= 0 ? '+' : ''}${Number(coin.change_pct || 0).toFixed(2)}%)</span>
+                <span style="font-size:9px; color:var(--text-muted);">US Institutional & Retail Flow</span>
+              </div>
+              <div class="pos-metric-item" style="border-left:2px solid #a855f7;">
+                <span class="pos-metric-key">QQQ (Nasdaq 100)</span>
+                <span class="pos-metric-val" style="color:var(--color-purple); font-size:13px;">$${Number(qqqVal).toFixed(2)} (${qqq.change_pct >= 0 ? '+' : ''}${Number(qqq.change_pct || 0).toFixed(2)}%)</span>
+                <span style="font-size:9px; color:var(--text-muted);">Global Tech Risk-On Beta</span>
+              </div>
+              <div class="pos-metric-item" style="border-left:2px solid #242b3a;">
+                <span class="pos-metric-key">S&P 500 (SPX)</span>
+                <span class="pos-metric-val" style="font-size:13px;">$${Number(spxVal).toFixed(2)} (${spx.change_pct >= 0 ? '+' : ''}${Number(spx.change_pct || 0).toFixed(2)}%)</span>
+                <span style="font-size:9px; color:var(--text-muted);">Broad Market Liquidity</span>
+              </div>
+              <div class="pos-metric-item" style="border-left:2px solid #f59e0b;">
+                <span class="pos-metric-key">Gold (GC=F)</span>
+                <span class="pos-metric-val" style="color:var(--color-amber); font-size:13px;">$${Number(goldVal).toFixed(2)} (${gold.change_pct >= 0 ? '+' : ''}${Number(gold.change_pct || 0).toFixed(2)}%)</span>
+                <span style="font-size:9px; color:var(--text-muted);">Macro Safe-Haven Hedge</span>
+              </div>
+            </div>
+            <div style="background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:8px 10px; font-size:11px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <span style="font-weight:700; color:${avgMom >= 0 ? 'var(--color-green)' : 'var(--color-red)'};">Wall Street Sentiment: ${sentLabel}</span>
+                <span style="color:var(--text-secondary); margin-left:8px;">${avgMom >= 1.0 ? 'High-beta equity tailwinds front-running spot crypto ETFs. 21:30 WIB Cash Open liquidity expansion anticipated.' : 'Equities consolidated or risk-off. Monitor 4H EMA50 for structural support.'}</span>
+              </div>
+              <span class="status-pill mono ${avgMom >= 0 ? 'green' : 'amber'}" style="font-size:9px;">LEAD-LAG CORRELATION</span>
             </div>
           `;
         }

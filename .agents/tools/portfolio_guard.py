@@ -23,17 +23,17 @@ CLUSTER_MAJORS = ["BTC", "ETH", "SOL"]
 # High-Beta Altcoins: Volatile assets with correlation coefficient r >= 0.85 during market selloffs
 CLUSTER_HIGH_BETA_ALTS = ["DOGE", "ADA", "AVAX", "LINK", "SUI", "XRP", "NEAR", "APT", "BNB"]
 
-# Configuration Rules (100% Uncapped Full Opportunity Mode)
-MAX_TOTAL_POSITIONS = 50
-MAX_SAME_DIRECTION_CAP = 50     # Unlimited concurrent Longs / Shorts
-MAX_HIGH_BETA_ALTS_TOTAL = 50  # Unlimited altcoins
+# Configuration Rules (Akademi Crypto Module 03: Correlation & Directional Heat Guard)
+MAX_TOTAL_POSITIONS = 4
+MAX_SAME_DIRECTION_CAP = 3     # Maximum 3 concurrent positions in same direction
+MAX_HIGH_BETA_ALTS_TOTAL = 2   # Maximum 2 concurrent high-beta altcoins to prevent flush cascades
 
 def clean_coin(symbol):
     return symbol.upper().replace("-", "").replace("/", "").replace("_", "").replace("USDT", "")
 
 def audit_portfolio_heat(active_positions, balance_usd=5000.0):
     """
-    Performs portfolio correlation audit without blocking entries (Uncapped Mode).
+    Performs institutional portfolio correlation and directional heat audit.
     """
     long_positions = []
     short_positions = []
@@ -48,11 +48,10 @@ def audit_portfolio_heat(active_positions, balance_usd=5000.0):
 
         if amt > 0:
             long_positions.append(sym)
+            if base in CLUSTER_HIGH_BETA_ALTS:
+                high_beta_alts.append(sym)
         else:
             short_positions.append(sym)
-
-        if base in CLUSTER_HIGH_BETA_ALTS:
-            high_beta_alts.append(sym)
 
     total_active = len(long_positions) + len(short_positions)
     long_count = len(long_positions)
@@ -68,8 +67,18 @@ def audit_portfolio_heat(active_positions, balance_usd=5000.0):
         long_heat_pct = 0.0
         short_heat_pct = 0.0
 
-    heat_status = f"🟢 FULL UNRESTRICTED ({long_count} Longs, {short_count} Shorts)"
-    heat_code = "UNCAPPED"
+    can_open_long = (long_count < MAX_SAME_DIRECTION_CAP) and (total_active < MAX_TOTAL_POSITIONS)
+    can_open_short = False  # Hard Long-Only lock active
+
+    if long_count >= MAX_SAME_DIRECTION_CAP:
+        heat_status = f"🔴 DIRECTIONAL HEAT MAX ({long_count}/{MAX_SAME_DIRECTION_CAP} Longs)"
+        heat_code = "OVERHEATED"
+    elif len(high_beta_alts) >= MAX_HIGH_BETA_ALTS_TOTAL:
+        heat_status = f"🟡 ALTCOIN CORRELATION CAP ({len(high_beta_alts)}/{MAX_HIGH_BETA_ALTS_TOTAL} Alts)"
+        heat_code = "HIGH_CORRELATION"
+    else:
+        heat_status = f"🟢 HEALTHY ({long_count} Longs, {len(high_beta_alts)} Alts)"
+        heat_code = "HEALTHY"
 
     return {
         "total_active": total_active,
@@ -83,8 +92,8 @@ def audit_portfolio_heat(active_positions, balance_usd=5000.0):
         "high_beta_count": len(high_beta_alts),
         "long_heat_pct": long_heat_pct,
         "short_heat_pct": short_heat_pct,
-        "can_open_long": True,
-        "can_open_short": True,
+        "can_open_long": can_open_long,
+        "can_open_short": can_open_short,
         "heat_status": heat_status,
         "heat_code": heat_code,
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -92,9 +101,56 @@ def audit_portfolio_heat(active_positions, balance_usd=5000.0):
 
 def filter_candidate_by_correlation(candidate, active_positions):
     """
-    Uncapped Opportunity Mode: Approves all technically valid setups without position quota blocking.
+    Guarantees institutional risk budgeting and correlation clustering:
+    - Blocks SHORT if Hard Long-Only lock is active.
+    - Blocks duplicate symbol positions.
+    - Limits same-direction exposure to MAX_SAME_DIRECTION_CAP (3).
+    - Limits high-beta altcoins to MAX_HIGH_BETA_ALTS_TOTAL (2) to prevent simultaneous flush loss.
     """
-    return True, "✅ Lolos korelasi (Mode Uncapped: Peluang Maksimal Aktif)."
+    sym = candidate.get("symbol", "")
+    base = clean_coin(sym)
+    cand_side = "BUY" if candidate.get("side", "").upper() in ["BUY", "LONG"] else "SELL"
+
+    # 1. Reject SHORT if Hard Long-Only Lock
+    if cand_side == "SELL":
+        return False, "🛑 Setup SHORT Ditolak: Hard Long-Only Lock aktif untuk melindungi modal dari tren naik makro."
+
+    # 2. Check active positions
+    long_positions = []
+    high_beta_alts = []
+
+    for p in active_positions:
+        amt = float(p.get("positionAmt", 0))
+        if amt == 0:
+            continue
+        p_sym = p.get("symbol", "")
+        p_base = clean_coin(p_sym)
+
+        # Duplicate check
+        if p_sym.upper() == sym.upper():
+            return False, f"🛑 Duplikasi Posisi: Posisi {sym} sudah aktif. Dilarang menggandakan entri pada aset yang sama."
+
+        if amt > 0:
+            long_positions.append(p_sym)
+            if p_base in CLUSTER_HIGH_BETA_ALTS:
+                high_beta_alts.append(p_sym)
+
+    # 3. Same direction cap
+    if len(long_positions) >= MAX_SAME_DIRECTION_CAP:
+        return False, (
+            f"🛑 Directional Heat Penuh: Sudah ada {len(long_positions)}/{MAX_SAME_DIRECTION_CAP} posisi Long aktif "
+            f"({', '.join(long_positions)}). Dilarang membuka posisi baru sampai ada yang ditutup atau BE."
+        )
+
+    # 4. High-beta altcoin correlation cap
+    if base in CLUSTER_HIGH_BETA_ALTS and len(high_beta_alts) >= MAX_HIGH_BETA_ALTS_TOTAL:
+        return False, (
+            f"🛑 Batas Korelasi Altcoin Tercapai: Sudah ada {len(high_beta_alts)}/{MAX_HIGH_BETA_ALTS_TOTAL} posisi Altcoin aktif "
+            f"({', '.join(high_beta_alts)}). Maksimal {MAX_HIGH_BETA_ALTS_TOTAL} posisi altcoin searah untuk mencegah kerugian serentak "
+            f"saat koreksi Bitcoin (Akademi Crypto Module 03)."
+        )
+
+    return True, f"✅ Lolos audit korelasi (Active: {len(long_positions)} Longs, {len(high_beta_alts)} Alts)."
 
 def get_scaled_risk_pct(proposed_side, active_positions, base_risk_pct=1.5):
     """

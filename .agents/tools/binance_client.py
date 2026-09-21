@@ -756,22 +756,43 @@ def place_futures_order(symbol, side, quantity, leverage=20, sl=None, tp=None, i
     avg_price = 0.0
     res = None
 
-    # 2. Execution Logic (LIMIT_SNIPER / LIMIT_MAKER / LIMIT_CHASE / MARKET)
-    if exec_mode.upper() in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER", "LIMIT_CHASE"]:
+    # 2. Execution Logic (POST_ONLY / GTX / LIMIT_SNIPER / LIMIT_MAKER / STRICT_MAKER / LIMIT_CHASE / MARKET)
+    exec_mode_upper = exec_mode.upper()
+    is_post_only = exec_mode_upper in ["POST_ONLY", "GTX", "POST_ONLY_GTX"]
+    is_maker_mode = is_post_only or exec_mode_upper in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER", "LIMIT_CHASE"]
+
+    if is_maker_mode:
         is_safe, depth_info = check_order_book_depth(sym_clean, formatted_qty, side_clean, is_demo=is_demo)
         best_price = depth_info.get("best_bid" if side_clean == "BUY" else "best_ask")
+        alt_price = depth_info.get("best_ask" if side_clean == "BUY" else "best_bid")
+        
         if best_price:
             price_str = format_price_precision(sym_clean, best_price, is_demo=is_demo)
+            tif = "GTX" if is_post_only else "GTC"
             limit_params = {
                 "symbol": sym_clean,
                 "side": side_clean,
                 "type": "LIMIT",
-                "timeInForce": "GTC",
+                "timeInForce": tif,
                 "quantity": str(formatted_qty),
                 "price": price_str
             }
-            print(f"⏳ [MAKER SNIPER] Menempatkan Pending Limit Order @ ${price_str} (Fee Hemat 60% / Zero Slippage)...")
+            mode_tag = "POST-ONLY GTX (MAKER REBATE)" if is_post_only else "MAKER SNIPER"
+            print(f"⏳ [{mode_tag}] Menempatkan Pending Limit Order @ ${price_str} (Fee Hemat 60% / Zero Slippage / TIF={tif})...")
             limit_res = send_signed_request("/fapi/v1/order", method="POST", params=limit_params, is_demo=is_demo, user_email=user_email)
+            
+            # Handle Post-Only Immediate Trigger Reject (-2021) by repositioning 1 tick deeper
+            if not limit_res or limit_res.get("code") == -2021:
+                if is_post_only:
+                    print(f"⚠️ [POST-ONLY GTX CROSS] Order @ ${price_str} akan mengeksekusi sebagai Taker. Mencoba repositioning 1 tick pasif...")
+                    # Adjust price slightly more passive
+                    p_val = float(best_price)
+                    step = p_val * 0.0002
+                    adjusted_price = p_val - step if side_clean == "BUY" else p_val + step
+                    price_str = format_price_precision(sym_clean, adjusted_price, is_demo=is_demo)
+                    limit_params["price"] = price_str
+                    limit_res = send_signed_request("/fapi/v1/order", method="POST", params=limit_params, is_demo=is_demo, user_email=user_email)
+
             if limit_res and limit_res.get("orderId"):
                 chase_id = limit_res.get("orderId")
                 # Sub-Second Limit Chase: 4 attempts x 0.25s = 1.0s max wait time
@@ -782,11 +803,20 @@ def place_futures_order(symbol, side, quantity, leverage=20, sl=None, tp=None, i
                         res = q_res
                         order_id = chase_id
                         avg_price = float(res.get("avgPrice", 0) or res.get("price", 0) or best_price)
-                        print(f"🎉 [MAKER FILL SUKSES] Order terisi tepat di level kalkulasi @ ${avg_price:,.4f}!")
+                        res["is_maker"] = True
+                        print(f"🎉 [MAKER FILL SUKSES] Order terisi tepat di level kalkulasi @ ${avg_price:,.4f} sebagai MAKER (Fee 0.02%)!")
                         break
 
                 if not order_id:
-                    if exec_mode.upper() in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER"]:
+                    if is_post_only:
+                        # Post-Only: Keep resting order on book if user wants resting maker, or return resting
+                        print(f"⚡ [POST-ONLY RESTING] Order #{chase_id} aktif antre di buku order @ ${price_str} sebagai Maker.")
+                        order_id = chase_id
+                        avg_price = float(price_str)
+                        res = limit_res
+                        res["is_maker"] = True
+                        res["is_resting_maker"] = True
+                    elif exec_mode_upper in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER"]:
                         print(f"⚡ [MAKER SNIPER SKIP/CANCEL] Harga tidak menyentuh kalkulasi ${price_str} dalam 1.0s. Membatalkan antrean tanpa biaya fee...")
                         send_signed_request("/fapi/v1/order", method="DELETE", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
                         return None
@@ -794,7 +824,7 @@ def place_futures_order(symbol, side, quantity, leverage=20, sl=None, tp=None, i
                         print("⚠️ [LIMIT CHASE UNFILLED] 1.0s belum terisi. Membatalkan Maker Order & seketika mengonversi ke Market demi mencegah slippage...")
                         send_signed_request("/fapi/v1/order", method="DELETE", params={"symbol": sym_clean, "orderId": chase_id}, is_demo=is_demo, user_email=user_email)
 
-    if not order_id and exec_mode.upper() not in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER"]:
+    if not order_id and not is_post_only and exec_mode_upper not in ["LIMIT_SNIPER", "LIMIT_MAKER", "STRICT_MAKER"]:
         order_params = {
             "symbol": sym_clean,
             "side": side_clean,
@@ -808,7 +838,8 @@ def place_futures_order(symbol, side, quantity, leverage=20, sl=None, tp=None, i
 
         order_id = res.get("orderId")
         avg_price = float(res.get("avgPrice", 0) or res.get("price", 0) or 0)
-        print(f"\n✅ ORDER UTAMA TERISI! Order ID: {order_id} @ ${avg_price:,.4f}")
+        res["is_maker"] = False
+        print(f"\n✅ ORDER UTAMA TERISI! Order ID: {order_id} @ ${avg_price:,.4f} (TAKER)")
     elif not order_id:
         return None
 

@@ -1,0 +1,382 @@
+/* ==========================================================================
+   DESIGN SYSTEM TOKENS & ATOMS (Inter Typography & GSAP Studio Standard)
+   Strictly adhering to DESIGN.md
+   ========================================================================== */
+:root {
+  --color-just-black: #0e100f;
+  --color-surface-cream: #fffce1;
+  --color-shockingly-green: #0ae448;
+
+  --bg-canvas: #060709;
+  --bg-surface: #0c0e12;
+  --bg-card: #11141a;
+  --bg-card-subtle: #151922;
+  --bg-hover: #1c212d;
+  --bg-active: #222938;
+
+  --border-subtle: #191e28;
+  --border-light: #242b3a;
+  --border-focus: #3b82f6;
+
+  --text-primary: #ffffff;
+  --text-secondary: #8d96a5;
+  --text-muted: #535b69;
+  --text-faint: #343a46;
+
+  /* 5-Discipline High-Signal Accents */
+  --color-green: #00d68f;
+  --color-green-dim: rgba(0, 214, 143, 0.12);
+  --color-red: #f6465d;
+  --color-red-dim: rgba(246, 70, 93, 0.12);
+  --color-blue: #3b82f6;
+  --color-blue-dim: rgba(59, 130, 246, 0.12);
+  --color-purple: #a855f7;
+  --color-purple-dim: rgba(168, 85, 247, 0.12);
+  --color-amber: #f59e0b;
+  --color-amber-dim: rgba(245, 158, 11, 0.12);
+  --color-cyan: #00b4d8;
+  --color-cyan-dim: rgba(0, 180, 216, 0.12);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-pill: 9999px;
+
+  /* Layout */
+  --header-height: 52px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--text-primary);
+  user-select: none;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-sm {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.btn-primary {
+  background: #1e293b;
+  border-color: var(--border-focus);
+  color: #60a5fa;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+.btn-danger {
+  border-color: rgba(246, 70, 93, 0.4);
+  color: var(--color-red);
+}
+
+.btn-danger:hover {
+  background: var(--color-red-dim);
+  border-color: var(--color-red);
+}
+
+.btn-success {
+  border-color: rgba(0, 214, 143, 0.4);
+  color: var(--color-green);
+}
+
+.btn-success:hover {
+  background: var(--color-green-dim);
+  border-color: var(--color-green);
+}
+
+/* Status Pills & Badges */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-pill.green {
+  background: var(--color-green-dim);
+  color: var(--color-green);
+  border: 1px solid rgba(0, 214, 143, 0.25);
+}
+
+.status-pill.red {
+  background: var(--color-red-dim);
+  color: var(--color-red);
+  border: 1px solid rgba(246, 70, 93, 0.25);
+}
+
+.status-pill.blue {
+  background: var(--color-blue-dim);
+  color: var(--color-blue);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.status-pill.purple {
+  background: var(--color-purple-dim);
+  color: var(--color-purple);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.status-pill.amber {
+  background: var(--color-amber-dim);
+  color: var(--color-amber);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.status-pill.cyan {
+  background: var(--color-cyan-dim);
+  color: var(--color-cyan);
+  border: 1px solid rgba(0, 180, 216, 0.25);
+}
+
+.status-pill.gray {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Bento Cards */
+.bento-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.15s ease;
+}
+
+.bento-card:hover {
+  border-color: var(--border-light);
+}
+
+.bento-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 10px;
+}
+
+.bento-card-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Metric Items */
+.pos-metric-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pos-metric-key {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.pos-metric-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Scorecard */
+.scorecard-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+.scorecard-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.scorecard-key {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.scorecard-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* Data Tables */
+.data-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 11.5px;
+}
+
+table.data-table th {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+
+table.data-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+table.data-table tr:hover td {
+  background: var(--bg-hover);
+}
+
+/* Data Flash Keyframes */
+@keyframes flash-green {
+  0% { color: #00d68f; text-shadow: 0 0 10px rgba(0, 214, 143, 0.6); }
+  100% { color: inherit; text-shadow: none; }
+}
+
+@keyframes flash-red {
+  0% { color: #f6465d; text-shadow: 0 0 10px rgba(246, 70, 93, 0.6); }
+  100% { color: inherit; text-shadow: none; }
+}
+
+.data-flash-up {
+  animation: flash-green 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.data-flash-down {
+  animation: flash-red 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}

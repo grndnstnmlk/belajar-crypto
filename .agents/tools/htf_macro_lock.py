@@ -27,6 +27,9 @@ import market_regime
 
 ALPHA_PROTECTED_LEADERS = {"SOL", "BNB", "BTC"}
 
+# Hard Long-Only Lock: Eliminates 100% of counter-trend short traps during macro bull regimes
+HARD_LONG_ONLY_ENABLED = True
+
 # In-Memory High-Frequency Regime Caching (< 0.05ms)
 _BTC_REGIME_CACHE = {
     "timestamp": 0.0,
@@ -77,6 +80,25 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("USDT", "")
     pair_sym = f"{sym_clean}USDT"
     prop_side = "BUY" if proposed_side.upper() in ["BUY", "LONG"] else "SELL"
+
+    # 0. HARD LONG-ONLY LOCK: Reject all short setups immediately if enabled
+    if HARD_LONG_ONLY_ENABLED and prop_side == "SELL":
+        return {
+            "symbol": pair_sym,
+            "proposed_side": prop_side,
+            "htf_trend": "BULLISH_PROTECTED",
+            "htf_score": 95,
+            "is_approved": False,
+            "rejection_reason": (
+                f"🛑 HARD LONG-ONLY LOCK: Setup SHORT pada {pair_sym} DITOLAK TOTAL. "
+                f"Sistem beroperasi dalam mode eksklusif Long-Only untuk melindungi modal "
+                f"dari counter-trend traps dan short squeeze pada rezim tren makro saat ini."
+            ),
+            "price": 0.0,
+            "ema20_4h": 0.0,
+            "ema50_4h": 0.0,
+            "status": f"🛑 BLOCKED: Hard Long-Only Lock aktif (Shorting Dilarang)"
+        }
     
     try:
         # 1. Fetch Target Asset 4H & 1H Regime (Cached in RAM)

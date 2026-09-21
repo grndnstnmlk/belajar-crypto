@@ -116,6 +116,94 @@ def fetch_recent_agg_trades(symbol: str = "BTCUSDT", limit: int = 100) -> List[D
 
     return []
 
+def compute_depth_bands_and_imbalance(
+    bids: List[List[float]],
+    asks: List[List[float]],
+    mid_price: float
+) -> Dict[str, Any]:
+    """
+    Computes cumulative resting depth across bps bands (10, 25, 50, 100 bps)
+    and evaluates multi-horizon order book imbalance vector inspired by jev-trader.
+    
+    1 bps = 0.01% (0.0001)
+    10 bps = 0.10% (0.0010)
+    25 bps = 0.25% (0.0025)
+    50 bps = 0.50% (0.0050)
+    100 bps = 1.00% (0.0100)
+    """
+    bands_def = [
+        ("10bps", 0.0010),
+        ("25bps", 0.0025),
+        ("50bps", 0.0050),
+        ("100bps", 0.0100)
+    ]
+    
+    bands_result = {}
+    imbalance_vector = []
+    
+    for band_name, bps_pct in bands_def:
+        min_bid_price = mid_price * (1.0 - bps_pct)
+        max_ask_price = mid_price * (1.0 + bps_pct)
+        
+        # Bids within band: price >= min_bid_price
+        bid_qty = sum(q for p, q in bids if p >= min_bid_price)
+        bid_usd = sum(p * q for p, q in bids if p >= min_bid_price)
+        
+        # Asks within band: price <= max_ask_price
+        ask_qty = sum(q for p, q in asks if p <= max_ask_price)
+        ask_usd = sum(p * q for p, q in asks if p <= max_ask_price)
+        
+        total_qty = bid_qty + ask_qty
+        total_usd = bid_usd + ask_usd
+        
+        # Imbalance ratio: -1.0 (all asks) .. +1.0 (all bids)
+        imb = (bid_qty - ask_qty) / total_qty if total_qty > 0 else 0.0
+        imb_usd = (bid_usd - ask_usd) / total_usd if total_usd > 0 else 0.0
+        
+        bands_result[band_name] = {
+            "bid_qty": round(bid_qty, 4),
+            "ask_qty": round(ask_qty, 4),
+            "bid_usd": round(bid_usd, 2),
+            "ask_usd": round(ask_usd, 2),
+            "imbalance": round(imb, 3),
+            "imbalance_usd": round(imb_usd, 3)
+        }
+        imbalance_vector.append(round(imb, 3))
+        
+    # Top 5 Levels formatted as "price x size" (like in jev-trader TradeState)
+    top_5_bids = [f"{p:.2f} x {q:.4f}" for p, q in bids[:5]]
+    top_5_asks = [f"{p:.2f} x {q:.4f}" for p, q in asks[:5]]
+    
+    imb_10 = imbalance_vector[0]
+    imb_25 = imbalance_vector[1]
+    imb_50 = imbalance_vector[2]
+    imb_100 = imbalance_vector[3]
+    
+    if imb_10 >= 0.35 and imb_50 >= 0.20:
+        flow_regime = "STRONG_NEAR_TOUCH_BID_ACCUMULATION"
+    elif imb_10 <= -0.35 and imb_50 <= -0.20:
+        flow_regime = "STRONG_NEAR_TOUCH_ASK_DISTRIBUTION"
+    elif imb_10 > 0.15 and imb_50 < -0.15:
+        flow_regime = "LOCAL_BUY_INTO_MACRO_WALL"
+    elif imb_10 < -0.15 and imb_50 > 0.15:
+        flow_regime = "LOCAL_SELL_INTO_MACRO_SUPPORT"
+    else:
+        flow_regime = "BALANCED_SPREAD_EQUILIBRIUM"
+        
+    return {
+        "depth_bands": bands_result,
+        "imbalance_vector": imbalance_vector,  # [10bps, 25bps, 50bps, 100bps]
+        "imbalance_10bps": imb_10,
+        "imbalance_25bps": imb_25,
+        "imbalance_50bps": imb_50,
+        "imbalance_100bps": imb_100,
+        "book_top_5": {
+            "bids": top_5_bids,
+            "asks": top_5_asks
+        },
+        "microstructure_regime": flow_regime
+    }
+
 def analyze_orderbook_and_delta(symbol: str = "BTCUSDT") -> Dict[str, Any]:
     """
     Computes Level-2 depth imbalance, detects institutional walls, and calculates CVD flow.
@@ -153,6 +241,9 @@ def analyze_orderbook_and_delta(symbol: str = "BTCUSDT") -> Dict[str, Any]:
     mid_price = (best_bid + best_ask) / 2.0
     spread_usd = best_ask - best_bid
     spread_bps = (spread_usd / mid_price * 10000.0) if mid_price > 0 else 0.0
+
+    # Calculate Jev-Trader Depth Bands & Multi-Horizon Imbalance Vector
+    bands_intel = compute_depth_bands_and_imbalance(bids, asks, mid_price)
 
     # 1. Calculate Total Bid vs Ask Notional Volume (Top 20 Levels)
     top_n = min(20, len(bids), len(asks))
@@ -259,7 +350,15 @@ def analyze_orderbook_and_delta(symbol: str = "BTCUSDT") -> Dict[str, Any]:
         "bid_walls_count": len(major_bid_walls),
         "ask_walls_count": len(major_ask_walls),
         "strongest_bid_wall": strongest_bid_wall,
-        "strongest_ask_wall": strongest_ask_wall
+        "strongest_ask_wall": strongest_ask_wall,
+        "depth_bands": bands_intel.get("depth_bands", {}),
+        "imbalance_vector": bands_intel.get("imbalance_vector", []),
+        "imbalance_10bps": bands_intel.get("imbalance_10bps", 0.0),
+        "imbalance_25bps": bands_intel.get("imbalance_25bps", 0.0),
+        "imbalance_50bps": bands_intel.get("imbalance_50bps", 0.0),
+        "imbalance_100bps": bands_intel.get("imbalance_100bps", 0.0),
+        "book_top_5": bands_intel.get("book_top_5", {}),
+        "microstructure_regime": bands_intel.get("microstructure_regime", "BALANCED_SPREAD_EQUILIBRIUM")
     }
 
     _SNIPER_CACHE[sym_clean] = (now, result)
@@ -301,29 +400,34 @@ def audit_sniping_entry(
     bid_ask_ratio = analysis.get("bid_ask_volume_ratio", 1.0)
     best_bid = analysis.get("best_bid", proposed_price)
     best_ask = analysis.get("best_ask", proposed_price)
+    imb_10 = analysis.get("imbalance_10bps", 0.0)
 
     # 1. Opposing Liquidity Wall VETO Checks
     if is_long:
-        if oir < -0.45 or bid_ask_ratio < 0.40:
+        if oir < -0.45 or bid_ask_ratio < 0.40 or imb_10 < -0.60:
             strong_ask = analysis.get("strongest_ask_wall")
             if strong_ask and strong_ask["price"] <= proposed_price * 1.005:
                 is_approved = False
-                veto_reason = f"🚨 [ORDERBOOK VETO] LONG DITOLAK: Terdapat dinding Ask Masif ${strong_ask['notional_usd']:,.2f} ({strong_ask['multiplier']}x normal) di ${strong_ask['price']:,.2f} tepat di atas entry."
-        elif oir > 0.20 or analysis.get("delta_absorption_detected"):
+                veto_reason = f"🚨 [ORDERBOOK VETO] LONG DITOLAK: Terdapat dinding Ask Masif ${strong_ask['notional_usd']:,.2f} ({strong_ask['multiplier']}x normal) di ${strong_ask['price']:,.2f} tepat di atas entry (10bps Imbalance: {imb_10:+.2f})."
+        elif oir > 0.20 or analysis.get("delta_absorption_detected") or imb_10 > 0.35:
             confluence_boost = 15 if analysis.get("delta_absorption_detected") else 10
+            if imb_10 > 0.40:
+                confluence_boost += 5
             strong_bid = analysis.get("strongest_bid_wall")
             if strong_bid and strong_bid["price"] < proposed_price:
                 tick_size = max(proposed_price * 0.0001, 0.01)
                 optimized_entry = max(best_bid, strong_bid["price"] + tick_size)
                 optimized_sl = min(proposed_sl, strong_bid["price"] - (tick_size * 2))
     else:  # SHORT
-        if oir > 0.45 or bid_ask_ratio > 2.50:
+        if oir > 0.45 or bid_ask_ratio > 2.50 or imb_10 > 0.60:
             strong_bid = analysis.get("strongest_bid_wall")
             if strong_bid and strong_bid["price"] >= proposed_price * 0.995:
                 is_approved = False
-                veto_reason = f"🚨 [ORDERBOOK VETO] SHORT DITOLAK: Terdapat dinding Bid Masif ${strong_bid['notional_usd']:,.2f} ({strong_bid['multiplier']}x normal) di ${strong_bid['price']:,.2f} tepat di bawah entry."
-        elif oir < -0.20 or analysis.get("delta_absorption_detected"):
+                veto_reason = f"🚨 [ORDERBOOK VETO] SHORT DITOLAK: Terdapat dinding Bid Masif ${strong_bid['notional_usd']:,.2f} ({strong_bid['multiplier']}x normal) di ${strong_bid['price']:,.2f} tepat di bawah entry (10bps Imbalance: {imb_10:+.2f})."
+        elif oir < -0.20 or analysis.get("delta_absorption_detected") or imb_10 < -0.35:
             confluence_boost = 15 if analysis.get("delta_absorption_detected") else 10
+            if imb_10 < -0.40:
+                confluence_boost += 5
             strong_ask = analysis.get("strongest_ask_wall")
             if strong_ask and strong_ask["price"] > proposed_price:
                 tick_size = max(proposed_price * 0.0001, 0.01)
@@ -352,7 +456,14 @@ def audit_sniping_entry(
         "absorption_type": analysis.get("absorption_type", "NONE"),
         "rr_expansion_factor": rr_expansion_factor,
         "micro_bias": analysis.get("micro_bias"),
-        "bias_label": analysis.get("bias_label")
+        "bias_label": analysis.get("bias_label"),
+        "depth_bands": analysis.get("depth_bands", {}),
+        "imbalance_vector": analysis.get("imbalance_vector", []),
+        "imbalance_10bps": imb_10,
+        "imbalance_25bps": analysis.get("imbalance_25bps", 0.0),
+        "imbalance_50bps": analysis.get("imbalance_50bps", 0.0),
+        "imbalance_100bps": analysis.get("imbalance_100bps", 0.0),
+        "microstructure_regime": analysis.get("microstructure_regime")
     }
 
 if __name__ == "__main__":
@@ -364,6 +475,10 @@ if __name__ == "__main__":
     print(f"Spread            : ${ob['spread_usd']:,.2f} ({ob['spread_bps']} bps)")
     print(f"Order Imbalance   : {ob['order_imbalance_ratio']:+.3f} (B/A: {ob['bid_ask_volume_ratio']}x | >=2.5x: {ob['is_imbalance_2_5x']})")
     print(f"Depth Volume      : Bids ${ob['bid_depth_20_usd']:,.2f} | Asks ${ob['ask_depth_20_usd']:,.2f}")
+    print(f"Depth Bands (Bps) : 10bps: {ob['depth_bands']['10bps']['imbalance']:+.3f} | 25bps: {ob['depth_bands']['25bps']['imbalance']:+.3f} | 50bps: {ob['depth_bands']['50bps']['imbalance']:+.3f} | 100bps: {ob['depth_bands']['100bps']['imbalance']:+.3f}")
+    print(f"Imbalance Vector  : {ob['imbalance_vector']} (Regime: {ob['microstructure_regime']})")
+    print(f"Top 5 Bids        : {ob['book_top_5']['bids']}")
+    print(f"Top 5 Asks        : {ob['book_top_5']['asks']}")
     print(f"CVD Taker Delta   : {ob['cvd_delta_pct']:+.2f}%")
     print(f"Delta Absorption  : {'🔥 DETECTED (' + ob['absorption_type'] + ')' if ob['delta_absorption_detected'] else 'NONE'}")
     print(f"Microstructure    : {ob['bias_label']}")
@@ -379,5 +494,6 @@ if __name__ == "__main__":
     print(f"Optimized Entry   : ${audit['optimized_entry']:,.2f} (SL: ${audit['optimized_sl']:,.2f})")
     print(f"R:R Expansion     : {audit['rr_expansion_factor']}x tighter risk profile")
     print(f"Confluence Boost  : +{audit['confluence_boost']}%")
+    print(f"10bps Imbalance   : {audit['imbalance_10bps']:+.3f}")
     print("=======================================================")
 
