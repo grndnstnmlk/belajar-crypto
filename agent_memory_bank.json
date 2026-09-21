@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-21T19:15:17.574860+00:00",
-    "total_reflections": 117,
-    "system_retention_score": 101.8
+    "last_reflection_at": "2026-09-21T19:23:48.890377+00:00",
+    "total_reflections": 118,
+    "system_retention_score": 101.6
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -33,7 +33,7 @@
     "ETHUSDT": {
       "symbol": "ETHUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -43,14 +43,14 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 21,
-      "wins": 6,
+      "total_trades": 22,
+      "wins": 7,
       "losses": 10,
       "breakevens": 5,
-      "net_pnl_usd": -41.74,
-      "win_rate_pct": 28.6,
+      "net_pnl_usd": -31.76,
+      "win_rate_pct": 31.8,
       "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-21T18:16:20.290155+00:00",
+      "updated_at": "2026-09-21T19:23:48.890374+00:00",
       "avg_r_multiple": -0.09,
       "last_closed_at": "2026-09-22 00:54:58"
     },
@@ -596,6 +596,30 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260921-121",
+      "timestamp": "2026-09-21T19:23:48.890359+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 9.98,
+      "r_multiple": 0.48,
+      "pnl_pct": 0.9,
+      "root_cause": "High-confluence execution of 5m Order Flow CVD Absorption Scalp on ETHUSDT. Trend momentum aligned with HTF bias, securing +0.48R net profit (+$9.98).",
+      "lesson_learned": "Continue validating 5m Order Flow CVD Absorption Scalp on ETHUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "eth",
+        "5m_order_flow_cvd_absorption_scalp",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-21T19:23:48.890364+00:00"
+    },
     {
       "id": "MEM-20260921-120",
       "timestamp": "2026-09-21T19:15:17.574831+00:00",
