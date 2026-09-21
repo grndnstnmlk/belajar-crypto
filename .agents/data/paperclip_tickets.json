@@ -1,15 +1,198 @@
 [
   {
-    "ticket_id": "TCK-20260921-3048",
+    "ticket_id": "TCK-20260921-0898",
     "symbol": "ENAUSDT",
+    "side": "LONG",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-21 04:49:50",
+    "updated_at": "2026-09-21 04:49:50",
+    "payload": {
+      "entry": 0.2151,
+      "sl": 0.2134,
+      "tp": 0.2202,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-21 04:49:50",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup ENAUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260921-0839",
+    "symbol": "SOLUSDT",
     "side": "LONG",
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
     "stage": "EXECUTING",
     "priority": "HIGH",
+    "created_at": "2026-09-21 04:49:50",
+    "updated_at": "2026-09-21 04:50:45",
+    "payload": {
+      "entry": 111.78,
+      "sl": 110.9389,
+      "tp": 114.3033,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "SOLUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 110.9389,
+      "tp_price": 114.3033,
+      "rr_ratio": 3.0,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "bull_score": 55,
+      "bear_score": 45,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset SOLUSDT berada dalam 3 besar rotasi sektor (\u26a1 Solana & High-Speed L1).",
+      "bear_critique": " \u2022 Dinding ask resistansi masif (0.63x Bids/Asks) membatasi potensi kenaikan.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (55% vs 45%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 110.9389,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-21 11:50:35"
+    },
+    "risk_result": {
+      "decision": "APPROVE",
+      "confidence": 85,
+      "suggested_risk_scale": 1.0,
+      "thesis": "APPROVED: Setup SOLUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "Normal market volatility risk"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $110.9389.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 110.9389,
+        "tp_price": 114.3033,
+        "rr_ratio": 3.0,
+        "strategy": "5m Order Flow CVD Absorption Scalp",
+        "bull_score": 55,
+        "bear_score": 45,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset SOLUSDT berada dalam 3 besar rotasi sektor (\u26a1 Solana & High-Speed L1).",
+        "bear_critique": " \u2022 Dinding ask resistansi masif (0.63x Bids/Asks) membatasi potensi kenaikan.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (55% vs 45%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 110.9389,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-21 11:50:35"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-21 11:50:45",
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 55% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 3 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 60,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 60.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 58,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.2,
+            "neutral": 0.35,
+            "conservative": 0.45
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "SOL",
+        "sector_key": "SOL_L1",
+        "sector_title": "Solana & High-Speed L1",
+        "sector_icon": "\u26a1",
+        "sector_rank": 2,
+        "is_leading_sector": false,
+        "sector_24h_avg": 12.14,
+        "relative_strength_vs_btc": 10.75,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-21 04:50:45",
+      "note": "Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan)"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-21 04:49:50",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup SOLUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-21 04:50:45",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 55% vs Bear 45% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-21 04:50:45",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: APPROVE (85%)"
+      },
+      {
+        "timestamp": "2026-09-21 04:50:45",
+        "agent": "chief_risk_officer",
+        "stage": "PENDING_BOARD",
+        "note": "Escalated to Board: Portofolio padat (3 posisi aktif berjalan)"
+      },
+      {
+        "timestamp": "2026-09-21 04:50:45",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260921-3048",
+    "symbol": "ENAUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
+    "priority": "HIGH",
     "created_at": "2026-09-21 04:47:43",
-    "updated_at": "2026-09-21 04:48:35",
+    "updated_at": "2026-09-21 04:49:27",
     "payload": {
       "entry": 0.2242,
       "sl": 0.1942,
@@ -118,7 +301,11 @@
       "authorized_at": "2026-09-21 04:48:35",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-21 04:49:27"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-21 04:47:43",
@@ -149,6 +336,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-21 04:49:27",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -158,20 +351,119 @@
     "side": "LONG",
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
     "priority": "HIGH",
     "created_at": "2026-09-21 04:11:51",
-    "updated_at": "2026-09-21 04:47:43",
+    "updated_at": "2026-09-21 04:52:57",
     "payload": {
-      "entry": 0.9403,
-      "sl": 0.9204,
-      "tp": 0.9801,
+      "entry": 0.9439,
+      "sl": 0.9205,
+      "tp": 0.9907,
       "rr": 2.0
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
+    "debate_result": {
+      "symbol": "SUIUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.9205,
+      "tp_price": 0.9907,
+      "rr_ratio": 2.0,
+      "strategy": "5m ICT Rejection Block Mean Threshold",
+      "bull_score": 67,
+      "bear_score": 33,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset SUIUSDT tergabung dalam sektor narasi terkuat hari ini (\u26a1 Solana & High-Speed L1), menikmati rotasi modal institusional prima.",
+      "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (67% vs 33%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.9205,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-21 11:52:47"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.42,
+      "thesis": "ADJUST_RISK: Setup SUIUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)). Alokasi modal disarankan dipangkas ke 70%. | Tri-Risk: APPROVED_DEFENSIVE (Scale 0.60x)",
+      "key_risks": [
+        "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.9205.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.9205,
+        "tp_price": 0.9907,
+        "rr_ratio": 2.0,
+        "strategy": "5m ICT Rejection Block Mean Threshold",
+        "bull_score": 67,
+        "bear_score": 33,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.\n \u2022 Aset SUIUSDT tergabung dalam sektor narasi terkuat hari ini (\u26a1 Solana & High-Speed L1), menikmati rotasi modal institusional prima.",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (67% vs 33%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.9205,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-21 11:52:47"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-21 11:52:57",
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 75,
+          "desired_scale": 1.1,
+          "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 67% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 25,
+          "desired_scale": 0.6,
+          "thesis": "Peringatan konsentrasi arah: sudah ada 4 posisi sepihak terbuka."
+        },
+        "neutral": {
+          "score": 64,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 64.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_DEFENSIVE",
+          "composite_risk_score": 48,
+          "allocated_risk_scale": 0.6,
+          "stop_loss_profile": "TIGHT_BREAKEVEN",
+          "regime_weights": {
+            "aggressive": 0.2,
+            "neutral": 0.35,
+            "conservative": 0.45
+          },
+          "synthesis": "APPROVED DEFENSIVE: Risiko terdeteksi namun terukur. Alokasi disesuaikan ke 0.60x dengan kunci Break-Even cepat di +0.6R."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "SUI",
+        "sector_key": "SOL_L1",
+        "sector_title": "Solana & High-Speed L1",
+        "sector_icon": "\u26a1",
+        "sector_rank": 1,
+        "is_leading_sector": true,
+        "sector_24h_avg": 12.07,
+        "relative_strength_vs_btc": 10.75,
+        "confluence_boost": 15
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-21 04:52:57",
+      "note": "Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan)"
+    },
     "execution_result": null,
     "timeline": [
       {
@@ -179,6 +471,30 @@
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup SUIUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-21 04:52:57",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 67% vs Bear 33% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-21 04:52:57",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-21 04:52:57",
+        "agent": "chief_risk_officer",
+        "stage": "PENDING_BOARD",
+        "note": "Escalated to Board: Portofolio padat (4 posisi aktif berjalan)"
+      },
+      {
+        "timestamp": "2026-09-21 04:52:57",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (4 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
@@ -349,17 +665,17 @@
     "ticket_id": "TCK-20260921-9523",
     "symbol": "NEARUSDT",
     "side": "LONG",
-    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 03:57:09",
-    "updated_at": "2026-09-21 04:46:29",
+    "updated_at": "2026-09-21 04:49:50",
     "payload": {
-      "entry": 4.438,
-      "sl": 4.3397,
-      "tp": 4.7329,
+      "entry": 4.444,
+      "sl": 4.3967,
+      "tp": 4.5859,
       "rr": 3.0
     },
     "debate_result": null,
