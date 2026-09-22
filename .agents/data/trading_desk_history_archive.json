@@ -93975,5 +93975,993 @@
     "action": "STANDBY_LOW_CONFLUENCE",
     "balance": 3471.21563294,
     "positions_count": 4
+  },
+  {
+    "timestamp": "2026-09-21 21:09:39",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3487.22289358,
+    "positions_count": 4
+  },
+  {
+    "timestamp": "2026-09-21 21:38:13",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BTCUSDT",
+      "base": "BTC",
+      "side": "LONG",
+      "price": 85803.5,
+      "sl": 85630.7856,
+      "tp": 86999.6432,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m 15m-Key-Level Rectangle Break & Retest]: 15m Resistance ($85,845.27) broken & flipped to Support: Rectangle [$85,716.50 - $85,995.66] retested with bullish rejection @ $85,973.00. SL @ $85,630.79, targeting 3R ($86,999.64). (Target: 15-35 menit)",
+      "confluence_score": 96,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified BTCUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 21:40:02"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.0,
+        "thesis": "APPROVED: Setup BTCUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $85,630.7856.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 85630.7856,
+          "tp_price": 86999.6432,
+          "rr_ratio": 3.0,
+          "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+          "bull_score": 66,
+          "bear_score": 34,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Dinding bid support tebal (2.27x Bids/Asks) menahan tekanan jual di bawah entry.\n • Setup terkonfirmasi oleh model probabilitas tinggi: '5m 15m-Key-Level Rectangle Break & Retest'.",
+          "bear_critique": " • Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (66% vs 34%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 85630.7856,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 21:40:17"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 21:40:27",
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 66% menunjukkan dorongan positif moderat. | ADX momentum kuat (43.9) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 64,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 64.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 65,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BTC",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 4,
+          "is_leading_sector": false,
+          "sector_24h_avg": 5.93,
+          "relative_strength_vs_btc": -0.5,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 0.0323,
+    "risk_budget_usd": 26.609480094524997
+  },
+  {
+    "timestamp": "2026-09-21 21:41:56",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "SOLUSDT",
+      "base": "SOL",
+      "side": "LONG",
+      "price": 117.82057979,
+      "sl": 117.6522,
+      "tp": 119.6662,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "orderflow_metrics": {
+        "cvd_delta_pct": 4.41,
+        "dom_imbalance_ratio": 0.99,
+        "absorption_conviction": 75
+      },
+      "reason": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Strong convergent taker buy aggression (+4.4% Delta). Supported by DOM Bid Wall @ $118.03 ($315,199 USDT). (Target: 15-30 menit)",
+      "confluence_score": 88,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified SOLUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 21:43:33"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 90,
+        "suggested_risk_scale": 1.0,
+        "thesis": "APPROVED: Setup SOLUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x) | 🌟 Sektor Pemimpin Narasi: ⚡ Solana & High-Speed L1 (+8.1% vs BTC)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $117.6522.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "SOLUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 117.6522,
+          "tp_price": 119.6662,
+          "rr_ratio": 3.0,
+          "strategy": "5m Order Flow CVD Absorption Scalp",
+          "bull_score": 68,
+          "bear_score": 32,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Dinding bid support tebal (1.30x Bids/Asks) menahan tekanan jual di bawah entry.\n • Aset SOLUSDT tergabung dalam sektor narasi terkuat hari ini (⚡ Solana & High-Speed L1), menikmati rotasi modal institusional prima.",
+          "bear_critique": " • Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (68% vs 32%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 117.6522,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 21:43:51"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 21:43:57",
+          "symbol": "SOLUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 68% menunjukkan dorongan positif moderat. | ADX momentum kuat (43.9) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 65,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 65.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 65,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "SOL",
+          "sector_key": "SOL_L1",
+          "sector_title": "Solana & High-Speed L1",
+          "sector_icon": "⚡",
+          "sector_rank": 1,
+          "is_leading_sector": true,
+          "sector_24h_avg": 14.5,
+          "relative_strength_vs_btc": 8.07,
+          "confluence_boost": 15
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 23.57,
+    "risk_budget_usd": 21.743345463488
+  },
+  {
+    "timestamp": "2026-09-21 21:50:40",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3420.759225,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-21 22:13:29",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3447.6688182,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-21 22:17:09",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3441.43613115,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-21 22:32:35",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BTCUSDT",
+      "base": "BTC",
+      "side": "LONG",
+      "price": 85786.1,
+      "sl": 84888.3565,
+      "tp": 87685.2961,
+      "rr": 2.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m ICT Rejection Block Mean Threshold",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m ICT Rejection Block Mean Threshold]: Live retest of 1H Bullish Rejection Block (TESTING_MEAN_THRESHOLD) @ $85,820.6697 with Mean Threshold @ $85,685.9700 (Target: 15-30 menit)",
+      "confluence_score": 93,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 74,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified BTCUSDT LONG (R:R 1:2.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:2.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:2.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 22:34:10"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.7,
+        "thesis": "ADJUST_RISK: Setup BTCUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)). Alokasi modal disarankan dipangkas ke 70%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Marginal Risk-to-Reward ratio (1:2.00 below preferred 1:3.0)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $84,888.3565.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 84888.3565,
+          "tp_price": 87685.2961,
+          "rr_ratio": 2.0,
+          "strategy": "5m ICT Rejection Block Mean Threshold",
+          "bull_score": 63,
+          "bear_score": 37,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:2.00) memenuhi standar asimetri risiko institusional.\n • Setup terkonfirmasi oleh model probabilitas tinggi: '5m ICT Rejection Block Mean Threshold'.",
+          "bear_critique": " • Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (63% vs 37%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 84888.3565,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 22:34:25"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 22:34:33",
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 90,
+            "desired_scale": 1.1,
+            "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | Keyakinan Bull 63% menunjukkan dorongan positif moderat. | ADX momentum kuat (46.6) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 63,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 63.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 63,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BTC",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 4,
+          "is_leading_sector": false,
+          "sector_24h_avg": 5.95,
+          "relative_strength_vs_btc": -0.41,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 0.0323,
+    "risk_budget_usd": 21.79246565952
+  },
+  {
+    "timestamp": "2026-09-21 22:59:52",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3434.61720581,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-21 23:03:07",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3429.96480097,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-21 23:45:07",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "SOLUSDT",
+      "base": "SOL",
+      "side": "LONG",
+      "price": 117.51524933,
+      "sl": 116.6432,
+      "tp": 119.9104,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "orderflow_metrics": {
+        "cvd_delta_pct": 57.71,
+        "dom_imbalance_ratio": 1.85,
+        "absorption_conviction": 75
+      },
+      "reason": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Strong convergent taker buy aggression (+57.7% Delta). Supported by DOM Bid Wall @ $117.39 ($313,226 USDT). (Target: 15-30 menit)",
+      "confluence_score": 84,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified SOLUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 23:46:37"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.0,
+        "thesis": "APPROVED: Setup SOLUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $116.6432.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "SOLUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 116.6432,
+          "tp_price": 119.9104,
+          "rr_ratio": 3.0,
+          "strategy": "5m Order Flow CVD Absorption Scalp",
+          "bull_score": 55,
+          "bear_score": 45,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Aset SOLUSDT berada dalam 3 besar rotasi sektor (⚡ Solana & High-Speed L1).",
+          "bear_critique": " • Dinding ask resistansi masif (0.66x Bids/Asks) membatasi potensi kenaikan.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (55% vs 45%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 116.6432,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 23:46:54"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 23:47:03",
+          "symbol": "SOLUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 55% menunjukkan dorongan positif moderat. | ADX momentum kuat (48.8) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 60,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 60.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 63,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "SOL",
+          "sector_key": "SOL_L1",
+          "sector_title": "Solana & High-Speed L1",
+          "sector_icon": "⚡",
+          "sector_rank": 2,
+          "is_leading_sector": false,
+          "sector_24h_avg": 8.46,
+          "relative_strength_vs_btc": 2.87,
+          "confluence_boost": 5
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 23.63,
+    "risk_budget_usd": 21.857145062016002
+  },
+  {
+    "timestamp": "2026-09-21 23:56:13",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3431.64226324,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-21 23:57:49",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3427.33238213,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:01:05",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3424.32357749,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:02:40",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3418.65807757,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:04:34",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3412.57173937,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:06:11",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3416.07732183,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:12:55",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3424.89544825,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:14:36",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3418.09914525,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:17:48",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3405.84504855,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:19:23",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3399.27146129,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:21:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3404.21966639,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:22:49",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3401.59135868,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:31:16",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3411.41370697,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:32:56",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3412.72823416,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 00:38:02",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3408.26057173,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:39:46",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3410.73497732,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:41:23",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3408.87907291,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:43:02",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3408.53820802,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:44:39",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3404.00026448,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:46:37",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3398.03355092,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:48:13",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3395.29206732,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:49:57",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3391.39677057,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:51:22",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3389.87454211,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:52:48",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3388.31232732,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:54:27",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3383.69702293,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 00:55:58",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BTCUSDT",
+      "base": "BTC",
+      "side": "LONG",
+      "price": 85781.86708333,
+      "sl": 85555.7606,
+      "tp": 86233.9182,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "orderflow_metrics": {
+        "cvd_delta_pct": 28.21,
+        "dom_imbalance_ratio": 3.21,
+        "absorption_conviction": 50
+      },
+      "reason": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Order flow delta and price action are aligned neutrally. Supported by DOM Bid Wall @ $85,709.97 ($163,603 USDT). (Target: 15-30 menit)",
+      "confluence_score": 81,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified BTCUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-22 00:57:21"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.12,
+        "thesis": "APPROVED: Setup BTCUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $85,555.7606.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 85555.7606,
+          "tp_price": 86233.9182,
+          "rr_ratio": 3.0,
+          "strategy": "5m Order Flow CVD Absorption Scalp",
+          "bull_score": 66,
+          "bear_score": 34,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Dinding bid support tebal (1.83x Bids/Asks) menahan tekanan jual di bawah entry.\n • Aset BTCUSDT berada dalam 3 besar rotasi sektor (👑 Macro Heavyweights).",
+          "bear_critique": " • Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (66% vs 34%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 85555.7606,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-22 00:57:38"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-22 00:57:46",
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 66% menunjukkan dorongan positif moderat. | ADX momentum kuat (50.6) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 64,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 64.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 79,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BTC",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 3,
+          "is_leading_sector": false,
+          "sector_24h_avg": 4.64,
+          "relative_strength_vs_btc": -1.09,
+          "confluence_boost": 5
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 0.0323,
+    "risk_budget_usd": 21.626203949248
+  },
+  {
+    "timestamp": "2026-09-22 00:58:54",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3383.41056074,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 01:00:28",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3385.74024074,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 01:01:49",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3387.19535216,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 01:03:15",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3381.40772612,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 01:04:47",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "XRPUSDT",
+      "base": "XRP",
+      "side": "LONG",
+      "price": 1.50340923,
+      "sl": 1.4881,
+      "tp": 1.5345,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "orderflow_metrics": {
+        "cvd_delta_pct": 60.43,
+        "dom_imbalance_ratio": 0.63,
+        "absorption_conviction": 75
+      },
+      "reason": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Strong convergent taker buy aggression (+60.4% Delta). Supported by DOM Bid Wall @ $1.50 ($144,233 USDT). (Target: 15-30 menit)",
+      "confluence_score": 81,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified XRPUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-22 01:05:57"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.0,
+        "thesis": "APPROVED: Setup XRPUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.4881.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 1.4881,
+          "tp_price": 1.5345,
+          "rr_ratio": 3.0,
+          "strategy": "5m Order Flow CVD Absorption Scalp",
+          "bull_score": 49,
+          "bear_score": 51,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+          "bear_critique": " • Dinding ask resistansi masif (0.65x Bids/Asks) membatasi potensi kenaikan.\n • Aset XRPUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (49% vs 51%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 1.4881,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-22 01:06:15"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-22 01:06:25",
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 90,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | ADX momentum kuat (52.4) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 57,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 57.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 61,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "XRP",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 1847.3,
+    "risk_budget_usd": 21.672023049024002
+  },
+  {
+    "timestamp": "2026-09-22 01:07:34",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3394.06333852,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 01:10:24",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3397.56829094,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 01:11:54",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3400.86082409,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 01:13:16",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3404.83656263,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 01:14:42",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3409.46719318,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 01:15:52",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3412.47126925,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 01:17:23",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3414.55952063,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 01:18:49",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3414.05408544,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 01:20:14",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3412.82822645,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 01:21:40",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3405.42860584,
+    "positions_count": 3
   }
 ]

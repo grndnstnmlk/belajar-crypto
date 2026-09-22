@@ -6,10 +6,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-22 16:21:18",
-    "updated_at": "2026-09-22 16:22:52",
+    "updated_at": "2026-09-22 16:51:22",
     "payload": {
       "entry": 1.5541,
       "sl": 1.5479,
@@ -118,7 +118,13 @@
       "authorized_at": "2026-09-22 16:22:52",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$3.04 USDT)",
+      "realized_pnl": -3.0396,
+      "net_pnl": -4.1504,
+      "closed_at": "2026-09-22 16:51:22"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-22 16:21:18",
@@ -143,6 +149,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-22 16:51:22",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$3.04 USDT) | PnL: $-3.04 USDT (Net: $-4.15)"
       }
     ]
   },
@@ -156,12 +168,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 14:55:07",
-    "updated_at": "2026-09-22 16:25:32",
+    "updated_at": "2026-09-22 16:31:07",
     "payload": {
-      "entry": 1.0001,
+      "entry": 0.9993,
       "sl": 0.9843,
-      "tp": 1.0633,
-      "rr": 3.999999999999986
+      "tp": 1.0593,
+      "rr": 3.9999999999999925
     },
     "debate_result": null,
     "risk_result": null,
@@ -345,12 +357,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 14:51:30",
-    "updated_at": "2026-09-22 16:25:32",
+    "updated_at": "2026-09-22 16:31:07",
     "payload": {
-      "entry": 785.77,
+      "entry": 786.06,
       "sl": 774.1866,
-      "tp": 832.1036,
-      "rr": 4.00000000000001
+      "tp": 833.5536,
+      "rr": 4.0000000000000195
     },
     "debate_result": null,
     "risk_result": null,
@@ -369,18 +381,18 @@
     "ticket_id": "TCK-20260922-0210",
     "symbol": "ETHUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "Quantitative Confluence Setup",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-22 14:51:30",
-    "updated_at": "2026-09-22 16:25:32",
+    "updated_at": "2026-09-22 16:31:07",
     "payload": {
-      "entry": 2734.15,
-      "sl": 2726.8304,
-      "tp": 2756.1088,
-      "rr": 3.0
+      "entry": 2733.5,
+      "sl": 2689.2608,
+      "tp": 2910.4568,
+      "rr": 4.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -1198,18 +1210,18 @@
     "ticket_id": "TCK-20260922-2648",
     "symbol": "SOLUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "Quantitative Confluence Setup",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 12:11:42",
-    "updated_at": "2026-09-22 16:25:32",
+    "updated_at": "2026-09-22 16:28:18",
     "payload": {
-      "entry": 116.91,
-      "sl": 116.51,
-      "tp": 118.11,
-      "rr": 3.0
+      "entry": 116.81,
+      "sl": 114.7733,
+      "tp": 124.9568,
+      "rr": 4.000000000000007
     },
     "debate_result": null,
     "risk_result": null,
