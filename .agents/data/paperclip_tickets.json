@@ -1,20 +1,20 @@
 [
   {
-    "ticket_id": "TCK-20260922-7651",
-    "symbol": "SUIUSDT",
+    "ticket_id": "TCK-20260922-8085",
+    "symbol": "SOLUSDT",
     "side": "LONG",
     "strategy": "Quantitative Confluence Setup",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
-    "priority": "NORMAL",
-    "created_at": "2026-09-22 00:31:47",
-    "updated_at": "2026-09-22 00:54:31",
+    "priority": "HIGH",
+    "created_at": "2026-09-22 01:01:08",
+    "updated_at": "2026-09-22 01:02:48",
     "payload": {
-      "entry": 1.0705,
-      "sl": 1.0547,
-      "tp": 1.1258,
-      "rr": 3.499999999999986
+      "entry": 118.02,
+      "sl": 116.545,
+      "tp": 122.445,
+      "rr": 3.0000000000000098
     },
     "debate_result": null,
     "risk_result": null,
@@ -22,10 +22,157 @@
     "execution_result": null,
     "timeline": [
       {
+        "timestamp": "2026-09-22 01:01:08",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup SOLUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260922-7651",
+    "symbol": "SUIUSDT",
+    "side": "LONG",
+    "strategy": "Quantitative Confluence Setup",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-22 00:31:47",
+    "updated_at": "2026-09-22 00:58:47",
+    "payload": {
+      "entry": 1.0596,
+      "sl": 1.0441,
+      "tp": 1.1139,
+      "rr": 3.5032258064515838
+    },
+    "debate_result": {
+      "symbol": "SUIUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 1.0441,
+      "tp_price": 1.1139,
+      "rr_ratio": 3.5032258064515838,
+      "strategy": "Bullish FVG + \u2b50 ALPHA LEADER (RS +4.77%) + VWAP Bullish + RSI 70.5 + R:R 1:3.50 [\ud83d\udfe2 TREND FOLLOWING ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 100%)",
+      "bull_score": 61,
+      "bear_score": 39,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.50) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.75x Bids/Asks) menahan tekanan jual di bawah entry.\n \u2022 Aset SUIUSDT berada dalam 3 besar rotasi sektor (\u26a1 Solana & High-Speed L1).",
+      "bear_critique": " \u2022 Fear & Greed mencapai level Extreme Greed (78/100); waspada potensi exit liquidity / long squeeze.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (61% vs 39%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 1.0441,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-22 07:58:39"
+    },
+    "risk_result": {
+      "decision": "APPROVE",
+      "confidence": 85,
+      "suggested_risk_scale": 1.0,
+      "thesis": "APPROVED: Setup SUIUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.50 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "Normal market volatility risk"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.0441.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 1.0441,
+        "tp_price": 1.1139,
+        "rr_ratio": 3.5032258064515838,
+        "strategy": "Bullish FVG + \u2b50 ALPHA LEADER (RS +4.77%) + VWAP Bullish + RSI 70.5 + R:R 1:3.50 [\ud83d\udfe2 TREND FOLLOWING ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 100%)",
+        "bull_score": 61,
+        "bear_score": 39,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.50) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.75x Bids/Asks) menahan tekanan jual di bawah entry.\n \u2022 Aset SUIUSDT berada dalam 3 besar rotasi sektor (\u26a1 Solana & High-Speed L1).",
+        "bear_critique": " \u2022 Fear & Greed mencapai level Extreme Greed (78/100); waspada potensi exit liquidity / long squeeze.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (61% vs 39%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 1.0441,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-22 07:58:39"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-22 07:58:47",
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.50 menawarkan potensi keuntungan substansial. | Keyakinan Bull 61% menunjukkan dorongan positif moderat. | ADX momentum kuat (59.5) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 56,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 56.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 61,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.25,
+            "neutral": 0.4,
+            "conservative": 0.35
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "SUI",
+        "sector_key": "SOL_L1",
+        "sector_title": "Solana & High-Speed L1",
+        "sector_icon": "\u26a1",
+        "sector_rank": 3,
+        "is_leading_sector": false,
+        "sector_24h_avg": 5.43,
+        "relative_strength_vs_btc": 0.14,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-22 00:58:47",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
         "timestamp": "2026-09-22 00:31:47",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup SUIUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      },
+      {
+        "timestamp": "2026-09-22 00:58:47",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 61% vs Bear 39% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-22 00:58:47",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: APPROVE (85%)"
+      },
+      {
+        "timestamp": "2026-09-22 00:58:47",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
@@ -39,11 +186,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 21:38:29",
-    "updated_at": "2026-09-22 00:30:06",
+    "updated_at": "2026-09-22 01:02:48",
     "payload": {
-      "entry": 1.53318326,
-      "sl": 1.5265,
-      "tp": 1.5532,
+      "entry": 1.5211,
+      "sl": 1.5148,
+      "tp": 1.54,
       "rr": 3.0
     },
     "debate_result": null,
@@ -385,12 +532,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 19:46:14",
-    "updated_at": "2026-09-22 00:54:31",
+    "updated_at": "2026-09-22 00:57:43",
     "payload": {
-      "entry": 2767.97,
-      "sl": 2739.6381,
-      "tp": 2852.9657,
-      "rr": 3.000000000000048
+      "entry": 2758.2,
+      "sl": 2738.2441,
+      "tp": 2818.0677,
+      "rr": 3.0000000000000226
     },
     "debate_result": null,
     "risk_result": null,
@@ -1203,10 +1350,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-21 17:56:49",
-    "updated_at": "2026-09-21 17:57:46",
+    "updated_at": "2026-09-22 01:03:43",
     "payload": {
       "entry": 85725.3,
       "sl": 85555.7606,
@@ -1315,7 +1462,13 @@
       "authorized_at": "2026-09-21 17:57:46",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$4.13 USDT)",
+      "realized_pnl": 4.1279,
+      "net_pnl": 3.0181,
+      "closed_at": "2026-09-22 01:03:43"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-21 17:56:49",
@@ -1340,6 +1493,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-22 01:03:43",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$4.13 USDT) | PnL: $+4.13 USDT (Net: $+3.02)"
       }
     ]
   },
@@ -1512,12 +1671,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-21 15:38:21",
-    "updated_at": "2026-09-22 00:50:26",
+    "updated_at": "2026-09-22 00:57:43",
     "payload": {
-      "entry": 798.77,
-      "sl": 790.874,
-      "tp": 822.458,
-      "rr": 3.000000000000014
+      "entry": 795.71,
+      "sl": 788.9894,
+      "tp": 815.8718,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
