@@ -1,5 +1,35 @@
 [
   {
+    "ticket_id": "TCK-20260922-2167",
+    "symbol": "SUIUSDT",
+    "side": "LONG",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "HIGH",
+    "created_at": "2026-09-22 03:41:22",
+    "updated_at": "2026-09-22 04:02:28",
+    "payload": {
+      "entry": 1.0363,
+      "sl": 1.0133,
+      "tp": 1.0823,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-22 03:41:22",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup SUIUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260922-6998",
     "symbol": "ETHUSDT",
     "side": "LONG",
@@ -9,11 +39,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 03:34:06",
-    "updated_at": "2026-09-22 03:40:09",
+    "updated_at": "2026-09-22 04:02:28",
     "payload": {
-      "entry": 2732.91,
+      "entry": 2739.0768,
       "sl": 2698.839,
-      "tp": 2801.052,
+      "tp": 2819.5523,
       "rr": 2.0
     },
     "debate_result": null,
@@ -39,11 +69,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 03:34:06",
-    "updated_at": "2026-09-22 03:40:09",
+    "updated_at": "2026-09-22 03:58:59",
     "payload": {
-      "entry": 85481.0,
+      "entry": 85578.838,
       "sl": 84617.6099,
-      "tp": 87207.7802,
+      "tp": 87501.2943,
       "rr": 2.0
     },
     "debate_result": null,
@@ -212,20 +242,119 @@
     "side": "LONG",
     "strategy": "Quantitative Confluence Setup",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
     "priority": "HIGH",
     "created_at": "2026-09-22 03:34:06",
-    "updated_at": "2026-09-22 03:40:09",
+    "updated_at": "2026-09-22 03:42:17",
     "payload": {
-      "entry": 12.949,
+      "entry": 12.943,
       "sl": 12.6963,
-      "tp": 13.9598,
-      "rr": 4.000000000000014
+      "tp": 13.9298,
+      "rr": 4.000000000000021
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
+    "debate_result": {
+      "symbol": "LINKUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 12.6963,
+      "tp_price": 13.9298,
+      "rr_ratio": 4.000000000000021,
+      "strategy": "\ud83c\udf1f 3-TOUCH SUPPORT ($12.8635) + VWAP Bullish + RSI 51.6 + R:R 1:4.00 [\ud83d\udfe2 TREND FOLLOWING ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 100%)",
+      "bull_score": 56,
+      "bear_score": 44,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:4.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.55x Bids/Asks) menahan tekanan jual di bawah entry.",
+      "bear_critique": " \u2022 Aset LINKUSDT berada di sektor narasi laggard (\ud83c\udfdb\ufe0f RWA & Institutional DeFi), minim dorongan momentum spekulatif.\n \u2022 Fear & Greed mencapai level Extreme Greed (78/100); waspada potensi exit liquidity / long squeeze.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (56% vs 44%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 12.6963,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-22 10:42:07"
+    },
+    "risk_result": {
+      "decision": "APPROVE",
+      "confidence": 85,
+      "suggested_risk_scale": 1.0,
+      "thesis": "APPROVED: Setup LINKUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:4.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "Normal market volatility risk"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $12.6963.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "LINKUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 12.6963,
+        "tp_price": 13.9298,
+        "rr_ratio": 4.000000000000021,
+        "strategy": "\ud83c\udf1f 3-TOUCH SUPPORT ($12.8635) + VWAP Bullish + RSI 51.6 + R:R 1:4.00 [\ud83d\udfe2 TREND FOLLOWING ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 100%)",
+        "bull_score": 56,
+        "bear_score": 44,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:4.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.55x Bids/Asks) menahan tekanan jual di bawah entry.",
+        "bear_critique": " \u2022 Aset LINKUSDT berada di sektor narasi laggard (\ud83c\udfdb\ufe0f RWA & Institutional DeFi), minim dorongan momentum spekulatif.\n \u2022 Fear & Greed mencapai level Extreme Greed (78/100); waspada potensi exit liquidity / long squeeze.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (56% vs 44%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 12.6963,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-22 10:42:07"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-22 10:42:17",
+        "symbol": "LINKUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:4.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 56% menunjukkan dorongan positif moderat. | ADX momentum kuat (53.9) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 54,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 54.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 61,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.25,
+            "neutral": 0.4,
+            "conservative": 0.35
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "LINK",
+        "sector_key": "RWA_DEFI",
+        "sector_title": "RWA & Institutional DeFi",
+        "sector_icon": "\ud83c\udfdb\ufe0f",
+        "sector_rank": 5,
+        "is_leading_sector": false,
+        "sector_24h_avg": -0.64,
+        "relative_strength_vs_btc": -5.49,
+        "confluence_boost": -5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-22 03:42:17",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
     "execution_result": null,
     "timeline": [
       {
@@ -233,6 +362,24 @@
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup LINKUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-22 03:42:17",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 56% vs Bear 44% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-22 03:42:17",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: APPROVE (85%)"
+      },
+      {
+        "timestamp": "2026-09-22 03:42:17",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
@@ -1061,18 +1208,18 @@
     "ticket_id": "TCK-20260921-9874",
     "symbol": "XRPUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 21:38:29",
-    "updated_at": "2026-09-22 03:40:09",
+    "updated_at": "2026-09-22 04:02:29",
     "payload": {
-      "entry": 1.5165,
-      "sl": 1.509,
-      "tp": 1.539,
-      "rr": 3.0
+      "entry": 1.5142,
+      "sl": 1.4764,
+      "tp": 1.5897,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
