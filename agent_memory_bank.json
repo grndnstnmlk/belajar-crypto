@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-22T13:28:34.451709+00:00",
-    "total_reflections": 6,
-    "system_retention_score": 103.6
+    "last_reflection_at": "2026-09-22T13:33:54.020582+00:00",
+    "total_reflections": 8,
+    "system_retention_score": 102.9
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -32,8 +32,8 @@
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
-      "volatility_regime": "MODERATE",
-      "wick_risk_rating": "HIGH",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -43,16 +43,16 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 14,
-      "wins": 3,
+      "total_trades": 15,
+      "wins": 4,
       "losses": 5,
       "breakevens": 6,
-      "win_rate_pct": 21.4,
-      "net_pnl_usd": -18.05,
+      "win_rate_pct": 26.7,
+      "net_pnl_usd": -17.88,
       "avg_r_multiple": -0.03,
-      "last_traded_outcome": "BREAKEVEN",
+      "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-22 18:37:16",
-      "updated_at": "2026-09-22T11:43:11.134593+00:00"
+      "updated_at": "2026-09-22T13:33:54.020577+00:00"
     },
     "SOLUSDT": {
       "symbol": "SOLUSDT",
@@ -189,7 +189,7 @@
     "NEARUSDT": {
       "symbol": "NEARUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "MODERATE",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "MODERATE",
       "optimal_setups": [
@@ -198,16 +198,16 @@
         "Volume Surge Pullback"
       ],
       "notes": "AI and Web3 infrastructure bellwether. Clean price action on 1H timeframes.",
-      "total_trades": 4,
+      "total_trades": 5,
       "wins": 1,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 1,
-      "win_rate_pct": 25.0,
-      "net_pnl_usd": -49.79,
+      "win_rate_pct": 20.0,
+      "net_pnl_usd": -54.59,
       "avg_r_multiple": -0.61,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-21 21:04:24",
-      "updated_at": "2026-09-22T13:28:34.451700+00:00"
+      "updated_at": "2026-09-22T13:28:38.543316+00:00"
     },
     "LINKUSDT": {
       "symbol": "LINKUSDT",
@@ -569,16 +569,63 @@
       "id": "RULE-AUTO-NEARUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on NEARUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "nearusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-22T13:28:34.451707+00:00"
+      "created_at": "2026-09-22T13:28:34.451707+00:00",
+      "updated_at": "2026-09-22T13:28:38.543327+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260922-011",
+      "timestamp": "2026-09-22T13:33:54.020559+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 0.17,
+      "r_multiple": 0.02,
+      "pnl_pct": 0.04,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on ETHUSDT. Trend momentum aligned with HTF bias, securing +0.02R net profit (+$0.17).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on ETHUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-22T13:33:54.020566+00:00"
+    },
+    {
+      "id": "MEM-20260922-010",
+      "timestamp": "2026-09-22T13:28:38.543302+00:00",
+      "symbol": "NEARUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -4.8,
+      "r_multiple": -0.18,
+      "pnl_pct": -0.17,
+      "root_cause": "Adverse volatility stop-out on NEARUSDT Smart Money Concepts (SMC) (net: -$4.80, -0.18R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on NEARUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "near",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 4,
+      "last_accessed": "2026-09-22T13:33:30.794827+00:00"
+    },
     {
       "id": "MEM-20260922-009",
       "timestamp": "2026-09-22T13:28:34.451686+00:00",
@@ -598,8 +645,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1,
-      "last_accessed": "2026-09-22T13:28:34.451691+00:00"
+      "access_count": 4,
+      "last_accessed": "2026-09-22T13:33:30.794834+00:00"
     },
     {
       "id": "MEM-20260922-008",
@@ -620,8 +667,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 9,
-      "last_accessed": "2026-09-22T13:27:28.516462+00:00"
+      "access_count": 19,
+      "last_accessed": "2026-09-22T13:33:30.794836+00:00"
     },
     {
       "id": "MEM-20260922-007",
@@ -668,8 +715,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 117,
-      "last_accessed": "2026-09-22T13:27:28.516452+00:00"
+      "access_count": 122,
+      "last_accessed": "2026-09-22T13:32:02.182414+00:00"
     },
     {
       "id": "MEM-20260922-005",
@@ -692,8 +739,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 169,
-      "last_accessed": "2026-09-22T13:27:28.516464+00:00"
+      "access_count": 176,
+      "last_accessed": "2026-09-22T13:32:02.201086+00:00"
     },
     {
       "id": "MEM-20260922-004",
@@ -714,8 +761,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 187,
-      "last_accessed": "2026-09-22T13:27:28.516460+00:00"
+      "access_count": 197,
+      "last_accessed": "2026-09-22T13:33:30.794837+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -754,8 +801,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 167,
-      "last_accessed": "2026-09-22T13:27:08.662023+00:00"
+      "access_count": 169,
+      "last_accessed": "2026-09-22T13:32:02.201090+00:00"
     },
     {
       "id": "MEM-20260907-003",
