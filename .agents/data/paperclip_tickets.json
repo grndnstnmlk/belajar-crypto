@@ -9,12 +9,12 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-22 12:30:31",
-    "updated_at": "2026-09-22 12:40:51",
+    "updated_at": "2026-09-22 12:59:54",
     "payload": {
-      "entry": 86014.01,
-      "sl": 85305.4528,
-      "tp": 88139.6816,
-      "rr": 3.0000000000000204
+      "entry": 85966.03,
+      "sl": 85277.4784,
+      "tp": 88031.6848,
+      "rr": 3.000000000000042
     },
     "debate_result": null,
     "risk_result": null,
@@ -33,18 +33,18 @@
     "ticket_id": "TCK-20260922-2648",
     "symbol": "SOLUSDT",
     "side": "LONG",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 12:11:42",
-    "updated_at": "2026-09-22 12:30:31",
+    "updated_at": "2026-09-22 12:57:19",
     "payload": {
-      "entry": 117.3203,
-      "sl": 114.7663,
-      "tp": 122.4283,
-      "rr": 2.0
+      "entry": 117.38406367,
+      "sl": 116.9392,
+      "tp": 118.7187,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -246,12 +246,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 11:43:35",
-    "updated_at": "2026-09-22 12:40:51",
+    "updated_at": "2026-09-22 12:59:54",
     "payload": {
-      "entry": 4.615,
-      "sl": 4.5343,
-      "tp": 4.8975,
-      "rr": 3.500619578686481
+      "entry": 4.593,
+      "sl": 4.5199,
+      "tp": 4.8489,
+      "rr": 3.500683994528042
     },
     "debate_result": null,
     "risk_result": null,
@@ -273,10 +273,10 @@
     "strategy": "Quantitative Confluence Setup",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 11:43:35",
-    "updated_at": "2026-09-22 11:52:11",
+    "updated_at": "2026-09-22 13:00:40",
     "payload": {
       "entry": 0.2098,
       "sl": 0.2033,
@@ -385,7 +385,13 @@
       "authorized_at": "2026-09-22 11:52:11",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$24.51 USDT)",
+      "realized_pnl": 24.5125,
+      "net_pnl": 23.803,
+      "closed_at": "2026-09-22 13:00:40"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-22 11:43:35",
@@ -410,6 +416,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-22 13:00:40",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$24.51 USDT) | PnL: $+24.51 USDT (Net: $+23.80)"
       }
     ]
   },
