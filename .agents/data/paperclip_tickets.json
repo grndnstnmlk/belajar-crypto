@@ -186,12 +186,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 05:03:41",
-    "updated_at": "2026-09-22 06:30:40",
+    "updated_at": "2026-09-22 06:58:29",
     "payload": {
-      "entry": 318.9,
-      "sl": 314.3904,
-      "tp": 332.4288,
-      "rr": 3.0000000000000253
+      "entry": 316.8,
+      "sl": 311.7807,
+      "tp": 331.8579,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -1571,10 +1571,10 @@
     "strategy": "5m 4H-Range Breakout Re-entry",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-21 21:38:29",
-    "updated_at": "2026-09-22 05:41:33",
+    "updated_at": "2026-09-22 07:00:06",
     "payload": {
       "entry": 1.5087,
       "sl": 1.4922,
@@ -1683,7 +1683,13 @@
       "authorized_at": "2026-09-22 05:41:33",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$9.63 USDT)",
+      "realized_pnl": -9.6272,
+      "net_pnl": -10.6797,
+      "closed_at": "2026-09-22 07:00:06"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-21 21:38:29",
@@ -1708,6 +1714,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-22 07:00:06",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$9.63 USDT) | PnL: $-9.63 USDT (Net: $-10.68)"
       }
     ]
   },
