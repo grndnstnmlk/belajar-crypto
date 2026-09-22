@@ -95721,5 +95721,648 @@
     "action": "STANDBY_LOW_CONFLUENCE",
     "balance": 3447.24444095,
     "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:37:12",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3447.96012345,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:38:23",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3439.40080539,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:39:35",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3440.55820451,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:40:48",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3441.1617799,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:42:01",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3435.74180012,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:43:13",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3434.278864,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:44:26",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3434.35824998,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:45:36",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "XRPUSDT",
+      "base": "XRP",
+      "side": "LONG",
+      "price": 1.5018,
+      "sl": 1.4961,
+      "tp": 1.5125,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Inverse FVG (IFVG) Liquidity Scalp]: Bullish Inversion: Bearish FVG [$1.50 - $1.50] inverted by displacement breakout. Retest confirmed at $1.50 with sweep low @ $1.50. Targeting 3R. (Target: 15-30 menit)",
+      "confluence_score": 80,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified XRPUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-22 02:46:42"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.0,
+        "thesis": "APPROVED: Setup XRPUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.4961.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 1.4961,
+          "tp_price": 1.5125,
+          "rr_ratio": 3.0,
+          "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+          "bull_score": 59,
+          "bear_score": 41,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+          "bear_critique": " • Aset XRPUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 1.4961,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-22 02:46:59"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-22 02:47:05",
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat. | ADX momentum kuat (54.3) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 61,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 63,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "XRP",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 1849.3,
+    "risk_budget_usd": 21.969051556736
+  },
+  {
+    "timestamp": "2026-09-22 02:48:10",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3434.1379427,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:49:24",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3438.47400047,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:50:34",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3438.82493394,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:51:49",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3433.04596576,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 02:53:20",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3432.22129102,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 02:54:46",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "XRPUSDT",
+      "base": "XRP",
+      "side": "LONG",
+      "price": 1.5003437,
+      "sl": 1.4961,
+      "tp": 1.5117,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Inverse FVG (IFVG) Liquidity Scalp]: Bullish Inversion: Bearish FVG [$1.50 - $1.50] inverted by displacement breakout. Retest confirmed at $1.50 with sweep low @ $1.50. Targeting 3R. (Target: 15-30 menit)",
+      "confluence_score": 95,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified XRPUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-22 02:55:55"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.0,
+        "thesis": "APPROVED: Setup XRPUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.4961.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 1.4961,
+          "tp_price": 1.5117,
+          "rr_ratio": 3.0,
+          "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+          "bull_score": 59,
+          "bear_score": 41,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+          "bear_critique": " • Aset XRPUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 1.4961,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-22 02:56:14"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-22 02:56:20",
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat. | ADX momentum kuat (54.3) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 61,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 63,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "XRP",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 1851.1,
+    "risk_budget_usd": 21.951073668352
+  },
+  {
+    "timestamp": "2026-09-22 02:57:25",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3432.09370877,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 02:58:54",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3435.84010129,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:00:16",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3445.71242737,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:04:40",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3446.30903354,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:07:22",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3449.31989917,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:08:41",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3462.57145354,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:10:10",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3462.33969389,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:11:30",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3463.35498603,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:12:56",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3461.21740149,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:14:21",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3463.1544064,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:15:46",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3462.2453964,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:18:39",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3478.99710719,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:20:15",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3494.99745177,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:21:35",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3505.78855393,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:24:40",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3500.71646274,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:26:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3503.15280609,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:27:24",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3512.34905728,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:28:58",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3529.126948,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:33:43",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3518.01025213,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:35:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3511.98590762,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:36:24",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3505.63309837,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:40:36",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3516.98034451,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:41:59",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3517.37528664,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:43:17",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3518.11151659,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:46:23",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3516.05816443,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:47:47",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3520.87508436,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:49:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3523.95775453,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-22 03:50:30",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "XRPUSDT",
+      "base": "XRP",
+      "side": "LONG",
+      "price": 1.53036236,
+      "sl": 1.5132,
+      "tp": 1.5768,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "orderflow_metrics": {
+        "cvd_delta_pct": 8.27,
+        "dom_imbalance_ratio": 1.21,
+        "absorption_conviction": 50
+      },
+      "reason": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Order flow delta and price action are aligned neutrally. Supported by DOM Bid Wall @ $1.53 ($134,512 USDT). (Target: 15-30 menit)",
+      "confluence_score": 83,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified XRPUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-22 03:51:32"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.0,
+        "thesis": "APPROVED: Setup XRPUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.5132.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 1.5132,
+          "tp_price": 1.5768,
+          "rr_ratio": 3.0,
+          "strategy": "5m Order Flow CVD Absorption Scalp",
+          "bull_score": 60,
+          "bear_score": 40,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Dinding bid support tebal (1.66x Bids/Asks) menahan tekanan jual di bawah entry.",
+          "bear_critique": " • Aset XRPUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 1.5132,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-22 03:51:47"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-22 03:51:53",
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 60% menunjukkan dorongan positif moderat. | ADX momentum kuat (56.2) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 62,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 62.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 64,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "XRP",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 1726.1,
+    "risk_budget_usd": 22.543535644544
+  },
+  {
+    "timestamp": "2026-09-22 03:53:02",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3528.66761814,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:54:15",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3527.10424497,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:55:27",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3524.99412334,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:56:42",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3527.37502746,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:57:56",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3538.09876615,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 03:59:17",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3527.32789149,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 04:00:30",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3529.36509238,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 04:01:45",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3520.85874728,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-22 04:02:56",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3522.24356645,
+    "positions_count": 3
   }
 ]
