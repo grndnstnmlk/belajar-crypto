@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-22T13:22:36.112420+00:00",
-    "total_reflections": 5,
-    "system_retention_score": 102.2
+    "last_reflection_at": "2026-09-22T13:28:34.451709+00:00",
+    "total_reflections": 6,
+    "system_retention_score": 103.6
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -198,16 +198,16 @@
         "Volume Surge Pullback"
       ],
       "notes": "AI and Web3 infrastructure bellwether. Clean price action on 1H timeframes.",
-      "total_trades": 3,
+      "total_trades": 4,
       "wins": 1,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 1,
-      "win_rate_pct": 33.3,
-      "net_pnl_usd": -44.99,
+      "win_rate_pct": 25.0,
+      "net_pnl_usd": -49.79,
       "avg_r_multiple": -0.61,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-21 21:04:24",
-      "updated_at": "2026-09-22T11:43:11.134599+00:00"
+      "updated_at": "2026-09-22T13:28:34.451700+00:00"
     },
     "LINKUSDT": {
       "symbol": "LINKUSDT",
@@ -564,9 +564,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-22T13:22:36.112417+00:00"
+    },
+    {
+      "id": "RULE-AUTO-NEARUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on NEARUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "nearusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-22T13:28:34.451707+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260922-009",
+      "timestamp": "2026-09-22T13:28:34.451686+00:00",
+      "symbol": "NEARUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -4.8,
+      "r_multiple": -0.18,
+      "pnl_pct": -0.17,
+      "root_cause": "Adverse volatility stop-out on NEARUSDT Smart Money Concepts (SMC) (net: -$4.80, -0.18R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on NEARUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "near",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-22T13:28:34.451691+00:00"
+    },
     {
       "id": "MEM-20260922-008",
       "timestamp": "2026-09-22T13:22:36.112394+00:00",
@@ -586,8 +620,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1,
-      "last_accessed": "2026-09-22T13:22:36.112400+00:00"
+      "access_count": 9,
+      "last_accessed": "2026-09-22T13:27:28.516462+00:00"
     },
     {
       "id": "MEM-20260922-007",
@@ -634,8 +668,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 109,
-      "last_accessed": "2026-09-22T13:21:54.395910+00:00"
+      "access_count": 117,
+      "last_accessed": "2026-09-22T13:27:28.516452+00:00"
     },
     {
       "id": "MEM-20260922-005",
@@ -658,8 +692,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 160,
-      "last_accessed": "2026-09-22T13:21:54.395919+00:00"
+      "access_count": 169,
+      "last_accessed": "2026-09-22T13:27:28.516464+00:00"
     },
     {
       "id": "MEM-20260922-004",
@@ -680,8 +714,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 178,
-      "last_accessed": "2026-09-22T13:21:54.395917+00:00"
+      "access_count": 187,
+      "last_accessed": "2026-09-22T13:27:28.516460+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -720,8 +754,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 165,
-      "last_accessed": "2026-09-22T13:21:38.820411+00:00"
+      "access_count": 167,
+      "last_accessed": "2026-09-22T13:27:08.662023+00:00"
     },
     {
       "id": "MEM-20260907-003",
