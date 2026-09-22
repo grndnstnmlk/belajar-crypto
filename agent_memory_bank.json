@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-22T21:58:15.719961+00:00",
-    "total_reflections": 14,
-    "system_retention_score": 114.7
+    "last_reflection_at": "2026-09-22T22:20:07.154263+00:00",
+    "total_reflections": 15,
+    "system_retention_score": 116.1
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -316,16 +316,16 @@
         "15m FVG Reversal"
       ],
       "notes": "Synthetic dollar yield token; strongly skewed by funding rates.",
-      "total_trades": 5,
+      "total_trades": 6,
       "wins": 3,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
-      "win_rate_pct": 60.0,
-      "net_pnl_usd": 12.43,
+      "win_rate_pct": 50.0,
+      "net_pnl_usd": -12.97,
       "avg_r_multiple": 0.32,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-22 20:00:19",
-      "updated_at": "2026-09-22T15:28:23.054270+00:00"
+      "updated_at": "2026-09-22T22:20:07.154254+00:00"
     },
     "PEPEUSDT": {
       "symbol": "PEPEUSDT",
@@ -619,9 +619,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-22T21:58:15.719958+00:00"
+    },
+    {
+      "id": "RULE-AUTO-ENAUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ENAUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "enausdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-22T22:20:07.154262+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260922-018",
+      "timestamp": "2026-09-22T22:20:07.154241+00:00",
+      "symbol": "ENAUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -25.4,
+      "r_multiple": -0.96,
+      "pnl_pct": -1.83,
+      "root_cause": "Adverse volatility stop-out on ENAUSDT Smart Money Concepts (SMC) (net: -$25.40, -0.96R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ENAUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "ena",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-22T22:20:07.154246+00:00"
+    },
     {
       "id": "MEM-20260922-017",
       "timestamp": "2026-09-22T21:58:15.719935+00:00",
@@ -641,8 +675,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1,
-      "last_accessed": "2026-09-22T21:58:15.719940+00:00"
+      "access_count": 19,
+      "last_accessed": "2026-09-22T22:18:38.664209+00:00"
     },
     {
       "id": "MEM-20260922-016",
@@ -665,8 +699,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 3,
-      "last_accessed": "2026-09-22T19:57:37.645270+00:00"
+      "access_count": 21,
+      "last_accessed": "2026-09-22T22:18:38.664216+00:00"
     },
     {
       "id": "MEM-20260922-015",
@@ -711,8 +745,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 351,
-      "last_accessed": "2026-09-22T21:57:53.729406+00:00"
+      "access_count": 397,
+      "last_accessed": "2026-09-22T22:18:40.788276+00:00"
     },
     {
       "id": "MEM-20260922-013",
@@ -735,8 +769,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 185,
-      "last_accessed": "2026-09-22T21:57:53.736541+00:00"
+      "access_count": 200,
+      "last_accessed": "2026-09-22T22:18:38.690040+00:00"
     },
     {
       "id": "MEM-20260922-012",
@@ -759,8 +793,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 186,
-      "last_accessed": "2026-09-22T21:57:53.729414+00:00"
+      "access_count": 201,
+      "last_accessed": "2026-09-22T22:18:39.782202+00:00"
     },
     {
       "id": "MEM-20260922-011",
@@ -783,8 +817,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 239,
-      "last_accessed": "2026-09-22T21:57:51.711765+00:00"
+      "access_count": 254,
+      "last_accessed": "2026-09-22T22:18:40.788265+00:00"
     },
     {
       "id": "MEM-20260922-010",
@@ -849,8 +883,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1316,
-      "last_accessed": "2026-09-22T21:57:53.736543+00:00"
+      "access_count": 1410,
+      "last_accessed": "2026-09-22T22:18:40.788272+00:00"
     },
     {
       "id": "MEM-20260922-007",
@@ -897,8 +931,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 660,
-      "last_accessed": "2026-09-22T21:57:53.736536+00:00"
+      "access_count": 675,
+      "last_accessed": "2026-09-22T22:18:38.690035+00:00"
     },
     {
       "id": "MEM-20260922-005",
@@ -921,8 +955,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1038,
-      "last_accessed": "2026-09-22T21:57:52.722244+00:00"
+      "access_count": 1069,
+      "last_accessed": "2026-09-22T22:18:38.682674+00:00"
     },
     {
       "id": "MEM-20260922-004",
@@ -943,8 +977,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1494,
-      "last_accessed": "2026-09-22T21:57:53.736544+00:00"
+      "access_count": 1588,
+      "last_accessed": "2026-09-22T22:18:40.788274+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -983,8 +1017,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 402,
-      "last_accessed": "2026-09-22T21:57:51.716805+00:00"
+      "access_count": 417,
+      "last_accessed": "2026-09-22T22:18:38.642094+00:00"
     },
     {
       "id": "MEM-20260907-003",
