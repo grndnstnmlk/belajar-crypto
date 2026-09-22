@@ -6,10 +6,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-22 19:56:43",
-    "updated_at": "2026-09-22 19:57:36",
+    "updated_at": "2026-09-22 21:58:15",
     "payload": {
       "entry": 12.952,
       "sl": 12.8968,
@@ -118,7 +118,13 @@
       "authorized_at": "2026-09-22 19:57:36",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$14.56 USDT)",
+      "realized_pnl": -14.5562,
+      "net_pnl": -15.6618,
+      "closed_at": "2026-09-22 21:58:15"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-22 19:56:43",
@@ -143,6 +149,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-22 21:58:15",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$14.56 USDT) | PnL: $-14.56 USDT (Net: $-15.66)"
       }
     ]
   },
@@ -297,18 +309,18 @@
     "ticket_id": "TCK-20260922-0856",
     "symbol": "XRPUSDT",
     "side": "LONG",
-    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 17:40:00",
-    "updated_at": "2026-09-22 21:28:15",
+    "updated_at": "2026-09-22 21:39:47",
     "payload": {
-      "entry": 1.57443557,
-      "sl": 1.5659,
-      "tp": 1.6,
-      "rr": 3.0
+      "entry": 1.575,
+      "sl": 1.5417,
+      "tp": 1.6416,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -333,11 +345,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 17:31:26",
-    "updated_at": "2026-09-22 21:12:06",
+    "updated_at": "2026-09-22 21:56:34",
     "payload": {
-      "entry": 86224.71483696,
-      "sl": 86090.8262,
-      "tp": 86626.3807,
+      "entry": 86261.2,
+      "sl": 86091.822,
+      "tp": 86769.334,
       "rr": 3.0
     },
     "debate_result": null,
@@ -516,18 +528,18 @@
     "ticket_id": "TCK-20260922-7246",
     "symbol": "SUIUSDT",
     "side": "LONG",
-    "strategy": "Quantitative Confluence Setup",
+    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 14:55:07",
-    "updated_at": "2026-09-22 21:26:54",
+    "updated_at": "2026-09-22 21:56:34",
     "payload": {
-      "entry": 1.0044,
-      "sl": 0.9843,
-      "tp": 1.0848,
-      "rr": 4.0
+      "entry": 1.0132963,
+      "sl": 1.0082,
+      "tp": 1.0286,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -864,18 +876,18 @@
     "ticket_id": "TCK-20260922-0210",
     "symbol": "ETHUSDT",
     "side": "LONG",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-22 14:51:30",
-    "updated_at": "2026-09-22 21:28:15",
+    "updated_at": "2026-09-22 21:56:34",
     "payload": {
-      "entry": 2748.4659,
-      "sl": 2719.4904,
-      "tp": 2806.417,
-      "rr": 2.0
+      "entry": 2749.84649225,
+      "sl": 2744.233,
+      "tp": 2766.687,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -1705,18 +1717,18 @@
     "ticket_id": "TCK-20260922-2648",
     "symbol": "SOLUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 12:11:42",
-    "updated_at": "2026-09-22 21:28:15",
+    "updated_at": "2026-09-22 21:54:56",
     "payload": {
-      "entry": 117.90806841,
-      "sl": 117.4882,
-      "tp": 119.1677,
-      "rr": 3.0
+      "entry": 118.1853,
+      "sl": 115.5814,
+      "tp": 123.3931,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
