@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-22T13:00:40.285708+00:00",
-    "total_reflections": 4,
-    "system_retention_score": 97.3
+    "last_reflection_at": "2026-09-22T13:22:36.112420+00:00",
+    "total_reflections": 5,
+    "system_retention_score": 102.2
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -463,7 +463,7 @@
     "TAOUSDT": {
       "symbol": "TAOUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -472,13 +472,13 @@
         "1H EMA 50 Dynamic Support"
       ],
       "notes": "Narrative-driven asset TAOUSDT. Correlated with tech momentum; best traded with trend alignment.",
-      "total_trades": 7,
+      "total_trades": 8,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -278.35,
+      "net_pnl_usd": -324.33,
       "created_dynamically": true,
-      "updated_at": "2026-09-22T11:43:11.134605+00:00",
+      "updated_at": "2026-09-22T13:22:36.112408+00:00",
       "wins": 0,
-      "losses": 7,
+      "losses": 8,
       "breakevens": 0,
       "avg_r_multiple": -1.93,
       "last_traded_outcome": "LOSS",
@@ -552,9 +552,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-22T11:48:35.640630+00:00"
+    },
+    {
+      "id": "RULE-AUTO-TAOUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on TAOUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "taousdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-22T13:22:36.112417+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260922-008",
+      "timestamp": "2026-09-22T13:22:36.112394+00:00",
+      "symbol": "TAOUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -45.98,
+      "r_multiple": -2.23,
+      "pnl_pct": -1.66,
+      "root_cause": "Adverse volatility stop-out on TAOUSDT Smart Money Concepts (SMC) (net: -$45.98, -2.23R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on TAOUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "tao",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-22T13:22:36.112400+00:00"
+    },
     {
       "id": "MEM-20260922-007",
       "timestamp": "2026-09-22T13:00:40.285691+00:00",
@@ -600,8 +634,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 85,
-      "last_accessed": "2026-09-22T13:10:05.549747+00:00"
+      "access_count": 109,
+      "last_accessed": "2026-09-22T13:21:54.395910+00:00"
     },
     {
       "id": "MEM-20260922-005",
@@ -624,8 +658,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 136,
-      "last_accessed": "2026-09-22T13:10:05.549757+00:00"
+      "access_count": 160,
+      "last_accessed": "2026-09-22T13:21:54.395919+00:00"
     },
     {
       "id": "MEM-20260922-004",
@@ -646,8 +680,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 154,
-      "last_accessed": "2026-09-22T13:10:05.549755+00:00"
+      "access_count": 178,
+      "last_accessed": "2026-09-22T13:21:54.395917+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -666,8 +700,8 @@
         "absorption"
       ],
       "importance": 9,
-      "access_count": 44,
-      "last_accessed": "2026-09-22T13:10:05.549758+00:00"
+      "access_count": 54,
+      "last_accessed": "2026-09-22T13:21:54.395920+00:00"
     },
     {
       "id": "MEM-20260903-002",
@@ -686,8 +720,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 151,
-      "last_accessed": "2026-09-22T13:09:57.470234+00:00"
+      "access_count": 165,
+      "last_accessed": "2026-09-22T13:21:38.820411+00:00"
     },
     {
       "id": "MEM-20260907-003",
