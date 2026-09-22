@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-22T07:30:58.512768+00:00",
-    "total_reflections": 181,
+    "last_reflection_at": "2026-09-22T07:34:49.501059+00:00",
+    "total_reflections": 182,
     "system_retention_score": 97.7
   },
   "coin_profiles": {
@@ -472,13 +472,13 @@
         "1H EMA 50 Dynamic Support"
       ],
       "notes": "Narrative-driven asset TAOUSDT. Correlated with tech momentum; best traded with trend alignment.",
-      "total_trades": 4,
+      "total_trades": 5,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -153.21,
+      "net_pnl_usd": -194.94,
       "created_dynamically": true,
-      "updated_at": "2026-09-22T07:30:48.473919+00:00",
+      "updated_at": "2026-09-22T07:34:49.501059+00:00",
       "wins": 0,
-      "losses": 4,
+      "losses": 5,
       "breakevens": 0,
       "last_traded_outcome": "LOSS"
     }
@@ -658,17 +658,39 @@
       "id": "RULE-AUTO-TAOUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on TAOUSDT due to elevated wick risk.",
-      "confidence": 0.96,
+      "confidence": 0.99,
       "trigger_conditions": [
         "taousdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-09-22T07:24:45.687283+00:00",
-      "updated_at": "2026-09-22T07:30:48.473919+00:00"
+      "updated_at": "2026-09-22T07:34:49.501059+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260922-185",
+      "timestamp": "2026-09-22T07:34:49.501059+00:00",
+      "symbol": "TAOUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -41.73,
+      "r_multiple": -2.08,
+      "pnl_pct": -1.5,
+      "root_cause": "Adverse volatility stop-out on TAOUSDT Smart Money Concepts (SMC) (net: -$41.73, -2.08R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on TAOUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "tao",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-22T07:34:49.501059+00:00"
+    },
     {
       "id": "MEM-20260922-184",
       "timestamp": "2026-09-22T07:30:58.512768+00:00",
