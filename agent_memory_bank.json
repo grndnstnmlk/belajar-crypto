@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-22T07:45:26.954280+00:00",
-    "total_reflections": 187,
-    "system_retention_score": 97.5
+    "last_reflection_at": "2026-09-22T07:45:37.624187+00:00",
+    "total_reflections": 191,
+    "system_retention_score": 97.3
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -43,14 +43,14 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 33,
-      "wins": 17,
+      "total_trades": 34,
+      "wins": 18,
       "losses": 10,
       "breakevens": 6,
-      "net_pnl_usd": -39.55,
-      "win_rate_pct": 51.5,
+      "net_pnl_usd": -39.47,
+      "win_rate_pct": 52.9,
       "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-22T07:34:52.124632+00:00",
+      "updated_at": "2026-09-22T07:45:29.789578+00:00",
       "avg_r_multiple": -0.09,
       "last_closed_at": "2026-09-22 02:45:33"
     },
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 28,
+      "total_trades": 29,
       "wins": 7,
-      "losses": 20,
+      "losses": 21,
       "breakevens": 1,
-      "win_rate_pct": 25.0,
-      "net_pnl_usd": -17.27,
+      "win_rate_pct": 24.1,
+      "net_pnl_usd": -32.87,
       "avg_r_multiple": 0.14,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-22 08:19:05",
-      "updated_at": "2026-09-22T07:35:07.015095+00:00"
+      "updated_at": "2026-09-22T07:45:35.290850+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -90,16 +90,16 @@
         "Institutional Iceberg Absorption"
       ],
       "notes": "Exchange native anchor. High institutional bid support; low false breakout rate on HTF.",
-      "total_trades": 20,
+      "total_trades": 21,
       "wins": 6,
-      "losses": 14,
+      "losses": 15,
       "breakevens": 0,
-      "win_rate_pct": 30.0,
-      "net_pnl_usd": -33.9,
+      "win_rate_pct": 28.6,
+      "net_pnl_usd": -49.29,
       "avg_r_multiple": 1.04,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-21 22:31:16",
-      "updated_at": "2026-09-22T07:35:09.112624+00:00"
+      "updated_at": "2026-09-22T07:45:37.624187+00:00"
     },
     "XRPUSDT": {
       "symbol": "XRPUSDT",
@@ -113,14 +113,14 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 24,
+      "total_trades": 25,
       "wins": 7,
-      "losses": 17,
+      "losses": 18,
       "breakevens": 0,
-      "net_pnl_usd": -12.14,
-      "win_rate_pct": 29.2,
+      "net_pnl_usd": -22.82,
+      "win_rate_pct": 28.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-22T07:35:04.755731+00:00",
+      "updated_at": "2026-09-22T07:45:32.930025+00:00",
       "avg_r_multiple": 0.41,
       "last_closed_at": "2026-09-22 04:37:36"
     },
@@ -550,7 +550,7 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-20T12:59:21.470804+00:00",
-      "updated_at": "2026-09-22T07:35:07.015095+00:00"
+      "updated_at": "2026-09-22T07:45:35.290850+00:00"
     },
     {
       "id": "RULE-AUTO-ETHUSDT",
@@ -576,7 +576,7 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-21T01:40:36.209782+00:00",
-      "updated_at": "2026-09-22T07:35:04.755731+00:00"
+      "updated_at": "2026-09-22T07:45:32.930025+00:00"
     },
     {
       "id": "RULE-AUTO-BTCUSDT",
@@ -652,7 +652,7 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-22T05:39:21.463536+00:00",
-      "updated_at": "2026-09-22T07:35:09.112624+00:00"
+      "updated_at": "2026-09-22T07:45:37.624187+00:00"
     },
     {
       "id": "RULE-AUTO-TAOUSDT",
@@ -669,6 +669,96 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260922-194",
+      "timestamp": "2026-09-22T07:45:37.624187+00:00",
+      "symbol": "BNBUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -15.39,
+      "r_multiple": -0.71,
+      "pnl_pct": -0.56,
+      "root_cause": "Adverse volatility stop-out on BNBUSDT Smart Money Concepts (SMC) (net: -$15.39, -0.71R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BNBUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "bnb",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-22T07:45:37.624187+00:00"
+    },
+    {
+      "id": "MEM-20260922-193",
+      "timestamp": "2026-09-22T07:45:35.290850+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -15.6,
+      "r_multiple": -0.72,
+      "pnl_pct": -0.56,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT Smart Money Concepts (SMC) (net: -$15.60, -0.72R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-22T07:45:35.290850+00:00"
+    },
+    {
+      "id": "MEM-20260922-192",
+      "timestamp": "2026-09-22T07:45:32.930025+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -10.68,
+      "r_multiple": -0.48,
+      "pnl_pct": -0.41,
+      "root_cause": "Adverse volatility stop-out on XRPUSDT Smart Money Concepts (SMC) (net: -$10.68, -0.48R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on XRPUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-22T07:45:32.930025+00:00"
+    },
+    {
+      "id": "MEM-20260922-191",
+      "timestamp": "2026-09-22T07:45:29.789578+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 0.08,
+      "r_multiple": 0.05,
+      "pnl_pct": 0.0,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on ETHUSDT. Trend momentum aligned with HTF bias, securing +0.05R net profit (+$0.08).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on ETHUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "eth",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-22T07:45:29.789578+00:00"
+    },
     {
       "id": "MEM-20260922-190",
       "timestamp": "2026-09-22T07:45:26.953284+00:00",
