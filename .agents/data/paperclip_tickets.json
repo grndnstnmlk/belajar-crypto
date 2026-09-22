@@ -1,5 +1,65 @@
 [
   {
+    "ticket_id": "TCK-20260922-0856",
+    "symbol": "XRPUSDT",
+    "side": "LONG",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-22 17:40:00",
+    "updated_at": "2026-09-22 17:57:39",
+    "payload": {
+      "entry": 1.5713,
+      "sl": 1.5358,
+      "tp": 1.6422,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-22 17:40:00",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup XRPUSDT (LONG) teridentifikasi via 5m ICT Rejection Block Mean Threshold."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260922-6166",
+    "symbol": "BTCUSDT",
+    "side": "LONG",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-22 17:31:26",
+    "updated_at": "2026-09-22 17:55:50",
+    "payload": {
+      "entry": 86490.2,
+      "sl": 85719.5136,
+      "tp": 88031.5728,
+      "rr": 2.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-22 17:31:26",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BTCUSDT (LONG) teridentifikasi via 5m ICT Rejection Block Mean Threshold."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260922-8735",
     "symbol": "XRPUSDT",
     "side": "LONG",
@@ -168,12 +228,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 14:55:07",
-    "updated_at": "2026-09-22 16:31:07",
+    "updated_at": "2026-09-22 17:54:16",
     "payload": {
-      "entry": 0.9993,
+      "entry": 1.006,
       "sl": 0.9843,
-      "tp": 1.0593,
-      "rr": 3.9999999999999925
+      "tp": 1.0928,
+      "rr": 3.99999999999999
     },
     "debate_result": null,
     "risk_result": null,
@@ -353,20 +413,119 @@
     "side": "LONG",
     "strategy": "Quantitative Confluence Setup",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
     "priority": "NORMAL",
     "created_at": "2026-09-22 14:51:30",
-    "updated_at": "2026-09-22 16:31:07",
+    "updated_at": "2026-09-22 17:32:41",
     "payload": {
-      "entry": 786.06,
-      "sl": 774.1866,
-      "tp": 833.5536,
-      "rr": 4.0000000000000195
+      "entry": 788.53,
+      "sl": 778.5096,
+      "tp": 828.6116,
+      "rr": 4.0
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
+    "debate_result": {
+      "symbol": "BNBUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 778.5096,
+      "tp_price": 828.6116,
+      "rr_ratio": 4.0,
+      "strategy": "\ud83c\udf1f 3-TOUCH SUPPORT ($786.3733) + VWAP Bullish + RSI 50.5 + R:R 1:4.00 [\ud83d\udfe1 MEAN REVERSION ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 80%)",
+      "bull_score": 56,
+      "bear_score": 44,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:4.00) memenuhi standar asimetri risiko institusional.",
+      "bear_critique": " \u2022 Fear & Greed mencapai level Extreme Greed (78/100); waspada potensi exit liquidity / long squeeze.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (56% vs 44%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 778.5096,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-23 00:32:31"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.6,
+      "thesis": "ADJUST_RISK: Setup BNBUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (100.687 / +0.47%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "Global Macro Risk-Off: DXY Surging (100.687 / +0.47%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $778.5096.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BNBUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 778.5096,
+        "tp_price": 828.6116,
+        "rr_ratio": 4.0,
+        "strategy": "\ud83c\udf1f 3-TOUCH SUPPORT ($786.3733) + VWAP Bullish + RSI 50.5 + R:R 1:4.00 [\ud83d\udfe1 MEAN REVERSION ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 80%)",
+        "bull_score": 56,
+        "bear_score": 44,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:4.00) memenuhi standar asimetri risiko institusional.",
+        "bear_critique": " \u2022 Fear & Greed mencapai level Extreme Greed (78/100); waspada potensi exit liquidity / long squeeze.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (56% vs 44%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 778.5096,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-23 00:32:31"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-23 00:32:41",
+        "symbol": "BNBUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:4.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 56% menunjukkan dorongan positif moderat. | ADX momentum kuat (36.6) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 54,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 54.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 61,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.25,
+            "neutral": 0.4,
+            "conservative": 0.35
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BNB",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 4,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.07,
+        "relative_strength_vs_btc": -0.8,
+        "confluence_boost": -5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-22 17:32:41",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
     "execution_result": null,
     "timeline": [
       {
@@ -374,6 +533,24 @@
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup BNBUSDT (LONG) teridentifikasi via 5m ICT Rejection Block Mean Threshold."
+      },
+      {
+        "timestamp": "2026-09-22 17:32:41",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 56% vs Bear 44% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-22 17:32:41",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-22 17:32:41",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
@@ -381,18 +558,18 @@
     "ticket_id": "TCK-20260922-0210",
     "symbol": "ETHUSDT",
     "side": "LONG",
-    "strategy": "Quantitative Confluence Setup",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-22 14:51:30",
-    "updated_at": "2026-09-22 16:31:07",
+    "updated_at": "2026-09-22 17:57:39",
     "payload": {
-      "entry": 2733.5,
-      "sl": 2689.2608,
-      "tp": 2910.4568,
-      "rr": 4.0
+      "entry": 2753.79,
+      "sl": 2719.7676,
+      "tp": 2821.8348,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -1210,18 +1387,18 @@
     "ticket_id": "TCK-20260922-2648",
     "symbol": "SOLUSDT",
     "side": "LONG",
-    "strategy": "Quantitative Confluence Setup",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 12:11:42",
-    "updated_at": "2026-09-22 16:28:18",
+    "updated_at": "2026-09-22 17:55:50",
     "payload": {
-      "entry": 116.81,
-      "sl": 114.7733,
-      "tp": 124.9568,
-      "rr": 4.000000000000007
+      "entry": 117.89820673,
+      "sl": 117.3285,
+      "tp": 119.6073,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
