@@ -6,10 +6,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-22 10:30:09",
-    "updated_at": "2026-09-22 10:51:19",
+    "updated_at": "2026-09-22 11:37:27",
     "payload": {
       "entry": 2740.6277,
       "sl": 2733.1341,
@@ -118,7 +118,11 @@
       "authorized_at": "2026-09-22 10:51:19",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-22 11:37:27"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-22 10:30:09",
@@ -143,6 +147,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-22 11:37:27",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -150,18 +160,18 @@
     "ticket_id": "TCK-20260922-1563",
     "symbol": "SOLUSDT",
     "side": "LONG",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 10:26:31",
-    "updated_at": "2026-09-22 11:27:37",
+    "updated_at": "2026-09-22 11:36:32",
     "payload": {
-      "entry": 117.13,
-      "sl": 114.2852,
-      "tp": 122.8196,
-      "rr": 2.0
+      "entry": 117.07150479,
+      "sl": 116.6033,
+      "tp": 118.4761,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -334,12 +344,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 09:00:46",
-    "updated_at": "2026-09-22 11:34:06",
+    "updated_at": "2026-09-22 11:36:32",
     "payload": {
-      "entry": 4.552,
-      "sl": 4.4772,
-      "tp": 4.8138,
-      "rr": 3.500000000000012
+      "entry": 4.561,
+      "sl": 4.4857,
+      "tp": 4.8246,
+      "rr": 3.5006640106241567
     },
     "debate_result": null,
     "risk_result": null,
@@ -358,17 +368,17 @@
     "ticket_id": "TCK-20260922-7744",
     "symbol": "TAOUSDT",
     "side": "LONG",
-    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 08:29:07",
-    "updated_at": "2026-09-22 11:31:39",
+    "updated_at": "2026-09-22 11:36:32",
     "payload": {
-      "entry": 315.54248844,
-      "sl": 310.9887,
-      "tp": 329.2039,
+      "entry": 318.19758661,
+      "sl": 315.8206,
+      "tp": 325.3285,
       "rr": 3.0
     },
     "debate_result": null,
@@ -5020,12 +5030,12 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-21 14:12:13",
-    "updated_at": "2026-09-22 11:34:06",
+    "updated_at": "2026-09-22 11:36:32",
     "payload": {
-      "entry": 0.2101,
+      "entry": 0.2106,
       "sl": 0.2034,
-      "tp": 0.2369,
-      "rr": 3.9999999999999916
+      "tp": 0.2394,
+      "rr": 3.9999999999999925
     },
     "debate_result": null,
     "risk_result": null,
