@@ -1575,6 +1575,25 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
             except Exception as e:
                 pass
 
+            # Parkinson Historical Volatility Dynamic Stop Loss Shield (Wick-Trap Prevention)
+            # Formula: sigma_parkinson = sqrt( (1 / (4*ln(2)*N)) * sum((ln(H/L))^2) )
+            try:
+                import quant_risk_engine
+                wick_shield = quant_risk_engine.calculate_parkinson_wick_shield(
+                    symbol=best["symbol"],
+                    side=best["side"],
+                    entry_price=best["price"],
+                    proposed_sl=best["sl"],
+                    proposed_tp=best.get("tp")
+                )
+                if wick_shield.get("is_adjusted"):
+                    print(f"  🛡️ [PARKINSON WICK SHIELD] {wick_shield['reason']}")
+                    best["sl"] = wick_shield["adjusted_sl"]
+                    if wick_shield.get("adjusted_tp"):
+                        best["tp"] = wick_shield["adjusted_tp"]
+            except Exception as e:
+                pass
+
             # Check OSINT & Security Forensics Guardrail
             try:
                 import crypto_osint_forensics_hub

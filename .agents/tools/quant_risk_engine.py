@@ -276,6 +276,130 @@ def compute_portfolio_var(balance_usd, active_positions, daily_volatility_pct=0.
         "risk_status": status
     }
 
+def calculate_parkinson_volatility(highs, lows) -> float:
+    """
+    Computes Parkinson Historical Volatility (High-Low estimator):
+    sigma_parkinson = sqrt( 1 / (4 * ln(2) * N) * sum((ln(H_i / L_i))^2) )
+    
+    Standard deviation on close prices is blind to liquidation wicks.
+    Parkinson measures the extreme price range, identifying liquidation
+    flushes and market turbulence.
+    """
+    if not highs or not lows or len(highs) != len(lows) or len(highs) < 2:
+        return 0.025  # baseline 2.5%
+
+    valid_hl = []
+    for h, l in zip(highs, lows):
+        try:
+            h_f, l_f = float(h), float(l)
+            if h_f > 0 and l_f > 0 and h_f >= l_f:
+                valid_hl.append((h_f, l_f))
+        except (ValueError, TypeError):
+            continue
+
+    if len(valid_hl) < 2:
+        return 0.025
+
+    n = len(valid_hl)
+    sum_hl_sq = sum((math.log(h / l)) ** 2 for h, l in valid_hl)
+    parkinson_var = sum_hl_sq / (4.0 * math.log(2.0) * n)
+    return math.sqrt(max(parkinson_var, 0.00001))
+
+def calculate_parkinson_wick_shield(
+    symbol: str,
+    side: str,
+    entry_price: float,
+    proposed_sl: float,
+    proposed_tp: float = None,
+    candles: list = None,
+    buffer_multiplier: float = 1.2
+) -> dict:
+    """
+    Parkinson Volatility Dynamic Stop Loss Buffer (Wick-Trap Prevention Shield)
+    (Akademi Crypto Module 03 & Quant Risk Management).
+    
+    Standar deviasi biasa hanya melihat harga penutupan candle (Close),
+    sehingga buta terhadap jarum likuidasi (wicks).
+    Formula Parkinson membaca rentang ekstrem High/Low, menyesuaikan jarak Stop Loss
+    agar tidak tersapu noise/liquidation wicks sembari mempertahankan rasio R:R >= 1:3.0.
+    """
+    highs, lows = [], []
+    
+    if candles and isinstance(candles, list) and len(candles) >= 5:
+        for c in candles:
+            if isinstance(c, dict):
+                highs.append(float(c.get("high", c.get("h", 0))))
+                lows.append(float(c.get("low", c.get("l", 0))))
+            elif isinstance(c, (list, tuple)) and len(c) >= 5:
+                highs.append(float(c[2]))
+                lows.append(float(c[3]))
+    
+    if len(highs) < 5:
+        try:
+            import market_eyes
+            c_data = market_eyes.fetch_candles(symbol, bar="15m", limit=30)
+            if c_data:
+                for c in c_data:
+                    highs.append(float(c["high"]))
+                    lows.append(float(c["low"]))
+        except Exception:
+            pass
+            
+    sigma_p = calculate_parkinson_volatility(highs, lows) if highs else 0.025
+    var_95_pct = round(sigma_p * 1.645 * 100.0, 2)
+    safe_wick_buffer_pct = max(0.8, min(5.0, sigma_p * buffer_multiplier * 100.0))
+    
+    entry_f = float(entry_price)
+    sl_f = float(proposed_sl)
+    side_clean = side.upper()
+    is_long = side_clean in ["BUY", "LONG"]
+    
+    proposed_dist_pct = (abs(entry_f - sl_f) / entry_f * 100.0) if entry_f > 0 else 0.0
+    
+    # Check if proposed SL is inside the wick noise trap zone
+    if proposed_dist_pct < safe_wick_buffer_pct:
+        # Expand SL outside the liquidation wick zone
+        if is_long:
+            adjusted_sl = round(entry_f * (1.0 - (safe_wick_buffer_pct / 100.0)), 4)
+            risk_dist = entry_f - adjusted_sl
+            adjusted_tp = round(entry_f + (risk_dist * 3.0), 4) if proposed_tp is None or proposed_tp <= entry_f else max(proposed_tp, round(entry_f + (risk_dist * 3.0), 4))
+        else:
+            adjusted_sl = round(entry_f * (1.0 + (safe_wick_buffer_pct / 100.0)), 4)
+            risk_dist = adjusted_sl - entry_f
+            adjusted_tp = round(entry_f - (risk_dist * 3.0), 4) if proposed_tp is None or proposed_tp >= entry_f else min(proposed_tp, round(entry_f - (risk_dist * 3.0), 4))
+            
+        return {
+            "symbol": symbol.upper(),
+            "side": side_clean,
+            "is_adjusted": True,
+            "parkinson_volatility_pct": round(sigma_p * 100.0, 3),
+            "var_95_pct": var_95_pct,
+            "safe_wick_buffer_pct": round(safe_wick_buffer_pct, 2),
+            "proposed_sl_dist_pct": round(proposed_dist_pct, 2),
+            "original_sl": sl_f,
+            "adjusted_sl": adjusted_sl,
+            "original_tp": proposed_tp,
+            "adjusted_tp": adjusted_tp,
+            "shield_status": "🛡️ WICK_TRAP_SHIELD_EXPANDED",
+            "reason": f"Proposed SL ({proposed_dist_pct:.2f}%) berada di dalam rentang wick trap ({safe_wick_buffer_pct:.2f}%). Stop Loss diperlebar ke level aman ${adjusted_sl:,.4f}."
+        }
+    else:
+        return {
+            "symbol": symbol.upper(),
+            "side": side_clean,
+            "is_adjusted": False,
+            "parkinson_volatility_pct": round(sigma_p * 100.0, 3),
+            "var_95_pct": var_95_pct,
+            "safe_wick_buffer_pct": round(safe_wick_buffer_pct, 2),
+            "proposed_sl_dist_pct": round(proposed_dist_pct, 2),
+            "original_sl": sl_f,
+            "adjusted_sl": sl_f,
+            "original_tp": proposed_tp,
+            "adjusted_tp": proposed_tp,
+            "shield_status": "🟢 SAFE_OUTSIDE_WICK_NOISE",
+            "reason": f"Proposed SL ({proposed_dist_pct:.2f}%) sudah aman di luar jangkauan noise wick Parkinson ({safe_wick_buffer_pct:.2f}%)."
+        }
+
 def get_full_quant_risk_summary(balance_usd=1000.0, active_positions=None):
     """
     Synthesizes historical quant performance + live portfolio VaR

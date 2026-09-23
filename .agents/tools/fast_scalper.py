@@ -1595,6 +1595,51 @@ def scan_symbol_scalp(symbol):
         except Exception:
             pass
 
+    # Microstructure Order Book Imbalance (OIR) & CVD Absorption Gatekeeper
+    # Formula: OIR = (V_bid - V_ask) / (V_bid + V_ask)
+    try:
+        import orderbook_delta_sniper
+        ob_audit = orderbook_delta_sniper.audit_sniping_entry(
+            symbol=candidate["symbol"],
+            side=candidate["side"],
+            proposed_price=candidate["entry"],
+            proposed_sl=candidate["sl"]
+        )
+        if not ob_audit.get("is_approved", True):
+            # Block trade if entering straight into an opposing institutional liquidity wall
+            return None
+        if ob_audit.get("optimized_entry") and ob_audit["optimized_entry"] != candidate["entry"]:
+            candidate["entry"] = ob_audit["optimized_entry"]
+            candidate["sl"] = ob_audit["optimized_sl"]
+        candidate["order_imbalance_ratio"] = ob_audit.get("order_imbalance_ratio", 0.0)
+        candidate["cvd_delta_pct"] = ob_audit.get("cvd_delta_pct", 0.0)
+        candidate["delta_absorption_detected"] = ob_audit.get("delta_absorption_detected", False)
+        candidate["absorption_type"] = ob_audit.get("absorption_type", "NONE")
+    except Exception:
+        pass
+
+    # Parkinson Historical Volatility Dynamic Stop Loss Shield (Wick-Trap Prevention)
+    # Formula: sigma_parkinson = sqrt( (1 / (4*ln(2)*N)) * sum((ln(H/L))^2) )
+    try:
+        import quant_risk_engine
+        wick_shield = quant_risk_engine.calculate_parkinson_wick_shield(
+            symbol=candidate["symbol"],
+            side=candidate["side"],
+            entry_price=candidate["entry"],
+            proposed_sl=candidate["sl"],
+            proposed_tp=candidate.get("tp"),
+            candles=candles
+        )
+        if wick_shield.get("is_adjusted"):
+            candidate["sl"] = wick_shield["adjusted_sl"]
+            if wick_shield.get("adjusted_tp"):
+                candidate["tp"] = wick_shield["adjusted_tp"]
+            candidate["parkinson_shield_active"] = True
+            candidate["parkinson_volatility_pct"] = wick_shield.get("parkinson_volatility_pct", 0.0)
+            candidate["parkinson_shield_reason"] = wick_shield.get("reason", "")
+    except Exception:
+        pass
+
     return candidate
 
 def scan_all_scalp_opportunities(symbols=None):

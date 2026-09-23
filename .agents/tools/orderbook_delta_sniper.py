@@ -204,6 +204,68 @@ def compute_depth_bands_and_imbalance(
         "microstructure_regime": flow_regime
     }
 
+def calculate_order_imbalance_ratio(bid_vol: float, ask_vol: float) -> float:
+    """
+    Formula: OIR = (V_bid - V_ask) / (V_bid + V_ask)
+    Range: [-1.0, +1.0]
+    
+    Mehul Mehta Quantitative Risk Guide & Akademi Crypto:
+    - OIR >= +0.25 (Limit bids >= 1.67x - 2.5x asks): Heavy buyer limit wall / absorption support.
+    - OIR <= -0.25 (Limit asks >= 1.67x - 2.5x bids): Heavy seller limit wall / distribution resistance.
+    """
+    total = float(bid_vol) + float(ask_vol)
+    return (float(bid_vol) - float(ask_vol)) / total if total > 0 else 0.0
+
+def evaluate_sniper_absorption_entry(
+    symbol: str,
+    side: str,
+    depth_limit: int = 50
+) -> Dict[str, Any]:
+    """
+    Institutional Sniper Entry Gatekeeper (Akademi Crypto & Mehul Mehta Rule 4):
+    Checks Level-2 Order Book depth:
+    - Long: OIR >= +0.25 and/or CVD shows market seller absorption into iceberg buy wall.
+    - Short: OIR <= -0.25 and/or CVD shows market buyer absorption into iceberg sell wall.
+    """
+    analysis = analyze_orderbook_and_delta(symbol)
+    side_clean = side.upper()
+    is_long = side_clean in ["BUY", "LONG"]
+
+    oir = float(analysis.get("order_imbalance_ratio", 0.0))
+    cvd_pct = float(analysis.get("cvd_delta_pct", 0.0))
+    absorption = bool(analysis.get("delta_absorption_detected", False))
+    absorption_type = analysis.get("absorption_type", "NONE")
+    ratio = float(analysis.get("bid_ask_volume_ratio", 1.0))
+
+    if is_long:
+        qualified = (oir >= 0.25 or ratio >= 2.0) or (absorption and absorption_type == "BULLISH_DELTA_ABSORPTION")
+        reason = (
+            f"🟢 SNIPER LONG QUALIFIED: OIR {oir:+.3f} >= +0.25 (Limit bids {ratio:.1f}x) "
+            f"dan CVD Delta ({cvd_pct:+.1f}%) mengonfirmasi iceberg buy wall absorption."
+            if qualified else
+            f"⚪ OIR ({oir:+.3f}) / CVD ({cvd_pct:+.1f}%) belum memenuhi syarat sniper (butuh OIR >= +0.25 atau Bullish Absorption)."
+        )
+    else:
+        qualified = (oir <= -0.25 or ratio <= 0.50) or (absorption and absorption_type == "BEARISH_DELTA_ABSORPTION")
+        reason = (
+            f"🔴 SNIPER SHORT QUALIFIED: OIR {oir:+.3f} <= -0.25 (Limit asks {1.0/max(ratio, 0.01):.1f}x) "
+            f"dan CVD Delta ({cvd_pct:+.1f}%) mengonfirmasi iceberg sell wall absorption."
+            if qualified else
+            f"⚪ OIR ({oir:+.3f}) / CVD ({cvd_pct:+.1f}%) belum memenuhi syarat sniper (butuh OIR <= -0.25 atau Bearish Absorption)."
+        )
+
+    return {
+        "symbol": symbol.upper(),
+        "side": side_clean,
+        "is_qualified": qualified,
+        "oir": round(oir, 3),
+        "bid_ask_volume_ratio": round(ratio, 2),
+        "cvd_delta_pct": round(cvd_pct, 2),
+        "delta_absorption_detected": absorption,
+        "absorption_type": absorption_type,
+        "reason": reason
+    }
+
 def analyze_orderbook_and_delta(symbol: str = "BTCUSDT") -> Dict[str, Any]:
     """
     Computes Level-2 depth imbalance, detects institutional walls, and calculates CVD flow.
@@ -252,7 +314,8 @@ def analyze_orderbook_and_delta(symbol: str = "BTCUSDT") -> Dict[str, Any]:
     total_depth_usd = bid_vol_usd + ask_vol_usd
 
     # Order Imbalance Ratio (OIR): range [-1.0, +1.0]
-    oir = (bid_vol_usd - ask_vol_usd) / total_depth_usd if total_depth_usd > 0 else 0.0
+    # Mehul Mehta Institutional Formula: OIR = (V_bid - V_ask) / (V_bid + V_ask)
+    oir = calculate_order_imbalance_ratio(bid_vol_usd, ask_vol_usd)
     bid_ask_ratio = (bid_vol_usd / ask_vol_usd) if ask_vol_usd > 0 else 1.0
 
     # 2. Detect Major Institutional Walls (> 2.8x average level size)
@@ -287,31 +350,31 @@ def analyze_orderbook_and_delta(symbol: str = "BTCUSDT") -> Dict[str, Any]:
     cvd_delta_pct = (cvd_delta_qty / total_taker_vol * 100.0) if total_taker_vol > 0 else 0.0
 
     # 4. Microstructure Bias, Delta Absorption Trigger, & Sniping Signal
-    is_imbalance_extreme = (bid_ask_ratio >= 2.5 or bid_ask_ratio <= 0.40)
+    is_imbalance_extreme = (bid_ask_ratio >= 2.5 or bid_ask_ratio <= 0.40 or abs(oir) >= 0.25)
     delta_absorption_detected = False
     absorption_type = "NONE"
 
-    # Bullish Delta Absorption: Aggressive market selling (CVD negative) absorbed by large Bid Walls (>2.5x)
-    if cvd_delta_pct < -20.0 and bid_ask_ratio >= 2.0:
+    # Bullish Delta Absorption: Aggressive market selling (CVD negative) absorbed by large Bid Walls (OIR >= +0.25 or bid_ask_ratio >= 2.0)
+    if cvd_delta_pct < -20.0 and (bid_ask_ratio >= 2.0 or oir >= 0.25):
         delta_absorption_detected = True
         absorption_type = "BULLISH_DELTA_ABSORPTION"
         micro_bias = "INSTITUTIONAL_BUY_ABSORPTION"
-        bias_label = "🟢 BID WALL ABSORPTION (Retail Market Sells Trapped into MM Limit Bids)"
+        bias_label = "🟢 BID WALL ABSORPTION (Retail Market Sells Trapped into MM Limit Bids / OIR >= +0.25)"
         sniper_action = "SNIPE_LONG_FRONT_RUN_BID_WALL"
-    # Bearish Delta Absorption: Aggressive market buying (CVD positive) absorbed by large Ask Walls
-    elif cvd_delta_pct > 20.0 and bid_ask_ratio <= 0.50:
+    # Bearish Delta Absorption: Aggressive market buying (CVD positive) absorbed by large Ask Walls (OIR <= -0.25 or bid_ask_ratio <= 0.50)
+    elif cvd_delta_pct > 20.0 and (bid_ask_ratio <= 0.50 or oir <= -0.25):
         delta_absorption_detected = True
         absorption_type = "BEARISH_DELTA_ABSORPTION"
         micro_bias = "INSTITUTIONAL_SELL_ABSORPTION"
-        bias_label = "🔴 ASK WALL ABSORPTION (Retail Market Buys Trapped into MM Limit Asks)"
+        bias_label = "🔴 ASK WALL ABSORPTION (Retail Market Buys Trapped into MM Limit Asks / OIR <= -0.25)"
         sniper_action = "SNIPE_SHORT_FRONT_RUN_ASK_WALL"
-    elif oir > 0.30:
+    elif oir >= 0.25:
         micro_bias = "INSTITUTIONAL_BUY_ACCUMULATION"
-        bias_label = "🟢 BID WALL ACCUMULATION (Heavy Buyer Support)"
+        bias_label = "🟢 BID WALL ACCUMULATION (Heavy Buyer Support / OIR >= +0.25)"
         sniper_action = "SNIPE_LONG_FRONT_RUN_BID_WALL"
-    elif oir < -0.30:
+    elif oir <= -0.25:
         micro_bias = "INSTITUTIONAL_SELL_DISTRIBUTION"
-        bias_label = "🔴 ASK WALL DISTRIBUTION (Heavy Seller Resistance)"
+        bias_label = "🔴 ASK WALL DISTRIBUTION (Heavy Seller Resistance / OIR <= -0.25)"
         sniper_action = "SNIPE_SHORT_FRONT_RUN_ASK_WALL"
     elif abs(oir) <= 0.15 and abs(cvd_delta_pct) <= 20.0:
         micro_bias = "BALANCED_TWO_WAY_FLOW"
