@@ -302,6 +302,20 @@ def record_closed_trade(trade_entry):
     except Exception as m_err:
         pass
 
+    # Symbol Consecutive Loss Circuit Breaker Hook (Anti-Revenge & Anti-Knife Catching)
+    try:
+        import symbol_quarantine_guard
+        q_res = symbol_quarantine_guard.record_trade_outcome(
+            symbol=trade_entry.get("symbol", ""),
+            pnl_usd=float(trade_entry.get("net_pnl_usd", trade_entry.get("pnl_usd", 0.0))),
+            r_multiple=float(trade_entry.get("r_multiple", 0.0)),
+            exit_reason=trade_entry.get("exit_reason", "")
+        )
+        if q_res.get("is_quarantined"):
+            print(f"🛑 [Symbol Quarantine Triggered] {trade_entry.get('symbol')} dikarantina selama {q_res.get('remaining_minutes'):.0f} menit: {q_res.get('reason')}")
+    except Exception:
+        pass
+
     # Seamless Multi-Device Cloud Sync Hook
     try:
         import auto_git_sync

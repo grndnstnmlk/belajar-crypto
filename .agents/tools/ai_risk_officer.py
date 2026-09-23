@@ -218,6 +218,26 @@ def heuristic_quant_audit(setup, market_context=None):
     suggested_scale = 1.0
     confidence = 85
 
+    # 0. Symbol Consecutive Loss Circuit Breaker & Quarantine Gate
+    try:
+        import symbol_quarantine_guard
+        q_audit = symbol_quarantine_guard.audit_symbol_quarantine(sym)
+        if q_audit.get("is_quarantined"):
+            return {
+                "decision": "VETO",
+                "confidence": 98,
+                "suggested_risk_scale": 0.0,
+                "thesis": f"VETO: Koin {sym} sedang dalam masa KARANTINA ({q_audit['reason']}). Sisa karantina: {q_audit['remaining_minutes']:.1f} menit demi mencegah revenge trading & cascading stop loss.",
+                "key_risks": ["Symbol Quarantine Active", "Consecutive Stop Loss Circuit Breaker", "Knife-catching prevention"],
+                "invalidation_scenario": f"Tunggu masa karantina berakhir ({q_audit.get('quarantine_until', 'N/A')}).",
+                "provider": "Symbol Quarantine Circuit Breaker",
+                "adversarial_debate": None,
+                "tri_perspective_risk": None,
+                "is_critical_veto": True
+            }
+    except Exception:
+        pass
+
     # 1. Macro News Blackout Check
     if news.get("is_blackout"):
         return {
@@ -229,7 +249,8 @@ def heuristic_quant_audit(setup, market_context=None):
             "invalidation_scenario": "N/A - Wait until 30 minutes after news release.",
             "provider": "Algorithmic Quant Heuristics",
             "adversarial_debate": None,
-            "tri_perspective_risk": None
+            "tri_perspective_risk": None,
+            "is_critical_veto": True
         }
 
     # 2. Directional Heat Risk
@@ -245,7 +266,8 @@ def heuristic_quant_audit(setup, market_context=None):
                 "invalidation_scenario": "Tunggu salah satu posisi searah tertutup atau TP1 terlindungi.",
                 "provider": "Algorithmic Quant Heuristics",
                 "adversarial_debate": None,
-                "tri_perspective_risk": None
+                "tri_perspective_risk": None,
+                "is_critical_veto": True
             }
 
     # 2B. BTC Macro Regime Directional Gravity Guardrail (Akademi Crypto Module 02 & 04)
@@ -326,6 +348,22 @@ def heuristic_quant_audit(setup, market_context=None):
             }
         elif deriv_res["decision"] == "BOOST_HUNT":
             key_risks.append(f"Liquidation Hunt active: {deriv_res['reason']}")
+    except Exception:
+        pass
+
+    # 2D. Quant Science Monthly Boundary Flow Effects & End-of-Month Dump De-risking Guard
+    try:
+        import hedge_fund_seasonality_engine
+        flow_sig = hedge_fund_seasonality_engine.get_monthly_boundary_flow_signal(sym)
+        if flow_sig.get("is_eom_dump_shield") and side in ["BUY", "LONG"]:
+            is_scalp = setup.get("is_scalp", False)
+            if not is_scalp:
+                decision = "ADJUST_RISK"
+                suggested_scale = min(suggested_scale, 0.50)
+                key_risks.append("End-of-Month De-risking Shield Aktif (Tgl 30-31): Risiko window dressing dump institusional; skala lot dipangkas 50% & trailing stop diperketat.")
+        elif flow_sig.get("is_expiry_flow") and side in ["BUY", "LONG"]:
+            suggested_scale = min(1.25, suggested_scale * 1.15)
+            key_risks.append("Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).")
     except Exception:
         pass
 

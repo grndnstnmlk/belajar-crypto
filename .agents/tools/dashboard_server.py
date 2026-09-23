@@ -500,6 +500,24 @@ def get_dashboard_feed_data(force_refresh=False):
     except Exception:
         feed["nautilus_risk_guard"] = {"status": "ACTIVE_SAFE"}
 
+    # Symbol Consecutive Loss Quarantine Telemetry (Anti-Knife Catching)
+    try:
+        import symbol_quarantine_guard
+        q_list = symbol_quarantine_guard.get_active_quarantines()
+        feed["symbol_quarantines"] = {
+            "active_count": len(q_list),
+            "quarantined_symbols": q_list
+        }
+    except Exception:
+        feed["symbol_quarantines"] = {"active_count": 0, "quarantined_symbols": []}
+
+    # Quant Science Monthly Boundary Flow Effects & Options Expiry Telemetry
+    try:
+        import hedge_fund_seasonality_engine
+        feed["monthly_flow_effects"] = hedge_fund_seasonality_engine.get_monthly_boundary_flow_signal("BTC")
+    except Exception:
+        feed["monthly_flow_effects"] = {"flow_regime": "NEUTRAL_FLOW", "is_active": False}
+
     # Native Binance Futures WebSocket Sub-50ms Stream Telemetry
     try:
         import binance_ws_stream
@@ -1176,6 +1194,20 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/seasonality/flow_effects":
+            sym = params.get("symbol", ["BTC"])[0]
+            try:
+                import hedge_fund_seasonality_engine
+                flow_data = hedge_fund_seasonality_engine.get_monthly_boundary_flow_signal(sym)
+                data = {"success": True, "flow_effects": flow_data}
+            except Exception as e:
+                data = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
         elif path == "/api/risk/pre_trade_audit":
             import nautilus_risk_engine
             sym = params.get("symbol", ["BTC"])[0]
@@ -1187,6 +1219,33 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             except ValueError:
                 price, sl, tp = 65000.0, 64000.0, 67000.0
             data = nautilus_risk_engine.validate_pre_trade_order(sym, side, price, sl, tp)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/risk/quarantine":
+            try:
+                import symbol_quarantine_guard
+                q_sym = params.get("symbol", [None])[0]
+                if q_sym:
+                    audit_res = symbol_quarantine_guard.audit_symbol_quarantine(q_sym)
+                    data = {
+                        "success": True,
+                        "symbol": q_sym.upper(),
+                        "audit": audit_res,
+                        "active_quarantines": symbol_quarantine_guard.get_active_quarantines()
+                    }
+                else:
+                    active_q = symbol_quarantine_guard.get_active_quarantines()
+                    data = {
+                        "success": True,
+                        "active_quarantines": active_q,
+                        "count": len(active_q)
+                    }
+            except Exception as e:
+                data = {"success": False, "error": str(e)}
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()

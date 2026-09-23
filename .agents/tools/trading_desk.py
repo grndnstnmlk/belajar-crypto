@@ -1391,6 +1391,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
         print(f"\n🎯 Ditemukan {len(admissible_candidates)} setup lolos uji akurasi. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")
 
         for idx, best in enumerate(selected, 1):
+            # Check Symbol Consecutive Loss Quarantine Guard (Anti-Knife Catching)
+            try:
+                import symbol_quarantine_guard
+                q_res = symbol_quarantine_guard.audit_symbol_quarantine(best["symbol"])
+                if q_res.get("is_quarantined"):
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [SYMBOL QUARANTINE] ---")
+                    print(f"  🛑 {q_res['reason']} (Sisa masa karantina: {q_res['remaining_minutes']:.1f}m)")
+                    continue
+            except Exception:
+                pass
+
             # Check Portfolio Correlation & Directional Heat Guard
             try:
                 import portfolio_guard
@@ -1677,20 +1688,43 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     print(f" * 🧭 [Narrative Radar]: {nar.get('sector_icon')} {nar.get('sector_title')} ({lead_badge} | {nar.get('relative_strength_vs_btc'):+.1f}% vs BTC)")
 
                 if ai_audit["decision"] == "VETO":
-                    if paperclip_ticket:
-                        try:
-                            import paperclip_orchestrator
-                            paperclip_orchestrator.escalate_ticket(
-                                ticket_id=paperclip_ticket["ticket_id"],
-                                next_stage="APPROVED",
-                                assigned_to="chief_risk_officer",
-                                note=f"Opportunity Override: {ai_audit['thesis']}",
-                                agent_id="chief_risk_officer"
-                            )
-                        except Exception:
-                            pass
-                    print(f" 🚨 [AI OFFICER NOTE] Setup {best['symbol']}: {ai_audit['thesis']}")
-                    print(f" ⚡ [OPPORTUNITY OVERRIDE] Eksekusi fleksibel diizinkan demi menangkap peluang pasar.")
+                    is_critical = (
+                        ai_audit.get("is_critical_veto") or
+                        "KARANTINA" in ai_audit.get("thesis", "") or
+                        "News Blackout" in ai_audit.get("thesis", "") or
+                        "Directional Heat" in ai_audit.get("thesis", "") or
+                        "VETO ARBITER" in ai_audit.get("thesis", "")
+                    )
+                    if is_critical:
+                        if paperclip_ticket:
+                            try:
+                                import paperclip_orchestrator
+                                paperclip_orchestrator.escalate_ticket(
+                                    ticket_id=paperclip_ticket["ticket_id"],
+                                    next_stage="CANCELLED",
+                                    assigned_to="chief_risk_officer",
+                                    note=f"Cancelled by Critical Veto: {ai_audit['thesis']}",
+                                    agent_id="chief_risk_officer"
+                                )
+                            except Exception:
+                                pass
+                        print(f" 🛑 [AI CRITICAL VETO ENFORCED] Setup {best['symbol']} dibatalkan total: {ai_audit['thesis']}")
+                        continue
+                    else:
+                        if paperclip_ticket:
+                            try:
+                                import paperclip_orchestrator
+                                paperclip_orchestrator.escalate_ticket(
+                                    ticket_id=paperclip_ticket["ticket_id"],
+                                    next_stage="APPROVED",
+                                    assigned_to="chief_risk_officer",
+                                    note=f"Opportunity Override: {ai_audit['thesis']}",
+                                    agent_id="chief_risk_officer"
+                                )
+                            except Exception:
+                                pass
+                        print(f" 🚨 [AI OFFICER NOTE] Setup {best['symbol']}: {ai_audit['thesis']}")
+                        print(f" ⚡ [OPPORTUNITY OVERRIDE] Eksekusi fleksibel diizinkan demi menangkap peluang pasar.")
                 elif ai_audit["decision"] == "ADJUST_RISK":
                     scale = float(ai_audit.get("suggested_risk_scale", 0.80))
                     print(f" ℹ️ [AI RISK TELEMETRY] Telemetri AI: {scale*100:.0f}% (Eksekusi sizing dipimpin oleh Unified Risk Engine: {effective_risk_pct:.2f}% modal)")
