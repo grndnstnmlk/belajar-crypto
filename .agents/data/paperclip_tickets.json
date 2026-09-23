@@ -730,10 +730,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 17:31:26",
-    "updated_at": "2026-09-23 01:39:38",
+    "updated_at": "2026-09-23 01:40:55",
     "payload": {
       "entry": 86368.5465,
       "sl": 85728.2432,
@@ -844,7 +844,11 @@
       "authorized_at": "2026-09-23 01:39:38",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-23 01:40:55"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-22 17:31:26",
@@ -869,6 +873,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-23 01:40:55",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
