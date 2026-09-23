@@ -6,10 +6,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-23 15:02:00",
-    "updated_at": "2026-09-23 15:06:21",
+    "updated_at": "2026-09-23 15:33:20",
     "payload": {
       "entry": 0.9837,
       "sl": 0.9648,
@@ -120,7 +120,13 @@
       "authorized_at": "2026-09-23 15:06:21",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$32.90 USDT)",
+      "realized_pnl": -32.8988,
+      "net_pnl": -33.5578,
+      "closed_at": "2026-09-23 15:33:20"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-23 15:02:00",
@@ -145,6 +151,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-23 15:33:20",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$32.90 USDT) | PnL: $-32.90 USDT (Net: $-33.56)"
       }
     ]
   },
@@ -158,12 +170,12 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-23 14:55:21",
-    "updated_at": "2026-09-23 15:17:41",
+    "updated_at": "2026-09-23 15:27:11",
     "payload": {
-      "entry": 84700.0,
+      "entry": 84625.59,
       "sl": 84525.344,
-      "tp": 85398.624,
-      "rr": 3.9999999999999165
+      "tp": 85026.574,
+      "rr": 4.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -848,12 +860,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-23 12:36:45",
-    "updated_at": "2026-09-23 15:22:39",
+    "updated_at": "2026-09-23 15:24:14",
     "payload": {
-      "entry": 115.53,
+      "entry": 115.56,
       "sl": 114.2354,
-      "tp": 120.7084,
-      "rr": 3.999999999999989
+      "tp": 120.8584,
+      "rr": 3.9999999999999893
     },
     "debate_result": null,
     "risk_result": null,

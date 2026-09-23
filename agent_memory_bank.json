@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-23T14:18:30.363224+00:00",
-    "total_reflections": 5,
-    "system_retention_score": 98.4
+    "last_reflection_at": "2026-09-23T15:33:20.268876+00:00",
+    "total_reflections": 6,
+    "system_retention_score": 111.7
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -165,8 +165,8 @@
     },
     "SUIUSDT": {
       "symbol": "SUIUSDT",
-      "volatility_regime": "VERY_HIGH",
-      "wick_risk_rating": "HIGH",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -175,16 +175,16 @@
         "Smart Pyramiding at +2R"
       ],
       "notes": "High momentum layer-1 leader. High R:R potential on trending days; avoid counter-trend shorts.",
-      "total_trades": 9,
+      "total_trades": 10,
       "wins": 2,
-      "losses": 7,
+      "losses": 8,
       "breakevens": 0,
-      "win_rate_pct": 22.2,
-      "net_pnl_usd": -72.95,
+      "win_rate_pct": 20.0,
+      "net_pnl_usd": -106.51,
       "avg_r_multiple": -0.33,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-23 08:12:46",
-      "updated_at": "2026-09-23T13:24:37.802470+00:00"
+      "updated_at": "2026-09-23T15:33:20.268866+00:00"
     },
     "NEARUSDT": {
       "symbol": "NEARUSDT",
@@ -586,9 +586,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-23T14:18:30.363222+00:00"
+    },
+    {
+      "id": "RULE-AUTO-SUIUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SUIUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "suiusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-23T15:33:20.268874+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260923-009",
+      "timestamp": "2026-09-23T15:33:20.268850+00:00",
+      "symbol": "SUIUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -33.56,
+      "r_multiple": -1.6,
+      "pnl_pct": -2.0,
+      "root_cause": "Adverse volatility stop-out on SUIUSDT 5m Order Flow CVD Absorption Scalp (net: -$33.56, -1.60R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SUIUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sui",
+        "5m_order_flow_cvd_absorption_scalp",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-23T15:33:20.268856+00:00"
+    },
     {
       "id": "MEM-20260923-008",
       "timestamp": "2026-09-23T14:18:30.363196+00:00",
@@ -608,8 +642,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 146,
-      "last_accessed": "2026-09-23T15:22:39.253311+00:00"
+      "access_count": 168,
+      "last_accessed": "2026-09-23T15:29:49.576946+00:00"
     },
     {
       "id": "MEM-20260923-007",
@@ -652,8 +686,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 241,
-      "last_accessed": "2026-09-23T15:22:39.253262+00:00"
+      "access_count": 263,
+      "last_accessed": "2026-09-23T15:29:49.576955+00:00"
     },
     {
       "id": "MEM-20260923-005",
@@ -676,8 +710,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 241,
-      "last_accessed": "2026-09-23T15:22:39.253325+00:00"
+      "access_count": 263,
+      "last_accessed": "2026-09-23T15:29:49.576958+00:00"
     },
     {
       "id": "MEM-20260923-004",
@@ -700,8 +734,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 206,
-      "last_accessed": "2026-09-23T15:22:23.477867+00:00"
+      "access_count": 222,
+      "last_accessed": "2026-09-23T15:29:49.576961+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -740,8 +774,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 116,
-      "last_accessed": "2026-09-23T15:22:39.253320+00:00"
+      "access_count": 122,
+      "last_accessed": "2026-09-23T15:29:47.925285+00:00"
     },
     {
       "id": "MEM-20260907-003",
