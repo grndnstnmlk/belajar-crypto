@@ -66,10 +66,10 @@
     "strategy": "Quantitative Confluence Setup",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 22:35:17",
-    "updated_at": "2026-09-22 22:43:12",
+    "updated_at": "2026-09-23 01:37:33",
     "payload": {
       "entry": 786.87,
       "sl": 775.1205,
@@ -178,7 +178,11 @@
       "authorized_at": "2026-09-22 22:43:12",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-23 01:37:33"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-22 22:35:17",
@@ -203,6 +207,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-23 01:37:33",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -1386,10 +1396,10 @@
     "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-22 14:51:30",
-    "updated_at": "2026-09-23 01:15:00",
+    "updated_at": "2026-09-23 01:37:36",
     "payload": {
       "entry": 2769.18,
       "sl": 2762.9405,
@@ -1399,13 +1409,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udee1\ufe0f Free Runner Exited at BE (Total Profit: +$2.30 USDT via TP1)",
+      "realized_pnl": 2.3037,
+      "net_pnl": 2.1248,
+      "closed_at": "2026-09-23 01:37:36"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-22 14:51:30",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup ETHUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-23 01:37:36",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udee1\ufe0f Free Runner Exited at BE (Total Profit: +$2.30 USDT via TP1) | PnL: $+2.30 USDT (Net: $+2.12)"
       }
     ]
   },
@@ -2239,10 +2261,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-22 12:11:42",
-    "updated_at": "2026-09-22 22:33:35",
+    "updated_at": "2026-09-23 01:37:33",
     "payload": {
       "entry": 118.0922,
       "sl": 115.5028,
@@ -2352,7 +2374,11 @@
       "authorized_at": "2026-09-22 22:33:35",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-23 01:37:33"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-22 12:11:42",
@@ -2377,6 +2403,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-23 01:37:33",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
