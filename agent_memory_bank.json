@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-23T08:07:07.192305+00:00",
-    "total_reflections": 97,
-    "system_retention_score": 89.6
+    "last_reflection_at": "2026-09-23T08:55:07.596006+00:00",
+    "total_reflections": 99,
+    "system_retention_score": 90.2
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -113,16 +113,16 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 28,
+      "total_trades": 30,
       "wins": 26,
-      "losses": 2,
+      "losses": 4,
       "breakevens": 0,
-      "win_rate_pct": 92.9,
-      "net_pnl_usd": 419.73,
+      "win_rate_pct": 86.7,
+      "net_pnl_usd": 333.93,
       "avg_r_multiple": 1.06,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-23 05:57:40",
-      "updated_at": "2026-09-23T08:04:51.376759+00:00"
+      "updated_at": "2026-09-23T08:55:07.596006+00:00"
     },
     "DOGEUSDT": {
       "symbol": "DOGEUSDT",
@@ -602,13 +602,14 @@
       "id": "RULE-AUTO-XRPUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on XRPUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.96,
       "trigger_conditions": [
         "xrpusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-22T16:51:22.201371+00:00"
+      "created_at": "2026-09-22T16:51:22.201371+00:00",
+      "updated_at": "2026-09-23T08:55:07.596006+00:00"
     },
     {
       "id": "RULE-AUTO-LINKUSDT",
@@ -662,6 +663,50 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260923-102",
+      "timestamp": "2026-09-23T08:55:07.596006+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -42.9,
+      "r_multiple": -2.09,
+      "pnl_pct": -1.54,
+      "root_cause": "Adverse volatility stop-out on XRPUSDT Smart Money Concepts (SMC) (net: -$42.90, -2.09R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on XRPUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-23T08:55:07.596006+00:00"
+    },
+    {
+      "id": "MEM-20260923-101",
+      "timestamp": "2026-09-23T08:55:07.510758+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -42.9,
+      "r_multiple": -2.09,
+      "pnl_pct": -1.54,
+      "root_cause": "Adverse volatility stop-out on XRPUSDT Smart Money Concepts (SMC) (net: -$42.90, -2.09R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on XRPUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-23T08:55:07.510758+00:00"
+    },
     {
       "id": "MEM-20260923-100",
       "timestamp": "2026-09-23T08:07:07.192305+00:00",
@@ -727,8 +772,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 23,
-      "last_accessed": "2026-09-23T08:37:52.683793+00:00"
+      "access_count": 36,
+      "last_accessed": "2026-09-23T08:54:13.004306+00:00"
     },
     {
       "id": "MEM-20260923-097",
@@ -823,8 +868,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 144,
-      "last_accessed": "2026-09-23T08:37:51.757643+00:00"
+      "access_count": 157,
+      "last_accessed": "2026-09-23T08:54:13.020871+00:00"
     },
     {
       "id": "MEM-20260923-093",
@@ -2691,8 +2736,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1201,
-      "last_accessed": "2026-09-23T08:37:51.757643+00:00"
+      "access_count": 1214,
+      "last_accessed": "2026-09-23T08:54:13.020871+00:00"
     },
     {
       "id": "MEM-20260922-013",
@@ -2829,8 +2874,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2706,
-      "last_accessed": "2026-09-23T08:37:52.683793+00:00"
+      "access_count": 2732,
+      "last_accessed": "2026-09-23T08:54:13.020871+00:00"
     },
     {
       "id": "MEM-20260922-007",
@@ -2901,8 +2946,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1143,
-      "last_accessed": "2026-09-23T08:37:52.683793+00:00"
+      "access_count": 1156,
+      "last_accessed": "2026-09-23T08:54:13.004306+00:00"
     },
     {
       "id": "MEM-20260922-004",
@@ -2923,8 +2968,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 2759,
-      "last_accessed": "2026-09-23T08:37:51.757643+00:00"
+      "access_count": 2772,
+      "last_accessed": "2026-09-23T08:54:13.020871+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -2963,8 +3008,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 453,
-      "last_accessed": "2026-09-23T08:37:52.683793+00:00"
+      "access_count": 466,
+      "last_accessed": "2026-09-23T08:54:13.004306+00:00"
     },
     {
       "id": "MEM-20260907-003",
