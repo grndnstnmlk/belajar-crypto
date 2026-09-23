@@ -99439,5 +99439,1015 @@
     "action": "STANDBY_LOW_CONFLUENCE",
     "balance": 3809.63176834,
     "positions_count": 4
+  },
+  {
+    "timestamp": "2026-09-21 15:25:15",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3815.10597491,
+    "positions_count": 4
+  },
+  {
+    "timestamp": "2026-09-21 15:28:33",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3832.06026259,
+    "positions_count": 4
+  },
+  {
+    "timestamp": "2026-09-21 15:30:03",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3825.18320018,
+    "positions_count": 4
+  },
+  {
+    "timestamp": "2026-09-21 15:33:42",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BTCUSDT",
+      "base": "BTC",
+      "side": "LONG",
+      "price": 82638.864,
+      "sl": 82089.3744,
+      "tp": 84291.8768,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": false,
+      "macro_aligned": true,
+      "strategy": "5m Opening Range Breakout (ORB V4.1)",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Opening Range Breakout (ORB V4.1)]: ORB Bullish Expansion (🔄 Dynamic 15m Structural Range): 5m candle body decisively broke above 15m Opening Range High ($81,997.78) @ $82,640.00. SL at OR Mid ($81,728.10), targeting 3R ($84,291.88). (Target: 15-35 menit)",
+      "confluence_score": 85,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified BTCUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 15:38:01"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.0,
+        "thesis": "APPROVED: Setup BTCUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $82,089.3744.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 82089.3744,
+          "tp_price": 84291.8768,
+          "rr_ratio": 3.0,
+          "strategy": "5m Opening Range Breakout (ORB V4.1)",
+          "bull_score": 57,
+          "bear_score": 43,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+          "bear_critique": " • Aset BTCUSDT berada di sektor narasi laggard (👑 Macro Heavyweights), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 82089.3744,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 15:38:24"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 15:38:34",
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 3 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 60,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 58,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.2,
+              "neutral": 0.35,
+              "conservative": 0.45
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BTC",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 5,
+          "is_leading_sector": false,
+          "sector_24h_avg": 4.2,
+          "relative_strength_vs_btc": 0.24,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 0.0336,
+    "risk_budget_usd": 28.783173189599996
+  },
+  {
+    "timestamp": "2026-09-21 15:41:00",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3869.63826657,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-21 15:46:30",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BTCUSDT",
+      "base": "BTC",
+      "side": "LONG",
+      "price": 83686.969,
+      "sl": 83198.2521,
+      "tp": 85166.5637,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": false,
+      "macro_aligned": true,
+      "strategy": "5m Opening Range Breakout (ORB V4.1)",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Opening Range Breakout (ORB V4.1)]: ORB Bullish Expansion (🔄 Dynamic 15m Structural Range): 5m candle body decisively broke above 15m Opening Range High ($82,712.00) @ $83,690.33. SL at OR Mid ($82,131.55), targeting 3R ($85,166.56). (Target: 15-35 menit)",
+      "confluence_score": 100,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified BTCUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 15:50:39"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.12,
+        "thesis": "APPROVED: Setup BTCUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $83,198.2521.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 83198.2521,
+          "tp_price": 85166.5637,
+          "rr_ratio": 3.0,
+          "strategy": "5m Opening Range Breakout (ORB V4.1)",
+          "bull_score": 60,
+          "bear_score": 40,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Dinding bid support tebal (3.94x Bids/Asks) menahan tekanan jual di bawah entry.",
+          "bear_critique": " • Aset BTCUSDT berada di sektor narasi laggard (👑 Macro Heavyweights), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 83198.2521,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 15:51:01"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 15:51:11",
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 60% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 62,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 62.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 73,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BTC",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 6,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 0.0331,
+    "risk_budget_usd": 40.529631878166
+  },
+  {
+    "timestamp": "2026-09-21 15:52:58",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3786.9383679,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 15:56:43",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3784.41911669,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 15:59:51",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3786.28306706,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 16:06:58",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3787.11968214,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 16:15:08",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3791.28807278,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 16:18:01",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BTCUSDT",
+      "base": "BTC",
+      "side": "LONG",
+      "price": 84051.8,
+      "sl": 83610.8954,
+      "tp": 85374.5138,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "orderflow_metrics": {
+        "cvd_delta_pct": 21.66,
+        "dom_imbalance_ratio": 19.0,
+        "absorption_conviction": 75
+      },
+      "reason": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Strong convergent taker buy aggression (+21.7% Delta). Supported by DOM Bid Wall @ $84,059.91 ($388,396 USDT). (Target: 15-30 menit)",
+      "confluence_score": 80,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified BTCUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 16:19:55"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.12,
+        "thesis": "APPROVED: Setup BTCUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $83,610.8954.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 83610.8954,
+          "tp_price": 85374.5138,
+          "rr_ratio": 3.0,
+          "strategy": "5m Order Flow CVD Absorption Scalp",
+          "bull_score": 57,
+          "bear_score": 43,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+          "bear_critique": " • Aset BTCUSDT berada di sektor narasi laggard (👑 Macro Heavyweights), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 83610.8954,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 16:20:15"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 16:20:26",
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 60,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 73,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BTC",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 5,
+          "is_leading_sector": false,
+          "sector_24h_avg": 4.47,
+          "relative_strength_vs_btc": -0.17,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 0.033,
+    "risk_budget_usd": 43.56823293169
+  },
+  {
+    "timestamp": "2026-09-21 16:27:12",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BTCUSDT",
+      "base": "BTC",
+      "side": "LONG",
+      "price": 84457.0468,
+      "sl": 83912.0645,
+      "tp": 86137.7265,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": false,
+      "macro_aligned": true,
+      "strategy": "5m Opening Range Breakout (ORB V4.1)",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Opening Range Breakout (ORB V4.1)]: ORB Bullish Expansion (🔄 Dynamic 15m Structural Range): 5m candle body decisively broke above 15m Opening Range High ($84,174.10) @ $84,468.48. SL at OR Mid ($83,181.05), targeting 3R ($86,137.73). (Target: 15-35 menit)",
+      "confluence_score": 100,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified BTCUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 16:28:40"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.12,
+        "thesis": "APPROVED: Setup BTCUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $83,912.0645.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 83912.0645,
+          "tp_price": 86137.7265,
+          "rr_ratio": 3.0,
+          "strategy": "5m Opening Range Breakout (ORB V4.1)",
+          "bull_score": 60,
+          "bear_score": 40,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Dinding bid support tebal (41.23x Bids/Asks) menahan tekanan jual di bawah entry.",
+          "bear_critique": " • Aset BTCUSDT berada di sektor narasi laggard (👑 Macro Heavyweights), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 83912.0645,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 16:29:00"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 16:29:10",
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 60% menunjukkan dorongan positif moderat. | ADX momentum kuat (28.1) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 62,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 62.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 78,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BTC",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 5,
+          "is_leading_sector": false,
+          "sector_24h_avg": 4.87,
+          "relative_strength_vs_btc": -0.23,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 0.0328,
+    "risk_budget_usd": 40.908068553132
+  },
+  {
+    "timestamp": "2026-09-21 16:36:58",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BTCUSDT",
+      "base": "BTC",
+      "side": "LONG",
+      "price": 84771.29,
+      "sl": 84574.8682,
+      "tp": 85360.5554,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": false,
+      "macro_aligned": true,
+      "strategy": "5m Opening Range Breakout (ORB V4.1)",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Opening Range Breakout (ORB V4.1)]: ORB Bullish Expansion (🔄 Dynamic 15m Structural Range): 5m candle body decisively broke above 15m Opening Range High ($84,078.38) @ $84,771.29. SL at OR Mid ($83,688.29), targeting 3R ($85,360.56). (Target: 15-35 menit)",
+      "confluence_score": 90,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified BTCUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 16:38:20"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.12,
+        "thesis": "APPROVED: Setup BTCUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $84,574.8682.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 84574.8682,
+          "tp_price": 85360.5554,
+          "rr_ratio": 3.0,
+          "strategy": "5m Opening Range Breakout (ORB V4.1)",
+          "bull_score": 57,
+          "bear_score": 43,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+          "bear_critique": " • Aset BTCUSDT berada di sektor narasi laggard (👑 Macro Heavyweights), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 84574.8682,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 16:38:42"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 16:38:52",
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat. | ADX momentum kuat (28.2) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 60,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 77,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BTC",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 5,
+          "is_leading_sector": false,
+          "sector_24h_avg": 5.31,
+          "relative_strength_vs_btc": -0.09,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 0.0327,
+    "risk_budget_usd": 33.665018234472
+  },
+  {
+    "timestamp": "2026-09-21 16:41:32",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BTCUSDT",
+      "base": "BTC",
+      "side": "LONG",
+      "price": 84882.65,
+      "sl": 83928.8671,
+      "tp": 87743.9987,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 0.6,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 20,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m 15m-Key-Level Rectangle Break & Retest]: 15m Resistance ($84,174.10) broken & flipped to Support: Rectangle [$84,012.88 - $84,457.18] retested with bullish rejection @ $84,882.65. SL @ $83,928.87, targeting 3R ($87,744.00). (Target: 15-35 menit)",
+      "confluence_score": 100,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified BTCUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-21 16:45:40"
+      },
+      "ai_audit": {
+        "decision": "APPROVE",
+        "confidence": 85,
+        "suggested_risk_scale": 1.12,
+        "thesis": "APPROVED: Setup BTCUSDT (LONG) selaras dengan struktur pasar institusional. R:R 1:3.00 memadai dan tidak berhadapan langsung dengan dinding likuiditas masif. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Normal market volatility risk"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $83,928.8671.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 83928.8671,
+          "tp_price": 87743.9987,
+          "rr_ratio": 3.0,
+          "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+          "bull_score": 59,
+          "bear_score": 41,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Setup terkonfirmasi oleh model probabilitas tinggi: '5m 15m-Key-Level Rectangle Break & Retest'.",
+          "bear_critique": " • Aset BTCUSDT berada di sektor narasi laggard (👑 Macro Heavyweights), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 83928.8671,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-21 16:46:04"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-21 16:46:14",
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat. | ADX momentum kuat (28.4) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 61,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 78,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BTC",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 5,
+          "is_leading_sector": false,
+          "sector_24h_avg": 5.25,
+          "relative_strength_vs_btc": -0.25,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 0.0327,
+    "risk_budget_usd": 27.399128214075
+  },
+  {
+    "timestamp": "2026-09-21 16:55:09",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3645.32304963,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 16:58:51",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3642.46075809,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:02:22",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 27 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3646.45145671,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:03:14",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 26 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3645.60211506,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:04:07",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 25 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3642.95545307,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:05:00",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 24 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3643.47497122,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:05:52",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 24 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3641.37424739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:06:46",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 23 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3641.29903739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:07:39",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 22 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3643.12145652,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:08:29",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 21 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3640.04395795,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:09:21",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 20 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3641.76475615,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:10:15",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 19 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3641.00800739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:11:05",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 18 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3641.23363739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:11:55",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 18 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3640.64503739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:12:52",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 17 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3640.30470681,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:13:46",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 16 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.95391875,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:14:38",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 15 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.79483739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:15:30",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 14 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3640.34260327,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:16:20",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 13 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3640.14472739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:17:15",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 12 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3640.43486525,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:18:04",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 11 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.79671705,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:18:52",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 11 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.79483739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:19:42",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 10 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3642.1792509,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:20:33",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 9 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3640.6518598,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:21:23",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 8 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.71308739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:22:13",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 7 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.71308739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:23:06",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 6 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.59536739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:23:56",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 6 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3640.34340241,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:24:47",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 5 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.48418739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:25:38",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 4 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.48418739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:26:29",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 3 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.58820441,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:27:21",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 2 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.37627739,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:28:11",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 1 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3639.53959553,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:28:59",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 1 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3636.30448514,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:29:52",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) akan rilis dalam 0 menit (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3638.13261583,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-09-21 17:30:44",
+    "action": "NEWS_BLACKOUT_BLOCKED",
+    "reason": "🚨 [NEWS BLACKOUT AKTIF] Berita Makro AS 'FOMC Member Goolsbee Speaks' (USD) baru saja rilis 0 menit yang lalu (Jadwal: 2026-09-21 17:30 WIB). Pembukaan posisi baru dibekukan selama ±30m demi menghindari slippage & fakeout.",
+    "balance": 3635.66482739,
+    "positions_count": 1
   }
 ]
