@@ -1,20 +1,168 @@
 [
   {
-    "ticket_id": "TCK-20260923-5063",
-    "symbol": "SOLUSDT",
+    "ticket_id": "TCK-20260923-7927",
+    "symbol": "XRPUSDT",
     "side": "LONG",
     "strategy": "Quantitative Confluence Setup",
     "created_by": "market_eyes_screener",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-23 05:55:17",
+    "updated_at": "2026-09-23 05:58:36",
+    "payload": {
+      "entry": 1.6101,
+      "sl": 1.5838,
+      "tp": 1.689,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "XRPUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 1.5838,
+      "tp_price": 1.689,
+      "rr_ratio": 3.0,
+      "strategy": "Bullish FVG + VWAP Bullish + RSI 63.7 + R:R 1:3.00 [\ud83d\udfe2 TREND FOLLOWING ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 100%)",
+      "bull_score": 60,
+      "bear_score": 40,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (2.41x Bids/Asks) menahan tekanan jual di bawah entry.",
+      "bear_critique": " \u2022 Aset XRPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 1.5838,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-23 12:57:59"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.6,
+      "thesis": "ADJUST_RISK: Setup XRPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (100.73 / +0.51%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+        "Global Macro Risk-Off: DXY Surging (100.73 / +0.51%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.5838.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 1.5838,
+        "tp_price": 1.689,
+        "rr_ratio": 3.0,
+        "strategy": "Bullish FVG + VWAP Bullish + RSI 63.7 + R:R 1:3.00 [\ud83d\udfe2 TREND FOLLOWING ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 100%)",
+        "bull_score": 60,
+        "bear_score": 40,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (2.41x Bids/Asks) menahan tekanan jual di bawah entry.",
+        "bear_critique": " \u2022 Aset XRPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 1.5838,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-23 12:57:59"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-23 12:58:16",
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 60% menunjukkan dorongan positif moderat. | ADX momentum kuat (32.5) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 56,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 56.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 61,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.25,
+            "neutral": 0.4,
+            "conservative": 0.35
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "XRP",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-23 05:58:36",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-23 05:55:17",
+        "agent": "market_eyes_screener",
+        "stage": "DISCOVERED",
+        "note": "Setup XRPUSDT (LONG) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-09-23 05:58:36",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 60% vs Bear 40% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-23 05:58:36",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-23 05:58:36",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260923-7806",
+    "symbol": "BTCUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
-    "priority": "NORMAL",
-    "created_at": "2026-09-23 05:52:15",
-    "updated_at": "2026-09-23 05:52:15",
+    "priority": "HIGH",
+    "created_at": "2026-09-23 05:55:17",
+    "updated_at": "2026-09-23 06:08:05",
     "payload": {
-      "entry": 118.58,
-      "sl": 117.0284,
-      "tp": 122.459,
-      "rr": 2.5000000000000138
+      "entry": 86500.0,
+      "sl": 86337.576,
+      "tp": 86987.272,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -22,10 +170,158 @@
     "execution_result": null,
     "timeline": [
       {
+        "timestamp": "2026-09-23 05:55:17",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BTCUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260923-5063",
+    "symbol": "SOLUSDT",
+    "side": "LONG",
+    "strategy": "Quantitative Confluence Setup",
+    "created_by": "market_eyes_screener",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-23 05:52:15",
+    "updated_at": "2026-09-23 05:57:01",
+    "payload": {
+      "entry": 118.52,
+      "sl": 116.2044,
+      "tp": 127.7824,
+      "rr": 4.000000000000019
+    },
+    "debate_result": {
+      "symbol": "SOLUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 116.2044,
+      "tp_price": 127.7824,
+      "rr_ratio": 4.000000000000019,
+      "strategy": "\ud83c\udf1f 3-TOUCH SUPPORT ($117.735) + VWAP Bullish + RSI 55.9 + R:R 1:4.00 [\ud83d\udfe1 MEAN REVERSION ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 80%)",
+      "bull_score": 63,
+      "bear_score": 37,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:4.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset SOLUSDT berada dalam 3 besar rotasi sektor (\u26a1 Solana & High-Speed L1).",
+      "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (63% vs 37%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 116.2044,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-23 12:56:19"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup SOLUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (100.73 / +0.51%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+        "Global Macro Risk-Off: DXY Surging (100.73 / +0.51%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $116.2044.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 116.2044,
+        "tp_price": 127.7824,
+        "rr_ratio": 4.000000000000019,
+        "strategy": "\ud83c\udf1f 3-TOUCH SUPPORT ($117.735) + VWAP Bullish + RSI 55.9 + R:R 1:4.00 [\ud83d\udfe1 MEAN REVERSION ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 80%)",
+        "bull_score": 63,
+        "bear_score": 37,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:4.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset SOLUSDT berada dalam 3 besar rotasi sektor (\u26a1 Solana & High-Speed L1).",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (63% vs 37%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 116.2044,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-23 12:56:19"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-23 12:56:36",
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:4.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 63% menunjukkan dorongan positif moderat. | ADX momentum kuat (32.5) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 57,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 57.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 76,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "SOL",
+        "sector_key": "SOL_L1",
+        "sector_title": "Solana & High-Speed L1",
+        "sector_icon": "\u26a1",
+        "sector_rank": 2,
+        "is_leading_sector": false,
+        "sector_24h_avg": 3.2,
+        "relative_strength_vs_btc": 2.05,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-23 05:57:01",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
         "timestamp": "2026-09-23 05:52:15",
         "agent": "market_eyes_screener",
         "stage": "DISCOVERED",
         "note": "Setup SOLUSDT (LONG) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-09-23 05:57:01",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 63% vs Bear 37% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-23 05:57:01",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-23 05:57:01",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
@@ -35,27 +331,155 @@
     "side": "LONG",
     "strategy": "Quantitative Confluence Setup",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-23 04:01:58",
-    "updated_at": "2026-09-23 05:52:24",
+    "updated_at": "2026-09-23 05:55:01",
     "payload": {
       "entry": 1.61,
       "sl": 1.5939,
       "tp": 1.6583,
       "rr": 3.0
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
-    "execution_result": null,
+    "debate_result": {
+      "symbol": "XRPUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 1.5939,
+      "tp_price": 1.6583,
+      "rr_ratio": 3.0,
+      "strategy": "Bullish FVG + VWAP Bullish + RSI 63.7 + R:R 1:3.00 [\ud83d\udfe2 TREND FOLLOWING ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 100%)",
+      "bull_score": 60,
+      "bear_score": 40,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (2.90x Bids/Asks) menahan tekanan jual di bawah entry.",
+      "bear_critique": " \u2022 Aset XRPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 1.5939,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-23 12:53:20"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.6,
+      "thesis": "ADJUST_RISK: Setup XRPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (100.729 / +0.51%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+        "Global Macro Risk-Off: DXY Surging (100.729 / +0.51%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.5939.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 1.5939,
+        "tp_price": 1.6583,
+        "rr_ratio": 3.0,
+        "strategy": "Bullish FVG + VWAP Bullish + RSI 63.7 + R:R 1:3.00 [\ud83d\udfe2 TREND FOLLOWING ENGINE] + \ud83c\udfaf 4H TOP-DOWN CONFLUENCE (Macro Bullish 100%)",
+        "bull_score": 60,
+        "bear_score": 40,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (2.90x Bids/Asks) menahan tekanan jual di bawah entry.",
+        "bear_critique": " \u2022 Aset XRPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 1.5939,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-23 12:53:20"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-23 12:53:38",
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 60% menunjukkan dorongan positif moderat. | ADX momentum kuat (32.5) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 56,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 56.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 61,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.25,
+            "neutral": 0.4,
+            "conservative": 0.35
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "XRP",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-23 05:53:58",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-23 05:55:01"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-23 04:01:58",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup XRPUSDT (LONG) teridentifikasi via 5m 15m-Key-Level Rectangle Break & Retest."
+      },
+      {
+        "timestamp": "2026-09-23 05:53:58",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 60% vs Bear 40% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-23 05:53:58",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-23 05:53:58",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-23 05:55:01",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -474,18 +898,18 @@
     "ticket_id": "TCK-20260923-2616",
     "symbol": "ETHUSDT",
     "side": "LONG",
-    "strategy": "Quantitative Confluence Setup",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-23 01:45:22",
-    "updated_at": "2026-09-23 05:52:15",
+    "updated_at": "2026-09-23 06:04:37",
     "payload": {
-      "entry": 2762.52,
-      "sl": 2736.1323,
-      "tp": 2841.6831,
-      "rr": 3.0000000000000346
+      "entry": 2756.91,
+      "sl": 2752.245,
+      "tp": 2770.905,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
