@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-23T07:36:40.070271+00:00",
-    "total_reflections": 94,
+    "last_reflection_at": "2026-09-23T07:57:39.596101+00:00",
+    "total_reflections": 95,
     "system_retention_score": 89.6
   },
   "coin_profiles": {
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 33,
+      "total_trades": 34,
       "wins": 24,
-      "losses": 7,
+      "losses": 8,
       "breakevens": 2,
-      "win_rate_pct": 72.7,
-      "net_pnl_usd": -10.71,
+      "win_rate_pct": 70.6,
+      "net_pnl_usd": -20.29,
       "avg_r_multiple": 0.03,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-22 19:01:13",
-      "updated_at": "2026-09-23T05:51:35.306230+00:00"
+      "updated_at": "2026-09-23T07:57:39.596101+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -646,9 +646,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-23T01:13:04.604224+00:00"
+    },
+    {
+      "id": "RULE-AUTO-SOLUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "solusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-23T07:57:39.596101+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260923-098",
+      "timestamp": "2026-09-23T07:57:39.596101+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -9.58,
+      "r_multiple": -0.41,
+      "pnl_pct": -0.61,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT Smart Money Concepts (SMC) (net: -$9.58, -0.41R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-23T07:57:39.596101+00:00"
+    },
     {
       "id": "MEM-20260923-097",
       "timestamp": "2026-09-23T07:36:40.070271+00:00",
@@ -742,8 +776,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 99,
-      "last_accessed": "2026-09-23T05:58:38.465629+00:00"
+      "access_count": 113,
+      "last_accessed": "2026-09-23T07:57:12.257151+00:00"
     },
     {
       "id": "MEM-20260923-093",
@@ -2610,8 +2644,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1151,
-      "last_accessed": "2026-09-23T07:37:32.934652+00:00"
+      "access_count": 1170,
+      "last_accessed": "2026-09-23T07:57:12.257151+00:00"
     },
     {
       "id": "MEM-20260922-013",
@@ -2634,8 +2668,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 404,
-      "last_accessed": "2026-09-23T07:37:33.042541+00:00"
+      "access_count": 418,
+      "last_accessed": "2026-09-23T07:57:12.396656+00:00"
     },
     {
       "id": "MEM-20260922-012",
@@ -2682,8 +2716,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 670,
-      "last_accessed": "2026-09-23T07:37:32.934652+00:00"
+      "access_count": 675,
+      "last_accessed": "2026-09-23T07:43:55.896069+00:00"
     },
     {
       "id": "MEM-20260922-010",
@@ -2748,8 +2782,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2607,
-      "last_accessed": "2026-09-23T07:37:33.042541+00:00"
+      "access_count": 2640,
+      "last_accessed": "2026-09-23T07:57:12.396656+00:00"
     },
     {
       "id": "MEM-20260922-007",
@@ -2796,8 +2830,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 879,
-      "last_accessed": "2026-09-23T07:37:33.042541+00:00"
+      "access_count": 893,
+      "last_accessed": "2026-09-23T07:57:12.396656+00:00"
     },
     {
       "id": "MEM-20260922-005",
@@ -2842,8 +2876,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 2687,
-      "last_accessed": "2026-09-23T07:37:33.042541+00:00"
+      "access_count": 2720,
+      "last_accessed": "2026-09-23T07:57:12.396656+00:00"
     },
     {
       "id": "MEM-20260901-001",
