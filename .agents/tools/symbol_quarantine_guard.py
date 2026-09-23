@@ -28,13 +28,20 @@ TOOLS_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(os.path.dirname(TOOLS_DIR), "data")
 LEDGER_FILE = os.path.join(DATA_DIR, "trade_journal_ledger.json")
 STATE_FILE = os.path.join(DATA_DIR, "symbol_quarantine_state.json")
+PORTFOLIO_STATE_FILE = os.path.join(DATA_DIR, "portfolio_circuit_breaker_state.json")
 
-# Default Parameters
+# Default Parameters - Symbol Quarantine
 DEFAULT_QUARANTINE_MINUTES = 120    # 2 hours cooling off
 MAX_CONSECUTIVE_LOSSES = 2          # 2 back-to-back losses trigger quarantine
 CONSECUTIVE_WINDOW_HOURS = 3.0      # Lookback window for consecutive losses
 CUMULATIVE_LOSS_R_LIMIT = 1.5       # 1.5R loss within window triggers quarantine
 CUMULATIVE_WINDOW_HOURS = 2.0       # Lookback window for cumulative R loss
+
+# Default Parameters - Portfolio-Wide Session Circuit Breaker
+PORTFOLIO_HALT_MINUTES = 240        # 4 hours full trading desk cooldown
+PORTFOLIO_MAX_CONSECUTIVE_LOSSES = 3 # 3 consecutive stop losses across ANY symbols within 3 hours
+PORTFOLIO_CONSECUTIVE_WINDOW_HOURS = 3.0 # Lookback window for portfolio consecutive losses
+PORTFOLIO_CUMULATIVE_LOSS_R_LIMIT = 3.0  # 3.0R portfolio loss within window triggers halt
 
 def _parse_time(ts_str):
     """Parses various timestamp formats into a datetime object."""
@@ -79,6 +86,47 @@ def save_quarantine_state(state):
             os.rename(tmp_file, STATE_FILE)
     except Exception:
         pass
+
+def load_portfolio_circuit_breaker_state():
+    """Loads active portfolio circuit breaker state from disk."""
+    if not os.path.exists(PORTFOLIO_STATE_FILE):
+        return {"is_halted": False, "halt_reason": None, "halt_until": None, "remaining_minutes": 0.0}
+    try:
+        with open(PORTFOLIO_STATE_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if isinstance(data, dict):
+                return data
+    except Exception:
+        pass
+    return {"is_halted": False, "halt_reason": None, "halt_until": None, "remaining_minutes": 0.0}
+
+def save_portfolio_circuit_breaker_state(state):
+    """Atomically saves portfolio circuit breaker state to disk."""
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        tmp_file = PORTFOLIO_STATE_FILE + ".tmp"
+        with open(tmp_file, "w", encoding="utf-8") as f:
+            json.dump(state, f, indent=2, ensure_ascii=False)
+        if os.path.exists(PORTFOLIO_STATE_FILE):
+            os.replace(tmp_file, PORTFOLIO_STATE_FILE)
+        else:
+            os.rename(tmp_file, PORTFOLIO_STATE_FILE)
+    except Exception:
+        pass
+
+def reset_portfolio_circuit_breaker():
+    """Resets portfolio circuit breaker state (clears halt)."""
+    state = {
+        "is_halted": False,
+        "halt_reason": None,
+        "halt_until": None,
+        "remaining_minutes": 0.0,
+        "consecutive_losses": 0,
+        "cum_loss_r": 0.0,
+        "reset_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    save_portfolio_circuit_breaker_state(state)
+    return state
 
 def audit_symbol_quarantine(symbol, ledger_override=None):
     """
@@ -246,15 +294,182 @@ def audit_symbol_quarantine(symbol, ledger_override=None):
         "status_badge": "🟢 READY"
     }
 
+def audit_portfolio_circuit_breaker(ledger_override=None):
+    """
+    Portfolio-Wide Session Circuit Breaker & Capital Preservation Engine
+    (Akademi Crypto Module 03: Money Psychology & Capital Preservation).
+    
+    Detects cascading stop-outs across the entire portfolio (ANY symbols) within rolling 3-hour window.
+    Triggers an automatic 240-minute (4-hour) desk HALT if:
+    - >= 3 consecutive Stop Losses occur across ANY symbols within the last 3 hours, OR
+    - Cumulative portfolio loss reaches >= 3.0R within the last 3 hours.
+
+    Returns:
+        {
+            "is_halted": bool,
+            "halt_reason": str,
+            "halt_until": str (ISO or None),
+            "remaining_minutes": float,
+            "consecutive_losses": int,
+            "cum_loss_r": float,
+            "symbols_involved": list,
+            "status_badge": str
+        }
+    """
+    now = datetime.now()
+    state = load_portfolio_circuit_breaker_state()
+
+    # 1. Check existing active halt from state file
+    if state.get("is_halted"):
+        until_dt = _parse_time(state.get("halt_until"))
+        if until_dt and until_dt > now:
+            remaining_mins = max(0.1, (until_dt - now).total_seconds() / 60.0)
+            return {
+                "is_halted": True,
+                "halt_reason": state.get("halt_reason", "Portfolio Cascade Stop Loss Lockout"),
+                "halt_until": state.get("halt_until"),
+                "remaining_minutes": round(remaining_mins, 1),
+                "consecutive_losses": state.get("consecutive_losses", 3),
+                "cum_loss_r": state.get("cum_loss_r", 3.0),
+                "symbols_involved": state.get("symbols_involved", []),
+                "status_badge": f"🛑 SESSION HALTED ({remaining_mins:.0f}m remaining)"
+            }
+        elif until_dt and until_dt <= now:
+            # Halt period expired, clear state
+            state["is_halted"] = False
+            state["halt_reason"] = None
+            state["halt_until"] = None
+            state["remaining_minutes"] = 0.0
+            save_portfolio_circuit_breaker_state(state)
+
+    # 2. Check ledger dynamically for recent portfolio-wide consecutive losses
+    trades = []
+    if ledger_override is not None:
+        trades = ledger_override
+    elif os.path.exists(LEDGER_FILE):
+        try:
+            with open(LEDGER_FILE, "r", encoding="utf-8") as f:
+                trades = json.load(f)
+                if not isinstance(trades, list):
+                    trades = []
+        except Exception:
+            trades = []
+
+    if not trades:
+        return {
+            "is_halted": False,
+            "halt_reason": "No recent trade history",
+            "halt_until": None,
+            "remaining_minutes": 0.0,
+            "consecutive_losses": 0,
+            "cum_loss_r": 0.0,
+            "symbols_involved": [],
+            "status_badge": "🟢 READY"
+        }
+
+    def _get_trade_time(t):
+        ts = t.get("closed_at") or t.get("exit_time") or t.get("timestamp")
+        dt = _parse_time(ts)
+        return dt if dt else datetime.min
+
+    sorted_trades = sorted(trades, key=_get_trade_time, reverse=True)
+
+    consecutive_losses = 0
+    cum_loss_r = 0.0
+    symbols_involved = []
+    latest_loss_time = None
+
+    for t in sorted_trades:
+        t_dt = _get_trade_time(t)
+        if t_dt == datetime.min:
+            continue
+        # Skip trades older than lookback window
+        if (now - t_dt).total_seconds() > (PORTFOLIO_CONSECUTIVE_WINDOW_HOURS * 3600):
+            break
+
+        pnl = float(t.get("net_pnl_usd", t.get("pnl_usd", 0.0)))
+        r_mult = float(t.get("r_multiple", 0.0))
+        t_sym = t.get("symbol", "UNKNOWN").upper()
+
+        if pnl <= 0 or r_mult < 0:
+            consecutive_losses += 1
+            cum_loss_r += abs(r_mult)
+            if t_sym not in symbols_involved:
+                symbols_involved.append(t_sym)
+            if latest_loss_time is None:
+                latest_loss_time = t_dt
+        else:
+            # A win breaks the consecutive loss chain
+            break
+
+    should_halt = False
+    trigger_reason = ""
+
+    if consecutive_losses >= PORTFOLIO_MAX_CONSECUTIVE_LOSSES and latest_loss_time:
+        elapsed_since_loss = (now - latest_loss_time).total_seconds() / 60.0
+        if elapsed_since_loss < PORTFOLIO_HALT_MINUTES:
+            should_halt = True
+            trigger_reason = (
+                f"{consecutive_losses} consecutive stop-outs across portfolio "
+                f"({', '.join(symbols_involved)}) within {PORTFOLIO_CONSECUTIVE_WINDOW_HOURS}h window"
+            )
+    elif cum_loss_r >= PORTFOLIO_CUMULATIVE_LOSS_R_LIMIT and latest_loss_time:
+        elapsed_since_loss = (now - latest_loss_time).total_seconds() / 60.0
+        if elapsed_since_loss < PORTFOLIO_HALT_MINUTES:
+            should_halt = True
+            trigger_reason = (
+                f"Cumulative portfolio loss of -{cum_loss_r:.2f}R exceeded {PORTFOLIO_CUMULATIVE_LOSS_R_LIMIT}R limit "
+                f"within {PORTFOLIO_CONSECUTIVE_WINDOW_HOURS}h window"
+            )
+
+    if should_halt and latest_loss_time:
+        until_dt = latest_loss_time + timedelta(minutes=PORTFOLIO_HALT_MINUTES)
+        remaining_mins = max(0.1, (until_dt - now).total_seconds() / 60.0)
+
+        halt_state = {
+            "is_halted": True,
+            "halt_reason": trigger_reason,
+            "halted_at": latest_loss_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "halt_until": until_dt.strftime("%Y-%m-%d %H:%M:%S"),
+            "remaining_minutes": round(remaining_mins, 1),
+            "consecutive_losses": consecutive_losses,
+            "cum_loss_r": round(cum_loss_r, 2),
+            "symbols_involved": symbols_involved
+        }
+        save_portfolio_circuit_breaker_state(halt_state)
+
+        return {
+            "is_halted": True,
+            "halt_reason": trigger_reason,
+            "halt_until": until_dt.strftime("%Y-%m-%d %H:%M:%S"),
+            "remaining_minutes": round(remaining_mins, 1),
+            "consecutive_losses": consecutive_losses,
+            "cum_loss_r": round(cum_loss_r, 2),
+            "symbols_involved": symbols_involved,
+            "status_badge": f"🛑 SESSION HALTED ({remaining_mins:.0f}m remaining)"
+        }
+
+    return {
+        "is_halted": False,
+        "halt_reason": "Normal portfolio operational parameters",
+        "halt_until": None,
+        "remaining_minutes": 0.0,
+        "consecutive_losses": consecutive_losses,
+        "cum_loss_r": round(cum_loss_r, 2),
+        "symbols_involved": symbols_involved,
+        "status_badge": "🟢 READY"
+    }
+
 def record_trade_outcome(symbol, pnl_usd, r_multiple, exit_reason=""):
     """
-    Hooks directly into trade closing events to update symbol circuit breaker.
+    Hooks directly into trade closing events to update symbol and portfolio circuit breakers.
     """
     sym = symbol.upper()
     state = load_quarantine_state()
     if pnl_usd <= 0 or r_multiple < 0:
-        # Re-evaluate quarantine immediately
+        # Re-evaluate quarantine and portfolio circuit breaker immediately
         audit_res = audit_symbol_quarantine(sym)
+        audit_portfolio_circuit_breaker()
         return audit_res
     else:
         # Profitable trade resets any active quarantine for this symbol

@@ -1394,6 +1394,25 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
         else:
             print(f"  {audit_msg}")
 
+    # Portfolio-Wide Session Circuit Breaker Gate (Cross-Symbol Cascade Loss Halt)
+    try:
+        import symbol_quarantine_guard
+        pb_res = symbol_quarantine_guard.audit_portfolio_circuit_breaker()
+        if pb_res.get("is_halted"):
+            print(f"\n🛑 [PORTFOLIO SESSION CIRCUIT BREAKER ACTIVE] {pb_res['halt_reason']}")
+            print(f"   Trading desk dihentikan sementara (Sisa waktu: {pb_res['remaining_minutes']:.1f}m) demi mengamankan modal!")
+            log_desk_activity({
+                "timestamp": timestamp_str,
+                "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+                "reason": pb_res["halt_reason"],
+                "remaining_minutes": pb_res["remaining_minutes"],
+                "balance": balance_usd,
+                "positions_count": len(active_positions)
+            })
+            admissible_candidates = []
+    except Exception:
+        pass
+
     if not admissible_candidates:
         print("\nTidak ada setup yang lolos ambang batas konfluensi ketat.")
         print(f"Desk standby demi menjaga akurasi ({session_info['session_name']} | Syarat Min: {session_info['min_threshold']}%).")
@@ -1432,6 +1451,17 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
         print(f"\n🎯 Ditemukan {len(admissible_candidates)} setup lolos uji akurasi. Mengeksekusi {len(selected)} setup terbaik (Slot tersedia: {slots_available}):")
 
         for idx, best in enumerate(selected, 1):
+            # Check Portfolio-Wide Session Circuit Breaker
+            try:
+                import symbol_quarantine_guard
+                pb_res = symbol_quarantine_guard.audit_portfolio_circuit_breaker()
+                if pb_res.get("is_halted"):
+                    print(f"\n🛑 [PORTFOLIO SESSION CIRCUIT BREAKER ACTIVE] {pb_res['halt_reason']}")
+                    print(f"   Eksekusi kandidat dibatalkan demi mengamankan modal!")
+                    break
+            except Exception:
+                pass
+
             # Check Symbol Consecutive Loss Quarantine Guard (Anti-Knife Catching)
             try:
                 import symbol_quarantine_guard

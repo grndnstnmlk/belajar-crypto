@@ -238,6 +238,26 @@ def heuristic_quant_audit(setup, market_context=None):
     except Exception:
         pass
 
+    # 0B. Portfolio-Wide Session Circuit Breaker Gate (Cross-Symbol Cascade Loss Halt)
+    try:
+        import symbol_quarantine_guard
+        pb_audit = symbol_quarantine_guard.audit_portfolio_circuit_breaker()
+        if pb_audit.get("is_halted"):
+            return {
+                "decision": "VETO",
+                "confidence": 99,
+                "suggested_risk_scale": 0.0,
+                "thesis": f"VETO: Portfolio dalam masa SESSION HALT ({pb_audit['halt_reason']}). Sisa penghentian: {pb_audit['remaining_minutes']:.1f} menit demi melindungi modal dari kerugian beruntun lintas instrumen.",
+                "key_risks": ["Portfolio Session Circuit Breaker Active", "Cascading Cross-Symbol Stop Loss Halt", "Capital Preservation Rule (Akademi Crypto Mod 03)"],
+                "invalidation_scenario": f"Tunggu periode session halt berakhir ({pb_audit.get('halt_until', 'N/A')}).",
+                "provider": "Portfolio Session Circuit Breaker",
+                "adversarial_debate": None,
+                "tri_perspective_risk": None,
+                "is_critical_veto": True
+            }
+    except Exception:
+        pass
+
     # 1. Macro News Blackout Check
     if news.get("is_blackout"):
         return {
@@ -494,6 +514,37 @@ def audit_trade_setup(setup, market_context=None):
 
     if provider == "fallback_quant":
         return heuristic_quant_audit(setup, market_context)
+
+    sym = setup.get("symbol", "UNKNOWN")
+    # Immediate Circuit Breaker & Quarantine Check before LLM invocation
+    try:
+        import symbol_quarantine_guard
+        pb_audit = symbol_quarantine_guard.audit_portfolio_circuit_breaker()
+        if pb_audit.get("is_halted"):
+            return {
+                "decision": "VETO",
+                "confidence": 99,
+                "suggested_risk_scale": 0.0,
+                "thesis": f"VETO: Portfolio dalam masa SESSION HALT ({pb_audit['halt_reason']}). Sisa penghentian: {pb_audit['remaining_minutes']:.1f} menit.",
+                "key_risks": ["Portfolio Session Circuit Breaker Active"],
+                "invalidation_scenario": f"Tunggu periode session halt berakhir ({pb_audit.get('halt_until', 'N/A')}).",
+                "provider": "Portfolio Session Circuit Breaker",
+                "is_critical_veto": True
+            }
+        q_audit = symbol_quarantine_guard.audit_symbol_quarantine(sym)
+        if q_audit.get("is_quarantined"):
+            return {
+                "decision": "VETO",
+                "confidence": 98,
+                "suggested_risk_scale": 0.0,
+                "thesis": f"VETO: Koin {sym} sedang dalam masa KARANTINA ({q_audit['reason']}). Sisa karantina: {q_audit['remaining_minutes']:.1f} menit.",
+                "key_risks": ["Symbol Quarantine Active"],
+                "invalidation_scenario": f"Tunggu masa karantina berakhir ({q_audit.get('quarantine_until', 'N/A')}).",
+                "provider": "Symbol Quarantine Circuit Breaker",
+                "is_critical_veto": True
+            }
+    except Exception:
+        pass
 
     # Format rich context for LLM
     ctx = dict(market_context) if market_context else {}

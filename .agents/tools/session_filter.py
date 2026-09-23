@@ -505,6 +505,26 @@ def calculate_confluence_score(setup, session_info=None):
         pass
     total_score += rb_pts
 
+    # 10. Quantitative Hurst Exponent & Downtrend Persistence Audit (+/- 8 pts)
+    hurst_pts = 0
+    try:
+        import regime_adaptive_switcher
+        sym = setup.get("symbol", "BTCUSDT")
+        h_audit = setup.get("hurst_audit") or regime_adaptive_switcher.is_downtrend_persistent(sym)
+        side = setup.get("side", "LONG").upper()
+        if side in ["BUY", "LONG"] and h_audit.get("is_downtrend_persistence", False):
+            hurst_pts = -12
+            breakdown["Hurst Regime Gate"] = f"-12 pts (Hurst H={h_audit.get('hurst_exponent')} Downtrend Persistence - Dip Buying Penalized)"
+        elif h_audit.get("hurst_state") == "PERSISTENT_TREND" and side in ["BUY", "LONG"] and h_audit.get("is_uptrend_persistence", False):
+            hurst_pts = 6
+            breakdown["Hurst Regime Gate"] = f"+6 pts (Hurst H={h_audit.get('hurst_exponent')} Persistent Uptrend Confirmation)"
+        elif h_audit.get("hurst_state") == "ANTI_PERSISTENT_MEAN_REVERSION":
+            hurst_pts = 4
+            breakdown["Hurst Regime Gate"] = f"+4 pts (Hurst H={h_audit.get('hurst_exponent')} Anti-Persistent Mean Reversion Optimal)"
+    except Exception:
+        pass
+    total_score += hurst_pts
+
     total_score = min(100, max(0, total_score))
 
     # Grade Classification

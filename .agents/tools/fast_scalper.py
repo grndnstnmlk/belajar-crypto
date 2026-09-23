@@ -1580,6 +1580,21 @@ def scan_symbol_scalp(symbol):
     except Exception:
         pass
 
+    # Quantitative Hurst Exponent Downtrend Persistence Veto
+    # When H > 0.55 and market is trending down, NEVER attempt dip-buying Long scalps!
+    if candidate.get("side") in ["LONG", "BUY"]:
+        try:
+            import regime_adaptive_switcher
+            h_audit = regime_adaptive_switcher.is_downtrend_persistent(symbol)
+            h_btc = regime_adaptive_switcher.is_downtrend_persistent("BTCUSDT")
+            if h_audit.get("is_downtrend_persistence", False) or h_btc.get("is_downtrend_persistence", False):
+                # Persistent downtrend: dip-buying is blocked to prevent catching falling knives
+                return None
+            candidate["hurst_exponent"] = h_audit.get("hurst_exponent", 0.50)
+            candidate["hurst_state"] = h_audit.get("hurst_state", "RANDOM_WALK")
+        except Exception:
+            pass
+
     return candidate
 
 def scan_all_scalp_opportunities(symbols=None):

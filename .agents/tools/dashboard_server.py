@@ -694,6 +694,31 @@ def get_market_intelligence_data(force_refresh=False):
     except Exception as e:
         jev_intelligence = {"error": str(e)}
 
+    # Institutional Portfolio Session Circuit Breaker & Symbol Quarantine
+    try:
+        import symbol_quarantine_guard
+        cb_intel = {
+            "portfolio": symbol_quarantine_guard.audit_portfolio_circuit_breaker(),
+            "quarantined_symbols": symbol_quarantine_guard.get_active_quarantines()
+        }
+    except Exception as e:
+        cb_intel = {"error": str(e)}
+
+    # Hurst Exponent (H) Trend Persistence vs Mean-Reversion Regime
+    try:
+        import regime_adaptive_switcher
+        hurst_btc = regime_adaptive_switcher.detect_hurst_regime("BTCUSDT", interval="1h", limit=50)
+        hurst_intel = {
+            "symbol": "BTCUSDT",
+            "hurst_exponent": hurst_btc.get("hurst_exponent"),
+            "regime": hurst_btc.get("regime"),
+            "is_downtrend_persistence": hurst_btc.get("is_downtrend_persistence"),
+            "is_uptrend_persistence": hurst_btc.get("is_uptrend_persistence"),
+            "status_badge": hurst_btc.get("badge")
+        }
+    except Exception as e:
+        hurst_intel = {"error": str(e)}
+
     res_data = {
         "compass": compass,
         "heat": heat,
@@ -710,6 +735,8 @@ def get_market_intelligence_data(force_refresh=False):
         "macro_equities": macro_equities,
         "onchain_fundamental": onchain_fundamental,
         "jev_intelligence": jev_intelligence,
+        "circuit_breaker": cb_intel,
+        "hurst_regime": hurst_intel,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     _intel_cache = res_data
@@ -1143,6 +1170,37 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path in ("/api/risk/circuit_breaker", "/api/risk/portfolio_circuit_breaker"):
+            try:
+                import symbol_quarantine_guard
+                cb_data = {
+                    "success": True,
+                    "portfolio": symbol_quarantine_guard.audit_portfolio_circuit_breaker(),
+                    "quarantined_symbols": symbol_quarantine_guard.get_active_quarantines()
+                }
+            except Exception as e:
+                cb_data = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(cb_data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/risk/hurst_regime":
+            sym = params.get("symbol", ["BTCUSDT"])[0].upper()
+            interval = params.get("interval", ["1h"])[0]
+            try:
+                import regime_adaptive_switcher
+                hurst_data = regime_adaptive_switcher.detect_hurst_regime(sym, interval=interval)
+                hurst_data["success"] = True
+            except Exception as e:
+                hurst_data = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(hurst_data, ensure_ascii=False).encode("utf-8"))
             return
 
         elif path == "/api/journal":
@@ -2140,6 +2198,19 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": True, "telegram_response": res}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+        elif path in ("/api/risk/circuit_breaker/reset", "/api/risk/portfolio_circuit_breaker/reset"):
+            try:
+                import symbol_quarantine_guard
+                state = symbol_quarantine_guard.reset_portfolio_circuit_breaker()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "portfolio_circuit_breaker": state}).encode("utf-8"))
             except Exception as e:
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json; charset=utf-8")

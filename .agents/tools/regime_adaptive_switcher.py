@@ -100,6 +100,40 @@ def calculate_choppiness_index(candles: List[Dict[str, float]], period: int = 14
     chop = 100.0 * (math.log10(tr_sum / hl_range) / math.log10(period))
     return max(0.0, min(100.0, round(chop, 2)))
 
+def calculate_hurst_exponent(prices: List[float], min_lag: int = 2, max_lag: int = 20) -> float:
+    """
+    Computes the Hurst Exponent (H) via RMS diffusion scaling:
+    tau(lag) = sqrt(E[(P(t+lag) - P(t))^2]) ~ lag^H
+    
+    Interpretation (Akademi Crypto & Quant Finance):
+    - H < 0.45: Anti-Persistent / Mean-Reverting (Ranges, SFPs, ORB bounces optimal)
+    - 0.45 <= H <= 0.55: Random Walk / Brownian Motion (Noise, standard sizing)
+    - H > 0.55: Persistent Trend (Strong directional memory, NEVER fade or buy falling knife!)
+    """
+    if len(prices) < max_lag * 2:
+        return 0.50
+
+    tau = []
+    lag_vals = []
+    for lag in range(min_lag, max_lag + 1):
+        diffs = [prices[i] - prices[i - lag] for i in range(lag, len(prices))]
+        if not diffs:
+            continue
+        rms = math.sqrt(sum(d ** 2 for d in diffs) / len(diffs))
+        if rms > 1e-8:
+            tau.append(math.log(rms))
+            lag_vals.append(math.log(lag))
+
+    if len(lag_vals) < 2:
+        return 0.50
+
+    mx = sum(lag_vals) / len(lag_vals)
+    my = sum(tau) / len(tau)
+    cov = sum((lag_vals[i] - mx) * (tau[i] - my) for i in range(len(lag_vals)))
+    var = sum((lag_vals[i] - mx) ** 2 for i in range(len(lag_vals)))
+    slope = (cov / var) if var > 0 else 0.50
+    return max(0.05, min(0.95, round(slope, 3)))
+
 def calculate_bollinger_band_width(closes: List[float], period: int = 20, num_std: float = 2.0) -> Dict[str, float]:
     """Calculates Bollinger Bands and Bandwidth % (BBW)."""
     if len(closes) < period:
@@ -218,8 +252,21 @@ def analyze_regime_state(symbol: str = "BTCUSDT", interval: str = "1h") -> Dict[
     current_price = closes[-1]
     adx, atr, plus_di, minus_di, atr_exp = calculate_adx_and_atr(candles, period=14)
     chop = calculate_choppiness_index(candles, period=14)
+    hurst = calculate_hurst_exponent(closes)
     bb_info = calculate_bollinger_band_width(closes, period=20)
     bbw = bb_info["bbw"]
+
+    # Hurst Exponent (H) Regime Classification
+    if hurst > 0.55:
+        hurst_state = "PERSISTENT_TREND"
+    elif hurst < 0.45:
+        hurst_state = "ANTI_PERSISTENT_MEAN_REVERSION"
+    else:
+        hurst_state = "RANDOM_WALK"
+
+    # Directional Persistence Detection
+    is_downtrend_persistence = (hurst > 0.55) and (minus_di > plus_di or current_price < bb_info["sma"])
+    is_uptrend_persistence = (hurst > 0.55) and (plus_di > minus_di or current_price > bb_info["sma"])
 
     # -------------------------------------------------------------
     # 4-TIER REGIME CLASSIFICATION
@@ -289,6 +336,10 @@ def analyze_regime_state(symbol: str = "BTCUSDT", interval: str = "1h") -> Dict[
         "atr_expansion_ratio": atr_exp,
         "plus_di": plus_di,
         "minus_di": minus_di,
+        "hurst_exponent": hurst,
+        "hurst_state": hurst_state,
+        "is_downtrend_persistence": is_downtrend_persistence,
+        "is_uptrend_persistence": is_uptrend_persistence,
         "recommended_strategy": recommended_strategy,
         "target_rr": target_rr,
         "risk_multiplier": risk_multiplier,
@@ -317,6 +368,21 @@ def get_adaptive_strategy_parameters(symbol: str = "BTCUSDT") -> Dict[str, Any]:
     Public helper for trading desk & execution bots to retrieve dynamic trade parameters.
     """
     return analyze_regime_state(symbol, interval="1h")
+
+def is_downtrend_persistent(symbol: str = "BTCUSDT") -> Dict[str, Any]:
+    """
+    Quantitative Gatekeeper: Detects if an asset is under active Downtrend Persistence (Hurst > 0.55).
+    Blocks all Dip-Buying / Mean-Reversion Long setups to prevent catching falling knives!
+    """
+    state = analyze_regime_state(symbol, interval="1h")
+    return {
+        "is_downtrend_persistence": state.get("is_downtrend_persistence", False),
+        "is_uptrend_persistence": state.get("is_uptrend_persistence", False),
+        "hurst_exponent": state.get("hurst_exponent", 0.50),
+        "hurst_state": state.get("hurst_state", "RANDOM_WALK"),
+        "regime_code": state.get("regime_code", "MODERATE_TREND"),
+        "symbol": symbol.upper()
+    }
 
 if __name__ == "__main__":
     print("=======================================================")
