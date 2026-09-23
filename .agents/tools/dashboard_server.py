@@ -191,6 +191,31 @@ _last_feed_fetch_time = 0
 _intel_cache = None
 _last_intel_fetch_time = 0
 _feed_updater_started = False
+_intel_updater_started = False
+
+def _run_intel_cache_updater():
+    """
+    High-performance background daemon updater for Market Intelligence.
+    Pre-computes intelligence metrics asynchronously in the background
+    so HTTP requests to /api/market_intelligence resolve instantly (< 1ms)
+    directly from RAM/disk with zero network blocking.
+    """
+    time.sleep(2.0)
+    while True:
+        try:
+            get_market_intelligence_data(force_refresh=True)
+        except Exception:
+            pass
+        time.sleep(45.0)
+
+def ensure_intel_updater_running():
+    global _intel_updater_started
+    if not _intel_updater_started:
+        _intel_updater_started = True
+        t = threading.Thread(target=_run_intel_cache_updater, daemon=True, name="DashboardIntelCacheDaemon")
+        t.start()
+
+ensure_intel_updater_running()
 
 def _run_feed_cache_updater():
     """
@@ -552,8 +577,29 @@ def get_dashboard_feed_data(force_refresh=False):
 def get_market_intelligence_data(force_refresh=False):
     global _intel_cache, _last_intel_fetch_time
     now = time.time()
-    if not force_refresh and _intel_cache is not None and (now - _last_intel_fetch_time) < 20.0:
+    ensure_intel_updater_running()
+
+    # Fast-Path: Serve from in-memory RAM cache instantly (< 1ms) if fresh
+    if not force_refresh and _intel_cache is not None:
+        if (now - _last_intel_fetch_time) < 45.0:
+            return _intel_cache
+        # Stale-while-revalidate: return current cache immediately and refresh in background
+        threading.Thread(target=lambda: get_market_intelligence_data(force_refresh=True), daemon=True).start()
         return _intel_cache
+
+    intel_path = os.path.join(DATA_DIR, "market_intelligence_cache.json")
+    # Disk cache fast-path: If RAM cache is empty but disk cache exists, load and return immediately
+    if not force_refresh and os.path.exists(intel_path):
+        try:
+            with open(intel_path, "r", encoding="utf-8") as f:
+                disk_data = json.load(f)
+            if disk_data and isinstance(disk_data, dict):
+                _intel_cache = disk_data
+                _last_intel_fetch_time = now
+                threading.Thread(target=lambda: get_market_intelligence_data(force_refresh=True), daemon=True).start()
+                return _intel_cache
+        except Exception:
+            pass
 
     try:
         compass = dominance_compass.get_dominance_compass()
@@ -668,6 +714,14 @@ def get_market_intelligence_data(force_refresh=False):
     }
     _intel_cache = res_data
     _last_intel_fetch_time = now
+    try:
+        intel_path = os.path.join(DATA_DIR, "market_intelligence_cache.json")
+        tmp_path = intel_path + ".tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(res_data, f, indent=2, ensure_ascii=False)
+        os.replace(tmp_path, intel_path)
+    except Exception:
+        pass
     return res_data
 
 def get_journal_data():

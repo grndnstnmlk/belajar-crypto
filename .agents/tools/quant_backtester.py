@@ -9,9 +9,15 @@ import json
 import math
 import os
 import random
+import ssl
 import sys
 import time
+import urllib.request
 from datetime import datetime
+
+SSL_CTX = ssl.create_default_context()
+SSL_CTX.check_hostname = False
+SSL_CTX.verify_mode = ssl.CERT_NONE
 
 # Ensure UTF-8 output on Windows console
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
@@ -89,6 +95,34 @@ def fetch_historical_candles(symbol="BTC", bar="1H", target_count=500):
             "close": float(c[4]),
             "volume": float(c[5])
         })
+
+    # Robust Fallback to Binance Vision if OKX returned insufficient candles (< 60)
+    if len(parsed) < 60:
+        try:
+            tf_map = {"1M": "1m", "5M": "5m", "15M": "15m", "1H": "1h", "4H": "4h", "1D": "1d"}
+            b_interval = tf_map.get(bar.upper(), bar.lower())
+            pair = f"{sym_clean}USDT"
+            b_limit = min(1000, max(100, target_count))
+            b_url = f"https://data-api.binance.vision/api/v3/klines?symbol={pair}&interval={b_interval}&limit={b_limit}"
+            req = urllib.request.Request(b_url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, context=SSL_CTX, timeout=5) as resp:
+                b_data = json.loads(resp.read().decode("utf-8"))
+                if b_data and isinstance(b_data, list):
+                    parsed_binance = []
+                    for c in b_data:
+                        parsed_binance.append({
+                            "ts": int(c[0]),
+                            "time": datetime.fromtimestamp(int(c[0]) / 1000).strftime("%Y-%m-%d %H:%M"),
+                            "open": float(c[1]),
+                            "high": float(c[2]),
+                            "low": float(c[3]),
+                            "close": float(c[4]),
+                            "volume": float(c[5])
+                        })
+                    if parsed_binance:
+                        parsed = parsed_binance
+        except Exception:
+            pass
 
     # Cache to disk
     if parsed:

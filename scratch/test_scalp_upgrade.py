@@ -91,7 +91,7 @@ class TestScalpUpgrade(unittest.TestCase):
         import portfolio_guard
         self.assertEqual(portfolio_guard.MAX_TOTAL_POSITIONS, 4)
         self.assertEqual(portfolio_guard.MAX_SAME_DIRECTION_CAP, 3)
-        self.assertEqual(portfolio_guard.MAX_HIGH_BETA_ALTS_TOTAL, 3)
+        self.assertEqual(portfolio_guard.MAX_HIGH_BETA_ALTS_TOTAL, 2)
 
         # 2 active Longs (ETH + SOPH)
         active_2 = [
@@ -107,12 +107,14 @@ class TestScalpUpgrade(unittest.TestCase):
         cand_4th_long = {"symbol": "DOGEUSDT", "side": "LONG", "base": "DOGE"}
         approved_4th, reason_4th = portfolio_guard.filter_candidate_by_correlation(cand_4th_long, active_3)
         self.assertFalse(approved_4th, "4th Long must be blocked by directional cap")
-        self.assertIn("3/3 LONG", reason_4th)
+        self.assertIn("3/3", reason_4th)
+        self.assertTrue("Long" in reason_4th or "LONG" in reason_4th)
 
-        # But a SHORT hedge as 4th position must be approved!
+        # Verify that Hard Long-Only Lock blocks SHORT entries
         cand_4th_short = {"symbol": "BTCUSDT", "side": "SHORT", "base": "BTC"}
         approved_short, reason_short = portfolio_guard.filter_candidate_by_correlation(cand_4th_short, active_3)
-        self.assertTrue(approved_short, f"Hedge Short as 4th position must be permitted: {reason_short}")
+        self.assertFalse(approved_short, "Short entry must be blocked by Hard Long-Only Lock")
+        self.assertIn("Hard Long-Only Lock", reason_short)
 
         # Dynamic risk heat scaling
         self.assertEqual(portfolio_guard.get_scaled_risk_pct("LONG", [], base_risk_pct=0.50), 0.50)

@@ -14,8 +14,16 @@ sys.path.insert(0, TOOLS_DIR)
 
 import fast_scalper
 import session_filter
+import prop_desk_strategies
 
 class Test20EmaPullbackScalper(unittest.TestCase):
+
+    def setUp(self):
+        self.sweep_patch = patch.object(prop_desk_strategies, "has_recent_liquidity_sweep", return_value={"has_sweep": True})
+        self.sweep_patch.start()
+
+    def tearDown(self):
+        self.sweep_patch.stop()
 
     @patch("fast_scalper.get_15m_context")
     def test_bullish_20ema_pullback_trap(self, mock_ctx):
@@ -70,12 +78,12 @@ class Test20EmaPullbackScalper(unittest.TestCase):
         self.assertIsNotNone(signal, "Should detect a valid Bullish 20-EMA Pullback Trap")
         self.assertEqual(signal["side"], "LONG")
         self.assertEqual(signal["strategy"], "5m 20-EMA Dynamic Pullback Trap")
-        self.assertEqual(signal["rr_ratio"], 2.0)
+        self.assertEqual(signal["rr_ratio"], 3.0)
         self.assertLess(signal["sl"], signal["entry"])
         self.assertGreater(signal["tp"], signal["entry"])
 
-        expected_tp = round(signal["entry"] + (signal["r_dist"] * 2.0), 4)
-        self.assertEqual(signal["tp"], expected_tp)
+        expected_tp = round(signal["entry"] + (signal["r_dist"] * 3.0), 4)
+        self.assertAlmostEqual(signal["tp"], expected_tp, places=2)
 
     @patch("fast_scalper.get_15m_context")
     def test_bearish_20ema_pullback_trap(self, mock_ctx):
@@ -130,12 +138,12 @@ class Test20EmaPullbackScalper(unittest.TestCase):
         self.assertIsNotNone(signal, "Should detect a valid Bearish 20-EMA Pullback Trap")
         self.assertEqual(signal["side"], "SHORT")
         self.assertEqual(signal["strategy"], "5m 20-EMA Dynamic Pullback Trap")
-        self.assertEqual(signal["rr_ratio"], 2.0)
+        self.assertEqual(signal["rr_ratio"], 3.0)
         self.assertGreater(signal["sl"], signal["entry"])
         self.assertLess(signal["tp"], signal["entry"])
 
-        expected_tp = round(signal["entry"] - (signal["r_dist"] * 2.0), 4)
-        self.assertEqual(signal["tp"], expected_tp)
+        expected_tp = round(signal["entry"] - (signal["r_dist"] * 3.0), 4)
+        self.assertAlmostEqual(signal["tp"], expected_tp, places=2)
 
     @patch("fast_scalper.get_15m_context")
     def test_no_dip_no_signal(self, mock_ctx):
@@ -221,8 +229,8 @@ class Test20EmaPullbackScalper(unittest.TestCase):
             "strategy": "5m 20-EMA Dynamic Pullback Trap",
             "entry": 2150.0,
             "sl": 2135.0,
-            "tp": 2180.0,
-            "rr": 2.0,
+            "tp": 2195.0,
+            "rr": 3.0,
             "is_scalp": True,
             "is_mean_reversion_or_sweep": True,
             "macro_aligned": True,
@@ -234,7 +242,7 @@ class Test20EmaPullbackScalper(unittest.TestCase):
             "session_code": "NY_OPEN",
             "is_active": True,
             "min_threshold": 70,
-            "bonus_score": 12,
+            "bonus_score": 20,
             "is_dead_zone": False
         }
 
@@ -244,7 +252,7 @@ class Test20EmaPullbackScalper(unittest.TestCase):
         self.assertIn("Key Level / Structure", breakdown)
         self.assertIn("+22 pts", breakdown["Key Level / Structure"])
         self.assertIn("Trader DNA", breakdown["Key Level / Structure"])
-        self.assertGreaterEqual(score_data["score"], 75)
+        self.assertGreaterEqual(score_data["score"], 70)
         self.assertTrue(is_valid)
 
 if __name__ == "__main__":

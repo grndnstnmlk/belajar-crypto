@@ -38,13 +38,14 @@ sys.path.insert(0, TOOLS_DIR)
 import market_radar
 import market_eyes
 
-# Default fallback universe if network is offline
-FALLBACK_PAIRLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "SUI", "NEAR", "LINK"]
+# Default fallback universe if network is offline (prioritizing high-expectancy pairs)
+FALLBACK_PAIRLIST = ["BTC", "BNB", "XRP", "SOL", "LINK", "SUI"]
 
 STATIC_BLACKLIST = {
     "USDC", "FDUSD", "TUSD", "BUSD", "DAI", "EUR", "USTC", "LUNA",
     "SOPH", "ZEC", "PROM", "THE", "HOLO", "WLD", "BTCDOM", "DEFI",
-    "AVAX", "ADA", "DOGE", "1000PEPE", "1000SHIB", "1000BONK", "1000FLOKI"
+    "AVAX", "ADA", "DOGE", "1000PEPE", "1000SHIB", "1000BONK", "1000FLOKI",
+    "TAO", "ETH", "ENA", "NEAR"
 }
 
 

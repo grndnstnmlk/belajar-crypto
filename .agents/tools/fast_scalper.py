@@ -36,7 +36,7 @@ try:
 except ImportError:
     hyperopt_optimizer = None
 
-DEFAULT_SCALP_SYMBOLS = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "SUI", "LINK", "AVAX", "NEAR"]
+DEFAULT_SCALP_SYMBOLS = ["BTC", "BNB", "XRP", "SOL", "LINK"]
 
 def load_optimized_scalper_params(symbol="BTC"):
     """
@@ -503,7 +503,7 @@ def scan_5m_volume_surge_breakout(symbol, candles_5m):
                 entry = c_close
                 r_dist = entry - sl
                 if r_dist > 0:
-                    tp = round(entry + (r_dist * 1.6), 4)
+                    tp = round(entry + (r_dist * 2.5), 4)
                     return {
                         "symbol": symbol,
                         "side": "LONG",
@@ -512,7 +512,7 @@ def scan_5m_volume_surge_breakout(symbol, candles_5m):
                         "sl": sl,
                         "tp": tp,
                         "r_dist": round(r_dist, 4),
-                        "rr_ratio": 1.6,
+                        "rr_ratio": 2.5,
                         "is_scalp": True,
                         "is_mean_reversion_or_sweep": False,
                         "macro_aligned": True,
@@ -528,7 +528,7 @@ def scan_5m_volume_surge_breakout(symbol, candles_5m):
                 entry = c_close
                 r_dist = sl - entry
                 if r_dist > 0:
-                    tp = round(entry - (r_dist * 1.6), 4)
+                    tp = round(entry - (r_dist * 2.5), 4)
                     return {
                         "symbol": symbol,
                         "side": "SHORT",
@@ -537,7 +537,7 @@ def scan_5m_volume_surge_breakout(symbol, candles_5m):
                         "sl": sl,
                         "tp": tp,
                         "r_dist": round(r_dist, 4),
-                        "rr_ratio": 1.6,
+                        "rr_ratio": 2.5,
                         "is_scalp": True,
                         "is_mean_reversion_or_sweep": False,
                         "macro_aligned": True,
@@ -1195,6 +1195,15 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
         reclaimed = (curr_c > curr_ema20) and (curr_c > curr_o) and (prev["close"] <= curr_ema20 * 1.0015)
 
         if dipped_below and reclaimed:
+            # Liquidity Sweep Gate: Ensure weak hands were swept before entering pullback
+            try:
+                import prop_desk_strategies
+                swp = prop_desk_strategies.has_recent_liquidity_sweep(symbol, side="LONG", lookback=30, bar="15m")
+                if not swp.get("has_sweep", True):
+                    return None
+            except Exception:
+                pass
+
             pullback_low = min(c["low"] for c in candles_5m[-6:])
             entry = curr_c
             sl = round(pullback_low * 0.9990, 4)
@@ -1229,6 +1238,14 @@ def scan_5m_20ema_pullback_trap_scalp(symbol, candles_5m):
         reclaimed = (curr_c < curr_ema20) and (curr_c < curr_o) and (prev["close"] >= curr_ema20 * 0.9985)
 
         if rallied_above and reclaimed:
+            try:
+                import prop_desk_strategies
+                swp = prop_desk_strategies.has_recent_liquidity_sweep(symbol, side="SHORT", lookback=30, bar="15m")
+                if not swp.get("has_sweep", True):
+                    return None
+            except Exception:
+                pass
+
             rally_high = max(c["high"] for c in candles_5m[-6:])
             entry = curr_c
             sl = round(rally_high * 1.0010, 4)
@@ -1415,11 +1432,51 @@ def scan_5m_akademi_crypto_scalp(symbol, candles_5m):
 
     return None
 
+# =====================================================================
+# STRATEGY SFP: 15m SFP (Swing Failure Pattern) Liquidity Sweep Snatcher
+# Highest-Probability Institutional Stop-Hunt Reversal (Win Rate 60%-70%)
+# Reference: Akademi Crypto Module 02 & Prop Desk Liquidity Engineering
+# =====================================================================
+def scan_15m_sfp_liquidity_sweep_scalp(symbol, candles_5m=None):
+    """
+    Priority 0: 15m Swing Failure Pattern (SFP) & Liquidity Sweep Snatcher.
+    Captures high-probability trapped liquidity on 15m with strict >= 25% wick rejection and >= 3.0R target.
+    """
+    try:
+        import prop_desk_strategies
+        sfp = prop_desk_strategies.detect_sfp_liquidity_sweep(symbol, bar="15m")
+        if sfp.get("has_setup") and sfp.get("rr", 0) >= 2.5:
+            side = "LONG" if "BULLISH" in sfp.get("signal", "") else "SHORT"
+            entry = sfp["entry"]
+            sl = sfp["sl"]
+            tp = sfp["tp"]
+            r_dist = abs(entry - sl)
+            return {
+                "symbol": symbol,
+                "side": side,
+                "strategy": "15m SFP Liquidity Sweep Snatcher",
+                "entry": entry,
+                "sl": sl,
+                "tp": tp,
+                "r_dist": round(r_dist, 4),
+                "rr_ratio": sfp["rr"],
+                "is_scalp": True,
+                "is_mean_reversion_or_sweep": True,
+                "macro_aligned": True,
+                "timeframe": "15m",
+                "target_duration": "30-90 menit",
+                "reason": sfp.get("summary", "🎯 15m SFP Liquidity Sweep confirmed")
+            }
+    except Exception:
+        pass
+    return None
+
 def scan_symbol_scalp(symbol):
     """
     Runs fast scalp strategies on a single symbol. Returns the best signal if found.
-    Focuses strictly on Craig Percoco Morning Routine + Institutional SMC Traps with >= 1:3.0 R:R:
-    1. Craig Percoco 5m Morning Routine (Asian Range & PDH/PDL Sweep + 3R) [TOP PRIORITY]
+    Focuses strictly on Institutional Liquidity Sweeps, SFPs, and SMC Traps with >= 1:3.0 R:R:
+    0. 15m SFP Liquidity Sweep & Stop-Hunt Snatcher (High Win-Rate Core) [ABSOLUTE TOP PRIORITY]
+    1. Craig Percoco 5m Morning Routine (Asian Range & PDH/PDL Sweep + 3R)
     2. ICT Rejection Block 50% Mean Threshold (3R)
     3. 4H Range Breakout & Re-Entry Failure (Failed Auction 3R)
     4. Inverse FVG (IFVG) Liquidity Scalp (3R)
@@ -1446,9 +1503,13 @@ def scan_symbol_scalp(symbol):
 
     candidate = None
 
-    # Priority 1 [CRAIG PERCOCO MORNING ROUTINE - TOP PRIORITY]:
+    # Priority 0 [INSTITUTIONAL SFP LIQUIDITY SWEEP - HIGHEST WIN RATE PRIORITY]:
+    candidate = scan_15m_sfp_liquidity_sweep_scalp(symbol, candles)
+
+    # Priority 1 [CRAIG PERCOCO MORNING ROUTINE]:
     # Asian Session Range + PDH/PDL Sweep with FVG Displacement (3R)
-    candidate = scan_craig_percoco_morning_routine_scalp(symbol, candles)
+    if not candidate:
+        candidate = scan_craig_percoco_morning_routine_scalp(symbol, candles)
 
     # Priority 1.5: Order Flow CVD Divergence & DOM Stacked Imbalance Scalp
     if not candidate:
@@ -1503,9 +1564,9 @@ def scan_symbol_scalp(symbol):
     candidate["is_scalp"] = True
     candidate["timeframe"] = candidate.get("timeframe", "5m")
     candidate["target_duration"] = candidate.get("target_duration", "10-25 menit")
-    candidate["be_trigger_r"] = 0.60  # Institutional Micro-Breakeven
-    candidate["tp1_target_r"] = 1.25  # Institutional Partial Scale-Out (50%)
-    candidate["anti_stall_minutes"] = 20  # Max life for momentum scalp
+    candidate["be_trigger_r"] = 1.50  # Institutional Breakeven (Gives trade breathing room)
+    candidate["tp1_target_r"] = 2.25  # Institutional Partial Scale-Out (50%)
+    candidate["anti_stall_minutes"] = 45  # Extended life for momentum development
 
     # Penyesuaian 6: HTF Macro Bias Lock Veto (4H / 1D EMA Direction)
     try:

@@ -78,11 +78,11 @@ class TestMulhamRectangleScalper(unittest.TestCase):
         self.assertIsNotNone(signal, "Should detect a valid LONG 15m Rectangle Break & Retest setup")
         self.assertEqual(signal["side"], "LONG")
         self.assertEqual(signal["strategy"], "5m 15m-Key-Level Rectangle Break & Retest")
-        self.assertEqual(signal["rr_ratio"], 2.0)
+        self.assertEqual(signal["rr_ratio"], 3.0)
         self.assertLess(signal["sl"], signal["entry"])
         self.assertGreater(signal["tp"], signal["entry"])
 
-        expected_tp = round(signal["entry"] + (signal["r_dist"] * 2.0), 4)
+        expected_tp = round(signal["entry"] + (signal["r_dist"] * 3.0), 4)
         self.assertEqual(signal["tp"], expected_tp)
 
     def test_short_rectangle_breakdown_retest(self):
@@ -143,11 +143,11 @@ class TestMulhamRectangleScalper(unittest.TestCase):
         self.assertIsNotNone(signal, "Should detect a valid SHORT 15m Rectangle Breakdown & Retest setup")
         self.assertEqual(signal["side"], "SHORT")
         self.assertEqual(signal["strategy"], "5m 15m-Key-Level Rectangle Break & Retest")
-        self.assertEqual(signal["rr_ratio"], 2.0)
+        self.assertEqual(signal["rr_ratio"], 3.0)
         self.assertGreater(signal["sl"], signal["entry"])
         self.assertLess(signal["tp"], signal["entry"])
 
-        expected_tp = round(signal["entry"] - (signal["r_dist"] * 2.0), 4)
+        expected_tp = round(signal["entry"] - (signal["r_dist"] * 3.0), 4)
         self.assertEqual(signal["tp"], expected_tp)
 
     def test_invalidation_when_retest_violates_boundary(self):
@@ -227,7 +227,7 @@ class TestMulhamRectangleScalper(unittest.TestCase):
             "session_code": "LONDON_OPEN",
             "is_active": True,
             "min_threshold": 70,
-            "bonus_score": 10,
+            "bonus_score": 25,
             "is_dead_zone": False
         }
 
@@ -237,7 +237,7 @@ class TestMulhamRectangleScalper(unittest.TestCase):
         self.assertIn("Key Level / Structure", breakdown)
         self.assertIn("+23 pts", breakdown["Key Level / Structure"])
         self.assertIn("Mulham Sniper", breakdown["Key Level / Structure"])
-        self.assertGreaterEqual(score_data["score"], 75)
+        self.assertGreaterEqual(score_data["score"], 85)
         self.assertTrue(is_valid)
 
 if __name__ == "__main__":

@@ -88,23 +88,53 @@ def detect_sfp_liquidity_sweep(symbol: str, bar: str = "15m", candles: Optional[
     lows = [float(c[3]) for c in candles]
     closes = [float(c[4]) for c in candles]
 
-    # Lookback for major Key High & Key Low (prior 30 to 60 candles)
-    prior_highs = highs[-60:-3] if len(highs) >= 60 else highs[:-3]
-    prior_lows = lows[-60:-3] if len(lows) >= 60 else lows[:-3]
+    # Lookback for major Key High & Key Low (prior 20 to 50 candles, excluding the active 2 bars)
+    prior_highs = highs[-50:-2] if len(highs) >= 50 else highs[:-2]
+    prior_lows = lows[-50:-2] if len(lows) >= 50 else lows[:-2]
 
     key_high = max(prior_highs)
     key_low = min(prior_lows)
 
     curr_o, curr_h, curr_l, curr_c = opens[-1], highs[-1], lows[-1], closes[-1]
-    prev_c = closes[-2]
+    prev_o, prev_h, prev_l, prev_c = opens[-2], highs[-2], lows[-2], closes[-2]
 
-    # Bullish SFP: Current or previous bar spiked below Key Low, but closed back above Key Low
-    # (Trapping breakout shorts and sweeping sell stops)
-    if (curr_l < key_low or lows[-2] < key_low) and (curr_c > key_low) and (curr_c > curr_o):
+    # Calculate candle range and wick rejection ratios
+    curr_rng = max(curr_h - curr_l, curr_c * 0.0001)
+    curr_lower_wick = max(0.0, min(curr_o, curr_c) - curr_l)
+    curr_upper_wick = max(0.0, curr_h - max(curr_o, curr_c))
+    curr_lower_ratio = curr_lower_wick / curr_rng
+    curr_upper_ratio = curr_upper_wick / curr_rng
+
+    prev_rng = max(prev_h - prev_l, prev_c * 0.0001)
+    prev_lower_wick = max(0.0, min(prev_o, prev_c) - prev_l)
+    prev_upper_wick = max(0.0, prev_h - max(prev_o, prev_c))
+    prev_lower_ratio = prev_lower_wick / prev_rng
+    prev_upper_ratio = prev_upper_wick / prev_rng
+
+    # Asset-specific buffer to avoid getting swept twice
+    buf = 0.003 if base in ["BTC", "ETH"] else 0.005
+
+    # Bullish SFP:
+    # 1. Current bar swept Key Low, closed back ABOVE Key Low with >= 25% lower rejection wick
+    # 2. Or previous bar swept Key Low with >= 25% lower wick, and current bar confirms bullish expansion
+    is_bullish_sfp = False
+    sweep_low = curr_l
+    wick_ratio_used = curr_lower_ratio
+
+    if curr_l < key_low and curr_c > key_low and curr_lower_ratio >= 0.25 and curr_c >= curr_o:
+        is_bullish_sfp = True
+        sweep_low = curr_l
+        wick_ratio_used = curr_lower_ratio
+    elif prev_l < key_low and prev_c > key_low and prev_lower_ratio >= 0.25 and curr_c > prev_c and curr_c >= curr_o:
+        is_bullish_sfp = True
+        sweep_low = min(curr_l, prev_l)
+        wick_ratio_used = prev_lower_ratio
+
+    if is_bullish_sfp:
         entry = curr_c
-        sl = round(min(curr_l, lows[-2]) * 0.998, 4)
-        dist_sl = max(entry - sl, entry * 0.003)
-        tp = round(entry + (dist_sl * 4.5), 4)
+        sl = round(sweep_low * (1.0 - buf), 4)
+        dist_sl = max(entry - sl, entry * 0.004)
+        tp = round(entry + (dist_sl * 3.5), 4)
         rr = round((tp - entry) / dist_sl, 2)
         return {
             "has_setup": True,
@@ -116,17 +146,32 @@ def detect_sfp_liquidity_sweep(symbol: str, bar: str = "15m", candles: Optional[
             "sl": sl,
             "tp": tp,
             "rr": rr,
-            "confluence_score": 92,
-            "summary": f"🎯 BULLISH SFP (LONG): Swept Key Low @ ${key_low:,.4f} & closed back inside | Target R:R 1:{rr:.2f}"
+            "confluence_score": 95,
+            "wick_rejection_pct": round(wick_ratio_used * 100, 1),
+            "summary": f"🎯 BULLISH SFP (LONG): Swept Key Low @ ${key_low:,.4f} down to ${sweep_low:,.4f} & closed back inside ({wick_ratio_used*100:.0f}% wick rejection) | Target R:R 1:{rr:.2f}"
         }
 
-    # Bearish SFP: Current or previous bar spiked above Key High, but closed back below Key High
-    # (Trapping breakout longs and sweeping buy stops)
-    if (curr_h > key_high or highs[-2] > key_high) and (curr_c < key_high) and (curr_c < curr_o):
+    # Bearish SFP:
+    # 1. Current bar swept Key High, closed back BELOW Key High with >= 25% upper rejection wick
+    # 2. Or previous bar swept Key High with >= 25% upper wick, and current bar confirms bearish expansion
+    is_bearish_sfp = False
+    sweep_high = curr_h
+    wick_ratio_used = curr_upper_ratio
+
+    if curr_h > key_high and curr_c < key_high and curr_upper_ratio >= 0.25 and curr_c <= curr_o:
+        is_bearish_sfp = True
+        sweep_high = curr_h
+        wick_ratio_used = curr_upper_ratio
+    elif prev_h > key_high and prev_c < key_high and prev_upper_ratio >= 0.25 and curr_c < prev_c and curr_c <= curr_o:
+        is_bearish_sfp = True
+        sweep_high = max(curr_h, prev_h)
+        wick_ratio_used = prev_upper_ratio
+
+    if is_bearish_sfp:
         entry = curr_c
-        sl = round(max(curr_h, highs[-2]) * 1.002, 4)
-        dist_sl = max(sl - entry, entry * 0.003)
-        tp = round(entry - (dist_sl * 4.5), 4)
+        sl = round(sweep_high * (1.0 + buf), 4)
+        dist_sl = max(sl - entry, entry * 0.004)
+        tp = round(entry - (dist_sl * 3.5), 4)
         rr = round((entry - tp) / dist_sl, 2)
         return {
             "has_setup": True,
@@ -138,8 +183,9 @@ def detect_sfp_liquidity_sweep(symbol: str, bar: str = "15m", candles: Optional[
             "sl": sl,
             "tp": tp,
             "rr": rr,
-            "confluence_score": 92,
-            "summary": f"🎯 BEARISH SFP (SHORT): Swept Key High @ ${key_high:,.4f} & closed back inside | Target R:R 1:{rr:.2f}"
+            "confluence_score": 95,
+            "wick_rejection_pct": round(wick_ratio_used * 100, 1),
+            "summary": f"🎯 BEARISH SFP (SHORT): Swept Key High @ ${key_high:,.4f} up to ${sweep_high:,.4f} & closed back inside ({wick_ratio_used*100:.0f}% wick rejection) | Target R:R 1:{rr:.2f}"
         }
 
     return {
@@ -150,6 +196,63 @@ def detect_sfp_liquidity_sweep(symbol: str, bar: str = "15m", candles: Optional[
         "key_high": round(key_high, 4),
         "key_low": round(key_low, 4),
         "summary": f"SFP Monitor Active (High: ${key_high:,.2f} | Low: ${key_low:,.2f}). No stop-hunt trigger."
+    }
+
+def has_recent_liquidity_sweep(symbol: str, side: str = "LONG", lookback: int = 25, bar: str = "15m", candles: Optional[List[List[Any]]] = None) -> Dict[str, Any]:
+    """
+    Checks if there has been a valid liquidity sweep (SFP / stop-hunt) of a prior local swing high/low
+    within the last `lookback` candles. Used as an institutional confirmation gatekeeper.
+    """
+    base = clean_symbol(symbol)
+    if candles is None or len(candles) < (lookback + 20):
+        candles = fetch_binance_klines(base, bar=bar, limit=max(80, lookback + 30))
+
+    if not candles or len(candles) < 30:
+        return {"has_sweep": True, "reason": "Insufficient candles for sweep gate (fallback permit)"}
+
+    highs = [float(c[2]) for c in candles]
+    lows = [float(c[3]) for c in candles]
+    closes = [float(c[4]) for c in candles]
+    opens = [float(c[1]) for c in candles]
+
+    side_clean = "BUY" if side.upper() in ["BUY", "LONG"] else "SELL"
+    n_candles = len(candles)
+    search_start = max(15, n_candles - lookback)
+
+    for i in range(search_start, n_candles):
+        prior_l = min(lows[max(0, i - 25):i])
+        prior_h = max(highs[max(0, i - 25):i])
+        c_o, c_h, c_l, c_c = opens[i], highs[i], lows[i], closes[i]
+        c_rng = max(c_h - c_l, c_c * 0.0001)
+
+        if side_clean == "BUY":
+            l_wick = max(0.0, min(c_o, c_c) - c_l)
+            if c_l < prior_l and c_c > prior_l and (l_wick / c_rng) >= 0.20:
+                bars_ago = n_candles - 1 - i
+                return {
+                    "has_sweep": True,
+                    "sweep_type": "BULLISH_SSL_SWEEP",
+                    "sweep_level": prior_l,
+                    "sweep_low": c_l,
+                    "bars_ago": bars_ago,
+                    "reason": f"Sell-side liquidity swept at ${prior_l:,.4f} ({bars_ago} bars ago) with {(l_wick/c_rng)*100:.0f}% wick rejection"
+                }
+        else:
+            u_wick = max(0.0, c_h - max(c_o, c_c))
+            if c_h > prior_h and c_c < prior_h and (u_wick / c_rng) >= 0.20:
+                bars_ago = n_candles - 1 - i
+                return {
+                    "has_sweep": True,
+                    "sweep_type": "BEARISH_BSL_SWEEP",
+                    "sweep_level": prior_h,
+                    "sweep_high": c_h,
+                    "bars_ago": bars_ago,
+                    "reason": f"Buy-side liquidity swept at ${prior_h:,.4f} ({bars_ago} bars ago) with {(u_wick/c_rng)*100:.0f}% wick rejection"
+                }
+
+    return {
+        "has_sweep": False,
+        "reason": f"No liquidity sweep detected in the last {lookback} candles (Retail middle-of-range risk)"
     }
 
 # =============================================================================

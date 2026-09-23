@@ -88,6 +88,7 @@ import session_filter
 import macro_news_shield
 import transaction_cost_guard
 import htf_macro_lock
+import prop_desk_strategies
 
 try:
     import hedge_fund_seasonality_engine
@@ -98,8 +99,11 @@ except ImportError:
 EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
 
 # Curated High-Performing Crypto Assets on Binance Futures (High Win-Rate Ledger)
-DEFAULT_WATCHLIST = ["BTC", "BNB", "LINK", "SUI", "XRP", "SOL", "NEAR", "ETH"]
-BLACKLIST_COINS = {"SOPH", "ZEC", "ADA", "DOGE", "AVAX", "PROM", "THE", "HOLO", "WLD", "UNI", "SOXL", "SNXX", "SNDK"}
+DEFAULT_WATCHLIST = ["BTC", "BNB", "XRP", "SOL", "LINK", "SUI"]
+BLACKLIST_COINS = {
+    "SOPH", "ZEC", "ADA", "DOGE", "AVAX", "PROM", "THE", "HOLO", "WLD", "UNI",
+    "SOXL", "SNXX", "SNDK", "TAO", "ETH", "ENA", "NEAR"
+}
 
 try:
     import pairlist_pipeline
@@ -227,12 +231,12 @@ def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
         try:
             champions = pairlist_pipeline.get_active_dynamic_pairlist()
             if champions and len(champions) >= 4:
-                merged = ["BTC", "ETH", "SOL"] + [c for c in champions if c not in ["BTC", "ETH", "SOL"] and c not in BLACKLIST_COINS]
+                merged = ["BTC", "BNB", "XRP", "SOL"] + [c for c in champions if c not in ["BTC", "BNB", "XRP", "SOL"] and c not in BLACKLIST_COINS]
                 return merged[:top_n]
         except Exception:
             pass
 
-    anchor_coins = ["BTC", "ETH", "SOL"]
+    anchor_coins = ["BTC", "BNB", "XRP", "SOL"]
     stables = {"USDCUSDT", "FDUSDUSDT", "TUSDUSDT", "BUSDUSDT", "EURUSDT", "DAIUSDT", "AEURUSDT", "USDSUSDT"}
 
     try:
@@ -759,6 +763,33 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
     has_bullish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BULLISH_SWEEP_MSS")
     has_bullish_rb = bool(rb_setup and rb_setup.get("has_setup") and rb_setup.get("side") == "BUY")
 
+    # SFP (Swing Failure Pattern) & Liquidity Sweep Intelligence
+    sfp_setup = None
+    try:
+        sfp_setup = prop_desk_strategies.detect_sfp_liquidity_sweep(sym, bar="15m")
+    except Exception:
+        sfp_setup = None
+
+    has_bullish_sfp = bool(sfp_setup and sfp_setup.get("has_setup") and "BULLISH" in sfp_setup.get("signal", ""))
+    has_bearish_sfp = bool(sfp_setup and sfp_setup.get("has_setup") and "BEARISH" in sfp_setup.get("signal", ""))
+
+    # Institutional Gatekeeper: Gate standalone FVG (reject mid-range breakout traps without prior liquidity sweep)
+    if has_bullish_fvg and not (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp):
+        try:
+            swp = prop_desk_strategies.has_recent_liquidity_sweep(sym, side="LONG", lookback=25, bar="15m")
+            if not swp.get("has_sweep", True):
+                has_bullish_fvg = False
+        except Exception:
+            pass
+
+    if has_bearish_fvg and not (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp):
+        try:
+            swp = prop_desk_strategies.has_recent_liquidity_sweep(sym, side="SHORT", lookback=25, bar="15m")
+            if not swp.get("has_sweep", True):
+                has_bearish_fvg = False
+        except Exception:
+            pass
+
     ad_intel = data.get("adaptive_intel")
     eff_ob = ad_intel.get("ob_threshold", 75.0) if ad_intel else sub_gen.get("rsi_overbought", 70)
     eff_os = ad_intel.get("os_threshold", 25.0) if ad_intel else sub_gen.get("rsi_oversold", 30)
@@ -780,8 +811,8 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
     price_equilibrium_pct = ((price - l_24) / range_24 * 100.0) if range_24 > 0 else 50.0
 
     signal = None
-    if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb) and rsi_safe_long:
-        if price_equilibrium_pct > 75.0 and not (has_bullish_sweep or has_bullish_rb):
+    if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) and rsi_safe_long:
+        if price_equilibrium_pct > 75.0 and not (has_bullish_sweep or has_bullish_rb or has_bullish_sfp):
             pass
         elif deriv_intel and deriv_intel.get("bias") == "BEARISH_SQUEEZE_RISK":
             pass
@@ -789,7 +820,10 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
             pass
         else:
             sweep_buf = get_asset_sweep_buffer(sym)
-            if has_bullish_rb and rb_setup:
+            if has_bullish_sfp and sfp_setup:
+                sl = sfp_setup["sl"]
+                reason_tag = sfp_setup.get("summary", f"🎯 BULLISH SFP LIQUIDITY SWEEP (${sfp_setup.get('key_level')})")
+            elif has_bullish_rb and rb_setup:
                 sl = round(rb_setup["sl_price"], 4)
                 reason_tag = f"🕯️ ICT REJECTION BLOCK (MT ${rb_setup['mean_threshold']:,.4f} | {rb_setup['retest_state']})"
             elif has_bullish_sweep and liquidity_sweep:
@@ -815,7 +849,7 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
             dist_sl = price - sl
             if dist_sl > 0:
                 bonus_rr = 0.5 if is_alpha_leader else 0.0
-                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb) else (effective_min_rr + bonus_rr))
+                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) else (effective_min_rr + bonus_rr))
                 tp = round(price + (dist_sl * target_rr), 4)
                 rr = (tp - price) / dist_sl
                 signal = {
@@ -829,6 +863,8 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                     "is_3touch": has_bullish_3touch,
                     "is_fabio": has_bullish_auction,
                     "is_tim": has_bullish_sweep,
+                    "is_sfp": has_bullish_sfp,
+                    "sfp_setup": sfp_setup if has_bullish_sfp else None,
                     "is_rejection_block": has_bullish_rb,
                     "rejection_block_setup": rb_setup if has_bullish_rb else None,
                     "is_alpha_leader": is_alpha_leader,
@@ -837,8 +873,8 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                     "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
                 }
 
-    elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) and rsi_safe_short:
-        if is_alpha_leader or not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction):
+    elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) and rsi_safe_short:
+        if is_alpha_leader or not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction or has_bearish_sfp):
             pass
         else:
             htf_swing_check = htf_macro_lock.audit_htf_macro_bias(pair_sym, "SHORT")
@@ -846,13 +882,16 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                 pass
             elif sym != "BTC" and market_regime.detect_market_regime("BTCUSDT", interval="1h") and market_regime.detect_market_regime("BTCUSDT", interval="1h").get("bias") == "BULLISH":
                 pass
-            elif price_equilibrium_pct < 50.0 and not (has_bearish_sweep or has_bearish_rb):
+            elif price_equilibrium_pct < 50.0 and not (has_bearish_sweep or has_bearish_rb or has_bearish_sfp):
                 pass
             elif deriv_intel and deriv_intel.get("bias") == "BULLISH_SQUEEZE":
                 pass
             else:
                 sweep_buf = get_asset_sweep_buffer(sym)
-                if has_bearish_rb and rb_setup:
+                if has_bearish_sfp and sfp_setup:
+                    sl = sfp_setup["sl"]
+                    reason_tag = sfp_setup.get("summary", f"🎯 BEARISH SFP LIQUIDITY SWEEP (${sfp_setup.get('key_level')})")
+                elif has_bearish_rb and rb_setup:
                     sl = round(rb_setup["sl_price"], 4)
                     reason_tag = f"🕯️ ICT REJECTION BLOCK (MT ${rb_setup['mean_threshold']:,.4f} | {rb_setup['retest_state']})"
                 elif has_bearish_sweep and liquidity_sweep:
@@ -878,7 +917,7 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                 dist_sl = sl - price
                 if dist_sl > 0:
                     bonus_rr = 0.5 if is_beta_laggard else 0.0
-                    target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb) else (effective_min_rr + bonus_rr))
+                    target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) else (effective_min_rr + bonus_rr))
                     tp = round(price - (dist_sl * target_rr), 4)
                     rr = (price - tp) / dist_sl
                     signal = {
@@ -892,6 +931,8 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                         "is_3touch": has_bearish_3touch,
                         "is_fabio": has_bearish_auction,
                         "is_tim": has_bearish_sweep,
+                        "is_sfp": has_bearish_sfp,
+                        "sfp_setup": sfp_setup if has_bearish_sfp else None,
                         "is_rejection_block": has_bearish_rb,
                         "rejection_block_setup": rb_setup if has_bearish_rb else None,
                         "is_beta_laggard": is_beta_laggard,
@@ -1281,8 +1322,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
             else:
                 scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:8])
                 for s in scalp_setups:
-                    # Filter out sub-standard scalps (Must have >= 1:2.0R Asymmetric Target)
-                    if s.get("rr_ratio", 0) < 2.0:
+                    # Filter out sub-standard scalps (Must have >= 1:2.5R Asymmetric Target)
+                    if s.get("rr_ratio", 0) < 2.5:
                         continue
                     if is_long_only and s.get("side", "").upper() in ["SELL", "SHORT"]:
                         print(f" 🛡️ [LONG-ONLY FILTER] Vetoed SHORT on {s['symbol']} (Long-Only mode active)")
@@ -1301,9 +1342,9 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                         "rr": s["rr_ratio"],
                         "risk_pct": max_risk_pct,
                         "is_scalp": True,
-                        "be_trigger_r": s.get("be_trigger_r", 0.60),
-                        "tp1_target_r": s.get("tp1_target_r", 1.25),
-                        "anti_stall_minutes": s.get("anti_stall_minutes", 20),
+                        "be_trigger_r": s.get("be_trigger_r", 1.50),
+                        "tp1_target_r": s.get("tp1_target_r", 2.25),
+                        "anti_stall_minutes": s.get("anti_stall_minutes", 45),
                         "is_mean_reversion_or_sweep": s.get("is_mean_reversion_or_sweep", True),
                         "macro_aligned": s.get("macro_aligned", True),
                         "strategy": s["strategy"],
@@ -2079,9 +2120,9 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     is_scalp=best.get("is_scalp", False),
                     ai_thesis=ai_audit.get("thesis") if ai_audit else None,
                     ai_confidence=ai_audit.get("confidence") if ai_audit else None,
-                    be_trigger_r=best.get("be_trigger_r", 0.60),
-                    tp1_target_r=best.get("tp1_target_r", 1.25),
-                    anti_stall_minutes=best.get("anti_stall_minutes", 20),
+                    be_trigger_r=best.get("be_trigger_r", 1.50),
+                    tp1_target_r=best.get("tp1_target_r", 2.25),
+                    anti_stall_minutes=best.get("anti_stall_minutes", 45),
                     strategy_name=best.get("strategy") or best.get("strategy_name") or "Smart Money Concepts (SMC)"
                 )
             except Exception as e:

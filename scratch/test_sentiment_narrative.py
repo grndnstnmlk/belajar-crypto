@@ -75,14 +75,14 @@ class TestSentimentNarrativeScanner(unittest.TestCase):
         self.assertEqual(sol_info["sector_key"], "SOL_L1")
         self.assertIn("sector_rank", sol_info)
 
-        # Test pre-trade audit integration with BTC
+        # Test pre-trade audit integration with SOL
         setup = {
-            "symbol": "BTCUSDT",
+            "symbol": "SOLUSDT",
             "side": "BUY",
-            "price": 66000.0,
-            "entry": 66000.0,
-            "sl": 65200.0,
-            "tp": 68400.0,
+            "price": 120.0,
+            "entry": 120.0,
+            "sl": 118.0,
+            "tp": 126.0,
             "rr": 3.0,
             "strategy": "Institutional FVG Retest"
         }
