@@ -741,10 +741,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-23 13:24:58",
-    "updated_at": "2026-09-23 13:24:58",
+    "updated_at": "2026-09-24 01:32:12",
     "payload": {
       "entry": 0.22925093,
       "sl": 0.2271,
@@ -754,13 +754,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$42.76 USDT)",
+      "realized_pnl": -42.7579,
+      "net_pnl": -43.8563,
+      "closed_at": "2026-09-24 01:32:12"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-23 13:24:58",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup ARBUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-24 01:32:12",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$42.76 USDT) | PnL: $-42.76 USDT (Net: $-43.86)"
       }
     ]
   },
@@ -1091,10 +1103,10 @@
     "strategy": "Quantitative Confluence Setup",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-23 12:36:45",
-    "updated_at": "2026-09-23 15:24:14",
+    "updated_at": "2026-09-24 01:32:14",
     "payload": {
       "entry": 115.56,
       "sl": 114.2354,
@@ -1104,13 +1116,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$4.72 USDT)",
+      "realized_pnl": -4.721,
+      "net_pnl": -5.8297,
+      "closed_at": "2026-09-24 01:32:14"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-23 12:36:45",
         "agent": "market_eyes_screener",
         "stage": "DISCOVERED",
         "note": "Setup SOLUSDT (LONG) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-09-24 01:32:14",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$4.72 USDT) | PnL: $-4.72 USDT (Net: $-5.83)"
       }
     ]
   },

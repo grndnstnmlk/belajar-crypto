@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-24T01:32:10.757896+00:00",
-    "total_reflections": 15,
-    "system_retention_score": 129.7
+    "last_reflection_at": "2026-09-24T01:32:14.478025+00:00",
+    "total_reflections": 17,
+    "system_retention_score": 126.7
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -57,7 +57,7 @@
     "SOLUSDT": {
       "symbol": "SOLUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 24,
+      "total_trades": 25,
       "wins": 6,
-      "losses": 14,
+      "losses": 15,
       "breakevens": 4,
-      "win_rate_pct": 25.0,
-      "net_pnl_usd": -59.09,
+      "win_rate_pct": 24.0,
+      "net_pnl_usd": -64.92,
       "avg_r_multiple": -0.05,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-23 19:31:34",
-      "updated_at": "2026-09-24T01:32:10.742503+00:00"
+      "updated_at": "2026-09-24T01:32:14.478025+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -366,8 +366,8 @@
     },
     "ARBUSDT": {
       "symbol": "ARBUSDT",
-      "volatility_regime": "MODERATE_HIGH",
-      "wick_risk_rating": "MODERATE",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "MODERATE",
       "optimal_setups": [
@@ -375,16 +375,16 @@
         "Range Low Liquidity Sweep"
       ],
       "notes": "Arbitrum governance token. High liquidity depth on futures.",
-      "total_trades": 2,
+      "total_trades": 3,
       "wins": 0,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -85.68,
+      "net_pnl_usd": -129.54,
       "avg_r_multiple": -1.77,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-23 20:06:57",
-      "updated_at": "2026-09-24T01:32:10.742503+00:00"
+      "updated_at": "2026-09-24T01:32:12.672589+00:00"
     },
     "OPUSDT": {
       "symbol": "OPUSDT",
@@ -577,13 +577,14 @@
       "id": "RULE-AUTO-SOLUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "solusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-23T12:31:44.559610+00:00"
+      "created_at": "2026-09-23T12:31:44.559610+00:00",
+      "updated_at": "2026-09-24T01:32:14.478025+00:00"
     },
     {
       "id": "RULE-AUTO-XRPUSDT",
@@ -635,9 +636,65 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-23T16:05:44.195219+00:00"
+    },
+    {
+      "id": "RULE-AUTO-ARBUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ARBUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "arbusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-24T01:32:12.672589+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260924-020",
+      "timestamp": "2026-09-24T01:32:14.478025+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -5.83,
+      "r_multiple": -0.24,
+      "pnl_pct": -0.21,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT Smart Money Concepts (SMC) (net: -$5.83, -0.24R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 30,
+      "last_accessed": "2026-09-24T02:01:42.849319+00:00"
+    },
+    {
+      "id": "MEM-20260924-019",
+      "timestamp": "2026-09-24T01:32:12.672589+00:00",
+      "symbol": "ARBUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -43.86,
+      "r_multiple": -2.14,
+      "pnl_pct": -1.54,
+      "root_cause": "Adverse volatility stop-out on ARBUSDT Smart Money Concepts (SMC) (net: -$43.86, -2.14R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ARBUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "arb",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-24T01:32:12.672589+00:00"
+    },
     {
       "id": "MEM-20260924-018",
       "timestamp": "2026-09-24T01:32:10.757896+00:00",
@@ -657,8 +714,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1,
-      "last_accessed": "2026-09-24T01:32:10.757896+00:00"
+      "access_count": 30,
+      "last_accessed": "2026-09-24T02:01:42.910611+00:00"
     },
     {
       "id": "MEM-20260923-017",
@@ -705,8 +762,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 382,
-      "last_accessed": "2026-09-24T00:50:43.195877+00:00"
+      "access_count": 411,
+      "last_accessed": "2026-09-24T02:01:43.071650+00:00"
     },
     {
       "id": "MEM-20260923-015",
@@ -795,8 +852,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 2012,
-      "last_accessed": "2026-09-24T00:50:46.238386+00:00"
+      "access_count": 2186,
+      "last_accessed": "2026-09-24T02:01:43.071650+00:00"
     },
     {
       "id": "MEM-20260923-011",
@@ -817,8 +874,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 320,
-      "last_accessed": "2026-09-24T00:50:45.206261+00:00"
+      "access_count": 349,
+      "last_accessed": "2026-09-24T02:01:42.996177+00:00"
     },
     {
       "id": "MEM-20260923-010",
@@ -839,8 +896,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 382,
-      "last_accessed": "2026-09-24T00:50:46.238372+00:00"
+      "access_count": 411,
+      "last_accessed": "2026-09-24T02:01:42.864217+00:00"
     },
     {
       "id": "MEM-20260923-009",
@@ -861,8 +918,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 225,
-      "last_accessed": "2026-09-24T00:50:45.206252+00:00"
+      "access_count": 254,
+      "last_accessed": "2026-09-24T02:01:42.996177+00:00"
     },
     {
       "id": "MEM-20260923-008",
@@ -883,8 +940,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2300,
-      "last_accessed": "2026-09-24T00:50:46.238384+00:00"
+      "access_count": 2474,
+      "last_accessed": "2026-09-24T02:01:43.071650+00:00"
     },
     {
       "id": "MEM-20260923-007",
@@ -905,8 +962,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 384,
-      "last_accessed": "2026-09-24T00:50:46.238380+00:00"
+      "access_count": 413,
+      "last_accessed": "2026-09-24T02:01:42.864217+00:00"
     },
     {
       "id": "MEM-20260923-006",
@@ -927,8 +984,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1506,
-      "last_accessed": "2026-09-24T00:50:44.749904+00:00"
+      "access_count": 1593,
+      "last_accessed": "2026-09-24T02:01:43.071650+00:00"
     },
     {
       "id": "MEM-20260923-005",
@@ -951,8 +1008,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 955,
-      "last_accessed": "2026-09-24T00:50:45.421399+00:00"
+      "access_count": 984,
+      "last_accessed": "2026-09-24T02:01:43.024724+00:00"
     },
     {
       "id": "MEM-20260923-004",
@@ -975,8 +1032,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 602,
-      "last_accessed": "2026-09-24T00:50:45.421407+00:00"
+      "access_count": 631,
+      "last_accessed": "2026-09-24T02:01:43.024724+00:00"
     },
     {
       "id": "MEM-20260901-001",
