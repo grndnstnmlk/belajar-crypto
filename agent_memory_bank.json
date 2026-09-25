@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T11:57:52.383615+00:00",
-    "total_reflections": 10,
-    "system_retention_score": 97.8
+    "last_reflection_at": "2026-09-25T11:57:55.990681+00:00",
+    "total_reflections": 11,
+    "system_retention_score": 97.1
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -57,7 +57,7 @@
     "SOLUSDT": {
       "symbol": "SOLUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 23,
+      "total_trades": 24,
       "wins": 7,
-      "losses": 12,
+      "losses": 13,
       "breakevens": 4,
-      "win_rate_pct": 30.4,
-      "net_pnl_usd": -90.12,
+      "win_rate_pct": 29.2,
+      "net_pnl_usd": -92.11,
       "avg_r_multiple": -0.12,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-25 13:21:08",
-      "updated_at": "2026-09-25T11:57:50.886951+00:00"
+      "updated_at": "2026-09-25T11:57:55.990670+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -611,9 +611,43 @@
       ],
       "created_at": "2026-09-25T11:57:50.889405+00:00",
       "updated_at": "2026-09-25T11:57:52.383613+00:00"
+    },
+    {
+      "id": "RULE-AUTO-SOLUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "solusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-25T11:57:55.990679+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-014",
+      "timestamp": "2026-09-25T11:57:55.990658+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -1.99,
+      "r_multiple": -0.07,
+      "pnl_pct": -0.13,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT Smart Money Concepts (SMC) (net: -$1.99, -0.07R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T11:57:55.990663+00:00"
+    },
     {
       "id": "MEM-20260925-013",
       "timestamp": "2026-09-25T11:57:52.383590+00:00",
