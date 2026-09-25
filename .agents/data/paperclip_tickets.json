@@ -36,10 +36,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-25 08:22:33",
-    "updated_at": "2026-09-25 09:48:40",
+    "updated_at": "2026-09-25 09:49:51",
     "payload": {
       "entry": 84576.1574,
       "sl": 82038.8727,
@@ -149,7 +149,13 @@
       "authorized_at": "2026-09-25 09:48:40",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$41.83 USDT)",
+      "realized_pnl": -41.8278,
+      "net_pnl": -42.9213,
+      "closed_at": "2026-09-25 09:49:51"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 08:22:33",
@@ -174,6 +180,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-25 09:49:51",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$41.83 USDT) | PnL: $-41.83 USDT (Net: $-42.92)"
       }
     ]
   },
@@ -181,17 +193,17 @@
     "ticket_id": "TCK-20260925-9944",
     "symbol": "LINKUSDT",
     "side": "LONG",
-    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-25 08:13:29",
-    "updated_at": "2026-09-25 09:47:01",
+    "updated_at": "2026-09-25 09:50:14",
     "payload": {
-      "entry": 14.01,
-      "sl": 13.7632,
-      "tp": 14.7504,
+      "entry": 14.0739,
+      "sl": 13.9161,
+      "tp": 14.5473,
       "rr": 3.0
     },
     "debate_result": null,
@@ -2147,11 +2159,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-25 04:16:23",
-    "updated_at": "2026-09-25 09:47:01",
+    "updated_at": "2026-09-25 09:50:14",
     "payload": {
-      "entry": 1.0413,
-      "sl": 1.033,
-      "tp": 1.0662,
+      "entry": 1.0414,
+      "sl": 1.0331,
+      "tp": 1.0663,
       "rr": 3.0
     },
     "debate_result": null,
