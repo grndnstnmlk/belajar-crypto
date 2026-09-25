@@ -1,5 +1,35 @@
 [
   {
+    "ticket_id": "TCK-20260925-0699",
+    "symbol": "SUIUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "HIGH",
+    "created_at": "2026-09-25 03:48:00",
+    "updated_at": "2026-09-25 04:02:05",
+    "payload": {
+      "entry": 1.0204,
+      "sl": 0.9904,
+      "tp": 1.0227,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-25 03:48:00",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup SUIUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260925-5292",
     "symbol": "SOLUSDT",
     "side": "LONG",
@@ -9,11 +39,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-25 03:34:25",
-    "updated_at": "2026-09-25 03:39:58",
+    "updated_at": "2026-09-25 04:02:05",
     "payload": {
-      "entry": 116.98,
-      "sl": 116.0442,
-      "tp": 119.7874,
+      "entry": 116.8,
+      "sl": 115.8656,
+      "tp": 119.6032,
       "rr": 3.0
     },
     "debate_result": null,
@@ -39,11 +69,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-25 03:18:30",
-    "updated_at": "2026-09-25 03:27:48",
+    "updated_at": "2026-09-25 04:02:05",
     "payload": {
-      "entry": 13.3218,
-      "sl": 13.2152,
-      "tp": 13.6416,
+      "entry": 13.391,
+      "sl": 13.2839,
+      "tp": 13.7123,
       "rr": 3.0
     },
     "debate_result": null,
@@ -66,10 +96,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-25 03:14:30",
-    "updated_at": "2026-09-25 03:16:49",
+    "updated_at": "2026-09-25 04:03:12",
     "payload": {
       "entry": 1.5294,
       "sl": 1.4835,
@@ -180,7 +210,11 @@
       "authorized_at": "2026-09-25 03:16:49",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-25 04:03:12"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 03:14:30",
@@ -205,6 +239,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-25 04:03:12",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
