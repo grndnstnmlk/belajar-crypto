@@ -1,39 +1,5 @@
 [
   {
-    "timestamp": "2026-09-22 20:34:43",
-    "symbol": "INTCUSDT",
-    "side": "LONG",
-    "engine": "Algorithmic Quant Heuristic Matrix",
-    "aggressive": {
-      "score": 80,
-      "desired_scale": 1.1,
-      "thesis": "R:R 1:2.00 di atas ambang batas minimum institusional. | ADX momentum kuat (41.2) mendukung kelanjutan tren yang ekspansif."
-    },
-    "conservative": {
-      "score": 45,
-      "desired_scale": 0.85,
-      "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
-    },
-    "neutral": {
-      "score": 59,
-      "desired_scale": 1.1,
-      "half_kelly_pct": 3.0,
-      "thesis": "Probabilitas kemenangan model: 59.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-    },
-    "fund_manager": {
-      "verdict": "APPROVED_BALANCED",
-      "composite_risk_score": 59,
-      "allocated_risk_scale": 1.0,
-      "stop_loss_profile": "ATR_TRAILING",
-      "regime_weights": {
-        "aggressive": 0.25,
-        "neutral": 0.4,
-        "conservative": 0.35
-      },
-      "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-    }
-  },
-  {
     "timestamp": "2026-09-22 20:35:51",
     "symbol": "BTCUSDT",
     "side": "LONG",
@@ -1668,6 +1634,40 @@
   {
     "timestamp": "2026-09-25 18:12:58",
     "symbol": "LINKUSDT",
+    "side": "LONG",
+    "engine": "Algorithmic Quant Heuristic Matrix",
+    "aggressive": {
+      "score": 85,
+      "desired_scale": 1.2,
+      "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+    },
+    "conservative": {
+      "score": 70,
+      "desired_scale": 1.0,
+      "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+    },
+    "neutral": {
+      "score": 60,
+      "desired_scale": 1.1,
+      "half_kelly_pct": 3.0,
+      "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+    },
+    "fund_manager": {
+      "verdict": "APPROVED_OPTIMAL",
+      "composite_risk_score": 73,
+      "allocated_risk_scale": 1.12,
+      "stop_loss_profile": "RUNNER_EXPANSION",
+      "regime_weights": {
+        "aggressive": 0.45,
+        "neutral": 0.35,
+        "conservative": 0.2
+      },
+      "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+    }
+  },
+  {
+    "timestamp": "2026-09-25 18:14:44",
+    "symbol": "XRPUSDT",
     "side": "LONG",
     "engine": "Algorithmic Quant Heuristic Matrix",
     "aggressive": {
