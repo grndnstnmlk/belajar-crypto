@@ -1,20 +1,50 @@
 [
   {
+    "ticket_id": "TCK-20260925-4209",
+    "symbol": "LINKUSDT",
+    "side": "LONG",
+    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-25 04:42:34",
+    "updated_at": "2026-09-25 04:49:27",
+    "payload": {
+      "entry": 13.379,
+      "sl": 13.272,
+      "tp": 13.7,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-25 04:42:34",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup LINKUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260925-3240",
     "symbol": "LTCUSDT",
     "side": "LONG",
-    "strategy": "15m SFP Liquidity Sweep Snatcher",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-25 04:17:33",
-    "updated_at": "2026-09-25 04:39:58",
+    "updated_at": "2026-09-25 04:54:51",
     "payload": {
-      "entry": 71.22,
-      "sl": 69.6201,
-      "tp": 76.8647,
-      "rr": 3.5
+      "entry": 70.7445,
+      "sl": 70.1785,
+      "tp": 72.4425,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -33,17 +63,17 @@
     "ticket_id": "TCK-20260925-3558",
     "symbol": "SUIUSDT",
     "side": "LONG",
-    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-25 04:16:23",
-    "updated_at": "2026-09-25 04:39:58",
+    "updated_at": "2026-09-25 04:46:15",
     "payload": {
-      "entry": 1.0257,
-      "sl": 0.9957,
-      "tp": 1.0414,
+      "entry": 1.0248,
+      "sl": 0.9948,
+      "tp": 1.0271,
       "rr": 3.0
     },
     "debate_result": null,
@@ -66,10 +96,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-25 04:10:28",
-    "updated_at": "2026-09-25 04:11:03",
+    "updated_at": "2026-09-25 04:55:49",
     "payload": {
       "entry": 1.5322,
       "sl": 1.4862,
@@ -180,7 +210,13 @@
       "authorized_at": "2026-09-25 04:11:03",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$3.07 USDT)",
+      "realized_pnl": 3.0683,
+      "net_pnl": 1.7713,
+      "closed_at": "2026-09-25 04:55:49"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 04:10:28",
@@ -205,6 +241,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-25 04:55:49",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$3.07 USDT) | PnL: $+3.07 USDT (Net: $+1.77)"
       }
     ]
   },
