@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T19:52:07.694311+00:00",
-    "total_reflections": 27,
-    "system_retention_score": 114.6
+    "last_reflection_at": "2026-09-25T19:55:10.236392+00:00",
+    "total_reflections": 28,
+    "system_retention_score": 113.9
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -221,16 +221,16 @@
         "Wyckoff Spring"
       ],
       "notes": "Oracle leader with strong fundamental holding. Highly respects horizontal support and resistance.",
-      "total_trades": 15,
+      "total_trades": 16,
       "wins": 6,
-      "losses": 8,
+      "losses": 9,
       "breakevens": 1,
-      "win_rate_pct": 40.0,
-      "net_pnl_usd": -28.05,
+      "win_rate_pct": 37.5,
+      "net_pnl_usd": -32.36,
       "avg_r_multiple": -0.05,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-25 14:33:12",
-      "updated_at": "2026-09-25T19:52:04.410889+00:00"
+      "updated_at": "2026-09-25T19:55:10.236382+00:00"
     },
     "UNIUSDT": {
       "symbol": "UNIUSDT",
@@ -654,14 +654,14 @@
       "id": "RULE-AUTO-LINKUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on LINKUSDT due to elevated wick risk.",
-      "confidence": 0.96,
+      "confidence": 0.99,
       "trigger_conditions": [
         "linkusdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-09-25T18:38:51.114866+00:00",
-      "updated_at": "2026-09-25T19:52:04.410897+00:00"
+      "updated_at": "2026-09-25T19:55:10.236391+00:00"
     },
     {
       "id": "RULE-AUTO-BTCUSDT",
@@ -678,6 +678,28 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-031",
+      "timestamp": "2026-09-25T19:55:10.236369+00:00",
+      "symbol": "LINKUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -4.31,
+      "r_multiple": -0.22,
+      "pnl_pct": -0.27,
+      "root_cause": "Adverse volatility stop-out on LINKUSDT Smart Money Concepts (SMC) (net: -$4.31, -0.22R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on LINKUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "link",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T19:55:10.236374+00:00"
+    },
     {
       "id": "MEM-20260925-030",
       "timestamp": "2026-09-25T19:52:07.694289+00:00",
@@ -921,8 +943,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 58,
-      "last_accessed": "2026-09-25T19:49:53.337539+00:00"
+      "access_count": 61,
+      "last_accessed": "2026-09-25T19:55:06.627133+00:00"
     },
     {
       "id": "MEM-20260925-019",
@@ -943,8 +965,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 334,
-      "last_accessed": "2026-09-25T19:49:53.335175+00:00"
+      "access_count": 340,
+      "last_accessed": "2026-09-25T19:55:06.639060+00:00"
     },
     {
       "id": "MEM-20260925-018",
@@ -989,8 +1011,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 331,
-      "last_accessed": "2026-09-25T19:49:53.335180+00:00"
+      "access_count": 337,
+      "last_accessed": "2026-09-25T19:55:06.639064+00:00"
     },
     {
       "id": "MEM-20260925-016",
@@ -1037,8 +1059,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 73,
-      "last_accessed": "2026-09-25T19:49:53.337535+00:00"
+      "access_count": 76,
+      "last_accessed": "2026-09-25T19:55:06.627129+00:00"
     },
     {
       "id": "MEM-20260925-014",
@@ -1081,8 +1103,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 503,
-      "last_accessed": "2026-09-25T19:50:52.225391+00:00"
+      "access_count": 509,
+      "last_accessed": "2026-09-25T19:55:06.639066+00:00"
     },
     {
       "id": "MEM-20260925-012",
@@ -1103,8 +1125,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 392,
-      "last_accessed": "2026-09-25T19:49:53.351271+00:00"
+      "access_count": 398,
+      "last_accessed": "2026-09-25T19:55:06.639067+00:00"
     },
     {
       "id": "MEM-20260925-011",
@@ -1271,8 +1293,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 99,
-      "last_accessed": "2026-09-25T19:49:53.337543+00:00"
+      "access_count": 102,
+      "last_accessed": "2026-09-25T19:55:06.627137+00:00"
     },
     {
       "id": "MEM-20260925-004",
@@ -1295,8 +1317,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 106,
-      "last_accessed": "2026-09-25T19:49:53.337541+00:00"
+      "access_count": 109,
+      "last_accessed": "2026-09-25T19:55:06.627135+00:00"
     },
     {
       "id": "MEM-20260901-001",
