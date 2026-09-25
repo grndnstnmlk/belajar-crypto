@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T13:58:15.871237+00:00",
-    "total_reflections": 15,
-    "system_retention_score": 106.6
+    "last_reflection_at": "2026-09-25T13:58:17.320561+00:00",
+    "total_reflections": 16,
+    "system_retention_score": 106.8
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -90,16 +90,16 @@
         "Institutional Iceberg Absorption"
       ],
       "notes": "Exchange native anchor. High institutional bid support; low false breakout rate on HTF.",
-      "total_trades": 10,
+      "total_trades": 11,
       "wins": 2,
-      "losses": 7,
+      "losses": 8,
       "breakevens": 1,
-      "win_rate_pct": 20.0,
-      "net_pnl_usd": -63.19,
+      "win_rate_pct": 18.2,
+      "net_pnl_usd": -87.4,
       "avg_r_multiple": -0.16,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-23 14:36:34",
-      "updated_at": "2026-09-25T13:58:09.064015+00:00"
+      "updated_at": "2026-09-25T13:58:17.320549+00:00"
     },
     "XRPUSDT": {
       "symbol": "XRPUSDT",
@@ -628,16 +628,39 @@
       "id": "RULE-AUTO-BNBUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on BNBUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "bnbusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-25T13:58:09.064021+00:00"
+      "created_at": "2026-09-25T13:58:09.064021+00:00",
+      "updated_at": "2026-09-25T13:58:17.320560+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-019",
+      "timestamp": "2026-09-25T13:58:17.320537+00:00",
+      "symbol": "BNBUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -24.21,
+      "r_multiple": -1.11,
+      "pnl_pct": -0.5,
+      "root_cause": "Adverse volatility stop-out on BNBUSDT Smart Money Concepts (SMC) (net: -$24.21, -1.11R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BNBUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "bnb",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T13:58:17.320541+00:00"
+    },
     {
       "id": "MEM-20260925-018",
       "timestamp": "2026-09-25T13:58:15.871220+00:00",
