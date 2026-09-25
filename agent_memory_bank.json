@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T06:45:28.381004+00:00",
-    "total_reflections": 212,
-    "system_retention_score": 92.3
+    "last_reflection_at": "2026-09-25T06:46:15.030419+00:00",
+    "total_reflections": 215,
+    "system_retention_score": 92.2
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 89,
-      "wins": 71,
+      "total_trades": 90,
+      "wins": 72,
       "losses": 14,
       "breakevens": 4,
-      "win_rate_pct": 79.8,
-      "net_pnl_usd": 60.92,
+      "win_rate_pct": 80.0,
+      "net_pnl_usd": 61.66,
       "avg_r_multiple": -0.05,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-23 19:31:34",
-      "updated_at": "2026-09-25T06:44:44.912489+00:00"
+      "updated_at": "2026-09-25T06:45:43.053466+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -113,16 +113,16 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 79,
-      "wins": 73,
+      "total_trades": 80,
+      "wins": 74,
       "losses": 6,
       "breakevens": 0,
-      "win_rate_pct": 92.4,
-      "net_pnl_usd": 298.53,
+      "win_rate_pct": 92.5,
+      "net_pnl_usd": 300.08,
       "avg_r_multiple": 0.59,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-23 22:54:00",
-      "updated_at": "2026-09-25T06:45:28.381004+00:00"
+      "updated_at": "2026-09-25T06:46:15.030419+00:00"
     },
     "DOGEUSDT": {
       "symbol": "DOGEUSDT",
@@ -221,16 +221,16 @@
         "Wyckoff Spring"
       ],
       "notes": "Oracle leader with strong fundamental holding. Highly respects horizontal support and resistance.",
-      "total_trades": 12,
+      "total_trades": 13,
       "wins": 3,
-      "losses": 8,
+      "losses": 9,
       "breakevens": 1,
-      "win_rate_pct": 25.0,
-      "net_pnl_usd": -77.45,
+      "win_rate_pct": 23.1,
+      "net_pnl_usd": -93.11,
       "avg_r_multiple": -0.11,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-23 04:58:07",
-      "updated_at": "2026-09-25T06:44:42.496528+00:00"
+      "updated_at": "2026-09-25T06:45:40.749597+00:00"
     },
     "UNIUSDT": {
       "symbol": "UNIUSDT",
@@ -724,17 +724,87 @@
       "id": "RULE-AUTO-LINKUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on LINKUSDT due to elevated wick risk.",
-      "confidence": 0.96,
+      "confidence": 0.99,
       "trigger_conditions": [
         "linkusdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-09-25T06:42:54.156447+00:00",
-      "updated_at": "2026-09-25T06:44:42.496528+00:00"
+      "updated_at": "2026-09-25T06:45:40.750602+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-218",
+      "timestamp": "2026-09-25T06:46:15.030419+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 1.55,
+      "r_multiple": 0.17,
+      "pnl_pct": 0.03,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on XRPUSDT. Trend momentum aligned with HTF bias, securing +0.17R net profit (+$1.55).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on XRPUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T06:46:15.030419+00:00"
+    },
+    {
+      "id": "MEM-20260925-217",
+      "timestamp": "2026-09-25T06:45:43.053466+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 0.74,
+      "r_multiple": 0.07,
+      "pnl_pct": 0.05,
+      "root_cause": "High-confluence execution of Smart Money Concepts (SMC) on SOLUSDT. Trend momentum aligned with HTF bias, securing +0.07R net profit (+$0.74).",
+      "lesson_learned": "Continue validating Smart Money Concepts (SMC) on SOLUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "sol",
+        "smart_money_concepts_(smc)",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T06:45:43.053466+00:00"
+    },
+    {
+      "id": "MEM-20260925-216",
+      "timestamp": "2026-09-25T06:45:40.749597+00:00",
+      "symbol": "LINKUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -15.66,
+      "r_multiple": -0.73,
+      "pnl_pct": -0.55,
+      "root_cause": "Adverse volatility stop-out on LINKUSDT Smart Money Concepts (SMC) (net: -$15.66, -0.73R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on LINKUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "link",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T06:45:40.749597+00:00"
+    },
     {
       "id": "MEM-20260925-215",
       "timestamp": "2026-09-25T06:45:28.381004+00:00",
