@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T05:04:04.140721+00:00",
-    "total_reflections": 26,
-    "system_retention_score": 120.7
+    "last_reflection_at": "2026-09-25T05:04:33.352203+00:00",
+    "total_reflections": 28,
+    "system_retention_score": 119.0
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -113,16 +113,16 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 20,
-      "wins": 14,
+      "total_trades": 21,
+      "wins": 15,
       "losses": 6,
       "breakevens": 0,
-      "win_rate_pct": 70.0,
-      "net_pnl_usd": 195.2,
+      "win_rate_pct": 71.4,
+      "net_pnl_usd": 196.97,
       "avg_r_multiple": 0.59,
       "last_traded_outcome": "WIN",
       "last_closed_at": "2026-09-23 22:54:00",
-      "updated_at": "2026-09-25T05:02:11.055640+00:00"
+      "updated_at": "2026-09-25T05:04:06.306001+00:00"
     },
     "DOGEUSDT": {
       "symbol": "DOGEUSDT",
@@ -564,13 +564,13 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset ONDOUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 4,
+      "total_trades": 5,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -82.76,
+      "net_pnl_usd": -107.08,
       "created_dynamically": true,
-      "updated_at": "2026-09-25T05:04:04.140721+00:00",
+      "updated_at": "2026-09-25T05:04:33.352203+00:00",
       "wins": 0,
-      "losses": 4,
+      "losses": 5,
       "breakevens": 0,
       "last_traded_outcome": "LOSS"
     }
@@ -711,17 +711,63 @@
       "id": "RULE-AUTO-ONDOUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ONDOUSDT due to elevated wick risk.",
-      "confidence": 0.96,
+      "confidence": 0.99,
       "trigger_conditions": [
         "ondousdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-09-25T05:01:06.165352+00:00",
-      "updated_at": "2026-09-25T05:04:04.140721+00:00"
+      "updated_at": "2026-09-25T05:04:33.352203+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-031",
+      "timestamp": "2026-09-25T05:04:33.352203+00:00",
+      "symbol": "ONDOUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -24.32,
+      "r_multiple": -1.22,
+      "pnl_pct": -1.5,
+      "root_cause": "Adverse volatility stop-out on ONDOUSDT Smart Money Concepts (SMC) (net: -$24.32, -1.22R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ONDOUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "ondo",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T05:04:33.352203+00:00"
+    },
+    {
+      "id": "MEM-20260925-030",
+      "timestamp": "2026-09-25T05:04:06.305002+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "WIN",
+      "net_pnl_usd": 1.77,
+      "r_multiple": 0.15,
+      "pnl_pct": 0.05,
+      "root_cause": "High-confluence execution of 5m Order Flow CVD Absorption Scalp on XRPUSDT. Trend momentum aligned with HTF bias, securing +0.15R net profit (+$1.77).",
+      "lesson_learned": "Continue validating 5m Order Flow CVD Absorption Scalp on XRPUSDT when higher timeframe order flow confluence is preserved.",
+      "tags": [
+        "xrp",
+        "5m_order_flow_cvd_absorption_scalp",
+        "profit",
+        "take_profit",
+        "high_confluence",
+        "win"
+      ],
+      "importance": 7,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T05:04:06.305002+00:00"
+    },
     {
       "id": "MEM-20260925-029",
       "timestamp": "2026-09-25T05:04:04.140721+00:00",
@@ -949,8 +995,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 521,
-      "last_accessed": "2026-09-25T05:01:20.461892+00:00"
+      "access_count": 522,
+      "last_accessed": "2026-09-25T05:04:18.008329+00:00"
     },
     {
       "id": "MEM-20260924-019",
@@ -993,8 +1039,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 556,
-      "last_accessed": "2026-09-25T05:01:20.109924+00:00"
+      "access_count": 557,
+      "last_accessed": "2026-09-25T05:04:18.002010+00:00"
     },
     {
       "id": "MEM-20260923-017",
@@ -1041,8 +1087,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 531,
-      "last_accessed": "2026-09-25T05:01:20.292991+00:00"
+      "access_count": 532,
+      "last_accessed": "2026-09-25T05:04:18.061766+00:00"
     },
     {
       "id": "MEM-20260923-015",
@@ -1131,8 +1177,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 5153,
-      "last_accessed": "2026-09-25T05:02:59.941625+00:00"
+      "access_count": 5159,
+      "last_accessed": "2026-09-25T05:04:18.061766+00:00"
     },
     {
       "id": "MEM-20260923-011",
@@ -1153,8 +1199,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1158,
-      "last_accessed": "2026-09-25T05:01:20.604074+00:00"
+      "access_count": 1160,
+      "last_accessed": "2026-09-25T05:04:18.014498+00:00"
     },
     {
       "id": "MEM-20260923-010",
@@ -1197,8 +1243,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 781,
-      "last_accessed": "2026-09-25T05:01:20.336504+00:00"
+      "access_count": 782,
+      "last_accessed": "2026-09-25T05:04:18.012491+00:00"
     },
     {
       "id": "MEM-20260923-008",
@@ -1219,8 +1265,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 5441,
-      "last_accessed": "2026-09-25T05:02:59.941625+00:00"
+      "access_count": 5447,
+      "last_accessed": "2026-09-25T05:04:18.061766+00:00"
     },
     {
       "id": "MEM-20260923-007",
@@ -1263,8 +1309,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 3013,
-      "last_accessed": "2026-09-25T05:01:20.604074+00:00"
+      "access_count": 3017,
+      "last_accessed": "2026-09-25T05:04:18.061766+00:00"
     },
     {
       "id": "MEM-20260923-005",
@@ -1287,8 +1333,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1510,
-      "last_accessed": "2026-09-25T05:01:20.218459+00:00"
+      "access_count": 1511,
+      "last_accessed": "2026-09-25T05:04:18.017508+00:00"
     },
     {
       "id": "MEM-20260923-004",
@@ -1311,8 +1357,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1157,
-      "last_accessed": "2026-09-25T05:01:20.218459+00:00"
+      "access_count": 1158,
+      "last_accessed": "2026-09-25T05:04:18.017508+00:00"
     },
     {
       "id": "MEM-20260901-001",
