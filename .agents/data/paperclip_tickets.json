@@ -45,29 +45,41 @@
     "ticket_id": "TCK-20260925-7484",
     "symbol": "SOLUSDT",
     "side": "LONG",
-    "strategy": "15m SFP Liquidity Sweep Snatcher",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-25 06:28:57",
-    "updated_at": "2026-09-25 06:30:15",
+    "updated_at": "2026-09-25 06:31:26",
     "payload": {
-      "entry": 116.44,
-      "sl": 115.5085,
-      "tp": 119.6618,
-      "rr": 3.5
+      "entry": 116.4376,
+      "sl": 115.5061,
+      "tp": 119.2321,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$1.39 USDT)",
+      "realized_pnl": 1.39,
+      "net_pnl": 0.7418,
+      "closed_at": "2026-09-25 06:31:26"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 06:28:57",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup SOLUSDT (LONG) teridentifikasi via 15m SFP Liquidity Sweep Snatcher."
+      },
+      {
+        "timestamp": "2026-09-25 06:31:26",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$1.39 USDT) | PnL: $+1.39 USDT (Net: $+0.74)"
       }
     ]
   },
