@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T19:50:34.981853+00:00",
-    "total_reflections": 23,
-    "system_retention_score": 117.8
+    "last_reflection_at": "2026-09-25T19:50:46.652523+00:00",
+    "total_reflections": 24,
+    "system_retention_score": 116.7
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -221,16 +221,16 @@
         "Wyckoff Spring"
       ],
       "notes": "Oracle leader with strong fundamental holding. Highly respects horizontal support and resistance.",
-      "total_trades": 13,
+      "total_trades": 14,
       "wins": 6,
-      "losses": 6,
+      "losses": 7,
       "breakevens": 1,
-      "win_rate_pct": 46.2,
-      "net_pnl_usd": -18.11,
+      "win_rate_pct": 42.9,
+      "net_pnl_usd": -23.08,
       "avg_r_multiple": -0.05,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-25 14:33:12",
-      "updated_at": "2026-09-25T18:38:51.114858+00:00"
+      "updated_at": "2026-09-25T19:50:46.652513+00:00"
     },
     "UNIUSDT": {
       "symbol": "UNIUSDT",
@@ -654,13 +654,14 @@
       "id": "RULE-AUTO-LINKUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on LINKUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "linkusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-25T18:38:51.114866+00:00"
+      "created_at": "2026-09-25T18:38:51.114866+00:00",
+      "updated_at": "2026-09-25T19:50:46.652522+00:00"
     },
     {
       "id": "RULE-AUTO-BTCUSDT",
@@ -676,6 +677,28 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-027",
+      "timestamp": "2026-09-25T19:50:46.652499+00:00",
+      "symbol": "LINKUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -4.97,
+      "r_multiple": -0.22,
+      "pnl_pct": -0.3,
+      "root_cause": "Adverse volatility stop-out on LINKUSDT Smart Money Concepts (SMC) (net: -$4.97, -0.22R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on LINKUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "link",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T19:50:46.652504+00:00"
+    },
     {
       "id": "MEM-20260925-026",
       "timestamp": "2026-09-25T19:50:34.981831+00:00",
