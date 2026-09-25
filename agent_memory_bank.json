@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T19:17:45.898846+00:00",
-    "total_reflections": 20,
-    "system_retention_score": 120.4
+    "last_reflection_at": "2026-09-25T19:17:53.311616+00:00",
+    "total_reflections": 21,
+    "system_retention_score": 119.1
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -67,16 +67,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 26,
+      "total_trades": 27,
       "wins": 8,
-      "losses": 14,
+      "losses": 15,
       "breakevens": 4,
-      "win_rate_pct": 30.8,
-      "net_pnl_usd": -90.3,
+      "win_rate_pct": 29.6,
+      "net_pnl_usd": -90.4,
       "avg_r_multiple": -0.12,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-25 13:21:08",
-      "updated_at": "2026-09-25T19:17:45.898837+00:00"
+      "updated_at": "2026-09-25T19:17:53.311606+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -616,14 +616,14 @@
       "id": "RULE-AUTO-SOLUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
-      "confidence": 0.92,
+      "confidence": 0.96,
       "trigger_conditions": [
         "solusdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-09-25T11:57:55.990679+00:00",
-      "updated_at": "2026-09-25T19:17:45.898845+00:00"
+      "updated_at": "2026-09-25T19:17:53.311614+00:00"
     },
     {
       "id": "RULE-AUTO-BNBUSDT",
@@ -664,6 +664,28 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-024",
+      "timestamp": "2026-09-25T19:17:53.311593+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -0.1,
+      "r_multiple": 0.03,
+      "pnl_pct": -0.01,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT 5m Order Flow CVD Absorption Scalp (net: -$0.10, +0.03R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "5m_order_flow_cvd_absorption_scalp",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T19:17:53.311598+00:00"
+    },
     {
       "id": "MEM-20260925-023",
       "timestamp": "2026-09-25T19:17:45.898823+00:00",
