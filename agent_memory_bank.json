@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T19:46:50.054002+00:00",
-    "total_reflections": 22,
-    "system_retention_score": 118.0
+    "last_reflection_at": "2026-09-25T19:50:34.981853+00:00",
+    "total_reflections": 23,
+    "system_retention_score": 117.8
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -19,16 +19,16 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 7,
+      "total_trades": 8,
       "wins": 6,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 0,
-      "win_rate_pct": 85.7,
-      "net_pnl_usd": -26.8,
+      "win_rate_pct": 75.0,
+      "net_pnl_usd": -69.72,
       "avg_r_multiple": -0.16,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-23 21:18:25",
-      "updated_at": "2026-09-25T11:57:50.886974+00:00"
+      "updated_at": "2026-09-25T19:50:34.981843+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -661,9 +661,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-25T18:38:51.114866+00:00"
+    },
+    {
+      "id": "RULE-AUTO-BTCUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on BTCUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "btcusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-25T19:50:34.981851+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-026",
+      "timestamp": "2026-09-25T19:50:34.981831+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -42.92,
+      "r_multiple": -2.09,
+      "pnl_pct": -1.57,
+      "root_cause": "Adverse volatility stop-out on BTCUSDT Smart Money Concepts (SMC) (net: -$42.92, -2.09R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BTCUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "btc",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T19:50:34.981835+00:00"
+    },
     {
       "id": "MEM-20260925-025",
       "timestamp": "2026-09-25T19:46:50.053987+00:00",
@@ -797,8 +831,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 56,
-      "last_accessed": "2026-09-25T18:55:59.826790+00:00"
+      "access_count": 58,
+      "last_accessed": "2026-09-25T19:49:53.337539+00:00"
     },
     {
       "id": "MEM-20260925-019",
@@ -819,8 +853,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 328,
-      "last_accessed": "2026-09-25T19:45:48.114910+00:00"
+      "access_count": 334,
+      "last_accessed": "2026-09-25T19:49:53.335175+00:00"
     },
     {
       "id": "MEM-20260925-018",
@@ -865,8 +899,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 325,
-      "last_accessed": "2026-09-25T19:45:48.114913+00:00"
+      "access_count": 331,
+      "last_accessed": "2026-09-25T19:49:53.335180+00:00"
     },
     {
       "id": "MEM-20260925-016",
@@ -913,8 +947,8 @@
         "win"
       ],
       "importance": 9,
-      "access_count": 71,
-      "last_accessed": "2026-09-25T18:55:59.826783+00:00"
+      "access_count": 73,
+      "last_accessed": "2026-09-25T19:49:53.337535+00:00"
     },
     {
       "id": "MEM-20260925-014",
@@ -935,8 +969,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 89,
-      "last_accessed": "2026-09-25T19:45:48.025480+00:00"
+      "access_count": 92,
+      "last_accessed": "2026-09-25T19:49:53.351263+00:00"
     },
     {
       "id": "MEM-20260925-013",
@@ -957,8 +991,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 493,
-      "last_accessed": "2026-09-25T19:45:48.114915+00:00"
+      "access_count": 502,
+      "last_accessed": "2026-09-25T19:49:53.351267+00:00"
     },
     {
       "id": "MEM-20260925-012",
@@ -979,8 +1013,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 383,
-      "last_accessed": "2026-09-25T19:45:48.114916+00:00"
+      "access_count": 392,
+      "last_accessed": "2026-09-25T19:49:53.351271+00:00"
     },
     {
       "id": "MEM-20260925-011",
@@ -1123,8 +1157,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 64,
-      "last_accessed": "2026-09-25T19:45:48.025489+00:00"
+      "access_count": 67,
+      "last_accessed": "2026-09-25T19:49:53.351269+00:00"
     },
     {
       "id": "MEM-20260925-005",
@@ -1147,8 +1181,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 97,
-      "last_accessed": "2026-09-25T18:55:59.826793+00:00"
+      "access_count": 99,
+      "last_accessed": "2026-09-25T19:49:53.337543+00:00"
     },
     {
       "id": "MEM-20260925-004",
@@ -1171,8 +1205,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 104,
-      "last_accessed": "2026-09-25T18:55:59.826792+00:00"
+      "access_count": 106,
+      "last_accessed": "2026-09-25T19:49:53.337541+00:00"
     },
     {
       "id": "MEM-20260901-001",
