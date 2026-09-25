@@ -115900,5 +115900,593 @@
     "action": "STANDBY_LOW_CONFLUENCE",
     "balance": 3157.23302135,
     "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 11:55:37",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3157.78705887,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 11:56:45",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "XRPUSDT",
+      "base": "XRP",
+      "side": "LONG",
+      "price": 1.53202836,
+      "sl": 1.4879,
+      "tp": 1.6719,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 1.5,
+      "tp1_target_r": 2.25,
+      "anti_stall_minutes": 45,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "orderflow_metrics": {
+        "cvd_delta_pct": 22.71,
+        "dom_imbalance_ratio": 0.78,
+        "absorption_conviction": 75
+      },
+      "reason": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Strong convergent taker buy aggression (+22.7% Delta). Supported by DOM Bid Wall @ $1.53 ($125,062 USDT). (Target: 15-30 menit)",
+      "confluence_score": 88,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified XRPUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-25 11:57:31"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.6,
+        "thesis": "ADJUST_RISK: Setup XRPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (101.279 / +0.85%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+          "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+          "Global Macro Risk-Off: DXY Surging (101.279 / +0.85%)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.4879.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 1.4879,
+          "tp_price": 1.6719,
+          "rr_ratio": 3.0,
+          "strategy": "5m Order Flow CVD Absorption Scalp",
+          "bull_score": 57,
+          "bear_score": 43,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+          "bear_critique": " • Aset XRPUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 1.4879,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-25 11:58:05"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-25 11:58:22",
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 60,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 61,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "XRP",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 1057.4,
+    "risk_budget_usd": 20.156229098496002
+  },
+  {
+    "timestamp": "2026-09-25 11:59:51",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3148.30742212,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-25 12:01:02",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "XRPUSDT",
+      "base": "XRP",
+      "side": "LONG",
+      "price": 1.53579298,
+      "sl": 1.4875,
+      "tp": 1.6715,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 1.5,
+      "tp1_target_r": 2.25,
+      "anti_stall_minutes": 45,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "orderflow_metrics": {
+        "cvd_delta_pct": 47.83,
+        "dom_imbalance_ratio": 0.82,
+        "absorption_conviction": 50
+      },
+      "reason": "⚡ HIGH-R:R SCALP [5m Order Flow CVD Absorption Scalp]: Order Flow Bullish Absorption: Order flow delta and price action are aligned neutrally. Supported by DOM Bid Wall @ $1.53 ($127,764 USDT). (Target: 15-30 menit)",
+      "confluence_score": 88,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 1.0,
+        "thought_process": "Autonomous fast reflex verified XRPUSDT LONG (R:R 1:3.00). Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria.",
+        "timestamp": "2026-09-25 12:01:47"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.67,
+        "thesis": "ADJUST_RISK: Setup XRPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (101.273 / +0.84%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+          "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+          "Global Macro Risk-Off: DXY Surging (101.273 / +0.84%)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.4875.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 1.4875,
+          "tp_price": 1.6715,
+          "rr_ratio": 3.0,
+          "strategy": "5m Order Flow CVD Absorption Scalp",
+          "bull_score": 57,
+          "bear_score": 43,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+          "bear_critique": " • Aset XRPUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 1.4875,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-09-25 12:02:21"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-09-25 12:02:38",
+          "symbol": "XRPUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 60,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 73,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "XRP",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 1054.8,
+    "risk_budget_usd": 20.184838406464003
+  },
+  {
+    "timestamp": "2026-09-25 12:03:56",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 237.8,
+    "balance": 3160.22166388,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-25 12:03:56",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3160.22166388,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-09-25 12:05:06",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 236.6,
+    "balance": 3152.81089895,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:05:06",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3152.81089895,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:06:15",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 235.5,
+    "balance": 3138.26096456,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:06:15",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3138.26096456,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:07:24",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 234.3,
+    "balance": 3138.26096456,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:07:24",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3138.26096456,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:08:35",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 233.1,
+    "balance": 3146.17465185,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:08:35",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3146.17465185,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:09:47",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 231.9,
+    "balance": 5160.2,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:09:47",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 5160.2,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:10:56",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 230.8,
+    "balance": 3152.96427483,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:10:56",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3152.96427483,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:12:03",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 229.7,
+    "balance": 3149.73453024,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:12:03",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3149.73453024,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:13:11",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 228.6,
+    "balance": 5160.2,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:13:11",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 5160.2,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:14:17",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 227.4,
+    "balance": 3152.60398214,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:14:17",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3152.60398214,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:15:25",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 226.2,
+    "balance": 3142.09072386,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:15:25",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3142.09072386,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:16:37",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 225.1,
+    "balance": 3157.58596855,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:16:37",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3157.58596855,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:17:47",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 223.9,
+    "balance": 5160.2,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:17:47",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 5160.2,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:18:55",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 222.8,
+    "balance": 3155.96539373,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:18:55",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3155.96539373,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:20:01",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 221.8,
+    "balance": 3156.50878775,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:20:01",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3156.50878775,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:21:06",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 220.6,
+    "balance": 3155.88064779,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:21:06",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3155.88064779,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:22:14",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 219.6,
+    "balance": 3154.95008556,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:22:14",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3154.95008556,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:23:16",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 218.5,
+    "balance": 3146.44465378,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:23:16",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3146.44465378,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:24:24",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 217.2,
+    "balance": 3146.04999054,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:24:24",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3146.04999054,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:25:38",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 215.9,
+    "balance": 3143.30878526,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:25:38",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3143.30878526,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:26:55",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 214.8,
+    "balance": 3145.84383526,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:26:55",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3145.84383526,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:28:04",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 213.7,
+    "balance": 5160.2,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:28:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 5160.2,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-09-25 12:29:09",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 212.6,
+    "balance": 3138.26096456,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:29:09",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 3138.26096456,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-09-25 12:30:14",
+    "action": "PORTFOLIO_CIRCUIT_BREAKER_HALT",
+    "reason": "3 consecutive stop-outs across portfolio (ONDOUSDT) within 3.0h window",
+    "remaining_minutes": 211.5,
+    "balance": 3139.36668827,
+    "positions_count": 0
   }
 ]
