@@ -1,5 +1,35 @@
 [
   {
+    "ticket_id": "TCK-20260925-4130",
+    "symbol": "XRPUSDT",
+    "side": "LONG",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-25 07:30:04",
+    "updated_at": "2026-09-25 07:30:04",
+    "payload": {
+      "entry": 1.537,
+      "sl": 1.5247,
+      "tp": 1.5739,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-25 07:30:04",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup XRPUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260925-2787",
     "symbol": "XRPUSDT",
     "side": "LONG",
@@ -802,11 +832,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-25 03:48:00",
-    "updated_at": "2026-09-25 06:30:28",
+    "updated_at": "2026-09-25 07:32:55",
     "payload": {
-      "entry": 1.016,
-      "sl": 1.0079,
-      "tp": 1.0403,
+      "entry": 1.0138,
+      "sl": 1.0057,
+      "tp": 1.0381,
       "rr": 3.0
     },
     "debate_result": null,
@@ -990,10 +1020,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-25 03:18:30",
-    "updated_at": "2026-09-25 06:40:46",
+    "updated_at": "2026-09-25 07:33:23",
     "payload": {
       "entry": 13.345,
       "sl": 12.9447,
@@ -1104,7 +1134,13 @@
       "authorized_at": "2026-09-25 06:40:46",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$9.22 USDT)",
+      "realized_pnl": 9.2173,
+      "net_pnl": 8.5657,
+      "closed_at": "2026-09-25 07:33:23"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 03:18:30",
@@ -1129,6 +1165,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-25 07:33:23",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$9.22 USDT) | PnL: $+9.22 USDT (Net: $+8.57)"
       }
     ]
   },
