@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T11:28:35.934905+00:00",
-    "total_reflections": 556,
+    "last_reflection_at": "2026-09-25T11:57:45.173720+00:00",
+    "total_reflections": 557,
     "system_retention_score": 89.5
   },
   "coin_profiles": {
@@ -528,11 +528,15 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset LTCUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 0,
+      "total_trades": 1,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": 0.0,
+      "net_pnl_usd": -27.39,
       "created_dynamically": true,
-      "updated_at": "2026-09-24T05:29:25.896647+00:00"
+      "updated_at": "2026-09-25T11:57:45.173720+00:00",
+      "wins": 0,
+      "losses": 1,
+      "breakevens": 0,
+      "last_traded_outcome": "LOSS"
     },
     "BCHUSDT": {
       "symbol": "BCHUSDT",
@@ -735,6 +739,28 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-560",
+      "timestamp": "2026-09-25T11:57:45.173720+00:00",
+      "symbol": "LTCUSDT",
+      "setup_type": "15m Key Level Rectangle Break & Retest",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -27.39,
+      "r_multiple": -1.09,
+      "pnl_pct": -1.69,
+      "root_cause": "Adverse volatility stop-out on LTCUSDT 15m Key Level Rectangle Break & Retest (net: -$27.39, -1.09R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on LTCUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "ltc",
+        "15m_key_level_rectangle_break_&_retest",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T11:57:45.173720+00:00"
+    },
     {
       "id": "MEM-20260925-559",
       "timestamp": "2026-09-25T11:28:35.934905+00:00",

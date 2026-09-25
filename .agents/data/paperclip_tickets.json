@@ -3665,10 +3665,10 @@
     "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-25 04:17:33",
-    "updated_at": "2026-09-25 11:29:49",
+    "updated_at": "2026-09-25 11:57:42",
     "payload": {
       "entry": 71.0452,
       "sl": 68.9138,
@@ -3778,7 +3778,11 @@
       "authorized_at": "2026-09-25 11:29:49",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-25 11:57:42"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 04:17:33",
@@ -3803,6 +3807,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-25 11:57:42",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
