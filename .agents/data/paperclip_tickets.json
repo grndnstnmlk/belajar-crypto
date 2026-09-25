@@ -6,10 +6,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-25 06:39:18",
-    "updated_at": "2026-09-25 06:40:37",
+    "updated_at": "2026-09-25 06:42:41",
     "payload": {
       "entry": 116.1838,
       "sl": 115.2543,
@@ -19,13 +19,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$1.39 USDT)",
+      "realized_pnl": 1.39,
+      "net_pnl": 0.7418,
+      "closed_at": "2026-09-25 06:42:41"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 06:39:18",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup SOLUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-25 06:42:41",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$1.39 USDT) | PnL: $+1.39 USDT (Net: $+0.74)"
       }
     ]
   },
@@ -1666,10 +1678,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-25 04:42:34",
-    "updated_at": "2026-09-25 06:39:19",
+    "updated_at": "2026-09-25 06:42:53",
     "payload": {
       "entry": 13.336,
       "sl": 13.2293,
@@ -1679,13 +1691,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$14.56 USDT)",
+      "realized_pnl": -14.5562,
+      "net_pnl": -15.6618,
+      "closed_at": "2026-09-25 06:42:53"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 04:42:34",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup LINKUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      },
+      {
+        "timestamp": "2026-09-25 06:42:53",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$14.56 USDT) | PnL: $-14.56 USDT (Net: $-15.66)"
       }
     ]
   },
