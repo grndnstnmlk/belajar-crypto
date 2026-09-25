@@ -377,10 +377,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-25 12:06:24",
-    "updated_at": "2026-09-25 14:34:23",
+    "updated_at": "2026-09-25 17:31:12",
     "payload": {
       "entry": 119.9,
       "sl": 116.303,
@@ -491,7 +491,13 @@
       "authorized_at": "2026-09-25 14:34:23",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$2.56 USDT)",
+      "realized_pnl": 2.5612,
+      "net_pnl": 1.9125,
+      "closed_at": "2026-09-25 17:31:12"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 12:06:24",
@@ -516,6 +522,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-25 17:31:12",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$2.56 USDT) | PnL: $+2.56 USDT (Net: $+1.91)"
       }
     ]
   },
