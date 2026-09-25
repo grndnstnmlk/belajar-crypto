@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-25T11:57:50.889406+00:00",
-    "total_reflections": 9,
-    "system_retention_score": 96.8
+    "last_reflection_at": "2026-09-25T11:57:52.383615+00:00",
+    "total_reflections": 10,
+    "system_retention_score": 97.8
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -496,8 +496,8 @@
     },
     "LTCUSDT": {
       "symbol": "LTCUSDT",
-      "volatility_regime": "MODERATE",
-      "wick_risk_rating": "MODERATE",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "MODERATE",
       "optimal_setups": [
@@ -506,13 +506,13 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset LTCUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 2,
+      "total_trades": 3,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -54.78,
+      "net_pnl_usd": -82.17,
       "created_dynamically": true,
-      "updated_at": "2026-09-25T11:57:50.889399+00:00",
+      "updated_at": "2026-09-25T11:57:52.383604+00:00",
       "wins": 0,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
       "avg_r_multiple": -1.34,
       "last_traded_outcome": "LOSS",
@@ -603,16 +603,39 @@
       "id": "RULE-AUTO-LTCUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on LTCUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "ltcusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-25T11:57:50.889405+00:00"
+      "created_at": "2026-09-25T11:57:50.889405+00:00",
+      "updated_at": "2026-09-25T11:57:52.383613+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260925-013",
+      "timestamp": "2026-09-25T11:57:52.383590+00:00",
+      "symbol": "LTCUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -27.39,
+      "r_multiple": -1.34,
+      "pnl_pct": -1.68,
+      "root_cause": "Adverse volatility stop-out on LTCUSDT Smart Money Concepts (SMC) (net: -$27.39, -1.34R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on LTCUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "ltc",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-25T11:57:52.383595+00:00"
+    },
     {
       "id": "MEM-20260925-012",
       "timestamp": "2026-09-25T11:57:50.889387+00:00",
