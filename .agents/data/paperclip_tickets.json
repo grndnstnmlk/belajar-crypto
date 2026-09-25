@@ -1,6 +1,6 @@
 [
   {
-    "ticket_id": "TCK-20260925-7804",
+    "ticket_id": "TCK-20260925-0751",
     "symbol": "LINKUSDT",
     "side": "LONG",
     "strategy": "5m Order Flow CVD Absorption Scalp",
@@ -8,8 +8,38 @@
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
+    "created_at": "2026-09-25 06:49:10",
+    "updated_at": "2026-09-25 06:49:10",
+    "payload": {
+      "entry": 13.38,
+      "sl": 13.273,
+      "tp": 13.701,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-25 06:49:10",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup LINKUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260925-7804",
+    "symbol": "LINKUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "CLOSED",
+    "priority": "HIGH",
     "created_at": "2026-09-25 06:47:47",
-    "updated_at": "2026-09-25 06:47:47",
+    "updated_at": "2026-09-25 06:48:53",
     "payload": {
       "entry": 13.385,
       "sl": 13.2779,
@@ -19,13 +49,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$14.56 USDT)",
+      "realized_pnl": -14.5562,
+      "net_pnl": -15.6618,
+      "closed_at": "2026-09-25 06:48:53"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 06:47:47",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup LINKUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-25 06:48:53",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$14.56 USDT) | PnL: $-14.56 USDT (Net: $-15.66)"
       }
     ]
   },
@@ -36,10 +78,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-25 06:47:47",
-    "updated_at": "2026-09-25 06:47:47",
+    "updated_at": "2026-09-25 06:48:56",
     "payload": {
       "entry": 116.15,
       "sl": 115.2208,
@@ -49,13 +91,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$1.39 USDT)",
+      "realized_pnl": 1.39,
+      "net_pnl": 0.7418,
+      "closed_at": "2026-09-25 06:48:56"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-25 06:47:47",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup SOLUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-25 06:48:56",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$1.39 USDT) | PnL: $+1.39 USDT (Net: $+0.74)"
       }
     ]
   },
