@@ -1451,6 +1451,11 @@
           <span>Pause</span>
         </button>
 
+        <button class="btn btn-ghost btn-sm" id="cb-btn" onclick="togglePortfolioCircuitBreaker()" title="Matikan / Nyalakan Portfolio Circuit Breaker">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span id="cb-btn-text">CB: Active</span>
+        </button>
+
         <button class="btn btn-danger btn-sm" onclick="closeAllPositions()" title="Emergency Close All Positions">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           <span>Close All</span>
@@ -2451,6 +2456,28 @@
           }
         }
       }
+
+      // Update Circuit Breaker Pill / Button
+      if (data.portfolio_circuit_breaker) {
+        const cb = data.portfolio_circuit_breaker;
+        const cbBtnText = document.getElementById('cb-btn-text');
+        const cbBtn = document.getElementById('cb-btn');
+        if (cbBtnText && cbBtn) {
+          if (!cb.enabled) {
+            cbBtnText.innerText = 'CB: Off';
+            cbBtn.style.color = 'var(--text-muted)';
+            cbBtn.title = 'Circuit Breaker DINONAKTIFKAN (Klik untuk mengaktifkan)';
+          } else if (cb.is_halted) {
+            cbBtnText.innerText = `CB Halted (${cb.remaining_minutes ? cb.remaining_minutes.toFixed(0) + 'm' : ''})`;
+            cbBtn.style.color = 'var(--color-red)';
+            cbBtn.title = `Circuit Breaker HALTED: ${cb.halt_reason}. Klik untuk mematikan.`;
+          } else {
+            cbBtnText.innerText = 'CB: Active';
+            cbBtn.style.color = 'var(--color-green)';
+            cbBtn.title = 'Circuit Breaker AKTIF (Klik untuk mematikan)';
+          }
+        }
+      }
     }
 
     async function fetchDashboardFeed() {
@@ -2721,6 +2748,33 @@
         const res = await fetch('/api/action/toggle_pause', { method: 'POST' });
         const d = await res.json();
         showToast(d.is_paused ? '⏸️ Workstation PAUSED' : '▶️ Workstation RESUMED');
+      } catch (e) {
+        showToast(`⚠️ Error: ${e.message}`);
+      }
+    }
+
+    async function togglePortfolioCircuitBreaker() {
+      try {
+        const res = await fetch('/api/risk/portfolio_circuit_breaker/toggle', { method: 'POST' });
+        const d = await res.json();
+        if (d.success) {
+          const enabled = d.portfolio_circuit_breaker ? d.portfolio_circuit_breaker.enabled : true;
+          showToast(enabled ? '🛡️ Portfolio Circuit Breaker: DIAKTIFKAN' : '🛑 Portfolio Circuit Breaker: DINONAKTIFKAN (Jeda Dihapus)');
+          fetchDashboardFeed();
+        }
+      } catch (e) {
+        showToast(`⚠️ Error: ${e.message}`);
+      }
+    }
+
+    async function resetPortfolioCircuitBreaker() {
+      try {
+        const res = await fetch('/api/risk/portfolio_circuit_breaker/reset', { method: 'POST' });
+        const d = await res.json();
+        if (d.success) {
+          showToast('🔄 Portfolio Circuit Breaker DIRESET. Jeda darurat telah dihapus!');
+          fetchDashboardFeed();
+        }
       } catch (e) {
         showToast(`⚠️ Error: ${e.message}`);
       }

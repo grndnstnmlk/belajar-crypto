@@ -89,16 +89,31 @@ def save_quarantine_state(state):
 
 def load_portfolio_circuit_breaker_state():
     """Loads active portfolio circuit breaker state from disk."""
+    default_state = {
+        "is_halted": False,
+        "halt_reason": None,
+        "halt_until": None,
+        "remaining_minutes": 0.0,
+        "enabled": True,
+        "consecutive_losses": 0,
+        "cum_loss_r": 0.0,
+        "symbols_involved": [],
+        "reset_at": None,
+        "disabled_at": None
+    }
     if not os.path.exists(PORTFOLIO_STATE_FILE):
-        return {"is_halted": False, "halt_reason": None, "halt_until": None, "remaining_minutes": 0.0}
+        return default_state
     try:
         with open(PORTFOLIO_STATE_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
             if isinstance(data, dict):
+                for k, v in default_state.items():
+                    if k not in data:
+                        data[k] = v
                 return data
     except Exception:
         pass
-    return {"is_halted": False, "halt_reason": None, "halt_until": None, "remaining_minutes": 0.0}
+    return default_state
 
 def save_portfolio_circuit_breaker_state(state):
     """Atomically saves portfolio circuit breaker state to disk."""
@@ -114,17 +129,64 @@ def save_portfolio_circuit_breaker_state(state):
     except Exception:
         pass
 
+def disable_portfolio_circuit_breaker(reason="Disabled by user command"):
+    """
+    Completely disables the portfolio circuit breaker (halts released, auto-trigger off).
+    """
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    state = load_portfolio_circuit_breaker_state()
+    state["enabled"] = False
+    state["is_halted"] = False
+    state["halt_reason"] = reason
+    state["halt_until"] = None
+    state["remaining_minutes"] = 0.0
+    state["consecutive_losses"] = 0
+    state["cum_loss_r"] = 0.0
+    state["symbols_involved"] = []
+    state["disabled_at"] = now_str
+    state["reset_at"] = now_str
+    save_portfolio_circuit_breaker_state(state)
+    return state
+
+def enable_portfolio_circuit_breaker():
+    """
+    Re-enables the portfolio circuit breaker and resets lookback marker to now.
+    """
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    state = load_portfolio_circuit_breaker_state()
+    state["enabled"] = True
+    state["is_halted"] = False
+    state["halt_reason"] = None
+    state["halt_until"] = None
+    state["remaining_minutes"] = 0.0
+    state["consecutive_losses"] = 0
+    state["cum_loss_r"] = 0.0
+    state["symbols_involved"] = []
+    state["reset_at"] = now_str
+    save_portfolio_circuit_breaker_state(state)
+    return state
+
+def toggle_portfolio_circuit_breaker(force_enabled=None):
+    """Toggles portfolio circuit breaker between enabled and disabled."""
+    state = load_portfolio_circuit_breaker_state()
+    curr_enabled = state.get("enabled", True)
+    target_enabled = not curr_enabled if force_enabled is None else bool(force_enabled)
+    if target_enabled:
+        return enable_portfolio_circuit_breaker()
+    else:
+        return disable_portfolio_circuit_breaker()
+
 def reset_portfolio_circuit_breaker():
-    """Resets portfolio circuit breaker state (clears halt)."""
-    state = {
-        "is_halted": False,
-        "halt_reason": None,
-        "halt_until": None,
-        "remaining_minutes": 0.0,
-        "consecutive_losses": 0,
-        "cum_loss_r": 0.0,
-        "reset_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }
+    """Resets portfolio circuit breaker state (clears active halt and resets trade lookback point)."""
+    state = load_portfolio_circuit_breaker_state()
+    state["is_halted"] = False
+    state["halt_reason"] = None
+    state["halt_until"] = None
+    state["remaining_minutes"] = 0.0
+    state["consecutive_losses"] = 0
+    state["cum_loss_r"] = 0.0
+    state["symbols_involved"] = []
+    state["reset_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     save_portfolio_circuit_breaker_state(state)
     return state
 
@@ -313,11 +375,26 @@ def audit_portfolio_circuit_breaker(ledger_override=None):
             "consecutive_losses": int,
             "cum_loss_r": float,
             "symbols_involved": list,
-            "status_badge": str
+            "status_badge": str,
+            "enabled": bool
         }
     """
     now = datetime.now()
     state = load_portfolio_circuit_breaker_state()
+
+    # 0. Check if Circuit Breaker is disabled by user
+    if not state.get("enabled", True):
+        return {
+            "is_halted": False,
+            "halt_reason": "Portfolio circuit breaker disabled by user",
+            "halt_until": None,
+            "remaining_minutes": 0.0,
+            "consecutive_losses": 0,
+            "cum_loss_r": 0.0,
+            "symbols_involved": [],
+            "status_badge": "⚪ DISABLED",
+            "enabled": False
+        }
 
     # 1. Check existing active halt from state file
     if state.get("is_halted"):
@@ -332,7 +409,8 @@ def audit_portfolio_circuit_breaker(ledger_override=None):
                 "consecutive_losses": state.get("consecutive_losses", 3),
                 "cum_loss_r": state.get("cum_loss_r", 3.0),
                 "symbols_involved": state.get("symbols_involved", []),
-                "status_badge": f"🛑 SESSION HALTED ({remaining_mins:.0f}m remaining)"
+                "status_badge": f"🛑 SESSION HALTED ({remaining_mins:.0f}m remaining)",
+                "enabled": True
             }
         elif until_dt and until_dt <= now:
             # Halt period expired, clear state
@@ -364,7 +442,8 @@ def audit_portfolio_circuit_breaker(ledger_override=None):
             "consecutive_losses": 0,
             "cum_loss_r": 0.0,
             "symbols_involved": [],
-            "status_badge": "🟢 READY"
+            "status_badge": "🟢 READY",
+            "enabled": True
         }
 
     def _get_trade_time(t):
@@ -373,6 +452,9 @@ def audit_portfolio_circuit_breaker(ledger_override=None):
         return dt if dt else datetime.min
 
     sorted_trades = sorted(trades, key=_get_trade_time, reverse=True)
+
+    reset_at_str = state.get("reset_at")
+    reset_dt = _parse_time(reset_at_str) if reset_at_str else None
 
     consecutive_losses = 0
     cum_loss_r = 0.0
@@ -385,6 +467,9 @@ def audit_portfolio_circuit_breaker(ledger_override=None):
             continue
         # Skip trades older than lookback window
         if (now - t_dt).total_seconds() > (PORTFOLIO_CONSECUTIVE_WINDOW_HOURS * 3600):
+            break
+        # CRITICAL FIX: If reset was manually performed, ignore trades that closed at or before reset_at
+        if reset_dt and t_dt <= reset_dt:
             break
 
         pnl = float(t.get("net_pnl_usd", t.get("pnl_usd", 0.0)))
@@ -434,7 +519,9 @@ def audit_portfolio_circuit_breaker(ledger_override=None):
             "remaining_minutes": round(remaining_mins, 1),
             "consecutive_losses": consecutive_losses,
             "cum_loss_r": round(cum_loss_r, 2),
-            "symbols_involved": symbols_involved
+            "symbols_involved": symbols_involved,
+            "enabled": True,
+            "reset_at": state.get("reset_at")
         }
         save_portfolio_circuit_breaker_state(halt_state)
 
@@ -446,7 +533,8 @@ def audit_portfolio_circuit_breaker(ledger_override=None):
             "consecutive_losses": consecutive_losses,
             "cum_loss_r": round(cum_loss_r, 2),
             "symbols_involved": symbols_involved,
-            "status_badge": f"🛑 SESSION HALTED ({remaining_mins:.0f}m remaining)"
+            "status_badge": f"🛑 SESSION HALTED ({remaining_mins:.0f}m remaining)",
+            "enabled": True
         }
 
     return {
@@ -457,7 +545,8 @@ def audit_portfolio_circuit_breaker(ledger_override=None):
         "consecutive_losses": consecutive_losses,
         "cum_loss_r": round(cum_loss_r, 2),
         "symbols_involved": symbols_involved,
-        "status_badge": "🟢 READY"
+        "status_badge": "🟢 READY",
+        "enabled": True
     }
 
 def record_trade_outcome(symbol, pnl_usd, r_multiple, exit_reason=""):
@@ -515,8 +604,32 @@ def get_active_quarantines():
     return active
 
 if __name__ == "__main__":
-    print("=== SYMBOL QUARANTINE GUARD TEST ===")
-    test_coins = ["BTCUSDT", "TAOUSDT", "XRPUSDT", "SOLUSDT"]
-    for c in test_coins:
-        res = audit_symbol_quarantine(c)
-        print(f"[{c}] Quarantined: {res['is_quarantined']} | Badge: {res['status_badge']} | Reason: {res['reason']}")
+    import argparse
+    parser = argparse.ArgumentParser(description="Symbol Quarantine & Portfolio Circuit Breaker Guard")
+    parser.add_argument("--disable", action="store_true", help="Disable portfolio circuit breaker")
+    parser.add_argument("--enable", action="store_true", help="Enable portfolio circuit breaker")
+    parser.add_argument("--reset", action="store_true", help="Reset portfolio circuit breaker and release halt")
+    parser.add_argument("--toggle", action="store_true", help="Toggle portfolio circuit breaker enabled/disabled")
+    parser.add_argument("--status", action="store_true", help="Print current circuit breaker status")
+    args = parser.parse_args()
+
+    if args.disable:
+        res = disable_portfolio_circuit_breaker()
+        print("🛑 Portfolio Circuit Breaker Telah DINONAKTIFKAN (DISABLED). Sisa waktu penghentian telah dibatalkan.")
+    elif args.enable:
+        res = enable_portfolio_circuit_breaker()
+        print("🟢 Portfolio Circuit Breaker Telah DIAKTIFKAN KEMBALI (ENABLED).")
+    elif args.reset:
+        res = reset_portfolio_circuit_breaker()
+        print("🔄 Portfolio Circuit Breaker Telah DIRESET. Penghentian telah dihapus.")
+    elif args.toggle:
+        res = toggle_portfolio_circuit_breaker()
+        print(f"🔄 Portfolio Circuit Breaker state: {'ENABLED' if res.get('enabled', True) else 'DISABLED'}")
+    else:
+        print("=== SYMBOL QUARANTINE GUARD TEST ===")
+        test_coins = ["BTCUSDT", "TAOUSDT", "XRPUSDT", "SOLUSDT"]
+        for c in test_coins:
+            res = audit_symbol_quarantine(c)
+            print(f"[{c}] Quarantined: {res['is_quarantined']} | Badge: {res['status_badge']} | Reason: {res['reason']}")
+        pb = audit_portfolio_circuit_breaker()
+        print(f"[PORTFOLIO] Halted: {pb['is_halted']} | Enabled: {pb.get('enabled', True)} | Badge: {pb['status_badge']} | Reason: {pb['halt_reason']}")

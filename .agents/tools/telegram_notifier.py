@@ -161,6 +161,8 @@ def setup_bot_commands():
         {"command": "news", "description": "📰 Kalender berita makro AS (High-Impact)"},
         {"command": "pause", "description": "⏸️ Jeda eksekusi order autopilot"},
         {"command": "resume", "description": "▶️ Lanjutkan autopilot"},
+        {"command": "unhalt", "description": "🔄 Matikan/Reset jeda darurat circuit breaker"},
+        {"command": "disable_cb", "description": "🛑 Nonaktifkan portfolio circuit breaker"},
         {"command": "close", "description": "🔴 Pilih koin untuk ditutup"},
         {"command": "closeall", "description": "🚨 Tutup semua posisi sekaligus"},
         {"command": "help", "description": "❓ Panduan menu perintah"}
@@ -1737,6 +1739,25 @@ class TelegramCommandListener(threading.Thread):
                     send_telegram_msg("▶️ <b>SAKLAR DARURAT DINONAKTIFKAN!</b>\nAktivitas agen kembali beroperasi normal.", chat_id_override=chat_id)
             except Exception as e:
                 send_telegram_msg(f"⚠️ Gagal mengubah saklar darurat: {e}", chat_id_override=chat_id)
+
+        elif command in ["/unhalt", "/reset_cb", "/disable_cb", "/enable_cb", "/cb_toggle"]:
+            try:
+                import symbol_quarantine_guard
+                if command == "/disable_cb":
+                    st = symbol_quarantine_guard.disable_portfolio_circuit_breaker(reason=f"Telegram /disable_cb by {chat_id}")
+                    send_telegram_msg("🛑 <b>PORTFOLIO CIRCUIT BREAKER DINONAKTIFKAN!</b>\nTrading desk kini bebas beroperasi tanpa penghentian sementara consecutive losses.", chat_id_override=chat_id)
+                elif command == "/enable_cb":
+                    st = symbol_quarantine_guard.enable_portfolio_circuit_breaker()
+                    send_telegram_msg("🟢 <b>PORTFOLIO CIRCUIT BREAKER DIAKTIFKAN KEMBALI!</b>\nSistem proteksi modal anti-cascading losses aktif kembali.", chat_id_override=chat_id)
+                elif command == "/cb_toggle":
+                    st = symbol_quarantine_guard.toggle_portfolio_circuit_breaker()
+                    en_txt = "DIAKTIFKAN" if st.get("enabled", True) else "DINONAKTIFKAN"
+                    send_telegram_msg(f"🔄 <b>PORTFOLIO CIRCUIT BREAKER:</b> {en_txt}!", chat_id_override=chat_id)
+                else:
+                    st = symbol_quarantine_guard.reset_portfolio_circuit_breaker()
+                    send_telegram_msg("🔄 <b>PORTFOLIO CIRCUIT BREAKER DIRESET!</b>\nSisa waktu jeda darurat telah dihapus. Trading desk segera melanjutkan pemindaian normal.", chat_id_override=chat_id)
+            except Exception as e:
+                send_telegram_msg(f"⚠️ Gagal mengupdate portfolio circuit breaker: {e}", chat_id_override=chat_id)
 
         elif command == "/close":
             positions = trading_desk.get_active_positions(self.user_email, self.is_demo)

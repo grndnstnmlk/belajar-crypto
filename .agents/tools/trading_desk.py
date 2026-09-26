@@ -2244,6 +2244,7 @@ def main():
     run_p.add_argument("--max-positions", type=int, default=5, help="Batas maksimal posisi aktif bersamaan (default: 5 - Institutional Focused Portfolio)")
     run_p.add_argument("--leverage", type=int, default=None, help="Leverage Binance Futures (default: 20x untuk SCALP, 5x untuk HYBRID/SWING)")
     run_p.add_argument("--user", type=str, default=None, help="Email akun (misal: dxmade@gmail.com)")
+    run_p.add_argument("--disable-circuit-breaker", "--no-circuit-breaker", action="store_true", help="Nonaktifkan portfolio session circuit breaker secara paksa")
     run_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo Testnet)")
 
     # Status command
@@ -2274,6 +2275,14 @@ def main():
         is_long_only_flag = getattr(args, "long_only", False) or (getattr(args, "mode", "").upper() == "LONG_ONLY")
         if is_long_only_flag:
             os.environ["DESK_LONG_ONLY"] = "1"
+
+        if getattr(args, "disable_circuit_breaker", False):
+            try:
+                import symbol_quarantine_guard
+                symbol_quarantine_guard.disable_portfolio_circuit_breaker(reason="CLI --disable-circuit-breaker flag")
+                print(f"🛡️ {C.BRIGHT_YELLOW}Portfolio Circuit Breaker DINONAKTIFKAN via CLI flag.{C.RESET}")
+            except Exception:
+                pass
 
         syms = [s.strip().upper() for s in args.symbols.split(",") if s.strip()] if getattr(args, "symbols", None) else None
         max_pos = getattr(args, "max_positions", 5)

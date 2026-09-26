@@ -533,8 +533,10 @@ def get_dashboard_feed_data(force_refresh=False):
             "active_count": len(q_list),
             "quarantined_symbols": q_list
         }
+        feed["portfolio_circuit_breaker"] = symbol_quarantine_guard.audit_portfolio_circuit_breaker()
     except Exception:
         feed["symbol_quarantines"] = {"active_count": 0, "quarantined_symbols": []}
+        feed["portfolio_circuit_breaker"] = {"is_halted": False, "status_badge": "🟢 READY", "enabled": True}
 
     # Quant Science Monthly Boundary Flow Effects & Options Expiry Telemetry
     try:
@@ -2255,6 +2257,51 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 import symbol_quarantine_guard
                 state = symbol_quarantine_guard.reset_portfolio_circuit_breaker()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "portfolio_circuit_breaker": state}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/risk/circuit_breaker/disable", "/api/risk/portfolio_circuit_breaker/disable"):
+            try:
+                import symbol_quarantine_guard
+                state = symbol_quarantine_guard.disable_portfolio_circuit_breaker()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "portfolio_circuit_breaker": state}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/risk/circuit_breaker/enable", "/api/risk/portfolio_circuit_breaker/enable"):
+            try:
+                import symbol_quarantine_guard
+                state = symbol_quarantine_guard.enable_portfolio_circuit_breaker()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "portfolio_circuit_breaker": state}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/risk/circuit_breaker/toggle", "/api/risk/portfolio_circuit_breaker/toggle"):
+            try:
+                import symbol_quarantine_guard
+                state = symbol_quarantine_guard.toggle_portfolio_circuit_breaker()
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()

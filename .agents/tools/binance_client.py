@@ -253,6 +253,12 @@ def send_signed_request(endpoint, method="GET", params=None, is_demo=True, user_
                 time.sleep(sleep_time)
                 continue
             print(f"[Binance HTTP Error {e.code}] {err_msg}", file=sys.stderr)
+            try:
+                err_dict = json.loads(err_msg)
+                if isinstance(err_dict, dict) and ("code" in err_dict or "msg" in err_dict):
+                    return err_dict
+            except Exception:
+                pass
             return None
         except Exception as e:
             last_error = e
@@ -625,6 +631,32 @@ def sync_exchange_stop_loss(symbol, side, sl_price, is_demo=True, user_email=Non
                     }
             except Exception:
                 pass
+
+        # Pre-Flight Validation against current mark price to prevent Binance Error -2021 ("Order would immediately trigger")
+        # For a BUY position, STOP_MARKET is SELL, so triggerPrice MUST be STRICTLY LESS than current market price.
+        # For a SELL position, STOP_MARKET is BUY, so triggerPrice MUST be STRICTLY GREATER than current market price.
+        try:
+            current_mark = get_realtime_mark_price(sym_clean, is_demo=is_demo)
+            if current_mark and current_mark > 0:
+                target_sl_float = float(target_sl_str)
+                if opp_side == "SELL" and target_sl_float >= current_mark:
+                    print(f"⚠️ [SL PRE-FLIGHT BLOCKED] {sym_clean}: Target SL SELL (${target_sl_float}) >= Mark Price (${current_mark}). Order would immediately trigger! Preserving existing protection.")
+                    return {
+                        "success": False,
+                        "action": "BLOCKED_PRE_FLIGHT",
+                        "error": f"Target SL ${target_sl_float} >= Mark Price ${current_mark}",
+                        "symbol": sym_clean
+                    }
+                elif opp_side == "BUY" and target_sl_float <= current_mark:
+                    print(f"⚠️ [SL PRE-FLIGHT BLOCKED] {sym_clean}: Target SL BUY (${target_sl_float}) <= Mark Price (${current_mark}). Order would immediately trigger! Preserving existing protection.")
+                    return {
+                        "success": False,
+                        "action": "BLOCKED_PRE_FLIGHT",
+                        "error": f"Target SL ${target_sl_float} <= Mark Price ${current_mark}",
+                        "symbol": sym_clean
+                    }
+        except Exception:
+            pass
 
         # Cancel previous conflicting algo orders for this symbol before placing updated SL
         cancel_existing_algo_orders_for_symbol(sym_clean, is_demo=is_demo, user_email=user_email)

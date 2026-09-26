@@ -724,8 +724,10 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
         # 2. Adaptive timeout based on coin beta: 35m for majors/slow movers (ADA, XRP, LINK, BNB) vs 25m for high-beta.
         # 3. Developing momentum protection: if 0.20 <= R < 0.60, auto-lock Breakeven (Risk-Free) and LET WINNERS RUN.
         # 4. Strict flat closure: only reallocate if trade is dead flat (0.0 <= R < 0.20) to recycle margin.
+        # 5. Swing mode bypass: In SWING mode, bypass micro anti-stall to give macro wave setups room to breathe.
         # -------------------------------------------------------------
-        if t_data.get("is_scalp"):
+        desk_mode_current = telegram_notifier.get_desk_mode().upper()
+        if t_data.get("is_scalp") and desk_mode_current != "SWING":
             opened_at = t_data.get("opened_at", "")
             if opened_at:
                 try:
@@ -740,21 +742,23 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                         # Case A: Trade has developed substantial momentum (>= 1.00R) -> Lock Breakeven & Let it Run!
                         if r_multiple >= 1.00 and not t_data.get("breakeven_locked"):
                             be_price = calculate_breakeven_price(sym, side, entry_price)
-                            success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
-                            if success:
-                                t_data["breakeven_locked"] = True
-                                t_data["current_sl"] = be_price
-                                print(f"🛡️ [ANTI-STALL BE LOCK] {sym}: Momentum sehat (+{r_multiple:.2f}R pada {int(elapsed_min)}m). SL dikunci ke Breakeven ${be_price:,.4f} untuk membiarkan profit berlari bebas risiko!")
-                                try:
-                                    telegram_notifier.send_telegram_broadcast(
-                                        f"🛡️ <b>MOMENTUM EXTENSION (BREAKEVEN LOCKED)</b> 🛡️\n"
-                                        f"💎 <b>Aset:</b> <code>{sym}</code>\n"
-                                        f"⏱️ <b>Durasi:</b> {int(elapsed_min)} menit (Profit: +{r_multiple:.2f}R)\n"
-                                        f"🔒 <b>SL Diamankan ke BE:</b> <code>${be_price:,.4f}</code>\n"
-                                        f"🚀 <i>Posisi tidak ditutup paksa karena momentum berkembang. Dibiarkan berlari menuju TP bebas risiko!</i>"
-                                    )
-                                except Exception:
-                                    pass
+                            is_be_reachable = (side == "BUY" and mark_price > be_price) or (side == "SELL" and mark_price < be_price)
+                            if is_be_reachable:
+                                success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
+                                if success:
+                                    t_data["breakeven_locked"] = True
+                                    t_data["current_sl"] = be_price
+                                    print(f"🛡️ [ANTI-STALL BE LOCK] {sym}: Momentum sehat (+{r_multiple:.2f}R pada {int(elapsed_min)}m). SL dikunci ke Breakeven ${be_price:,.4f} untuk membiarkan profit berlari bebas risiko!")
+                                    try:
+                                        telegram_notifier.send_telegram_broadcast(
+                                            f"🛡️ <b>MOMENTUM EXTENSION (BREAKEVEN LOCKED)</b> 🛡️\n"
+                                            f"💎 <b>Aset:</b> <code>{sym}</code>\n"
+                                            f"⏱️ <b>Durasi:</b> {int(elapsed_min)} menit (Profit: +{r_multiple:.2f}R)\n"
+                                            f"🔒 <b>SL Diamankan ke BE:</b> <code>${be_price:,.4f}</code>\n"
+                                            f"🚀 <i>Posisi tidak ditutup paksa karena momentum berkembang. Dibiarkan berlari menuju TP bebas risiko!</i>"
+                                        )
+                                    except Exception:
+                                        pass
 
                         # Case B: Trade is completely dead-flat (-0.10 <= R < 0.20) -> Safe Reallocation to Free Capital
                         elif -0.10 <= r_multiple < 0.20:
@@ -787,14 +791,16 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                                     pass
                                 continue
                             else:
-                                # Micro profit (< $1.50) would be eaten by taker fees (~$1.10). Move SL to Breakeven instead of market closing.
+                                # Micro profit (< $1.50) would be eaten by taker fees (~$1.10). Move SL to Breakeven ONLY IF mark price has actually cleared BE!
                                 if not t_data.get("breakeven_locked"):
                                     be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
-                                    success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
-                                    if success:
-                                        t_data["breakeven_locked"] = True
-                                        t_data["current_sl"] = be_price
-                                        print(f"🛡️ [ANTI-FEE BE LOCK] {sym}: Profit mikro (${upnl:+.2f} USDT) rentan tergerus fee komisi market close. SL diamankan ke Breakeven ${be_price:,.4f}.")
+                                    is_be_reachable = (side == "BUY" and mark_price > be_price) or (side == "SELL" and mark_price < be_price)
+                                    if is_be_reachable:
+                                        success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
+                                        if success:
+                                            t_data["breakeven_locked"] = True
+                                            t_data["current_sl"] = be_price
+                                            print(f"🛡️ [ANTI-FEE BE LOCK] {sym}: Profit mikro (${upnl:+.2f} USDT) rentan tergerus fee komisi market close. SL diamankan ke Breakeven ${be_price:,.4f}.")
                 except Exception:
                     pass
 
