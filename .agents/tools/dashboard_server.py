@@ -1651,6 +1651,54 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path == "/api/sentiment/coin_micro_fng":
+            try:
+                import coin_micro_sentiment
+                q_sym = params.get("symbol", ["BTC"])[0]
+                data = coin_micro_sentiment.get_coin_micro_fear_greed(symbol=q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "coin_micro_fng": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/sentiment/pump_pulse":
+            try:
+                import coin_micro_sentiment
+                q_sym = params.get("symbol", ["BTC"])[0]
+                data = coin_micro_sentiment.get_pump_pulse_score(symbol=q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "pump_pulse": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path == "/api/sentiment/coin_summary":
+            try:
+                import coin_micro_sentiment
+                q_sym = params.get("symbol", ["BTC"])[0]
+                data = coin_micro_sentiment.get_coin_sentiment_and_pulse_summary(symbol=q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "summary": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         elif path == "/api/portfolio/beta_hedge":
             try:
                 import portfolio_beta_hedger

@@ -110,7 +110,23 @@ def print_menu():
     print(f"{C.BRIGHT_CYAN}╚═══════════════════════════════════════════════════════════════════════════════════════╝{C.RESET}")
 
 def get_user_choice(timeout_sec=5):
-    print(f"\n{C.GRAY}⏳ Otomatis menjalankan mode {C.BRIGHT_GREEN}[1] 🤖 HYBRID AUTOPILOT{C.GRAY} dalam {timeout_sec} detik jika tidak ada tombol ditekan...{C.RESET}")
+    default_choice = "2"
+    try:
+        import telegram_notifier
+        cur_mode = telegram_notifier.get_desk_mode().upper()
+        if cur_mode == "SWING":
+            default_choice = "2"
+        elif cur_mode == "SCALP":
+            default_choice = "3"
+        elif cur_mode == "LONG_ONLY":
+            default_choice = "4"
+        else:
+            default_choice = "1"
+    except Exception:
+        default_choice = "2"
+
+    mode_label = "[2] 🎯 SWING AUTOPILOT" if default_choice == "2" else f"[{default_choice}] AUTOPILOT"
+    print(f"\n{C.GRAY}⏳ Otomatis menjalankan mode {C.BRIGHT_CYAN}{mode_label}{C.GRAY} dalam {timeout_sec} detik jika tidak ada tombol ditekan...{C.RESET}")
     
     valid_choices = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
     if sys.platform == "win32":
@@ -126,14 +142,14 @@ def get_user_choice(timeout_sec=5):
                     print(f"{ch}\n")
                     return ch
             time.sleep(0.1)
-        print("1 (Auto-boot HYBRID)\n")
-        return "1"
+        print(f"{default_choice} (Auto-boot {mode_label})\n")
+        return default_choice
     else:
         try:
-            val = input(f"👉 Masukkan pilihan Anda [1-9] (default 1): ").strip()
-            return val if val in valid_choices else "1"
+            val = input(f"👉 Masukkan pilihan Anda [1-9] (default {default_choice}): ").strip()
+            return val if val in valid_choices else default_choice
         except Exception:
-            return "1"
+            return default_choice
 
 def main():
     clear_screen()

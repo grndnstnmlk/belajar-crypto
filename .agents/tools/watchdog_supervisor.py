@@ -139,8 +139,15 @@ class ServiceWatcher:
                     self.process.kill()
                 except Exception:
                     pass
-
         time.sleep(backoff)
+        if self.name == "Trading Desk Autopilot" and telegram_notifier:
+            try:
+                cur_mode = telegram_notifier.get_desk_mode().upper()
+                self.command = [sys.executable, "-u", os.path.join(TOOLS_DIR, "trading_desk.py"), "run", "--mode", cur_mode]
+                if cur_mode == "LONG_ONLY" or os.environ.get("DESK_LONG_ONLY", "0") == "1":
+                    self.command.append("--long-only")
+            except Exception:
+                pass
         success = self.start()
         if success:
             if telegram_notifier:
@@ -188,7 +195,7 @@ def run_supervisor():
         check_endpoint="/api/ws/status"
     )
 
-    desk_mode = "HYBRID"
+    desk_mode = "SWING"
     if telegram_notifier:
         try:
             desk_mode = telegram_notifier.get_desk_mode().upper()

@@ -2283,7 +2283,7 @@ def main():
             run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val, long_only=is_long_only_flag)
         else:
             cur_mode = telegram_notifier.get_desk_mode().upper()
-            sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode in ["HYBRID", "LONG_ONLY"] else max(15, args.interval * 60))
+            sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode in ["HYBRID", "LONG_ONLY"] else (120 if cur_mode == "SWING" else max(15, args.interval * 60)))
             lev_str = f" | Leverage: {lev_val}x" if lev_val else f" | Leverage: {'20x' if cur_mode == 'SCALP' else '5x'}"
             long_only_tag = " [LONG-ONLY]" if is_long_only_flag or cur_mode == "LONG_ONLY" else ""
             print(f"{C.BRIGHT_GREEN}🚀 Memulai Autonomous Trading Desk Daemon{C.RESET} ({C.BRIGHT_WHITE}Watchlist: {w_str} | Mode: {cur_mode}{long_only_tag}{lev_str} | Max Positions: {max_pos}{C.RESET})...")
@@ -2303,12 +2303,12 @@ def main():
                     run_trading_desk_cycle(args.user, is_demo, max_open_positions=max_pos, symbols=syms, leverage=lev_val, long_only=is_long_only_flag)
                     consecutive_errors = 0  # Reset error count on successful cycle completion
 
-                    cur_mode = "HYBRID"
+                    cur_mode = "SWING"
                     try:
                         cur_mode = telegram_notifier.get_desk_mode().upper()
                     except Exception:
                         pass
-                    sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode == "HYBRID" else max(15, args.interval * 60))
+                    sleep_sec = 15 if cur_mode == "SCALP" else (45 if cur_mode in ["HYBRID", "LONG_ONLY"] else (120 if cur_mode == "SWING" else max(15, args.interval * 60)))
                     
                     try:
                         print(f"  {C.GRAY}⏳ Pemindaian berikutnya dalam {sleep_sec} detik (Mode: {cur_mode})...{C.RESET}")

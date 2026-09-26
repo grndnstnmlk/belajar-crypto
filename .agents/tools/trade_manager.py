@@ -407,7 +407,11 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
         pass
 
     res = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=is_demo, user_email=user_email)
-    active_positions = [p for p in res if float(p.get("positionAmt", 0)) != 0] if res else []
+    if not isinstance(res, list):
+        print(f"[Trade Manager] ⚠️ Respon positionRisk tidak valid dari Binance ({type(res).__name__}: {res}). Melewati audit posisi tertutup demi mencegah phantom stop loss.")
+        return []
+
+    active_positions = [p for p in res if float(p.get("positionAmt", 0)) != 0]
     active_syms = {p["symbol"]: p for p in active_positions}
 
     # 1. Clean up positions that have been closed

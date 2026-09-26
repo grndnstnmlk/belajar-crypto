@@ -745,7 +745,27 @@ def get_market_eyes(symbol="BTC", bar="1H"):
     except Exception as e:
         pass
 
-    # 5. Institutional Confluence Score (0 - 100%)
+    # 5. Coin Micro Fear & Greed & Pump Pulse (CoinGecko-JEV Absorb)
+    coin_micro_fng_intel = None
+    pump_pulse_intel = None
+    try:
+        import coin_micro_sentiment
+        coin_micro_fng_intel = coin_micro_sentiment.get_coin_micro_fear_greed(base)
+        pump_pulse_intel = coin_micro_sentiment.get_pump_pulse_score(base)
+        if coin_micro_fng_intel:
+            fng_score = coin_micro_fng_intel.get("score", 50)
+            fng_class = coin_micro_fng_intel.get("classification", "NEUTRAL")
+            div_info = coin_micro_fng_intel.get("divergence", {})
+            print(f"Coin Micro F&G   : {fng_score}/100 [{fng_class}] | Div: {div_info.get('verdict')}")
+        if pump_pulse_intel:
+            pp = pump_pulse_intel.get("pump_pressure", 50)
+            dp = pump_pulse_intel.get("dump_pressure", 50)
+            p_verdict = pump_pulse_intel.get("pulse_verdict", "BALANCED_CHOP")
+            print(f"Pump Pulse Tape  : Pump {pp}% vs Dump {dp}% | Verdict: {p_verdict}")
+    except Exception:
+        pass
+
+    # 6. Institutional Confluence Score (0 - 100%)
     confluence_score = 50.0
     # Add Trend alignment (+15%)
     if "BULLISH" in bias:
@@ -797,6 +817,8 @@ def get_market_eyes(symbol="BTC", bar="1H"):
         "vwap": vwap_data,
         "funding_rate": funding_rate,
         "oi_archetype": oi_archetype_intel,
+        "coin_micro_fng": coin_micro_fng_intel,
+        "pump_pulse": pump_pulse_intel,
         "confluence_score": confluence_score,
         "grade": grade
     }
