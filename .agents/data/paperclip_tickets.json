@@ -96,10 +96,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-27 12:28:12",
-    "updated_at": "2026-09-27 12:28:43",
+    "updated_at": "2026-09-27 15:55:07",
     "payload": {
       "entry": 1.539,
       "sl": 1.4928,
@@ -209,7 +209,11 @@
       "authorized_at": "2026-09-27 12:28:43",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-27 15:55:07"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-27 12:28:12",
@@ -234,6 +238,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-27 15:55:07",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -452,10 +462,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-27 12:21:10",
-    "updated_at": "2026-09-27 12:25:07",
+    "updated_at": "2026-09-27 15:55:10",
     "payload": {
       "entry": 123.9953,
       "sl": 120.2754,
@@ -565,7 +575,13 @@
       "authorized_at": "2026-09-27 12:25:07",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$44.22 USDT)",
+      "realized_pnl": -44.215,
+      "net_pnl": -45.1149,
+      "closed_at": "2026-09-27 15:55:10"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-27 12:21:10",
@@ -590,6 +606,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-27 15:55:10",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$44.22 USDT) | PnL: $-44.22 USDT (Net: $-45.11)"
       }
     ]
   }
