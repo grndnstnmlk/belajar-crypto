@@ -98,11 +98,14 @@ except ImportError:
 # Execution Backend Switch: "BOTH" (Dual Binance + MT5), "MT5", or "BINANCE"
 EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
 
-# Curated High-Performing Crypto Assets on Binance Futures (High Win-Rate Ledger)
-DEFAULT_WATCHLIST = ["BTC", "BNB", "XRP", "SOL", "LINK", "SUI"]
+# Curated High-Performing Crypto Assets on Binance Futures (High Win-Rate Ledger & Volume Champions)
+DEFAULT_WATCHLIST = [
+    "BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "SUI", "LINK", "ADA", "AVAX",
+    "NEAR", "LTC", "UNI", "TAO", "ENA", "WLD", "RUNE", "FIL", "SAGA", "QNT",
+    "DASH", "DOT", "APT", "ARB", "OP"
+]
 BLACKLIST_COINS = {
-    "SOPH", "ZEC", "ADA", "DOGE", "AVAX", "PROM", "THE", "HOLO", "WLD", "UNI",
-    "SOXL", "SNXX", "SNDK", "TAO", "ETH", "ENA", "NEAR"
+    "SOPH", "ZEC", "PROM", "THE", "HOLO", "SOXL", "SNXX", "SNDK", "LUNA", "USTC"
 }
 
 try:
@@ -221,7 +224,7 @@ def get_asset_sweep_buffer(symbol):
     else:  # High beta / meme / sensitive: DOGE, ADA, SUI, XRP
         return 0.016  # 1.6% (absorbs stop hunt wicks)
 
-def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
+def get_dynamic_futures_watchlist(top_n=25, is_demo=True):
     """
     Dynamic Universe Screener:
     Uses Chainable Dynamic Pairlist Pipeline (6-Stage Institutional Filter) to select
@@ -231,12 +234,16 @@ def get_dynamic_futures_watchlist(top_n=12, is_demo=True):
         try:
             champions = pairlist_pipeline.get_active_dynamic_pairlist()
             if champions and len(champions) >= 4:
-                merged = ["BTC", "BNB", "XRP", "SOL"] + [c for c in champions if c not in ["BTC", "BNB", "XRP", "SOL"] and c not in BLACKLIST_COINS]
+                anchor = ["BTC", "ETH", "SOL", "BNB", "XRP"]
+                merged = [a for a in anchor if a in champions] + [c for c in champions if c not in anchor and c not in BLACKLIST_COINS]
+                for a in anchor:
+                    if a not in merged and a not in BLACKLIST_COINS:
+                        merged.append(a)
                 return merged[:top_n]
         except Exception:
             pass
 
-    anchor_coins = ["BTC", "BNB", "XRP", "SOL"]
+    anchor_coins = ["BTC", "ETH", "SOL", "BNB", "XRP"]
     stables = {"USDCUSDT", "FDUSDUSDT", "TUSDUSDT", "BUSDUSDT", "EURUSDT", "DAIUSDT", "AEURUSDT", "USDSUSDT"}
 
     try:
@@ -1079,7 +1086,7 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
     candidates = []
     # Parallel Multi-Pair Scanner using ThreadPoolExecutor (< 400ms scan)
     start_scan_t = time.time()
-    with concurrent.futures.ThreadPoolExecutor(max_workers=min(8, len(active_watchlist))) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(16, len(active_watchlist))) as executor:
         future_to_sym = {
             executor.submit(scan_symbol_swing_candidate, sym, active_symbols, genome, min_rr, max_risk_pct, rs_matrix): sym 
             for sym in active_watchlist
@@ -1163,7 +1170,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
     max_risk_pct = params.get("max_risk_per_trade_pct", 1.5)
     target_user, _, _, _, mode_label, _ = binance_client.resolve_credentials(user_email, is_demo)
 
-    active_watchlist = symbols if symbols else get_dynamic_futures_watchlist(top_n=15, is_demo=is_demo)
+    active_watchlist = symbols if symbols else get_dynamic_futures_watchlist(top_n=25, is_demo=is_demo)
     session_info = session_filter.get_current_session_info()
     is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
 

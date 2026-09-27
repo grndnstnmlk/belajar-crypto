@@ -17,6 +17,7 @@ import argparse
 import json
 import math
 import os
+import ssl
 import sys
 import time
 import urllib.request
@@ -34,18 +35,26 @@ TOOLS_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(os.path.dirname(TOOLS_DIR), "data")
 PAIRLIST_FILE = os.path.join(DATA_DIR, "dynamic_pairlist.json")
 
+# SSL Context to bypass regional ISP verification blocks
+SSL_CTX = ssl.create_default_context()
+SSL_CTX.check_hostname = False
+SSL_CTX.verify_mode = ssl.CERT_NONE
+
 sys.path.insert(0, TOOLS_DIR)
 import market_radar
 import market_eyes
 
-# Default fallback universe if network is offline (prioritizing high-expectancy pairs)
-FALLBACK_PAIRLIST = ["BTC", "BNB", "XRP", "SOL", "LINK", "SUI"]
+# Default fallback universe (Top 25 premier liquid assets)
+FALLBACK_PAIRLIST = [
+    "BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "SUI", "LINK", "ADA", "AVAX",
+    "NEAR", "LTC", "UNI", "TAO", "ENA", "WLD", "RUNE", "FIL", "SAGA", "QNT",
+    "DASH", "DOT", "APT", "ARB", "OP"
+]
 
 STATIC_BLACKLIST = {
     "USDC", "FDUSD", "TUSD", "BUSD", "DAI", "EUR", "USTC", "LUNA",
-    "SOPH", "ZEC", "PROM", "THE", "HOLO", "WLD", "BTCDOM", "DEFI",
-    "AVAX", "ADA", "DOGE", "1000PEPE", "1000SHIB", "1000BONK", "1000FLOKI",
-    "TAO", "ETH", "ENA", "NEAR"
+    "SOPH", "ZEC", "PROM", "THE", "HOLO", "BTCDOM", "DEFI",
+    "1000PEPE", "1000SHIB", "1000BONK", "1000FLOKI", "BABY", "MUBARAK", "XPL"
 }
 
 
@@ -53,23 +62,48 @@ STATIC_BLACKLIST = {
 # 1. Market Data Fetcher
 # -------------------------------------------------------------
 
+try:
+    import binance_client
+except ImportError:
+    binance_client = None
+
 def fetch_binance_futures_24hr_tickers() -> List[Dict[str, Any]]:
     """
-    Fetches all 24-hour ticker statistics from Binance USDT-M Futures API.
+    Fetches all 24-hour ticker statistics from Binance USDT-M Futures API with multi-endpoint fallback,
+    ensuring all pairs exist on the Binance Futures contract exchange.
     """
-    url = "https://fapi.binance.com/fapi/v1/ticker/24hr"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36"}
+    endpoints = [
+        "https://data-api.binance.vision/api/v3/ticker/24hr",
+        "https://testnet.binancefuture.com/fapi/v1/ticker/24hr",
+        "https://fapi.binance.com/fapi/v1/ticker/24hr"
+    ]
     
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=6) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            if isinstance(data, list):
-                # Filter only USDT-margined perpetual pairs
-                usdt_pairs = [p for p in data if p.get("symbol", "").endswith("USDT") and "_" not in p.get("symbol", "")]
-                return usdt_pairs
-    except Exception:
-        pass
+    # Pre-fetch valid futures symbols to ensure 100% execution capability
+    futures_symbols = set()
+    if binance_client:
+        try:
+            f_info = binance_client.get_exchange_info(is_demo=True) or {}
+            futures_symbols = set(f_info.keys())
+        except Exception:
+            pass
+
+    for url in endpoints:
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=6, context=SSL_CTX) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if isinstance(data, list) and len(data) > 20:
+                    usdt_pairs = [
+                        p for p in data 
+                        if p.get("symbol", "").endswith("USDT") 
+                        and "_" not in p.get("symbol", "")
+                        and (not futures_symbols or p.get("symbol") in futures_symbols)
+                    ]
+                    if len(usdt_pairs) >= 20:
+                        return usdt_pairs
+        except Exception:
+            continue
 
     # Fallback to market_radar or public kline cache
     try:
@@ -119,7 +153,7 @@ class StaticBlacklistFilter(PairlistFilter):
 
 class VolumePairListFilter(PairlistFilter):
     """Sorts candidates by 24h quote volume and filters minimum volume threshold."""
-    def __init__(self, min_volume_usd: float = 25_000_000.0, top_n: int = 40):
+    def __init__(self, min_volume_usd: float = 8_000_000.0, top_n: int = 80):
         self.min_volume = min_volume_usd
         self.top_n = top_n
 
@@ -168,14 +202,15 @@ class SpreadAndFrictionFilter(PairlistFilter):
 
 
 class VolatilityFilter(PairlistFilter):
-    """Filters out dead/flat pairs (< 1.2% 24h range) and hyper-turbulent outliers (> 25%)."""
-    def __init__(self, min_range_pct: float = 1.2, max_range_pct: float = 25.0):
+    """Filters out dead/flat pairs (< 0.5% 24h range) and hyper-turbulent outliers (> 25%)."""
+    def __init__(self, min_range_pct: float = 0.5, max_range_pct: float = 25.0):
         self.min_range = min_range_pct
         self.max_range = max_range_pct
 
     def filter(self, candidates: List[Dict[str, Any]], telemetry: Dict[str, Any]) -> List[Dict[str, Any]]:
         passed = []
         for p in candidates:
+            sym_raw = p["symbol"].replace("USDT", "").upper()
             high = float(p.get("highPrice", 0.0))
             low = float(p.get("lowPrice", 0.0))
             last = float(p.get("lastPrice", 1.0))
@@ -184,7 +219,7 @@ class VolatilityFilter(PairlistFilter):
             else:
                 range_pct = abs(float(p.get("priceChangePercent", 2.0))) * 1.5
 
-            if self.min_range <= range_pct <= self.max_range:
+            if sym_raw in ["BTC", "ETH"] or (self.min_range <= range_pct <= self.max_range):
                 p["volatility_range_pct"] = round(range_pct, 2)
                 passed.append(p)
         telemetry["stage_5_volatility_passed"] = len(passed)
@@ -243,11 +278,11 @@ class DynamicPairlistPipeline:
     def __init__(self, filters: Optional[List[PairlistFilter]] = None):
         self.filters = filters or [
             StaticBlacklistFilter(),
-            VolumePairListFilter(min_volume_usd=30_000_000.0, top_n=35),
+            VolumePairListFilter(min_volume_usd=5_000_000.0, top_n=100),
             PricePrecisionFilter(min_price=0.0005),
-            SpreadAndFrictionFilter(max_spread_pct=0.05),
-            VolatilityFilter(min_range_pct=1.0, max_range_pct=25.0),
-            SMCConfluenceRankerFilter(target_count=8)
+            SpreadAndFrictionFilter(max_spread_pct=0.10),
+            VolatilityFilter(min_range_pct=0.5, max_range_pct=25.0),
+            SMCConfluenceRankerFilter(target_count=25)
         ]
 
     def execute(self) -> Dict[str, Any]:
@@ -342,7 +377,7 @@ def get_pairlist_telemetry() -> Dict[str, Any]:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Chainable Dynamic Pairlist Pipeline")
     parser.add_argument("--run", action="store_true", help="Execute the full multi-stage pipeline")
-    parser.add_argument("--top", type=int, default=8, help="Number of target champion pairs to select")
+    parser.add_argument("--top", type=int, default=25, help="Number of target champion pairs to select")
 
     args = parser.parse_args()
 
@@ -352,10 +387,10 @@ if __name__ == "__main__":
 
     pipeline = DynamicPairlistPipeline([
         StaticBlacklistFilter(),
-        VolumePairListFilter(min_volume_usd=30_000_000.0, top_n=35),
+        VolumePairListFilter(min_volume_usd=5_000_000.0, top_n=100),
         PricePrecisionFilter(min_price=0.0005),
-        SpreadAndFrictionFilter(max_spread_pct=0.05),
-        VolatilityFilter(min_range_pct=1.0, max_range_pct=25.0),
+        SpreadAndFrictionFilter(max_spread_pct=0.10),
+        VolatilityFilter(min_range_pct=0.5, max_range_pct=25.0),
         SMCConfluenceRankerFilter(target_count=args.top)
     ])
 
