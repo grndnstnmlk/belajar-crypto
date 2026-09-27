@@ -52,9 +52,7 @@ FALLBACK_PAIRLIST = [
 ]
 
 STATIC_BLACKLIST = {
-    "USDC", "FDUSD", "TUSD", "BUSD", "DAI", "EUR", "USTC", "LUNA",
-    "SOPH", "ZEC", "PROM", "THE", "HOLO", "BTCDOM", "DEFI",
-    "1000PEPE", "1000SHIB", "1000BONK", "1000FLOKI", "BABY", "MUBARAK", "XPL"
+    "USDC", "FDUSD", "TUSD", "BUSD", "DAI", "EUR"
 }
 
 
@@ -145,7 +143,7 @@ class StaticBlacklistFilter(PairlistFilter):
         passed = []
         for c in candidates:
             sym = c["symbol"].replace("USDT", "").upper()
-            if sym not in self.blacklist and not sym.startswith("1000") and not sym.endswith("UP") and not sym.endswith("DOWN"):
+            if sym not in self.blacklist and not sym.endswith("UP") and not sym.endswith("DOWN"):
                 passed.append(c)
         telemetry["stage_1_blacklist_passed"] = len(passed)
         return passed

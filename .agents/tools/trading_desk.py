@@ -104,17 +104,21 @@ DEFAULT_WATCHLIST = [
     "NEAR", "LTC", "UNI", "TAO", "ENA", "WLD", "RUNE", "FIL", "SAGA", "QNT",
     "DASH", "DOT", "APT", "ARB", "OP"
 ]
-BLACKLIST_COINS = {
-    "SOPH", "ZEC", "PROM", "THE", "HOLO", "SOXL", "SNXX", "SNDK", "LUNA", "USTC"
-}
+# All coins returned - no arbitrary blacklists; governed by Coin Personality Playbook
+BLACKLIST_COINS = set()
 
 try:
     import pairlist_pipeline
 except ImportError:
     pairlist_pipeline = None
 
+try:
+    import coin_personality_playbook
+except ImportError:
+    coin_personality_playbook = None
+
 def get_effective_watchlist() -> list:
-    """Returns dynamic curated pairlist from pairlist_pipeline, strictly filtering out blacklisted coins."""
+    """Returns dynamic curated pairlist from pairlist_pipeline with coin personality tactical profiles."""
     pairs = DEFAULT_WATCHLIST
     if pairlist_pipeline:
         try:
@@ -123,9 +127,7 @@ def get_effective_watchlist() -> list:
                 pairs = dyn_pairs
         except Exception:
             pass
-    # Strictly filter out ANY blacklisted coin
-    clean_watchlist = [p for p in pairs if p.upper() not in BLACKLIST_COINS]
-    return clean_watchlist if clean_watchlist else DEFAULT_WATCHLIST
+    return pairs if pairs else DEFAULT_WATCHLIST
 
 PID_FILE = os.path.join(DATA_DIR, "trading_desk.pid")
 
@@ -210,10 +212,18 @@ def load_genome():
 def get_asset_sweep_buffer(symbol):
     """
     Module 03 & Smart Money Concepts Anti-Liquidity-Hunt Buffer.
-    Major coins (BTC/ETH/BNB) have deeper orderbooks -> 0.8% - 1.0% buffer.
-    High-beta Altcoins (DOGE, ADA, AVAX, SUI, LINK, SOL, XRP) experience 0.8% - 1.2% liquidity sweep wicks.
-    A 1.4% - 1.6% buffer protects positions from premature stop hunts before true expansion.
+    Tailored dynamically using Coin Personality Playbook:
+    - Major anchors (BTC/ETH/BNB): 0.8% - 1.0% buffer
+    - High-beta Altcoins (SOL/NEAR/AVAX/ADA): 1.3% - 1.6% buffer
+    - Wick Raiders & Memes (XRP/DOGE/WLD/THE/SOPH/PEPE): 1.8% - 2.5% buffer
     """
+    if coin_personality_playbook:
+        try:
+            pb = coin_personality_playbook.get_coin_playbook(symbol)
+            return float(pb.get("wick_buffer_pct", 0.015))
+        except Exception:
+            pass
+
     sym = symbol.upper()
     if "BTC" in sym:
         return 0.008  # 0.8%
@@ -221,8 +231,8 @@ def get_asset_sweep_buffer(symbol):
         return 0.010  # 1.0%
     elif any(k in sym for k in ["SOL", "LINK", "AVAX"]):
         return 0.013  # 1.3%
-    else:  # High beta / meme / sensitive: DOGE, ADA, SUI, XRP
-        return 0.016  # 1.6% (absorbs stop hunt wicks)
+    else:  # High beta / meme / sensitive: DOGE, ADA, SUI, XRP, THE, SOPH
+        return 0.018  # 1.8% (absorbs stop hunt wicks)
 
 def get_dynamic_futures_watchlist(top_n=25, is_demo=True):
     """
@@ -235,9 +245,9 @@ def get_dynamic_futures_watchlist(top_n=25, is_demo=True):
             champions = pairlist_pipeline.get_active_dynamic_pairlist()
             if champions and len(champions) >= 4:
                 anchor = ["BTC", "ETH", "SOL", "BNB", "XRP"]
-                merged = [a for a in anchor if a in champions] + [c for c in champions if c not in anchor and c not in BLACKLIST_COINS]
+                merged = [a for a in anchor if a in champions] + [c for c in champions if c not in anchor]
                 for a in anchor:
-                    if a not in merged and a not in BLACKLIST_COINS:
+                    if a not in merged:
                         merged.append(a)
                 return merged[:top_n]
         except Exception:
@@ -1095,7 +1105,15 @@ def scan_swing_candidates(active_watchlist, active_symbols, genome, min_rr, max_
             try:
                 cand = future.result()
                 if cand:
-                    print(f"   🎯 [PARALLEL SCAN DETECTED]: {cand['symbol']} ({cand['side']}) | {cand.get('strategy_name', 'SMC Setup')} | R:R 1:{cand['rr']:.2f}")
+                    if coin_personality_playbook:
+                        try:
+                            cand = coin_personality_playbook.apply_coin_playbook_to_setup(cand)
+                        except Exception:
+                            pass
+                    pb_note = ""
+                    if cand.get("coin_playbook"):
+                        pb_note = f" | Playbook: {cand['coin_playbook'].get('archetype', '')}"
+                    print(f"   🎯 [PARALLEL SCAN DETECTED]: {cand['symbol']} ({cand['side']}) | {cand.get('strategy_name', 'SMC Setup')} | R:R 1:{cand['rr']:.2f}{pb_note}")
                     candidates.append(cand)
             except Exception:
                 pass
@@ -1718,6 +1736,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     print(f" * 🧠 Cognitive Brain: {cog_review.get('verdict')} ({cog_review.get('confidence')}%) via {cog_review.get('provider')}")
                     if cog_review.get("thought_process"):
                         print(f"   Inner Thought  : {cog_review['thought_process']}")
+                    if best.get("coin_playbook"):
+                        print(f"   🪙 Tatacara Menang : {best['coin_playbook'].get('tatacara_menang')}")
                     if cog_review.get("verdict") == "VETO":
                         print(f"   🛑 [COGNITIVE VETO] Otak AI Lokal membatalkan entri: {cog_review.get('reason')}")
                         continue

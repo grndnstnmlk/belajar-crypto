@@ -198,6 +198,14 @@ def vet_trade_setup(
     except Exception:
         pass
 
+    playbook_directive = None
+    try:
+        import coin_personality_playbook
+        pb = coin_personality_playbook.get_coin_playbook(symbol)
+        playbook_directive = pb.get("winning_directives")
+    except Exception:
+        pass
+
     return {
         "engine": "quant_reflex_fallback",
         "symbol": symbol,
@@ -206,6 +214,7 @@ def vet_trade_setup(
         "confidence": conf,
         "is_fomo": is_fomo,
         "jev_summary": jev_summary,
+        "playbook_directive": playbook_directive,
         "raw_result": None,
         "latency_ms": round(latency_ms, 2),
         "status": "fallback"

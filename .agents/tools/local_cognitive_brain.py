@@ -340,8 +340,13 @@ def compile_cognitive_perception(setup: Dict[str, Any], market_context: Optional
     compass_code = compass.get("regime_code", "NEUTRAL")
     compass_title = compass.get("title", "Rotasi Normal")
 
-    # Memory context
-    memory = get_episodic_memory_context(sym)
+    # Playbook & Tactical Habit context
+    playbook_prompt = ""
+    try:
+        import coin_personality_playbook
+        playbook_prompt = coin_personality_playbook.compile_playbook_ai_prompt(sym)
+    except Exception:
+        pass
 
     prompt = f"""[MARKET SENSORY PERCEPTION & EPISODIC MEMORY]
 Symbol: {sym} | Proposed Side: {side} | Strategy: {strategy}
@@ -360,9 +365,12 @@ Entry: {entry} | Invalidation (SL): {sl} | Target (TP): {tp} | R:R: 1:{rr:.2f}
 - Wick Risk: {memory.get('wick_risk', 'MODERATE')}
 - Historical Win Rate on {sym}: {memory.get('historical_win_rate', 'N/A')}%
 
+3. COIN HABITS & TACTICAL WINNING PLAYBOOK (Rules of Engagement):
+{playbook_prompt}
+
 [COGNITIVE TASK]
 Conduct an internal dialectical debate (Bull Thesis vs Bear Risk/Trap vs Risk Officer).
-Are we getting trapped by a fakeout or liquidity raid? Does this trade strictly comply with capital preservation?
+Does this setup strictly adhere to the Coin's Winning Playbook? Are we avoiding the asset's known traps?
 <think>Keep inner reasoning strictly under 3 sentences for ultra-fast latency.</think>
 Return ONLY valid JSON matching this schema:
 {{
@@ -372,7 +380,7 @@ Return ONLY valid JSON matching this schema:
   "verdict": "APPROVE" | "ADJUST_RISK" | "WAIT" | "VETO",
   "confidence": <integer 0-100>,
   "risk_scale": <float 0.0 to 1.0>,
-  "reason": "<Final rationale for the trading desk>"
+  "reason": "<Final rationale for the trading desk incorporating coin playbook directives>"
 }}"""
     return prompt
 
@@ -413,12 +421,23 @@ def _execute_quant_reflex_fallback(setup: Dict[str, Any], ctx: Dict[str, Any], e
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
 
-    # Pure fast in-memory heuristic: evaluates R:R and setup parameters in < 0.1ms
+    # Pure fast in-memory heuristic: evaluates R:R, setup parameters, and coin personality playbook in < 0.1ms
     verdict = "APPROVE" if rr >= 1.5 else "ADJUST_RISK"
     scale = 1.0 if rr >= 2.0 else 0.75
+
+    pb_directive = ""
+    try:
+        import coin_personality_playbook
+        pb = coin_personality_playbook.get_coin_playbook(sym)
+        haircut = float(pb.get("risk_haircut_mult", 1.0))
+        scale = min(scale, haircut)
+        pb_directive = pb.get("winning_directives", "")
+    except Exception:
+        pass
+
     conf = min(90, int(50 + rr * 12))
-    reason = f"Fast Quant Reflex: Setup R:R 1:{rr:.2f} satisfies mathematical expectancy criteria."
-    thought = f"Autonomous fast reflex verified {sym} {side} (R:R 1:{rr:.2f}). Clearance granted."
+    reason = f"Fast Quant Reflex: Setup R:R 1:{rr:.2f} satisfies mathematical expectancy criteria. {pb_directive}"
+    thought = f"Autonomous fast reflex verified {sym} {side} (R:R 1:{rr:.2f}). Playbook scale: {scale:.2f}x. Clearance granted."
     bull_arg = f"Favorable risk-to-reward ratio 1:{rr:.2f} with defined structural stop-loss."
     bear_arg = "Standard intra-day market volatility and execution slippage."
 

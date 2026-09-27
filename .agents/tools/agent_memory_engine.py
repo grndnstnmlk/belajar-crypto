@@ -300,6 +300,60 @@ DEFAULT_COIN_PROFILES = {
         "false_breakout_bias": "HIGH",
         "optimal_setups": ["Sonic Upgrade Rebrand Momentum", "Wyckoff Spring at Range Low"],
         "notes": "High retail interest. Wide stop loss required during volatility spikes."
+    },
+    "PROMUSDT": {
+        "symbol": "PROMUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "VERY_HIGH",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "VERY_HIGH",
+        "optimal_setups": ["POC Reversion Scalp", "Strict +0.5R BE Lock"],
+        "notes": "Low-float whale play. Scalp only with 0.6x risk haircut; lock BE immediately at +0.5R."
+    },
+    "HOLOUSDT": {
+        "symbol": "HOLOUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "MODERATE_HIGH",
+        "funding_sensitivity": "MODERATE",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["EMA 20/50 Momentum Breakout", "Range High Quick Exit"],
+        "notes": "High supply token. Enter with volume confirmation only."
+    },
+    "LUNAUSDT": {
+        "symbol": "LUNAUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "VERY_HIGH",
+        "funding_sensitivity": "VERY_HIGH",
+        "false_breakout_bias": "VERY_HIGH",
+        "optimal_setups": ["A+ Confluence Only", "Fast Micro-BE Execution"],
+        "notes": "High speculative asset. Scale risk to 0.5x, trade only top tier A+ setups."
+    },
+    "USTCUSDT": {
+        "symbol": "USTCUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "VERY_HIGH",
+        "funding_sensitivity": "VERY_HIGH",
+        "false_breakout_bias": "VERY_HIGH",
+        "optimal_setups": ["Quick Scalp", "Tight Trailing Stop"],
+        "notes": "De-pegged speculative token. Treat as fast scalp with 0.5x risk."
+    },
+    "1000PEPEUSDT": {
+        "symbol": "1000PEPEUSDT",
+        "volatility_regime": "VERY_HIGH",
+        "wick_risk_rating": "VERY_HIGH",
+        "funding_sensitivity": "VERY_HIGH",
+        "false_breakout_bias": "VERY_HIGH",
+        "optimal_setups": ["Volume Surge Momentum", "Liquidity Cluster Sweep Dip"],
+        "notes": "Meme volume powerhouse. Enforce 2.2% stop buffer and 0.7x risk scaling."
+    },
+    "1000SHIBUSDT": {
+        "symbol": "1000SHIBUSDT",
+        "volatility_regime": "HIGH",
+        "wick_risk_rating": "HIGH",
+        "funding_sensitivity": "HIGH",
+        "false_breakout_bias": "HIGH",
+        "optimal_setups": ["Meme Cycle Rotation", "Impulse Exit at +1.75R"],
+        "notes": "Secondary meme token. Take quick profit on first impulse; avoid holding during bleeds."
     }
 }
 
