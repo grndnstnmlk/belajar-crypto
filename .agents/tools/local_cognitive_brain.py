@@ -132,10 +132,10 @@ def detect_gpu_hardware_profile() -> Dict[str, Any]:
                 elif vram_gb >= 4.0:  # e.g. GTX 1660 (6GB)
                     profile["tier"] = "EFFICIENCY_TURBO (GTX 1660 / 6GB VRAM)"
                     profile["recommended_models"] = [
-                        "deepseek-r1:8b",     # Fits with 1536 ctx
-                        "deepseek-r1:1.5b",   # Ultra-fast < 1s
+                        "deepseek-r1:1.5b",   # Ultra-fast < 1s (1.1GB fits completely in 6GB VRAM)
                         "qwen2.5:3b",
                         "llama3.2:3b",
+                        "deepseek-r1:8b",     # 8B fallback
                         "qwen2.5:1.5b"
                     ]
                     profile["num_ctx"] = 1536
@@ -222,15 +222,15 @@ def query_local_llm(
     model: str = "deepseek-r1:8b",
     endpoint: str = "http://localhost:11434/v1",
     temperature: float = 0.2,
-    timeout: float = 12.0,
+    timeout: float = 50.0,
     response_json: bool = True
 ) -> Optional[str]:
     """
     Sends a reasoning query to the local LLM with GPU-calibrated options and keep_alive.
     """
     hw = detect_gpu_hardware_profile()
-    num_ctx = hw.get("num_ctx", 2048)
-    num_predict = hw.get("num_predict", 300)
+    num_ctx = hw.get("num_ctx", 1024)
+    num_predict = hw.get("num_predict", 200)
     keep_alive = hw.get("keep_alive", "60m")
 
     url = endpoint.rstrip("/") + "/chat/completions"
@@ -259,10 +259,23 @@ def query_local_llm(
         req = urllib.request.Request(url, data=data, headers=HEADERS, method="POST")
         with urllib.request.urlopen(req, timeout=timeout, context=SSL_CTX) as response:
             res_json = json.loads(response.read().decode("utf-8"))
+            if "error" in res_json:
+                print(f"[LocalBrain] LLM returned error: {res_json['error']}")
+                return None
             choices = res_json.get("choices", [])
             if choices:
-                return choices[0].get("message", {}).get("content", "").strip()
-    except Exception:
+                msg = choices[0].get("message", {})
+                content = msg.get("content", "").strip()
+                if not content:
+                    content = msg.get("reasoning_content", "").strip()
+                return content if content else None
+    except Exception as e:
+        err_msg = str(e)
+        if "timed out" in err_msg.lower():
+            # Gracefully silence periodic reflection socket timeout to keep terminal clean
+            pass
+        else:
+            print(f"[LocalBrain] Query failed: {err_msg}")
         return None
     return None
 
@@ -473,7 +486,7 @@ def _execute_llm_cognitive_review(setup: Dict[str, Any], market_context: Optiona
                 model=model,
                 endpoint=endpoint,
                 temperature=0.2,
-                timeout=12.0,
+                timeout=25.0,
                 response_json=True
             )
             if raw_response:

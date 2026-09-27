@@ -211,6 +211,23 @@ def send_telegram_msg(text, parse_mode="HTML", chat_id_override=None, reply_mark
             res_json = json.loads(res_body)
             _save_dedup_response(msg_hash, res_json)
             return res_json
+    except urllib.error.HTTPError as he:
+        print(f"[Telegram Notifier] HTTP error sending message: {he}")
+        # If HTML entity parse error (HTTP 400), automatically fallback to plain text
+        if parse_mode and he.code == 400:
+            try:
+                payload_plain = dict(payload)
+                payload_plain.pop("parse_mode", None)
+                data_plain = urllib.parse.urlencode(payload_plain).encode("utf-8")
+                req_plain = urllib.request.Request(url, data=data_plain, headers=HEADERS, method="POST")
+                with urllib.request.urlopen(req_plain, timeout=10, context=SSL_CTX) as response:
+                    res_body = response.read().decode("utf-8")
+                    res_json = json.loads(res_body)
+                    _save_dedup_response(msg_hash, res_json)
+                    return res_json
+            except Exception as e2:
+                print(f"[Telegram Notifier] Plaintext fallback failed: {e2}")
+        return None
     except Exception as e:
         print(f"[Telegram Notifier] Failed to send message: {e}")
         return None
@@ -1198,15 +1215,37 @@ class TelegramCommandListener(threading.Thread):
                     pass
 
                 answer = ai_risk_officer.answer_trader_query(query, ctx)
+                if not answer:
+                    answer = "Maaf, AI Officer sedang menyelaraskan data pasar. Silakan coba kembali."
+
+                # Clean any stray <think> tags from reasoning models
+                if "<think>" in answer and "</think>" in answer:
+                    answer = answer.split("</think>")[-1].strip()
+                elif "<think>" in answer:
+                    answer = answer.split("<think>")[-1].strip()
+
+                safe_answer = html.escape(answer)
+
                 reply = (
                     f"🤖 <b>AI QUANT OFFICER BRIEFING</b>\n"
                     f"━━━━━━━━━━━━━━━━━━\n"
                     f"❓ <i>\"{html.escape(query)}\"</i>\n\n"
-                    f"{answer}\n"
+                    f"{safe_answer}\n"
                     f"━━━━━━━━━━━━━━━━━━\n"
                     f"💡 <i>Akademi Crypto AI Co-Pilot</i>"
                 )
-                send_telegram_msg(reply, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+                res = send_telegram_msg(reply, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
+                if not res or not res.get("ok"):
+                    # Fallback plaintext send if HTML parsing failed
+                    plain_reply = (
+                        f"🤖 AI QUANT OFFICER BRIEFING\n"
+                        f"━━━━━━━━━━━━━━━━━━\n"
+                        f"❓ \"{query}\"\n\n"
+                        f"{answer}\n"
+                        f"━━━━━━━━━━━━━━━━━━\n"
+                        f"💡 Akademi Crypto AI Co-Pilot"
+                    )
+                    send_telegram_msg(plain_reply, parse_mode=None, chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
             except Exception as e:
                 send_telegram_msg(f"⚠️ Gagal mendapatkan jawaban AI: {e}", chat_id_override=chat_id)
 

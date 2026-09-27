@@ -12,6 +12,11 @@ echo.
 echo Membuka browser ke http://localhost:5173 ...
 start http://localhost:5173
 
+where node >nul 2>&1
+if errorlevel 1 set "PATH=%PATH%;C:\Program Files\nodejs"
+where npm >nul 2>&1
+if errorlevel 1 set "PATH=%PATH%;C:\Program Files\nodejs"
+
 cd frontend
 npm run dev
 

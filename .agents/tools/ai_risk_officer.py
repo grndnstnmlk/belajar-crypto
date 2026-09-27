@@ -107,13 +107,15 @@ def call_llm(prompt, system_prompt=None, temperature=0.2, response_json=False):
     if provider == "local_llm":
         try:
             import local_cognitive_brain
+            # Allow up to 50s timeout for local GPU/CPU inference on conversational queries
+            local_timeout = 50.0 if not response_json else 15.0
             return local_cognitive_brain.query_local_llm(
                 prompt=prompt,
                 system_prompt=system_prompt,
                 model=creds.get("model", "deepseek-r1:8b"),
                 endpoint=creds.get("endpoint", "http://localhost:11434/v1"),
                 temperature=temperature,
-                timeout=8.0,
+                timeout=local_timeout,
                 response_json=response_json
             )
         except Exception:
@@ -747,6 +749,13 @@ def answer_trader_query(user_query, portfolio_context=None):
     provider = creds.get("provider", "fallback_quant")
 
     ctx = portfolio_context or {}
+    bal = float(ctx.get("balance_usd", 0.0))
+    positions = ctx.get("positions", [])
+    pos_count = len(positions)
+    mode = str(ctx.get("mode", "HYBRID"))
+    news_info = ctx.get("news_shield", {})
+    news = news_info.get("status", "NORMAL") if isinstance(news_info, dict) else str(news_info)
+
     # OpenViking Tiered Context Extraction (L1)
     memory_context_text = ""
     try:
@@ -768,7 +777,7 @@ def answer_trader_query(user_query, portfolio_context=None):
 - Active Positions: {pos_count}
 - Operating Mode: {mode} (Big-Profit Focus)
 - Macro News Shield: {news}
-- Active Positions Detail: {json.dumps(ctx.get('positions', []))}
+- Active Positions Detail: {json.dumps(positions)}
 
 {memory_context_text}
 
@@ -776,25 +785,40 @@ def answer_trader_query(user_query, portfolio_context=None):
 "{user_query}"
 
 [INSTRUCTIONS]
-Answer the user concisely and professionally in Indonesian as the Trading Desk AI Officer.
-Cite real portfolio metrics if relevant. Keep answer under 120 words.
+<think>Keep inner reasoning strictly under 2 sentences for ultra-fast latency.</think>
+Answer the user concisely and professionally in Indonesian as the Senior Trading Desk AI Officer.
+Cite real portfolio metrics if relevant. Keep answer under 100 words.
+Do not output raw <think> tags, markdown headers, or raw HTML tags.
 """
-        sys_prompt = "You are the AI Senior Quant Officer of the user's autonomous Binance Trading Desk (Akademi Crypto)."
+        sys_prompt = "You are the AI Senior Quant Officer of the user's autonomous Binance Trading Desk (Akademi Crypto). Always answer in clear, concise, and professional Indonesian."
         resp = call_llm(prompt, system_prompt=sys_prompt, temperature=0.3)
         if resp:
-            return resp.strip()
+            # Clean reasoning <think> tags from models like DeepSeek-R1
+            cleaned = resp.strip()
+            if "<think>" in cleaned and "</think>" in cleaned:
+                cleaned = cleaned.split("</think>")[-1].strip()
+            elif "<think>" in cleaned:
+                cleaned = cleaned.split("<think>")[-1].strip()
+            if cleaned:
+                return cleaned
 
-    # Heuristic response if LLM offline
+    # Heuristic response if LLM offline or timed out
     lower_q = user_query.lower()
     if "saldo" in lower_q or "balance" in lower_q:
         return f"💰 Saldo equity Trading Desk saat ini adalah ${bal:,.2f} USDT dengan {pos_count} posisi aktif berjalan."
     elif "status" in lower_q or "mode" in lower_q:
         return f"🤖 Trading desk beroperasi dalam Mode {mode} dengan News Shield status '{news}'. Autopilot aktif memindai setup high-confluence."
     elif "posisi" in lower_q or "position" in lower_q:
-        if not ctx.get("positions"):
+        if not positions:
             return "Saat ini tidak ada posisi terbuka di market. Seluruh slot kas aman."
-        pos_str = ", ".join([f"{p['symbol']} ({p['side']} PnL: ${float(p.get('pnl_usd', 0)):+.2f})" for p in ctx.get("positions", [])])
+        pos_str = ", ".join([f"{p.get('symbol', 'UNKNOWN')} ({p.get('side', 'LONG')} PnL: ${float(p.get('pnl_usd', p.get('unRealizedProfit', 0))):+.2f})" for p in positions])
         return f"Posisi aktif saat ini ({pos_count}): {pos_str}."
+
+    # General smart quant fallback
+    return (
+        f"Kondisi pasar saat ini terpantau stabil. Saldo equity: ${bal:,.2f} USDT ({pos_count} posisi aktif). "
+        f"Mode operasi: {mode}, News Shield: {news}. Sistem terus memantau setup SMC & Order Flow sesuai kurikulum Akademi Crypto."
+    )
 def fetch_klines_for_sentinel(symbol, interval="15m", limit=20):
     """
     Fetches recent 15m or 5m klines from Binance Vision to evaluate price action micro-exhaustion.
