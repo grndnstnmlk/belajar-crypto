@@ -33,6 +33,26 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
 # WIB is UTC+7
 WIB = timezone(timedelta(hours=7))
 
+def is_aggressive_mode_enabled() -> bool:
+    """
+    Checks if aggressive execution mode is enabled in desk_state.json or DESK_AGGRESSIVE env var.
+    In aggressive mode, confluence gating thresholds are relaxed by 10-15% during
+    low-liquidity dead zones to capitalize on opportunistic micro-swings and scalps.
+    """
+    if os.environ.get("DESK_AGGRESSIVE", "0").lower() in ("1", "true", "yes"):
+        return True
+    try:
+        tools_dir = os.path.dirname(__file__)
+        data_dir = os.path.join(os.path.dirname(tools_dir), "data")
+        state_file = os.path.join(data_dir, "desk_state.json")
+        if os.path.exists(state_file):
+            with open(state_file, "r", encoding="utf-8") as f:
+                state = json.load(f)
+                return bool(state.get("aggressive", False))
+    except Exception:
+        pass
+    return False
+
 def get_current_session_info(dt=None):
     """
     Returns current institutional trading session details in WIB and UTC.
@@ -79,11 +99,12 @@ def get_current_session_info(dt=None):
         rationale = "Range-bound consolidation & liquidity engineering. Strict Grade A filter required."
         high_liquidity = False
     elif is_dead_zone:
-        session_name = "⚠️ LOW-LIQUIDITY DEAD ZONE (Late NY / Asia Pre-Market)"
+        is_aggr = is_aggressive_mode_enabled()
+        session_name = "⚠️ LOW-LIQUIDITY DEAD ZONE (Late NY / Asia Pre-Market)" + (" [⚡ AGGRESSIVE]" if is_aggr else "")
         session_code = "DEAD_ZONE"
-        bonus_score = 3
-        min_threshold = 90  # Strictly block low-conviction noise during dead zone
-        rationale = "Thin order books, wider spreads, and high fakeout wick risk. Only 90%+ A+ setups permitted."
+        bonus_score = 5 if is_aggr else 3
+        min_threshold = 65 if is_aggr else 90  # Relaxed to 65% in aggressive mode
+        rationale = "Opportunistic execution enabled for B+/A setups in Dead Zone (Aggressive Mode)." if is_aggr else "Thin order books, wider spreads, and high fakeout wick risk. Only 90%+ A+ setups permitted."
         high_liquidity = False
     else:
         session_name = "🌐 INTER-SESSION DRIFT (Transition Window)"
@@ -207,8 +228,19 @@ def get_adaptive_threshold(setup: dict, session_info: dict) -> Tuple[int, str]:
     archetype_info = classify_strategy_archetype(setup)
     archetype = archetype_info["archetype"]
     session_code = session_info.get("session_code", "TRANSITION")
+    is_aggr = is_aggressive_mode_enabled()
 
     if session_code == "DEAD_ZONE":
+        if is_aggr:
+            if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+                return 60, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} allowed in Dead Zone at Grade B+ (60%)"
+            elif archetype == "PULLBACK_STRUCTURE":
+                return 65, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} key-level retest allowed at 65% in Dead Zone"
+            elif archetype == "BREAKOUT_MOMENTUM":
+                return 72, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} momentum breakout allowed at 72% in Dead Zone"
+            else:
+                return 65, f"Strategy-Adaptive [⚡ Aggressive]: General setups allowed at 65% in Dead Zone"
+
         if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
             # Range-bound dead zone favors mean reversion and boundary stop-hunts
             return 75, f"Strategy-Adaptive: {archetype_info['name']} allowed in Dead Zone at Grade A (75%)"
@@ -221,6 +253,14 @@ def get_adaptive_threshold(setup: dict, session_info: dict) -> Tuple[int, str]:
             return 80, f"Strategy-Adaptive: General setups require Grade A (80%) in Dead Zone"
 
     elif session_code == "ASIA":
+        if is_aggr:
+            if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+                return 65, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} optimal for Asian Range (65%)"
+            elif archetype == "BREAKOUT_MOMENTUM":
+                return 75, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} requires 75% during Asian consolidation"
+            else:
+                return 70, f"Strategy-Adaptive [⚡ Aggressive]: Asian session aggressive threshold (70%)"
+
         if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
             return 75, f"Strategy-Adaptive: {archetype_info['name']} optimal for Asian Range (75%)"
         elif archetype == "BREAKOUT_MOMENTUM":

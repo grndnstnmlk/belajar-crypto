@@ -1345,10 +1345,18 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
             if active_scalps_count >= 2 and desk_mode in ["HYBRID", "LONG_ONLY"]:
                 print(f" ℹ️ [Scalp Slot Guard] Sudah ada {active_scalps_count} posisi scalp aktif. Menyimpan slot sisa untuk Institutional Swing Big Waves.")
             else:
-                scalp_setups = fast_scalper.scan_all_scalp_opportunities(active_watchlist[:8])
+                scalp_targets = [s.replace("USDT", "") for s in (symbols if symbols else active_watchlist[:10])]
+                try:
+                    scalp_setups = fast_scalper.scan_all_scalp_opportunities(scalp_targets)
+                except Exception as e:
+                    print(f" ⚠️ [Scalper Scan Error] {e}")
+                    scalp_setups = []
+
+                is_aggr = session_filter.is_aggressive_mode_enabled()
+                min_scalp_rr = 2.0 if is_aggr else 2.5
                 for s in scalp_setups:
-                    # Filter out sub-standard scalps (Must have >= 1:2.5R Asymmetric Target)
-                    if s.get("rr_ratio", 0) < 2.5:
+                    # Filter out sub-standard scalps (Must have >= 1:2.5R, or >= 1:2.0R in Aggressive mode)
+                    if s.get("rr_ratio", 0) < min_scalp_rr:
                         continue
                     if is_long_only and s.get("side", "").upper() in ["SELL", "SHORT"]:
                         print(f" 🛡️ [LONG-ONLY FILTER] Vetoed SHORT on {s['symbol']} (Long-Only mode active)")
