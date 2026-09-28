@@ -572,6 +572,21 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     "closed_at": close_time or datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "source": "AUTONOMOUS_TRADE_MANAGER"
                 })
+
+                # Synthetic Neuromodulatory Feedback (Stonkfly / Drosophila Connectome Analog)
+                try:
+                    import neuro_modulator
+                    ev_type = "TRADE_PROFIT" if total_net_trade > 0 else "STOP_LOSS"
+                    r_calc = total_realized_trade / max(risk_b, 1.0)
+                    neuro_modulator.stimulate_neuro_feedback(
+                        event_type=ev_type,
+                        pnl_usd=total_net_trade,
+                        r_multiple=r_calc,
+                        symbol=sym,
+                        note=f"Position closed via {exit_reason}"
+                    )
+                except Exception:
+                    pass
             except Exception as j_err:
                 print(f"[Trade Manager] Error recording to Trade Journal: {j_err}")
         except Exception as ex:

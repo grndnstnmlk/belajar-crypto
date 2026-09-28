@@ -721,6 +721,13 @@ def get_market_intelligence_data(force_refresh=False):
     except Exception as e:
         hurst_intel = {"error": str(e)}
 
+    # Synthetic Neuromodulator Feedback (Drosophila Connectome Analog)
+    try:
+        import neuro_modulator
+        neuro_intel = neuro_modulator.get_neuro_summary_telemetry()
+    except Exception as e:
+        neuro_intel = {"error": str(e)}
+
     res_data = {
         "compass": compass,
         "heat": heat,
@@ -739,6 +746,7 @@ def get_market_intelligence_data(force_refresh=False):
         "jev_intelligence": jev_intelligence,
         "circuit_breaker": cb_intel,
         "hurst_regime": hurst_intel,
+        "neuro_modulator": neuro_intel,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     _intel_cache = res_data
@@ -1358,6 +1366,18 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                         "active_quarantines": active_q,
                         "count": len(active_q)
                     }
+            except Exception as e:
+                data = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path in ("/api/neuro_state", "/api/neuro-state", "/api/neuro/telemetry"):
+            try:
+                import neuro_modulator
+                data = neuro_modulator.get_neuro_summary_telemetry()
             except Exception as e:
                 data = {"success": False, "error": str(e)}
             self.send_response(200)

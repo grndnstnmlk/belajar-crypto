@@ -361,6 +361,20 @@ def compile_cognitive_perception(setup: Dict[str, Any], market_context: Optional
     except Exception:
         pass
 
+    # Synthetic Neuromodulation (Drosophila Connectome Analog: Dopamine PAM11 vs Cortisol PPL101)
+    self_neuro_prompt = "- Neuro State: EQUILIBRIUM_NEUTRAL (Balanced Operations)"
+    try:
+        import neuro_modulator
+        n_state = neuro_modulator.load_neuro_state()
+        self_neuro_prompt = (
+            f"- Current State: {n_state.get('status_badge', 'EQUILIBRIUM')}\n"
+            f"- Dopamine (PAM11 Reward): {n_state.get('dopamine_level', 50):.1f}/100.0 | Cortisol (PPL101 Stress): {n_state.get('cortisol_level', 20):.1f}/100.0\n"
+            f"- Synaptic Risk Multiplier: {n_state.get('synaptic_risk_multiplier', 1.0):.2f}x | Anti-Overconfidence Guard: {'ACTIVE 🛡️' if n_state.get('anti_overconfidence_active') else 'OFF'}\n"
+            f"- Action Directive: {n_state.get('action_guidance', 'Standard risk execution.')}"
+        )
+    except Exception:
+        pass
+
     prompt = f"""[MARKET SENSORY PERCEPTION & EPISODIC MEMORY]
 Symbol: {sym} | Proposed Side: {side} | Strategy: {strategy}
 Entry: {entry} | Invalidation (SL): {sl} | Target (TP): {tp} | R:R: 1:{rr:.2f}
@@ -380,6 +394,9 @@ Entry: {entry} | Invalidation (SL): {sl} | Target (TP): {tp} | R:R: 1:{rr:.2f}
 
 3. COIN HABITS & TACTICAL WINNING PLAYBOOK (Rules of Engagement):
 {playbook_prompt}
+
+4. SYNTHETIC NEUROMODULATORY STATE (Drosophila Connectome Analog):
+{self_neuro_prompt}
 
 [COGNITIVE TASK]
 Conduct an internal dialectical debate (Bull Thesis vs Bear Risk/Trap vs Risk Officer).
@@ -448,9 +465,22 @@ def _execute_quant_reflex_fallback(setup: Dict[str, Any], ctx: Dict[str, Any], e
     except Exception:
         pass
 
+    # Neuromodulatory synaptic scaling (Drosophila connectome analog)
+    neuro_tag = ""
+    try:
+        import neuro_modulator
+        n_state = neuro_modulator.load_neuro_state()
+        synaptic_mult = float(n_state.get("synaptic_risk_multiplier", 1.0))
+        scale = min(1.15, max(0.50, round(scale * synaptic_mult, 2)))
+        if n_state.get("anti_overconfidence_active"):
+            scale = min(1.0, scale)
+        neuro_tag = f" | Neuro: {n_state.get('status_badge', 'EQUILIBRIUM')}"
+    except Exception:
+        pass
+
     conf = min(90, int(50 + rr * 12))
-    reason = f"Fast Quant Reflex: Setup R:R 1:{rr:.2f} satisfies mathematical expectancy criteria. {pb_directive}"
-    thought = f"Autonomous fast reflex verified {sym} {side} (R:R 1:{rr:.2f}). Playbook scale: {scale:.2f}x. Clearance granted."
+    reason = f"Fast Quant Reflex: Setup R:R 1:{rr:.2f} satisfies mathematical expectancy criteria. {pb_directive}{neuro_tag}"
+    thought = f"Autonomous fast reflex verified {sym} {side} (R:R 1:{rr:.2f}). Playbook scale: {scale:.2f}x.{neuro_tag} Clearance granted."
     bull_arg = f"Favorable risk-to-reward ratio 1:{rr:.2f} with defined structural stop-loss."
     bear_arg = "Standard intra-day market volatility and execution slippage."
 

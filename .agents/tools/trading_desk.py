@@ -1257,6 +1257,18 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
             print(f"{C.BRIGHT_CYAN}│{C.RESET} {C.GRAY}BTC Macro 1H Regime :{C.RESET} {btc_regime['regime_label']} (ADX {btc_regime['adx']:.1f} | Bias: {bias_col}{btc_regime['bias']}{C.RESET})")
     except Exception as e:
         pass
+
+    # 1D. Drosophila Connectome Synthetic Neuromodulation Telemetry (Stonkfly Neuro-State)
+    try:
+        import neuro_modulator
+        neuro_summary = neuro_modulator.get_neuro_summary_telemetry()
+        n_dop = neuro_summary.get("dopamine", {}).get("level", 50.0)
+        n_cort = neuro_summary.get("cortisol", {}).get("level", 20.0)
+        n_scale = neuro_summary.get("current_risk_multiplier", 1.0)
+        n_badge = neuro_summary.get("behavioral_badge", "🟢 HOMEOSTASIS")
+        print(f"{C.BRIGHT_CYAN}│{C.RESET} {C.GRAY}Neuro Connectome    :{C.RESET} {n_badge} (PAM11 {n_dop:.1f}% | PPL101 {n_cort:.1f}% | Multiplier: {n_scale:.2f}x)")
+    except Exception:
+        pass
     print(f"{C.BRIGHT_CYAN}└───────────────────────────────────────────────────────────────────────────────────{C.RESET}")
 
     export_dashboard_feed(target_user, is_demo, balance_usd, active_positions, genome)
@@ -1529,6 +1541,19 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
             except Exception as k_err:
                 effective_risk_pct = 1.50
                 print(f"  🎯 [KELLY SIZING NOTE] Fallback baseline 1.50%: {k_err}")
+
+            # Apply Drosophila Connectome Synthetic Neuromodulation Risk Adjustment (Stonkfly)
+            try:
+                import neuro_modulator
+                eff_risk_adj, eff_conf_adj, neuro_audit = neuro_modulator.apply_neuro_risk_adjustment(
+                    base_risk_pct=effective_risk_pct,
+                    min_confluence=float(best.get("confluence_score", 80))
+                )
+                if neuro_audit.get("synaptic_risk_multiplier", 1.0) != 1.0 or neuro_audit.get("anti_overconfidence_active"):
+                    effective_risk_pct = eff_risk_adj
+                    print(f"  🧠 [NEURO MODULATOR ADJUST] {neuro_audit.get('status_badge')} -> Risk: {effective_risk_pct:.2f}% ({neuro_audit.get('synaptic_risk_multiplier'):.2f}x) | {neuro_audit.get('guidance')}")
+            except Exception:
+                pass
 
             # Check BTC.D & USDT.D Dominance Compass Guardrail (Akademi Crypto Module 01)
             try:
@@ -2264,13 +2289,145 @@ def show_desk_status(user_email=None, is_demo=True):
     print(f"{C.BRIGHT_CYAN}│{C.RESET}  * Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5):.2f}%")
     print(f"{C.BRIGHT_CYAN}└───────────────────────────────────────────────────────────────────────────────────{C.RESET}\n")
 
+def run_preflight_audit(user_email=None, is_demo=True, verbose=True):
+    """
+    Scope-Locked Pre-Flight Audit Protocol (Inspired by Stonkfly & NASA Flight Readiness Checklist).
+    Audits API security scopes, capital margin reserves, active position stops, 
+    synthetic neuromodulation state, and macro blackout shields prior to trading execution.
+    """
+    target_user, key, secret, base_url, mode_label, _ = binance_client.resolve_credentials(user_email, is_demo)
+    checks = []
+    
+    # Check 1: Credentials & Time Offset
+    has_creds = bool(key and secret)
+    t_offset = binance_client.get_server_time_offset(base_url)
+    if has_creds and abs(t_offset) < 5000:
+        checks.append(("API Credentials & Connectivity", "PASS", f"Key resolved | Latency/Time Offset: {t_offset:+d}ms"))
+    elif has_creds:
+        checks.append(("API Credentials & Connectivity", "WARN", f"Time offset high: {t_offset:+d}ms"))
+    else:
+        checks.append(("API Credentials & Connectivity", "FAIL", "Missing API Key or Secret in .env"))
+
+    # Check 2: Account Permissions Scope-Lock (Withdraw strictly disabled on live)
+    acct = None
+    try:
+        acct = binance_client.send_signed_request("/fapi/v2/account", method="GET", is_demo=is_demo, user_email=user_email)
+    except Exception:
+        pass
+
+    if acct and acct.get("canTrade"):
+        can_withdraw = acct.get("canWithdraw", True)
+        if not is_demo and can_withdraw:
+            checks.append(("Scope-Lock Permissions", "WARN", "Trading enabled, but Withdraw permission is ACTIVE. Least-privilege best practice recommends disabling Withdraw."))
+        else:
+            checks.append(("Scope-Lock Permissions", "PASS", f"canTrade=True | Withdraw scope isolated ({'Testnet' if is_demo else 'Safe Read/Trade Only'})"))
+    else:
+        checks.append(("Scope-Lock Permissions", "FAIL", "Account trading permission (canTrade) is FALSE or API unreachable"))
+
+    # Check 3: Financial Capital & Available Margin Reserve
+    balance_usd, available_usd = get_account_financials(user_email, is_demo)
+    margin_ratio = (available_usd / balance_usd * 100.0) if balance_usd > 0 else 0.0
+    if balance_usd > 50 and margin_ratio >= 20.0:
+        checks.append(("Capital & Margin Reserves", "PASS", f"Equity: ${balance_usd:,.2f} USDT | Free Margin: ${available_usd:,.2f} ({margin_ratio:.1f}%)"))
+    elif balance_usd > 20 and margin_ratio >= 10.0:
+        checks.append(("Capital & Margin Reserves", "WARN", f"Equity: ${balance_usd:,.2f} USDT | Free Margin low: {margin_ratio:.1f}%"))
+    else:
+        checks.append(("Capital & Margin Reserves", "FAIL", f"Insufficient margin reserve: ${available_usd:,.2f} / ${balance_usd:,.2f}"))
+
+    # Check 4: Active Positions & Server-Side Stop Protection
+    active_positions = get_active_positions(user_email, is_demo)
+    pos_count = len(active_positions)
+    try:
+        open_orders = binance_client.send_signed_request("/fapi/v1/openOrders", method="GET", is_demo=is_demo, user_email=user_email) or []
+    except Exception:
+        open_orders = []
+    
+    stop_orders = [o for o in open_orders if "STOP" in str(o.get("type", "")).upper() or "TRAILING" in str(o.get("type", "")).upper()]
+    if pos_count == 0:
+        checks.append(("Position Inventory & SL Guard", "PASS", "0 active positions (Fresh capital pool ready)"))
+    else:
+        symbols_with_sl = {o.get("symbol") for o in stop_orders}
+        active_syms = [p.get("symbol") for p in active_positions]
+        protected = [s for s in active_syms if s in symbols_with_sl]
+        if len(protected) == len(active_syms):
+            checks.append(("Position Inventory & SL Guard", "PASS", f"{pos_count} active positions - 100% protected by server-side hard Stop Orders"))
+        else:
+            unprotected = [s for s in active_syms if s not in symbols_with_sl]
+            checks.append(("Position Inventory & SL Guard", "WARN", f"{pos_count} positions ({len(protected)}/{pos_count} with server-side SL; unprotected: {', '.join(unprotected)})"))
+
+    # Check 5: Drosophila Connectome Neuromodulation
+    try:
+        import neuro_modulator
+        n_tele = neuro_modulator.get_neuro_summary_telemetry()
+        dop = n_tele.get("dopamine", {}).get("level", 50.0)
+        cort = n_tele.get("cortisol", {}).get("level", 20.0)
+        badge = n_tele.get("behavioral_badge", "🟢 HOMEOSTASIS")
+        scale = n_tele.get("current_risk_multiplier", 1.0)
+        if cort >= 70.0:
+            checks.append(("Synthetic Neuromodulation", "WARN", f"{badge} (Cortisol: {cort:.1f}% | Risk haircut 0.50x active)"))
+        elif dop >= 85.0:
+            checks.append(("Synthetic Neuromodulation", "PASS", f"{badge} (Dopamine: {dop:.1f}% | Anti-overconfidence lock 1.00x active)"))
+        else:
+            checks.append(("Synthetic Neuromodulation", "PASS", f"{badge} (PAM11 {dop:.1f}% | PPL101 {cort:.1f}% | Multiplier: {scale:.2f}x)"))
+    except Exception as e:
+        checks.append(("Synthetic Neuromodulation", "WARN", f"Neuromodulator telemetry bypass: {e}"))
+
+    # Check 6: Macro News Blackout Shield
+    try:
+        is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
+        if is_blk:
+            checks.append(("Macro News Volatility Shield", "WARN", f"BLACKOUT ACTIVE: {blk_reason}"))
+        else:
+            next_name = next_ev.get('event', 'None') if next_ev else 'None'
+            checks.append(("Macro News Volatility Shield", "PASS", f"Clear flight path (Next high-impact event: {next_name})"))
+    except Exception as e:
+        checks.append(("Macro News Volatility Shield", "WARN", f"News shield check note: {e}"))
+
+    # Check 7: Circuit Breakers & Remote Control
+    is_paused = telegram_notifier.is_desk_paused()
+    if is_paused:
+        checks.append(("Circuit Breaker & Governance", "WARN", "Desk is paused via Telegram remote command (/pause)"))
+    else:
+        checks.append(("Circuit Breaker & Governance", "PASS", "All circuit breakers nominal | Trading Desk armed & flight-ready"))
+
+    flight_ready = all(status != "FAIL" for _, status, _ in checks)
+
+    if verbose:
+        print()
+        print(f"{C.BRIGHT_CYAN}╔══════════════════════════════════════════════════════════════════════════════════════════╗{C.RESET}")
+        print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.BOLD}{C.BRIGHT_WHITE}🛫 PRE-FLIGHT AUDIT PROTOCOL — SCOPE-LOCKED SYSTEM AUDIT{C.RESET}                                {C.BRIGHT_CYAN}║{C.RESET}")
+        print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}Inspired by Stonkfly & NASA Flight Readiness Checklist{C.RESET}                                 {C.BRIGHT_CYAN}║{C.RESET}")
+        print(f"{C.BRIGHT_CYAN}╠══════════════════════════════════════════════════════════════════════════════════════════╣{C.RESET}")
+        print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}Target Account :{C.RESET} {C.BRIGHT_WHITE}{target_user}{C.RESET} ({C.BRIGHT_GREEN}{mode_label}{C.RESET})")
+        print(f"{C.BRIGHT_CYAN}║{C.RESET}  {C.GRAY}Endpoint URL   :{C.RESET} {C.BRIGHT_WHITE}{base_url}{C.RESET}")
+        print(f"{C.BRIGHT_CYAN}╚══════════════════════════════════════════════════════════════════════════════════════════╝{C.RESET}")
+        print(f"\n{C.BOLD}{C.BRIGHT_WHITE}[PRE-FLIGHT VERIFICATION MATRIX]{C.RESET}")
+        for name, status, detail in checks:
+            col = C.BRIGHT_GREEN if status == "PASS" else (C.BRIGHT_YELLOW if status == "WARN" else C.BRIGHT_RED)
+            icon = "✅" if status == "PASS" else ("⚠️" if status == "WARN" else "❌")
+            print(f"  {icon} {C.BOLD}{col}[{status:<4}]{C.RESET} {C.BRIGHT_WHITE}{name:<32}{C.RESET}: {detail}")
+        
+        status_banner = f"{C.BRIGHT_GREEN}🛫 PRE-FLIGHT AUDIT PASSED — WORKSTATION FLIGHT-READY{C.RESET}" if flight_ready else f"{C.BRIGHT_RED}🛑 PRE-FLIGHT AUDIT FAILED — REMEDIATION REQUIRED{C.RESET}"
+        print(f"\n=======================================================")
+        print(f"  {status_banner}")
+        print(f"=======================================================\n")
+
+    return flight_ready, checks
+
 def main():
     parser = argparse.ArgumentParser(description="Autonomous AI Trading Desk (CEO Orchestrator)")
     sub = parser.add_subparsers(dest="command")
 
+    # Preflight command
+    pre_p = sub.add_parser("preflight", help="Jalankan audit pre-flight scope-lock sebelum eksekusi trading")
+    pre_p.add_argument("--user", type=str, default=None, help="Email akun (misal: dxmade@gmail.com)")
+    pre_p.add_argument("--live", action="store_true", help="Gunakan akun live riil (default: Demo Testnet)")
+
     # Run command
     run_p = sub.add_parser("run", help="Jalankan siklus pemindaian dan eksekusi trading desk")
     run_p.add_argument("--once", action="store_true", help="Jalankan 1 siklus lalu selesai")
+    run_p.add_argument("--preflight", action="store_true", help="Jalankan audit pre-flight sebelum memulai siklus")
+    run_p.add_argument("--preflight-only", action="store_true", help="Hanya jalankan audit pre-flight lalu keluar")
     run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID", "LONG_ONLY"], default="HYBRID", help="Set mode operasional desk (default: HYBRID)")
     run_p.add_argument("--long-only", action="store_true", help="Paksa trading desk hanya membuka posisi LONG (Zero Short Exposure)")
     run_p.add_argument("--backend", type=str, choices=["BOTH", "BINANCE", "MT5"], default=None, help="Backend eksekusi: BOTH (Binance+MT5), BINANCE, atau MT5")
@@ -2296,9 +2453,20 @@ def main():
         EXECUTION_BACKEND = args.backend.upper()
         print(f"🔌 Execution Backend diset ke: {EXECUTION_BACKEND}")
 
-    if args.command == "status":
+    if args.command == "preflight":
+        ready, _ = run_preflight_audit(args.user, is_demo)
+        sys.exit(0 if ready else 1)
+    elif args.command == "status":
         show_desk_status(args.user, is_demo)
     elif args.command == "run":
+        if getattr(args, "preflight_only", False):
+            ready, _ = run_preflight_audit(args.user, is_demo)
+            sys.exit(0 if ready else 1)
+        if getattr(args, "preflight", False):
+            ready, _ = run_preflight_audit(args.user, is_demo)
+            if not ready:
+                print(f"{C.BRIGHT_RED}🛑 Pre-flight audit failed. Trading desk cycle aborted by safety guardrail.{C.RESET}")
+                sys.exit(1)
         acquire_single_instance_lock()
         ensure_dashboard_daemon()
         if getattr(args, "mode", None):
