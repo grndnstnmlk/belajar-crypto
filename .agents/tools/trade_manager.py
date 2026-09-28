@@ -43,10 +43,10 @@ def save_trade_metadata(meta):
     except Exception as e:
         print(f"[Trade Manager] Error saving metadata: {e}")
 
-def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity, is_scalp=False, ai_thesis=None, ai_confidence=None, be_trigger_r=0.60, tp1_target_r=1.25, anti_stall_minutes=20, strategy_name=None):
+def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budget_usd, quantity, is_scalp=False, ai_thesis=None, ai_confidence=None, be_trigger_r=1.00, tp1_target_r=1.75, anti_stall_minutes=45, strategy_name=None):
     """
     Registers a newly opened trade to begin dynamic lifecycle tracking.
-    Supports is_scalp flag for accelerated Breakeven (+0.60R), Partial Scale-out (+1.25R), and Anti-Stall Time-Stop (20m).
+    Supports is_scalp flag for accelerated Breakeven (+1.00R), Partial Scale-out (+1.75R), and Anti-Stall Time-Stop (45m).
     Stores AI Senior Quant Officer thesis, confidence, and strategy attribution name for journal analytics.
     """
     meta = load_trade_metadata()
@@ -70,9 +70,9 @@ def record_trade_entry(symbol, side, entry_price, sl_price, tp_price, risk_budge
         "quantity": float(quantity),
         "opened_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "is_scalp": is_scalp,
-        "be_trigger_r": be_trigger_r if is_scalp else 1.00,
-        "tp1_target_r": tp1_target_r if is_scalp else 2.00,
-        "anti_stall_minutes": anti_stall_minutes if is_scalp else 120,
+        "be_trigger_r": be_trigger_r if is_scalp else 1.50,
+        "tp1_target_r": tp1_target_r if is_scalp else 2.25,
+        "anti_stall_minutes": anti_stall_minutes if is_scalp else 90,
         "breakeven_locked": False,
         "trailing_r_locked": 0.0,
         "highest_r_reached": 0.0,
@@ -754,8 +754,8 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     timeout_min = float(t_data.get("anti_stall_minutes", 45.0))
 
                     if elapsed_min >= timeout_min:
-                        # Case A: Trade has developed substantial momentum (>= 1.00R) -> Lock Breakeven & Let it Run!
-                        if r_multiple >= 1.00 and not t_data.get("breakeven_locked"):
+                        # Case A: Trade has developed solid momentum (>= 0.75R) -> Lock Breakeven & Let Runners pursue Full TP!
+                        if r_multiple >= 0.75 and not t_data.get("breakeven_locked"):
                             be_price = calculate_breakeven_price(sym, side, entry_price)
                             is_be_reachable = (side == "BUY" and mark_price > be_price) or (side == "SELL" and mark_price < be_price)
                             if is_be_reachable:
@@ -763,59 +763,51 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                                 if success:
                                     t_data["breakeven_locked"] = True
                                     t_data["current_sl"] = be_price
-                                    print(f"🛡️ [ANTI-STALL BE LOCK] {sym}: Momentum sehat (+{r_multiple:.2f}R pada {int(elapsed_min)}m). SL dikunci ke Breakeven ${be_price:,.4f} untuk membiarkan profit berlari bebas risiko!")
+                                    print(f"🛡️ [ANTI-STALL BE LOCK] {sym}: Momentum positif (+{r_multiple:.2f}R pada {int(elapsed_min)}m). SL dikunci ke Breakeven ${be_price:,.4f}. Posisi Zero-Risk dibiarkan mengejar Full TP!")
                                     try:
                                         telegram_notifier.send_telegram_broadcast(
                                             f"🛡️ <b>MOMENTUM EXTENSION (BREAKEVEN LOCKED)</b> 🛡️\n"
                                             f"💎 <b>Aset:</b> <code>{sym}</code>\n"
                                             f"⏱️ <b>Durasi:</b> {int(elapsed_min)} menit (Profit: +{r_multiple:.2f}R)\n"
                                             f"🔒 <b>SL Diamankan ke BE:</b> <code>${be_price:,.4f}</code>\n"
-                                            f"🚀 <i>Posisi tidak ditutup paksa karena momentum berkembang. Dibiarkan berlari menuju TP bebas risiko!</i>"
+                                            f"🚀 <i>Posisi tidak dipotong dini. Dibiarkan berlari menuju target TP penuh bebas risiko modal!</i>"
                                         )
                                     except Exception:
                                         pass
 
-                        # Case B: Trade is completely dead-flat (-0.10 <= R < 0.20) -> Safe Reallocation to Free Capital
-                        elif -0.10 <= r_multiple < 0.20:
-                            # Anti-Fee-Churning Guard: Only market-close if gross profit covers taker fees with net positive cushion (>= $1.50 USDT)
-                            if upnl >= 1.50:
-                                close_side = "SELL" if amt > 0 else "BUY"
-                                binance_client.send_signed_request(
-                                    "/fapi/v1/order",
-                                    method="POST",
-                                    params={
-                                        "symbol": sym,
-                                        "side": close_side,
-                                        "type": "MARKET",
-                                        "quantity": abs(amt),
-                                        "reduceOnly": "true"
-                                    },
-                                    is_demo=is_demo,
-                                    user_email=user_email
-                                )
-                                print(f"⏱️ [SCALP STAGNANT CLOSE] {sym}: Ditutup setelah {int(elapsed_min)} menit (Dead-flat di +{r_multiple:.2f}R | +${upnl:.2f} USDT). Modal direalokasi.")
-                                try:
-                                    telegram_notifier.send_telegram_broadcast(
-                                        f"⏱️ *STAGNANT TRADE CLOSED (CAPITAL REALLOCATION)* ⏱️\n"
-                                        f"Aset: *{sym}*\n"
-                                        f"Durasi Aktif: *{int(elapsed_min)} menit*\n"
-                                        f"PnL: *${upnl:+,.2f} USDT* (+{r_multiple:.2f}R)\n"
-                                        f"Posisi ditutup karena flat tanpa agresi volume untuk memutar modal ke setup baru."
-                                    )
-                                except Exception:
-                                    pass
-                                continue
-                            else:
-                                # Micro profit (< $1.50) would be eaten by taker fees (~$1.10). Move SL to Breakeven ONLY IF mark price has actually cleared BE!
-                                if not t_data.get("breakeven_locked"):
-                                    be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
-                                    is_be_reachable = (side == "BUY" and mark_price > be_price) or (side == "SELL" and mark_price < be_price)
-                                    if is_be_reachable:
-                                        success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
-                                        if success:
-                                            t_data["breakeven_locked"] = True
-                                            t_data["current_sl"] = be_price
-                                            print(f"🛡️ [ANTI-FEE BE LOCK] {sym}: Profit mikro (${upnl:+.2f} USDT) rentan tergerus fee komisi market close. SL diamankan ke Breakeven ${be_price:,.4f}.")
+                        # Case B: Trade is floating positive (r_multiple >= 0.20 or upnl >= 1.50)
+                        # NEVER market-dump winners for pennies! Protect profit by locking Breakeven and allowing full target expansion!
+                        elif (r_multiple >= 0.20 or upnl >= 1.50) and not t_data.get("breakeven_locked"):
+                            be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
+                            is_be_reachable = (side == "BUY" and mark_price > be_price) or (side == "SELL" and mark_price < be_price)
+                            if is_be_reachable:
+                                success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
+                                if success:
+                                    t_data["breakeven_locked"] = True
+                                    t_data["current_sl"] = be_price
+                                    print(f"🛡️ [ANTI-STALL PROFIT PROTECT] {sym}: Profit mengambang (+{r_multiple:.2f}R | +${upnl:.2f} USDT). SL diamankan ke Breakeven ${be_price:,.4f}. Posisi dibiarkan mengejar Full TP bebas risiko!")
+                                    try:
+                                        telegram_notifier.send_telegram_broadcast(
+                                            f"🛡️ <b>ANTI-STALL ZERO-RISK AUTO-LOCK</b> 🛡️\n"
+                                            f"💎 <b>Aset:</b> <code>{sym}</code>\n"
+                                            f"⏱️ <b>Durasi:</b> {int(elapsed_min)} menit (uPnL: +${upnl:,.2f} USDT)\n"
+                                            f"🔒 <b>SL Diamankan ke BE:</b> <code>${be_price:,.4f}</code>\n"
+                                            f"🎯 <i>Posisi dibiarkan berlari mengejar TP penuh tanpa dipotong dini!</i>"
+                                        )
+                                    except Exception:
+                                        pass
+
+                        # Case C: Extended stagnation in negative territory (-0.60R <= R < 0.0) after 1.5x timeout
+                        # Tighten Stop Loss to cut max loss while giving the trade a second chance to recover
+                        elif elapsed_min >= (timeout_min * 1.5) and -0.60 <= r_multiple < 0.0:
+                            if not t_data.get("capital_shield_locked") and not t_data.get("breakeven_locked"):
+                                tightened_sl = entry_price - (r_dist * 0.40) if side == "BUY" else entry_price + (r_dist * 0.40)
+                                formatted_tight_sl = float(binance_client.format_price_precision(sym, tightened_sl, is_demo=is_demo))
+                                success, _ = update_binance_stop_loss(sym, side, formatted_tight_sl, is_demo=is_demo, user_email=user_email)
+                                if success:
+                                    t_data["capital_shield_locked"] = True
+                                    t_data["current_sl"] = formatted_tight_sl
+                                    print(f"🛡️ [ANTI-STALL TIGHTEN SL] {sym}: Stagnan di teritori negatif ({int(elapsed_min)}m | {r_multiple:.2f}R). SL diperketat ke ${formatted_tight_sl:,.4f} (-0.40R) demi membatasi risiko.")
                 except Exception:
                     pass
 

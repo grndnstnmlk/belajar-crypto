@@ -60,7 +60,7 @@ SEARCH_SPACES = {
         "rsi_overbought": {"type": "float", "low": 58.0, "high": 75.0, "step": 1.0, "default": 65.0},
         "atr_sl_mult": {"type": "float", "low": 1.0, "high": 3.0, "step": 0.1, "default": 1.8},
         "risk_reward": {"type": "float", "low": 2.0, "high": 4.5, "step": 0.1, "default": 2.8},
-        "be_trigger_r": {"type": "float", "low": 0.8, "high": 1.5, "step": 0.1, "default": 1.0},
+        "be_trigger_r": {"type": "float", "low": 1.0, "high": 1.8, "step": 0.1, "default": 1.0},
         "trail_step_r": {"type": "float", "low": 1.5, "high": 3.0, "step": 0.1, "default": 2.0}
     },
     "topdown_smc": {

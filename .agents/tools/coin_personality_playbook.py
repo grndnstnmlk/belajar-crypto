@@ -70,7 +70,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Aggressive retail momentum. Known for violent secondary liquidity sweeps before sustained multi-day rallies.",
         "wick_buffer_pct": 0.015,          # 1.5% buffer for stop hunts
         "risk_haircut_mult": 0.95,
-        "fast_be_trigger_r": 0.8,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.5,
         "min_confluence_score": 65.0,
         "entry_rules": [
@@ -104,7 +104,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Severe wick expansions, heavy retail sentiment swings, and sudden aggressive liquidation hunts.",
         "wick_buffer_pct": 0.020,          # 2.0% buffer
         "risk_haircut_mult": 0.80,          # Scale risk to 80%
-        "fast_be_trigger_r": 0.65,          # Move to BE fast at +0.65R
+        "fast_be_trigger_r": 1.0,          # Move to BE fast at +0.65R
         "tp1_target_r": 1.75,
         "min_confluence_score": 70.0,
         "entry_rules": [
@@ -125,8 +125,8 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Extremely sharp impulsive moves followed by 70%-80% mean retracements. High retail leverage trap.",
         "wick_buffer_pct": 0.025,          # 2.5% buffer
         "risk_haircut_mult": 0.60,          # Scale risk down to 60% (Capital Preservation)
-        "fast_be_trigger_r": 0.55,          # Micro-BE at +0.55R
-        "tp1_target_r": 1.35,               # Fast partial TP1
+        "fast_be_trigger_r": 1.0,          # Micro-BE at +0.55R
+        "tp1_target_r": 2.0,               # Fast partial TP1
         "min_confluence_score": 75.0,
         "entry_rules": [
             "Entry ONLY on 15m displacement FVG retest in discount zone.",
@@ -143,8 +143,8 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Thin order book depth, prone to erratic wicks during illiquid Asian night hours.",
         "wick_buffer_pct": 0.024,
         "risk_haircut_mult": 0.65,
-        "fast_be_trigger_r": 0.60,
-        "tp1_target_r": 1.40,
+        "fast_be_trigger_r": 1.0,
+        "tp1_target_r": 2.0,
         "min_confluence_score": 75.0,
         "entry_rules": [
             "Require Level-2 depth verification to ensure tight spread (< 0.10%).",
@@ -160,7 +160,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Idiosyncratic sector rotation. Tends to build extended low-volume consolidation followed by single explosive green/red day.",
         "wick_buffer_pct": 0.018,
         "risk_haircut_mult": 0.75,
-        "fast_be_trigger_r": 0.70,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.0,
         "min_confluence_score": 70.0,
         "entry_rules": [
@@ -177,8 +177,8 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Concentrated whale ownership. Prone to sudden 15-minute pump-and-dump sweeps.",
         "wick_buffer_pct": 0.022,
         "risk_haircut_mult": 0.60,
-        "fast_be_trigger_r": 0.50,
-        "tp1_target_r": 1.30,
+        "fast_be_trigger_r": 1.0,
+        "tp1_target_r": 2.0,
         "min_confluence_score": 75.0,
         "entry_rules": [
             "Strict limit order entry only at key POC levels.",
@@ -194,8 +194,8 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Fractional price steps. Tends to move in tick-by-tick compression ranges.",
         "wick_buffer_pct": 0.020,
         "risk_haircut_mult": 0.65,
-        "fast_be_trigger_r": 0.60,
-        "tp1_target_r": 1.50,
+        "fast_be_trigger_r": 1.0,
+        "tp1_target_r": 2.0,
         "min_confluence_score": 72.0,
         "entry_rules": [
             "Check tick size friction before entry.",
@@ -211,7 +211,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "High token unlock overhang creates heavy short crowding, leading to violent multi-dollar short squeezes followed by aggressive dumps.",
         "wick_buffer_pct": 0.022,
         "risk_haircut_mult": 0.70,
-        "fast_be_trigger_r": 0.65,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.20,
         "min_confluence_score": 70.0,
         "entry_rules": [
@@ -229,7 +229,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Price highly correlated with perpetual funding rates and basis yields. Hyper-reactive to market-wide deleveraging.",
         "wick_buffer_pct": 0.020,
         "risk_haircut_mult": 0.75,
-        "fast_be_trigger_r": 0.60,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.00,
         "min_confluence_score": 68.0,
         "entry_rules": [
@@ -246,7 +246,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "High dollar-value per unit with wide spreads. Explosive multi-hour trends driven by AI sentiment.",
         "wick_buffer_pct": 0.016,
         "risk_haircut_mult": 0.85,
-        "fast_be_trigger_r": 0.80,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 3.00,
         "min_confluence_score": 68.0,
         "entry_rules": [
@@ -263,7 +263,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Retail social sentiment driver. High liquidity, high frequency of fakeouts around major round numbers ($0.10, $0.20, $0.50).",
         "wick_buffer_pct": 0.018,
         "risk_haircut_mult": 0.80,
-        "fast_be_trigger_r": 0.70,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.00,
         "min_confluence_score": 65.0,
         "entry_rules": [
@@ -280,7 +280,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Tends to form long multi-week consolidation ranges before slow grinding directional expansion.",
         "wick_buffer_pct": 0.012,
         "risk_haircut_mult": 0.90,
-        "fast_be_trigger_r": 0.90,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.00,
         "min_confluence_score": 65.0,
         "entry_rules": [
@@ -297,7 +297,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Correlated with SOL and Layer-1 rotations. Strong continuation when 1H EMA 50 aligns.",
         "wick_buffer_pct": 0.014,
         "risk_haircut_mult": 0.90,
-        "fast_be_trigger_r": 0.80,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.40,
         "min_confluence_score": 65.0,
         "entry_rules": [
@@ -314,7 +314,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Very clean price action on 1H/4H charts. High respect for FVG and SMC order blocks.",
         "wick_buffer_pct": 0.013,
         "risk_haircut_mult": 0.90,
-        "fast_be_trigger_r": 0.85,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.50,
         "min_confluence_score": 64.0,
         "entry_rules": [
@@ -331,7 +331,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "High sensitivity to Ethereum gas metrics and SEC/regulatory headlines.",
         "wick_buffer_pct": 0.015,
         "risk_haircut_mult": 0.85,
-        "fast_be_trigger_r": 0.80,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.20,
         "min_confluence_score": 66.0,
         "entry_rules": [
@@ -348,7 +348,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Huge volume explosions, fast cascading liquidations, massive retail participation.",
         "wick_buffer_pct": 0.022,
         "risk_haircut_mult": 0.70,
-        "fast_be_trigger_r": 0.60,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 2.00,
         "min_confluence_score": 72.0,
         "entry_rules": [
@@ -365,7 +365,7 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Lags DOGE/PEPE. Prone to sudden 1-hour spikes followed by slow bleed.",
         "wick_buffer_pct": 0.020,
         "risk_haircut_mult": 0.70,
-        "fast_be_trigger_r": 0.60,
+        "fast_be_trigger_r": 1.0,
         "tp1_target_r": 1.75,
         "min_confluence_score": 70.0,
         "entry_rules": [
@@ -382,8 +382,8 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Legacy extreme volatility, sporadic liquidity traps.",
         "wick_buffer_pct": 0.025,
         "risk_haircut_mult": 0.50,          # 50% risk haircut (Ultra defensive)
-        "fast_be_trigger_r": 0.50,
-        "tp1_target_r": 1.30,
+        "fast_be_trigger_r": 1.0,
+        "tp1_target_r": 2.0,
         "min_confluence_score": 78.0,
         "entry_rules": [
             "Only take A+ grade setups with strict level-2 bid absorption.",
@@ -399,8 +399,8 @@ COIN_PLAYBOOKS: Dict[str, Dict[str, Any]] = {
         "temperament": "Violent erratic wicks driven by speculative rumors.",
         "wick_buffer_pct": 0.028,
         "risk_haircut_mult": 0.50,
-        "fast_be_trigger_r": 0.50,
-        "tp1_target_r": 1.30,
+        "fast_be_trigger_r": 1.0,
+        "tp1_target_r": 2.0,
         "min_confluence_score": 80.0,
         "entry_rules": [
             "Strict scalp only; immediate TP1 execution.",
@@ -419,7 +419,7 @@ GENERIC_PLAYBOOK_TEMPLATE = {
     "temperament": "Standard crypto market volatility and liquidity dynamics.",
     "wick_buffer_pct": 0.015,              # 1.5% buffer
     "risk_haircut_mult": 0.85,              # 0.85x risk
-    "fast_be_trigger_r": 0.75,
+    "fast_be_trigger_r": 1.0,
     "tp1_target_r": 2.0,
     "min_confluence_score": 65.0,
     "entry_rules": [
@@ -535,9 +535,10 @@ def apply_coin_playbook_to_setup(setup: Dict[str, Any]) -> Dict[str, Any]:
         setup["risk_pct"] = round(scaled_risk, 3)
         setup["risk_haircut_applied"] = f"{playbook.get('risk_haircut_mult')}x ({original_risk}% -> {setup['risk_pct']}%)"
 
-    # Adjust dynamic trade manager parameters
-    setup["be_trigger_r"] = playbook.get("fast_be_trigger_r", 0.75)
-    setup["tp1_target_r"] = playbook.get("tp1_target_r", 2.0)
+    # Adjust dynamic trade manager parameters (Strict Institutional Floors)
+    setup["be_trigger_r"] = max(1.00, float(playbook.get("fast_be_trigger_r", 1.00)))
+    setup["tp1_target_r"] = max(1.75, float(playbook.get("tp1_target_r", 2.20)))
+    setup["anti_stall_minutes"] = max(45, int(playbook.get("anti_stall_minutes", 45)))
 
     return setup
 
@@ -578,8 +579,8 @@ def audit_setup_against_playbook(setup: Dict[str, Any], market_ctx: Optional[Dic
     adjustments = {
         "wick_buffer_pct": pb.get("wick_buffer_pct", 0.015),
         "risk_multiplier": pb.get("risk_haircut_mult", 0.85),
-        "be_trigger_r": pb.get("fast_be_trigger_r", 0.75),
-        "tp1_target_r": pb.get("tp1_target_r", 2.0)
+        "be_trigger_r": max(1.00, float(pb.get("fast_be_trigger_r", 1.00))),
+        "tp1_target_r": max(1.75, float(pb.get("tp1_target_r", 2.20)))
     }
 
     # Verify minimum confluence for this specific coin

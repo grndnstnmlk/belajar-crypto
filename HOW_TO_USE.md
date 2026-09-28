@@ -48,10 +48,10 @@ Trading desk memiliki 4 mode eksekusi yang dapat diganti sewaktu-waktu melalui C
 
 | Mode | Timeframe | Fokus Strategi | Alokasi Risiko | Target R:R | Karakteristik |
 | :--- | :---: | :--- | :--- | :--- :---: | :--- |
-| **`LONG_ONLY`** *(Rekomendasi Alpha Edge)* | **5m + 1H** | Dual Engine (Swing + Scalp) Long-Only | **1.05% – 1.50%** (Full Kelly) | **1:3.00 – 1:5.00+** | **Zero Short Drag**: Profit Factor 2.56, bebas 100% loss short trap pada bull market |
-| **`SWING`** | **1H & 4H** (Makro) | SMC, Wyckoff Accumulation, Volume Profile VAH/VAL, FVG Retest, Tim Flossbach MSS | **1.05% – 1.50%** (Full Kelly) | **1:3.00 – 1:5.00+** | **Profit Maksimal**: Menunggangi ekspansi tren besar multi-jam/hari, proteksi SMC Trailing (+2R/+3R), tanpa time-stop prematur |
-| **`HYBRID`** | **5m + 1H** | Dual Engine: Menangkap Swing 1H sekaligus Scalp 5m | **0.50% s/d 1.05%** | **1:2.00 – 1:3.50** | Fleksibel: Eksekusi scalp kilat ke slot kosong saat menunggu setup swing matang |
-| **`SCALP`** | **5m** (Mikro) | 5 Setup Elite Kripto: ICT Rejection Block (50% Mean Threshold), 4H-Range Breakout Re-entry, IFVG, 15m Rectangle Break & Retest | **0.35% – 0.50%** (Micro-Kelly) | **1:1.80 – 1:2.50** | Eksekusi cepat 15–35 menit, Micro-BE (+0.60R), Scale-Out TP1 (+1.25R), 20-min Anti-Stall Time-Stop |
+| **`HYBRID`** *(Default Rekomendasi)* | **5m + 1H** | Dual Engine Adaptif Dua Arah (Long & Short): Menangkap Swing 1H sekaligus Scalp 5m | **1.00% – 1.50%** (Max 1.5% Risk Cap) | **1:2.50 – 1:5.00+** | **Fleksibilitas Penuh**: Long saat bullish, Short saat pullback/bearish. Breakeven di +1.0R, kawal runner ke full TP |
+| **`SWING`** | **1H & 4H** (Makro) | SMC, Wyckoff Accumulation/Distribution, Volume Profile VAH/VAL, FVG Retest, Tim Flossbach MSS | **1.05% – 1.50%** (Full Kelly) | **1:3.00 – 1:5.00+** | **Profit Maksimal**: Menunggangi ekspansi tren besar dua arah, proteksi SMC Trailing (+2R/+3R), tanpa cut profit dini |
+| **`SCALP`** | **5m** (Mikro) | 5 Setup Elite Kripto: ICT Rejection Block, 4H-Range Breakout Re-entry, IFVG, 15m Rectangle Break & Retest | **0.50% – 1.00%** | **1:2.00 – 1:3.50** | Eksekusi cepat, BE di +1.0R, Scale-Out TP1 (+1.75R - +2.25R), Anti-Stall 45m (Kunci BE, Stop Memotong Profit) |
+| **`LONG_ONLY`** | **5m + 1H** | Dual Engine Long-Only (Opsional untuk Bull Run Parabolik) | **1.05% – 1.50%** | **1:3.00 – 1:5.00+** | Khusus mode bull run parabolik murni tanpa exposure short |
 
 ---
 

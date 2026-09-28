@@ -891,13 +891,11 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                 }
 
     elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) and rsi_safe_short:
-        if is_alpha_leader or not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction or has_bearish_sfp):
+        if (is_alpha_leader and not (has_bearish_sweep or has_bearish_rb or has_bearish_sfp)) or not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction or has_bearish_sfp):
             pass
         else:
             htf_swing_check = htf_macro_lock.audit_htf_macro_bias(pair_sym, "SHORT")
             if not htf_swing_check.get("is_approved", True):
-                pass
-            elif sym != "BTC" and market_regime.detect_market_regime("BTCUSDT", interval="1h") and market_regime.detect_market_regime("BTCUSDT", interval="1h").get("bias") == "BULLISH":
                 pass
             elif price_equilibrium_pct < 50.0 and not (has_bearish_sweep or has_bearish_rb or has_bearish_sfp):
                 pass
@@ -1008,6 +1006,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                             "rr": rr,
                             "is_scalp": False,
                             "is_institutional": True,
+                            "be_trigger_r": 1.00,
+                            "tp1_target_r": 1.75,
+                            "anti_stall_minutes": 45,
                             "strategy_name": s.get("strategy", "Institutional Quant Setup"),
                             "risk_pct": max_risk_pct,
                             "reason": f"🏛️ {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
@@ -1042,6 +1043,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                             "rr": rr,
                             "is_scalp": False,
                             "is_prop_desk": True,
+                            "be_trigger_r": 1.00,
+                            "tp1_target_r": 1.75,
+                            "anti_stall_minutes": 45,
                             "strategy_name": s.get("strategy", "Prop Desk Alpha Setup"),
                             "risk_pct": max_risk_pct,
                             "reason": f"🏢 {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
@@ -1073,6 +1077,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                             "rr": 3.5,
                             "is_scalp": False,
                             "is_seasonality": True,
+                            "be_trigger_r": 1.00,
+                            "tp1_target_r": 1.75,
+                            "anti_stall_minutes": 45,
                             "strategy_name": f"Seasonality: {active_s_names}",
                             "risk_pct": max_risk_pct,
                             "reason": f"🗓️ {active_s_names}: Calendar edge | MAE stop {mae_pct*100:.2f}%"
@@ -2076,22 +2083,31 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     default_lev = int(os.getenv("DEFAULT_LEVERAGE", 20))
                     active_leverage = leverage if leverage else default_lev
 
-                    b_risk_budget = b_equity * (effective_risk_pct / 100.0)
-                    b_pos_usd = b_risk_budget / max(sl_pct, 0.005)
+                    # Strict Fractional Kelly Risk Budgeting (Max 1.5% equity risk per trade)
+                    max_allowed_risk = b_equity * min(effective_risk_pct / 100.0, 0.015)
+                    b_risk_budget = max(10.0, max_allowed_risk)
+                    b_pos_usd = b_risk_budget / max(sl_pct, 0.008)
 
-                    # Dynamic Sizing Floor & Anti-Receh Engine:
-                    # Guarantees meaningful profit outcomes scaled proportionally to account equity
-                    min_floor = max(300.0, b_equity * 0.35 if best.get("is_scalp") else b_equity * 0.30)
+                    # Dynamic Sizing Floor: Ensures meaningful profit outcomes without exceeding max dollar risk
+                    min_floor = max(300.0, b_equity * 0.25 if best.get("is_scalp") else b_equity * 0.20)
                     min_avail_req = max(15.0, min_floor / float(active_leverage) * 0.5)
                     if b_pos_usd < min_floor and b_avail >= min_avail_req:
-                        b_pos_usd = min(min_floor, b_avail * 0.60 * float(active_leverage))
+                        candidate_pos = min(min_floor, b_avail * 0.50 * float(active_leverage))
+                        # Strictly verify candidate position does NOT breach max allowed dollar risk
+                        if (candidate_pos * sl_pct) <= max_allowed_risk * 1.25:
+                            b_pos_usd = candidate_pos
+                            b_risk_budget = b_pos_usd * sl_pct
+                            print(f" 🚀 [ANTI-RECEH SIZING FLOOR] Posisi disesuaikan ke nosional ${b_pos_usd:,.2f} (Margin: ${b_pos_usd/active_leverage:,.2f} @ {active_leverage}x | Risk: ${b_risk_budget:,.2f})!")
+
+                    # Hard Risk Cap: Never permit a position whose SL loss exceeds max_allowed_risk
+                    if (b_pos_usd * sl_pct) > max_allowed_risk * 1.15:
+                        b_pos_usd = (max_allowed_risk * 1.15) / max(sl_pct, 0.008)
                         b_risk_budget = b_pos_usd * sl_pct
-                        print(f" 🚀 [ANTI-RECEH SIZING FLOOR] Posisi disesuaikan ke nosional ${b_pos_usd:,.2f} (Margin: ${b_pos_usd/active_leverage:,.2f} @ {active_leverage}x) agar profit per trade signifikan!")
 
                     # Guardrails: Max 2.5x equity notional, max per-slot notional, max 70% available margin
                     effective_slots = max(1, min(max_open_positions, 5))
-                    b_pos_usd = min(b_pos_usd, b_equity * 2.5)
-                    b_pos_usd = min(b_pos_usd, (b_equity / effective_slots) * 3.0)
+                    b_pos_usd = min(b_pos_usd, b_equity * 2.0)
+                    b_pos_usd = min(b_pos_usd, (b_equity / effective_slots) * 2.5)
                     b_pos_usd = min(b_pos_usd, b_avail * 0.70 * float(active_leverage))
 
                     raw_b_qty = b_pos_usd / best["price"]
@@ -2229,8 +2245,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     is_scalp=best.get("is_scalp", False),
                     ai_thesis=ai_audit.get("thesis") if ai_audit else None,
                     ai_confidence=ai_audit.get("confidence") if ai_audit else None,
-                    be_trigger_r=best.get("be_trigger_r", 1.50),
-                    tp1_target_r=best.get("tp1_target_r", 2.25),
+                    be_trigger_r=best.get("be_trigger_r", 1.00),
+                    tp1_target_r=best.get("tp1_target_r", 1.75),
                     anti_stall_minutes=best.get("anti_stall_minutes", 45),
                     strategy_name=best.get("strategy") or best.get("strategy_name") or "Smart Money Concepts (SMC)"
                 )

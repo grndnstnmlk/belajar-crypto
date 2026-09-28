@@ -27,8 +27,8 @@ import market_regime
 
 ALPHA_PROTECTED_LEADERS = {"SOL", "BNB", "BTC"}
 
-# Hard Long-Only Lock: Eliminates 100% of counter-trend short traps during macro bull regimes
-HARD_LONG_ONLY_ENABLED = True
+# Flexible Two-Way Trading Engine: Supports both LONG and SHORT based on HTF macro regime
+HARD_LONG_ONLY_ENABLED = False
 
 # In-Memory High-Frequency Regime Caching (< 0.05ms)
 _BTC_REGIME_CACHE = {
@@ -136,33 +136,25 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
         rejection_reason = None
 
         # 2. RULE A: BTC Master Trend Gatekeeper (Akademi Crypto Module 01 & 04)
-        # If BTC 1H or 4H is Bullish, NEVER allow Altcoin Shorts to avoid short squeezes!
+        # Only ban Altcoin Shorts if BTC 4H HTF Trend is confirmed strongly BULLISH (Price > EMA20 > EMA50)
         if prop_side == "SELL" and sym_clean != "BTC":
             btc_1h, btc_4h = _get_cached_btc_regimes()
             
-            btc_1h_bull = False
             btc_4h_bull = False
-            
-            if btc_1h:
-                btc_p = float(btc_1h.get("price", 0.0))
-                btc_e20 = float(btc_1h.get("ema20", 0.0))
-                btc_bias = btc_1h.get("bias", "NEUTRAL")
-                if btc_bias == "BULLISH" or (btc_p > 0 and btc_p > btc_e20):
-                    btc_1h_bull = True
-            
             if btc_4h:
+                btc_4h_bias = btc_4h.get("bias", "NEUTRAL")
                 btc_4h_p = float(btc_4h.get("price", 0.0))
                 btc_4h_e20 = float(btc_4h.get("ema20", 0.0))
-                btc_4h_bias = btc_4h.get("bias", "NEUTRAL")
-                if btc_4h_bias == "BULLISH" or (btc_4h_p > 0 and btc_4h_p > btc_4h_e20):
+                btc_4h_e50 = float(btc_4h.get("ema50", 0.0))
+                if btc_4h_bias == "BULLISH" or (btc_4h_p > btc_4h_e20 > btc_4h_e50 > 0):
                     btc_4h_bull = True
             
-            if btc_1h_bull or btc_4h_bull:
+            if btc_4h_bull:
                 is_approved = False
                 rejection_reason = (
                     f"🛑 HTF MACRO LOCK: Setup SHORT pada {pair_sym} DITOLAK. "
-                    f"BTC Makro (1H: {'BULL' if btc_1h_bull else 'FLAT'} / 4H: {'BULL' if btc_4h_bull else 'FLAT'}) sedang BULLISH. "
-                    f"Dilarang melawan arus tren naik Bitcoin (Akademi Crypto Module 01 & 04)."
+                    f"BTC Makro 4H sedang confirmed BULLISH (Price > EMA20 > EMA50). "
+                    f"Dilarang melawan arus tren naik utama Bitcoin (Akademi Crypto Module 01 & 04)."
                 )
 
         # 3. RULE B: Alpha Leader Protection Shield
@@ -192,29 +184,30 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                 )
 
         # 5. RULE D: Negative Funding Rate Penalty Shield (Short Squeeze & Fee Trap Guard)
+        # Only block if funding is severely crowded negative (< -0.03%), which indicates extreme short-squeeze danger
         if is_approved and prop_side == "SELL":
             try:
                 import binance_ws_stream
                 funding_r = binance_ws_stream.get_funding_rate(pair_sym)
-                if funding_r < 0.0:
+                if funding_r < -0.03:
                     is_approved = False
                     rejection_reason = (
                         f"🛑 HTF MACRO LOCK: Setup SHORT pada {pair_sym} DITOLAK. "
-                        f"Perp funding rate bernilai negatif ({funding_r:+.4f}%). "
-                        f"Posisi Short terkena penalti funding fee dan rentan short squeeze."
+                        f"Perp funding rate sangat negatif ({funding_r:+.4f}% < -0.03%). "
+                        f"Posisi Short terkena penalti funding fee ekstrem dan rentan short squeeze."
                     )
             except Exception:
                 pass
 
         # 6. RULE E: Strict Bearish Confluence Gate for Shorts
-        # In crypto, only permit Shorts when the target asset is strictly in confirmed breakdown
+        # Permits Shorts when the target asset is strictly in confirmed breakdown or bearish pullback
         if is_approved and prop_side == "SELL":
-            if htf_trend != "BEARISH":
+            if htf_trend not in ["BEARISH", "BEARISH_PULLBACK"]:
                 is_approved = False
                 rejection_reason = (
                     f"🛑 HTF MACRO LOCK: Setup SHORT pada {pair_sym} DITOLAK. "
-                    f"Tren 4H adalah '{htf_trend}' (Bukan confirmed BEARISH: Price < EMA20 < EMA50). "
-                    f"Dilarang short pada kondisi market konsolidasi/pullback."
+                    f"Tren 4H adalah '{htf_trend}' (Bukan BEARISH / BEARISH_PULLBACK). "
+                    f"Dilarang short pada kondisi market konsolidasi netral atau tren naik."
                 )
 
         status_text = "🟢 APPROVED (Aligned with HTF Trend)" if is_approved else f"🛑 BLOCKED: {rejection_reason}"
