@@ -375,8 +375,11 @@ def log_desk_activity(entry):
         try:
             existing_archive = []
             if os.path.exists(archive_file):
-                with open(archive_file, "r", encoding="utf-8") as f:
-                    existing_archive = json.load(f)
+                try:
+                    with open(archive_file, "r", encoding="utf-8") as f:
+                        existing_archive = json.load(f)
+                except Exception:
+                    existing_archive = []
             existing_archive.extend(archived_chunk)
             with open(archive_file, "w", encoding="utf-8") as f:
                 json.dump(existing_archive, f, indent=2, ensure_ascii=False)

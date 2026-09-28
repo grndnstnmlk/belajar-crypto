@@ -26,6 +26,7 @@ DATA_DIR = os.path.join(os.path.dirname(TOOLS_DIR), "data")
 LOGS_DIR = os.path.join(DATA_DIR, "logs")
 ROOT_DIR = os.path.dirname(os.path.dirname(TOOLS_DIR))
 STATE_FILE = os.path.join(DATA_DIR, "watchdog_state.json")
+WATCHDOG_PID_FILE = os.path.join(DATA_DIR, "watchdog_supervisor.pid")
 
 os.makedirs(LOGS_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -35,6 +36,31 @@ try:
     import telegram_notifier
 except Exception:
     telegram_notifier = None
+
+def acquire_watchdog_lock():
+    """Ensures only ONE instance of watchdog supervisor runs at any time, terminating stale supervisors."""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    my_pid = os.getpid()
+    if os.path.exists(WATCHDOG_PID_FILE):
+        try:
+            with open(WATCHDOG_PID_FILE, "r") as f:
+                content = f.read().strip()
+                if content:
+                    old_pid = int(content)
+                    if old_pid != my_pid:
+                        try:
+                            flags = (subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0)
+                            subprocess.run(f"taskkill /F /T /PID {old_pid}", shell=True, capture_output=True, creationflags=flags)
+                            time.sleep(1.0)
+                        except Exception:
+                            pass
+        except Exception:
+            pass
+    try:
+        with open(WATCHDOG_PID_FILE, "w") as f:
+            f.write(str(my_pid))
+    except Exception:
+        pass
 
 class ServiceWatcher:
     def __init__(self, name, command, port=None, check_endpoint=None, grace_period=15):
@@ -182,6 +208,7 @@ class ServiceWatcher:
         return True
 
 def run_supervisor():
+    acquire_watchdog_lock()
     print("=" * 65)
     print("       🛡️  AUTONOMOUS AUTO-HEALING WATCHDOG SUPERVISOR")
     print(f"       ⏱️  Check Interval: 5 seconds")
@@ -241,6 +268,13 @@ def run_supervisor():
 
     def cleanup(signum=None, frame=None):
         print("\n🛑 Shutting down Watchdog Supervisor and managed services...")
+        try:
+            if os.path.exists(WATCHDOG_PID_FILE):
+                with open(WATCHDOG_PID_FILE, "r") as f:
+                    if f.read().strip() == str(os.getpid()):
+                        os.remove(WATCHDOG_PID_FILE)
+        except Exception:
+            pass
         for s in services:
             if s.process and s.process.poll() is None:
                 print(f"Terminating {s.name} (PID: {s.process.pid})...")
