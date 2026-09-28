@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-28T08:33:17.161284+00:00",
-    "total_reflections": 8,
-    "system_retention_score": 140.6
+    "last_reflection_at": "2026-09-28T09:40:38.115637+00:00",
+    "total_reflections": 9,
+    "system_retention_score": 139.4
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -178,14 +178,14 @@
         "Volume Surge Pullback"
       ],
       "notes": "AI and Web3 infrastructure bellwether. Clean price action on 1H timeframes.",
-      "total_trades": 1,
+      "total_trades": 2,
       "wins": 0,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 0,
-      "net_pnl_usd": -1.9,
+      "net_pnl_usd": -27.0,
       "win_rate_pct": 0.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-28T08:33:17.158621+00:00",
+      "updated_at": "2026-09-28T09:40:38.115627+00:00",
       "avg_r_multiple": -0.08,
       "last_closed_at": "2026-09-28 14:02:03"
     },
@@ -1099,9 +1099,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-09-28T03:26:08.433431+00:00"
+    },
+    {
+      "id": "RULE-AUTO-NEARUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on NEARUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "nearusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-28T09:40:38.115635+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260928-012",
+      "timestamp": "2026-09-28T09:40:38.115610+00:00",
+      "symbol": "NEARUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -25.1,
+      "r_multiple": -1.22,
+      "pnl_pct": -1.55,
+      "root_cause": "Adverse volatility stop-out on NEARUSDT Smart Money Concepts (SMC) (net: -$25.10, -1.22R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on NEARUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "near",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-28T09:40:38.115616+00:00"
+    },
     {
       "id": "MEM-20260928-011",
       "timestamp": "2026-09-28T08:33:17.161264+00:00",
@@ -1143,8 +1177,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2116,
-      "last_accessed": "2026-09-28T09:32:48.240496+00:00"
+      "access_count": 2188,
+      "last_accessed": "2026-09-28T09:39:19.838436+00:00"
     },
     {
       "id": "MEM-20260928-009",
@@ -1187,8 +1221,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 158,
-      "last_accessed": "2026-09-28T09:32:19.253412+00:00"
+      "access_count": 161,
+      "last_accessed": "2026-09-28T09:38:50.281757+00:00"
     },
     {
       "id": "MEM-20260928-007",
@@ -1209,8 +1243,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 258,
-      "last_accessed": "2026-09-28T09:32:19.139566+00:00"
+      "access_count": 261,
+      "last_accessed": "2026-09-28T09:38:49.181163+00:00"
     },
     {
       "id": "MEM-20260928-006",
@@ -1231,8 +1265,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 7710,
-      "last_accessed": "2026-09-28T09:32:48.240489+00:00"
+      "access_count": 7782,
+      "last_accessed": "2026-09-28T09:39:19.838427+00:00"
     },
     {
       "id": "MEM-20260928-005",
@@ -1253,8 +1287,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 7633,
-      "last_accessed": "2026-09-28T09:32:48.240498+00:00"
+      "access_count": 7702,
+      "last_accessed": "2026-09-28T09:39:19.838438+00:00"
     },
     {
       "id": "MEM-20260928-004",
@@ -1275,8 +1309,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 161,
-      "last_accessed": "2026-09-28T09:32:19.253417+00:00"
+      "access_count": 164,
+      "last_accessed": "2026-09-28T09:38:50.281765+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -1295,8 +1329,8 @@
         "absorption"
       ],
       "importance": 9,
-      "access_count": 340,
-      "last_accessed": "2026-09-28T09:32:19.444335+00:00"
+      "access_count": 343,
+      "last_accessed": "2026-09-28T09:38:49.251381+00:00"
     },
     {
       "id": "MEM-20260903-002",
@@ -1315,8 +1349,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 3107,
-      "last_accessed": "2026-09-28T09:32:46.647469+00:00"
+      "access_count": 3116,
+      "last_accessed": "2026-09-28T09:39:17.748927+00:00"
     },
     {
       "id": "MEM-20260907-003",
@@ -1335,8 +1369,8 @@
         "orderflow"
       ],
       "importance": 8,
-      "access_count": 335,
-      "last_accessed": "2026-09-28T09:32:20.352036+00:00"
+      "access_count": 338,
+      "last_accessed": "2026-09-28T09:38:50.401278+00:00"
     }
   ]
 }
