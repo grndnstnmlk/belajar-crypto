@@ -1,5 +1,671 @@
 [
   {
+    "ticket_id": "TCK-20260928-7037",
+    "symbol": "PUMPUSDT",
+    "side": "LONG",
+    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "HIGH",
+    "created_at": "2026-09-28 05:56:37",
+    "updated_at": "2026-09-28 05:57:57",
+    "payload": {
+      "entry": 0.0051,
+      "sl": 0.005,
+      "tp": 0.0056,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-28 05:56:37",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup PUMPUSDT (LONG) teridentifikasi via 5m Inverse FVG (IFVG) Liquidity Scalp."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260928-1963",
+    "symbol": "PUMPUSDT",
+    "side": "LONG",
+    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
+    "priority": "HIGH",
+    "created_at": "2026-09-28 05:54:41",
+    "updated_at": "2026-09-28 05:56:04",
+    "payload": {
+      "entry": 0.0051,
+      "sl": 0.0049,
+      "tp": 0.0057,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "PUMPUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.0049,
+      "tp_price": 0.0057,
+      "rr_ratio": 3.0,
+      "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+      "bull_score": 59,
+      "bear_score": 41,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+      "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.0049,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-28 12:55:08"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup PUMPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (101.124 / +0.02%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+        "Global Macro Risk-Off: DXY Surging (101.124 / +0.02%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0049.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "PUMPUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.0049,
+        "tp_price": 0.0057,
+        "rr_ratio": 3.0,
+        "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+        "bull_score": 59,
+        "bear_score": 41,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+        "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.0049,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-28 12:55:08"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-28 12:55:13",
+        "symbol": "PUMPUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 61,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 73,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "PUMP",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-28 05:55:13",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-28 05:56:04"
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-09-28 05:54:41",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup PUMPUSDT (LONG) teridentifikasi via 5m Inverse FVG (IFVG) Liquidity Scalp."
+      },
+      {
+        "timestamp": "2026-09-28 05:55:13",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 59% vs Bear 41% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-28 05:55:13",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-28 05:55:13",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-28 05:56:04",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260928-6935",
+    "symbol": "PUMPUSDT",
+    "side": "LONG",
+    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
+    "priority": "HIGH",
+    "created_at": "2026-09-28 05:51:16",
+    "updated_at": "2026-09-28 05:54:08",
+    "payload": {
+      "entry": 0.0051,
+      "sl": 0.0049,
+      "tp": 0.0057,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "PUMPUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.0049,
+      "tp_price": 0.0057,
+      "rr_ratio": 3.0,
+      "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+      "bull_score": 59,
+      "bear_score": 41,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+      "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.0049,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-28 12:53:04"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup PUMPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (101.124 / +0.02%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+        "Global Macro Risk-Off: DXY Surging (101.124 / +0.02%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0049.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "PUMPUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.0049,
+        "tp_price": 0.0057,
+        "rr_ratio": 3.0,
+        "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+        "bull_score": 59,
+        "bear_score": 41,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+        "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.0049,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-28 12:53:04"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-28 12:53:10",
+        "symbol": "PUMPUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 61,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 73,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "PUMP",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-28 05:53:10",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-28 05:54:08"
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-09-28 05:51:16",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup PUMPUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-28 05:53:10",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 59% vs Bear 41% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-28 05:53:10",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-28 05:53:10",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-28 05:54:08",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260928-9669",
+    "symbol": "PUMPUSDT",
+    "side": "LONG",
+    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
+    "priority": "HIGH",
+    "created_at": "2026-09-28 05:49:19",
+    "updated_at": "2026-09-28 05:50:42",
+    "payload": {
+      "entry": 0.0051,
+      "sl": 0.0049,
+      "tp": 0.0057,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "PUMPUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.0049,
+      "tp_price": 0.0057,
+      "rr_ratio": 3.0,
+      "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+      "bull_score": 59,
+      "bear_score": 41,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+      "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.0049,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-28 12:49:46"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup PUMPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (101.1 / +0.00%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+        "Global Macro Risk-Off: DXY Surging (101.1 / +0.00%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0049.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "PUMPUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.0049,
+        "tp_price": 0.0057,
+        "rr_ratio": 3.0,
+        "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+        "bull_score": 59,
+        "bear_score": 41,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+        "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.0049,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-28 12:49:46"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-28 12:49:50",
+        "symbol": "PUMPUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 61,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 73,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "PUMP",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-28 05:49:51",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-28 05:50:42"
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-09-28 05:49:19",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup PUMPUSDT (LONG) teridentifikasi via 5m Inverse FVG (IFVG) Liquidity Scalp."
+      },
+      {
+        "timestamp": "2026-09-28 05:49:50",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 59% vs Bear 41% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-28 05:49:51",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-28 05:49:51",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-28 05:50:42",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260928-9113",
+    "symbol": "PUMPUSDT",
+    "side": "LONG",
+    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
+    "priority": "HIGH",
+    "created_at": "2026-09-28 05:45:59",
+    "updated_at": "2026-09-28 05:47:29",
+    "payload": {
+      "entry": 0.0051,
+      "sl": 0.0049,
+      "tp": 0.0057,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "PUMPUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.0049,
+      "tp_price": 0.0057,
+      "rr_ratio": 3.0,
+      "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+      "bull_score": 59,
+      "bear_score": 41,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+      "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.0049,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-28 12:46:25"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup PUMPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (101.1 / +0.00%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+        "Global Macro Risk-Off: DXY Surging (101.1 / +0.00%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0049.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "PUMPUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.0049,
+        "tp_price": 0.0057,
+        "rr_ratio": 3.0,
+        "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+        "bull_score": 59,
+        "bear_score": 41,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+        "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.0049,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-28 12:46:25"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-28 12:46:31",
+        "symbol": "PUMPUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 61,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 73,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "PUMP",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-28 05:46:31",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-28 05:47:29"
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-09-28 05:45:59",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup PUMPUSDT (LONG) teridentifikasi via 5m Inverse FVG (IFVG) Liquidity Scalp."
+      },
+      {
+        "timestamp": "2026-09-28 05:46:31",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 59% vs Bear 41% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-28 05:46:31",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-28 05:46:31",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-28 05:47:29",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260928-9914",
     "symbol": "ONDOUSDT",
     "side": "LONG",
@@ -9,11 +675,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-28 05:21:09",
-    "updated_at": "2026-09-28 05:28:32",
+    "updated_at": "2026-09-28 05:44:39",
     "payload": {
-      "entry": 0.5762,
-      "sl": 0.5714,
-      "tp": 0.5906,
+      "entry": 0.5889,
+      "sl": 0.5589,
+      "tp": 0.6347,
       "rr": 3.0
     },
     "debate_result": null,
