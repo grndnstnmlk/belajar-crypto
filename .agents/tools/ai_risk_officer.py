@@ -770,6 +770,14 @@ def answer_trader_query(user_query, portfolio_context=None):
     except Exception:
         pass
 
+    # Live Internet Intelligence Grounding (Web RAG for Ollama)
+    internet_rag_context = ""
+    try:
+        import internet_researcher
+        internet_rag_context = internet_researcher.synthesize_web_context_for_prompt(user_query)
+    except Exception:
+        pass
+
     if provider != "fallback_quant":
         prompt = f"""
 [CURRENT TRADING DESK STATUS]
@@ -780,6 +788,8 @@ def answer_trader_query(user_query, portfolio_context=None):
 - Active Positions Detail: {json.dumps(positions)}
 
 {memory_context_text}
+
+{internet_rag_context}
 
 [USER QUESTION]
 "{user_query}"

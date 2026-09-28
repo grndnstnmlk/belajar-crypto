@@ -1028,6 +1028,20 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/ai/internet_research" or path == "/api/ai/internet":
+            try:
+                import internet_researcher
+                data = internet_researcher.get_latest_internet_research()
+                res = {"success": True, "data": data}
+            except Exception as e:
+                res = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            return
+
         elif path == "/api/ai/laya/status" or path == "/api/ai/laya_status":
             try:
                 import laya_reflex_engine
@@ -2719,6 +2733,21 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path == "/api/ai/internet_research/learn" or path == "/api/ai/internet/learn":
+            try:
+                import internet_researcher
+                data = internet_researcher.run_ollama_internet_research(force=True)
+                res = {"success": True, "data": data}
+            except Exception as e:
+                res = {"success": False, "error": str(e)}
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            return
+
         elif path == "/api/action/closeall":
             pos = binance_client.send_signed_request("/fapi/v2/positionRisk", method="GET", is_demo=True)
             active = [p for p in (pos or []) if float(p.get("positionAmt", 0)) != 0]
@@ -3128,6 +3157,11 @@ def run_server(port=PORT):
     try:
         import binance_ws_stream
         binance_ws_stream.start_stream(is_demo=True)
+    except Exception:
+        pass
+    try:
+        import internet_researcher
+        internet_researcher.start_internet_research_daemon()
     except Exception:
         pass
     try:

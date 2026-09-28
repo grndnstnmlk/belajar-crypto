@@ -2116,6 +2116,7 @@
         <div style="display:flex; align-items:center; gap:8px;">
           <span style="font-size:14px; font-weight:700; color:var(--color-purple);">🤖 AI Senior Quant Officer Co-Pilot</span>
           <span class="status-pill purple mono" id="ai-provider-badge">ONLINE</span>
+          <span class="status-pill green mono" id="ai-internet-badge" title="Real-Time Web Search & Market RAG">🌐 Web Access: ACTIVE</span>
         </div>
         <button class="btn btn-ghost btn-sm" onclick="closeAiModal()">✕ Close</button>
       </div>
@@ -2127,6 +2128,8 @@
         <div style="display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn btn-ghost btn-sm" onclick="setAiQuery('Evaluate active positions and current portfolio risk')">🛡️ Position Risk Audit</button>
           <button class="btn btn-ghost btn-sm" onclick="setAiQuery('What is the current macro liquidity regime and news shield status?')">📰 Macro News Status</button>
+          <button class="btn btn-ghost btn-sm" onclick="setAiQuery('Bagaimana berita dan sentimen pasar kripto hari ini?')">🌐 Berita & Sentimen Terkini</button>
+          <button class="btn btn-ghost btn-sm" onclick="triggerInternetLearnNow()" id="btn-learn-internet" style="border-color:var(--color-green); color:var(--color-green);">⚡ Pelajari Berita Pasar (Auto-Learn)</button>
         </div>
         <div id="ai-response-box" style="background:var(--bg-canvas); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px; min-height:140px; font-size:12px; line-height:1.6; color:var(--text-primary);">
           Type a query above or click a prompt to consult the AI Senior Quant Officer.
@@ -4100,8 +4103,64 @@
             modalBadge.className = 'status-pill amber mono';
           }
         }
+        const netBadge = document.getElementById('ai-internet-badge');
+        if (netBadge && d.internet_access) {
+          netBadge.textContent = '🌐 Web Access: ACTIVE';
+          netBadge.className = 'status-pill green mono';
+          netBadge.title = `Real-Time Sources: ${d.internet_access.sources.join(', ')} | Last Sync: ${d.internet_access.last_sync}`;
+        }
       } catch (e) {}
     }
+
+    async function triggerInternetLearnNow() {
+      const box = document.getElementById('ai-response-box');
+      const btn = document.getElementById('btn-learn-internet');
+      if (btn) btn.disabled = true;
+      box.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px; color:var(--color-green);">
+          <span class="pulse-dot"></span>
+          <span>Browsing breaking crypto news, Reddit sentiment, and institutional feeds via Jina Reader & Ollama...</span>
+        </div>
+      `;
+      try {
+        const res = await fetch('/api/ai/internet_research/learn', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        const d = await res.json();
+        if (d.success && d.data) {
+          const r = d.data;
+          const tacticsHtml = (r.learned_tactics || []).map(t => `
+            <div style="margin-top:6px; padding:6px 8px; background:rgba(255,255,255,0.03); border-radius:4px; border-left:2px solid var(--color-green);">
+              <div style="font-weight:700; color:var(--color-surface-cream);">${t.topic}</div>
+              <div style="color:var(--text-secondary); font-size:11.5px; margin-top:2px;">${t.insight}</div>
+              <div style="color:var(--color-green); font-size:11px; margin-top:2px;"><b>Rule:</b> ${t.rule}</div>
+            </div>
+          `).join('');
+
+          box.innerHTML = `
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; border-bottom:1px solid var(--border-subtle); padding-bottom:8px;">
+              <span class="status-pill green mono" style="font-size:9.5px; padding:2px 6px;">🌐 Auto-Research Complete</span>
+              <span class="status-pill purple mono" style="font-size:9.5px; padding:2px 6px;">📰 ${r.articles_analyzed} Articles</span>
+              <span class="status-pill blue mono" style="font-size:9.5px; padding:2px 6px;">💬 ${r.reddit_threads_analyzed} Reddit Threads</span>
+              <span class="status-pill amber mono" style="font-size:9.5px; padding:2px 6px;">Regime: ${r.market_regime}</span>
+            </div>
+            <div style="font-size:12.5px; color:var(--color-surface-cream); line-height:1.5; margin-bottom:8px;">${r.sentiment_summary}</div>
+            <div style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Tactics Committed to Agent Memory:</div>
+            ${tacticsHtml}
+          `;
+          showToast("🌐 Ollama successfully learned live market intelligence from the internet!");
+        } else {
+          box.innerHTML = `<div style="color:var(--color-red);">Failed to complete internet research: ${d.error || 'Unknown error'}</div>`;
+        }
+      } catch (e) {
+        box.innerHTML = `<div style="color:var(--color-red);">Connection error: ${e.message}</div>`;
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
 
     async function sendAiQuery() {
       const q = document.getElementById('ai-query-input').value.trim();

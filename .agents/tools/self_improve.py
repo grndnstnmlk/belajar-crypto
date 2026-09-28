@@ -474,12 +474,29 @@ def evolve_agent():
     genome = load_json(GENOME_FILE, get_default_genome())
     return mutated, genome.get("generation", 1)
 
+def run_internet_learning_cycle():
+    """
+    Triggers Ollama's internet research and continuous learning cycle to update
+    the agent's tactics from live web intelligence.
+    """
+    print("\n🌐 Triggering Ollama Autonomous Internet Research & Learning Loop...")
+    try:
+        import internet_researcher
+        result = internet_researcher.run_ollama_internet_research(force=True)
+        print(f"✅ Internet Research Completed: {result.get('market_regime')}")
+        print(f"   Learned Tactics: {len(result.get('learned_tactics', []))} new tactics committed to memory bank.")
+        return result
+    except Exception as e:
+        print(f"❌ Internet Research Error: {e}")
+        return {"status": "ERROR", "message": str(e)}
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ATLAS Karpathy Autoresearch Self-Improving Engine")
     sub = parser.add_subparsers(dest="command")
     sub.add_parser("status", help="Show current Agent Genome, Generation, and Parameters")
     sub.add_parser("audit", help="Audit performance metrics and rolling Sharpe")
     sub.add_parser("evolve", help="Run Karpathy Autoresearch Keep-or-Revert cycle")
+    sub.add_parser("internet", help="Run Ollama Autonomous Internet Research and Continuous Learning Loop")
     sub.add_parser("sample-data", help="Inject realistic sample paper trade history for testing")
     args = parser.parse_args()
 
@@ -487,6 +504,8 @@ if __name__ == "__main__":
         show_genome_status()
     elif args.command == "evolve":
         evolve_agent()
+    elif args.command == "internet":
+        run_internet_learning_cycle()
     elif args.command == "sample-data":
         inject_sample_data()
     else:

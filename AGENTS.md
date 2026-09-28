@@ -23,6 +23,7 @@ Every visual modification to [`dashboard.html`](dashboard.html) must strictly ad
 - **Regime-Adaptive Switcher**: Automatically switches strategy between Hyper-Trending (1:5R+ runners), Moderate Trend (1:3.5R), Ranging Consolidation (1:2.0R ORB), and Volatile Chop (Defensive Scalp).
 - **Order Book Delta Sniping**: Reads Level-2 depth imbalance (>=2.5x) and CVD absorption to front-run limit walls and expand R:R to 1:5.0 - 1:8.0.
 - **Dynamic Beta-Neutral Portfolio Hedge**: Calculates Net Portfolio Beta-Weighted Delta ($USD\Delta$) and deploys BTC Short Hedges during BTC flash crash shocks.
+- **Ollama Real-Time Internet Web RAG & Continuous Learning**: Local AI Brain (`deepseek-r1:8b`) receives live web search and sentiment grounding (Cointelegraph, CoinDesk, Decrypt, Reddit, Jina Reader, Binance Vision) and autonomously runs continuous learning cycles committing discovered institutional tactics into `agent_memory_bank.json`.
 - High-frequency position monitoring runs via dedicated background watcher threads.
 - All closed trades must be logged to the **Trade Journal** (`trade_journal_ledger.json`) with dynamic date filtering and today-first reporting.
 - Every modification must pass all tests in `scratch/total_system_debug.py` with a 100% health score.
