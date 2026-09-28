@@ -9,7 +9,7 @@ interface ExecutionPanelProps {
 }
 
 export const ExecutionPanel: React.FC<ExecutionPanelProps> = ({ positions }) => {
-  const { activeSymbol, orderSide, setOrderSide, riskPct, setRiskPct } = useTerminalStore();
+  const { activeSymbol, setActiveSymbol, setActiveView, orderSide, setOrderSide, riskPct, setRiskPct } = useTerminalStore();
   const [symInput, setSymInput] = useState(`${activeSymbol}USDT`);
   const [execMode, setExecMode] = useState<'POST_ONLY' | 'LIMIT_CHASE' | 'MARKET'>('POST_ONLY');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,13 +61,25 @@ export const ExecutionPanel: React.FC<ExecutionPanelProps> = ({ positions }) => 
       overflow: 'hidden'
     }}>
       {/* Header */}
-      <div style={{
-        padding: '10px 14px',
-        borderBottom: '1px solid var(--border-subtle)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
+      <div 
+        onClick={() => {
+          if (positions && positions.length > 0) {
+            const cleanSym = (positions[0].symbol || '').replace(/USDT$/i, '');
+            setActiveSymbol(cleanSym);
+            setSymInput(`${cleanSym}USDT`);
+          }
+          setActiveView('terminal');
+        }}
+        style={{
+          padding: '10px 14px',
+          borderBottom: '1px solid var(--border-subtle)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'pointer'
+        }}
+        title="Klik untuk membuka grafik candlestick posisi aktif"
+      >
         <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
           Execution & Positions
         </span>
@@ -247,23 +259,36 @@ export const ExecutionPanel: React.FC<ExecutionPanelProps> = ({ positions }) => 
             </div>
           ) : (
             positions.map((p, idx) => {
+              const cleanSym = (p.symbol || '').replace(/USDT$/i, '').toUpperCase();
               const isLong = (p.side || '').toUpperCase() === 'LONG' || (p.side || '').toUpperCase() === 'BUY';
               const pnl = p.unrealized_pnl ?? p.pnl_usd ?? p.pnl ?? 0;
               const pnlColor = pnl >= 0 ? 'var(--color-green)' : 'var(--color-red)';
               const pnlSign = pnl >= 0 ? '+' : '';
+              const isCurrentChart = cleanSym === activeSymbol;
+
+              const selectThisPositionCandle = () => {
+                setActiveSymbol(cleanSym);
+                setSymInput(`${cleanSym}USDT`);
+                setActiveView('terminal');
+              };
 
               return (
                 <div
                   key={idx}
+                  onClick={selectThisPositionCandle}
                   style={{
                     background: 'var(--bg-card)',
-                    border: '1px solid var(--border-subtle)',
+                    border: `1px solid ${isCurrentChart ? 'var(--color-blue)' : 'var(--border-subtle)'}`,
                     borderRadius: 'var(--radius-md)',
                     padding: '10px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '6px'
+                    gap: '6px',
+                    cursor: 'pointer',
+                    boxShadow: isCurrentChart ? '0 0 10px rgba(59, 130, 246, 0.15)' : 'none',
+                    transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
                   }}
+                  title={`Klik untuk membuka grafik candle ${cleanSym}`}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -273,6 +298,11 @@ export const ExecutionPanel: React.FC<ExecutionPanelProps> = ({ positions }) => 
                       <span className={`status-pill ${isLong ? 'green' : 'red'}`} style={{ fontSize: '8.5px', padding: '1px 5px' }}>
                         {p.side} {p.leverage || 20}x
                       </span>
+                      {isCurrentChart && (
+                        <span style={{ fontSize: '9px', color: 'var(--color-blue)', fontWeight: 700 }}>
+                          📊 CHART
+                        </span>
+                      )}
                     </div>
                     <span className="mono" style={{ fontSize: '13px', fontWeight: 800, color: pnlColor }}>
                       {pnlSign}${pnl.toFixed(2)}
@@ -298,14 +328,22 @@ export const ExecutionPanel: React.FC<ExecutionPanelProps> = ({ positions }) => 
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }} onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={selectThisPositionCandle}
+                      style={{ flex: 1 }}
+                      title={`Buka grafik candle ${cleanSym}`}
+                    >
+                      <span>📊 Candle</span>
+                    </button>
                     <button
                       className="btn btn-ghost btn-sm"
                       onClick={() => handleBreakeven(p.symbol)}
                       style={{ flex: 1 }}
                     >
                       <Target size={11} />
-                      <span>Breakeven</span>
+                      <span>BE</span>
                     </button>
                     <button
                       className="btn btn-danger btn-sm"

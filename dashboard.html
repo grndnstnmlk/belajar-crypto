@@ -757,11 +757,18 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      transition: border-color 0.15s ease;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      cursor: pointer;
     }
 
     .position-card:hover {
-      border-color: var(--border-light);
+      border-color: var(--color-blue);
+      background: rgba(59, 130, 246, 0.03);
+    }
+
+    .position-card.active-chart {
+      border-color: var(--color-blue);
+      background: rgba(59, 130, 246, 0.06);
     }
 
     .pos-card-head {
@@ -1548,12 +1555,12 @@
 
           <!-- RIGHT SIDEBAR: ORDER EXECUTION & ACTIVE POSITIONS -->
           <aside class="panel-right-execution">
-            <div class="panel-header-bar">
+            <div class="panel-header-bar" onclick="openActivePositionCandle()" style="cursor:pointer;" title="Klik untuk membuka grafik candlestick posisi aktif">
               <span class="panel-title">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>
                 <span>Execution & Positions</span>
               </span>
-              <span class="status-pill blue mono" id="active-pos-count-pill">0 ACTIVE</span>
+              <span class="status-pill blue mono" id="active-pos-count-pill" title="Klik untuk membuka candle posisi aktif">0 ACTIVE</span>
             </div>
 
             <div class="execution-scroll-area">
@@ -2357,13 +2364,48 @@
 
     // Select Active Coin
     function selectCoin(sym) {
-      activeSymbol = sym;
-      document.getElementById('active-sym-title').innerText = `${sym}/USDT`;
-      document.getElementById('order-sym-input').value = `${sym}USDT`;
+      if (!sym) return;
+      const cleanSym = sym.replace(/USDT$/i, '').toUpperCase();
+      activeSymbol = cleanSym;
+      const symTitle = document.getElementById('active-sym-title');
+      if (symTitle) symTitle.innerText = `${cleanSym}/USDT`;
+      const symInput = document.getElementById('order-sym-input');
+      if (symInput) symInput.value = `${cleanSym}USDT`;
+
       document.querySelectorAll('.watch-coin-card').forEach(c => c.classList.remove('active'));
-      const activeCard = document.getElementById(`watch-card-${sym}`);
+      const activeCard = document.getElementById(`watch-card-${cleanSym}`);
       if (activeCard) activeCard.classList.add('active');
+
+      document.querySelectorAll('.position-card').forEach(c => c.classList.remove('active-chart'));
+      const activePosCard = document.getElementById(`pos-card-${cleanSym}`);
+      if (activePosCard) activePosCard.classList.add('active-chart');
+
+      if (typeof activeView !== 'undefined' && activeView !== 'terminal') {
+        switchView('terminal');
+      }
+
       loadChartKlines(activeSymbol, activeTimeframe, true);
+    }
+
+    let latestPositionsData = [];
+
+    function openActivePositionCandle(preferredSym) {
+      if (preferredSym) {
+        selectCoin(preferredSym);
+        showToast(`📊 Membuka grafik candle ${preferredSym}`);
+        return;
+      }
+      if (latestPositionsData && latestPositionsData.length > 0) {
+        const target = latestPositionsData[0].symbol;
+        selectCoin(target);
+        showToast(`📊 Membuka grafik candle posisi aktif: ${target}`);
+      } else {
+        if (typeof activeView !== 'undefined' && activeView !== 'terminal') {
+          switchView('terminal');
+        }
+        loadChartKlines(activeSymbol, activeTimeframe, true);
+        showToast(`📊 Menampilkan grafik candle ${activeSymbol}`);
+      }
     }
 
     // Real-time Dashboard Polling & Native SSE Stream with SmoothUI / Magic UI Ticker Micro-Animations
@@ -2576,9 +2618,10 @@
     }
 
     function renderPositions(positions) {
+      latestPositionsData = positions || [];
       const container = document.getElementById('positions-container');
       const countPill = document.getElementById('active-pos-count-pill');
-      if (countPill) countPill.innerText = `${positions.length} ACTIVE`;
+      if (countPill) countPill.innerText = `${positions ? positions.length : 0} ACTIVE`;
       if (!container) return;
 
       if (!positions || positions.length === 0) {
@@ -2591,18 +2634,21 @@
       }
 
       container.innerHTML = positions.map(p => {
+        const cleanSym = (p.symbol || '').replace(/USDT$/i, '').toUpperCase();
         const isLong = (p.side || '').toUpperCase() === 'LONG' || (p.side || '').toUpperCase() === 'BUY';
         const sideClass = isLong ? 'long' : 'short';
         const pnl = p.unrealized_pnl || p.pnl_usd || p.pnl || 0;
         const pnlColor = pnl >= 0 ? 'var(--color-green)' : 'var(--color-red)';
         const pnlSign = pnl >= 0 ? '+' : '';
+        const isActiveChart = cleanSym === activeSymbol ? 'active-chart' : '';
 
         return `
-          <div class="position-card">
+          <div class="position-card ${isActiveChart}" id="pos-card-${cleanSym}" onclick="selectCoin('${cleanSym}')" title="Klik untuk membuka grafik candlestick ${cleanSym}">
             <div class="pos-card-head">
               <div class="pos-sym-badge">
                 <span>${p.symbol}</span>
                 <span class="pos-side-pill ${sideClass}">${p.side} ${p.leverage || 20}x</span>
+                ${isActiveChart ? '<span style="font-size:9px; color:var(--color-blue); font-weight:700;">📊 CHART</span>' : ''}
               </div>
               <div class="pos-pnl-headline mono" style="color:${pnlColor};">
                 ${pnlSign}$${pnl.toFixed(2)}
@@ -2628,9 +2674,10 @@
               </div>
             </div>
 
-            <div class="pos-action-row">
-              <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="moveSlToBreakeven('${p.symbol}')">🎯 Breakeven</button>
-              <button class="btn btn-danger btn-sm" style="flex:1;" onclick="manualClosePosition('${p.symbol}')">✕ Close</button>
+            <div class="pos-action-row" onclick="event.stopPropagation();">
+              <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="selectCoin('${cleanSym}')" title="Buka grafik candlestick ${cleanSym}">📊 Candle</button>
+              <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="moveSlToBreakeven('${p.symbol}')" title="Kunci Breakeven">🎯 BE</button>
+              <button class="btn btn-danger btn-sm" style="flex:1;" onclick="manualClosePosition('${p.symbol}')" title="Tutup Posisi">✕ Close</button>
             </div>
           </div>
         `;
