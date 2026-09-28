@@ -1,5 +1,154 @@
 [
   {
+    "ticket_id": "TCK-20260928-7449",
+    "symbol": "WLDUSDT",
+    "side": "LONG",
+    "strategy": "5m Craig Percoco Morning Routine (SSL Sweep & FVG)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "NORMAL",
+    "created_at": "2026-09-28 12:47:27",
+    "updated_at": "2026-09-28 12:48:26",
+    "payload": {
+      "entry": 0.5183,
+      "sl": 0.5028,
+      "tp": 0.5648,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "WLDUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.5028,
+      "tp_price": 0.5648,
+      "rr_ratio": 3.0,
+      "strategy": "5m Craig Percoco Morning Routine (SSL Sweep & FVG)",
+      "bull_score": 57,
+      "bear_score": 43,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+      "bear_critique": " \u2022 Aset WLDUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.5028,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-28 19:48:20"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup WLDUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost)., Global Macro Risk-Off: DXY Surging (101.138 / +0.04%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Options Expiry Week Flow Aktif (Tgl 22-28): Likuiditas gamma pinning institusional mendukung momentum Long (+15% scale boost).",
+        "Global Macro Risk-Off: DXY Surging (101.138 / +0.04%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.5028.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "WLDUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.5028,
+        "tp_price": 0.5648,
+        "rr_ratio": 3.0,
+        "strategy": "5m Craig Percoco Morning Routine (SSL Sweep & FVG)",
+        "bull_score": 57,
+        "bear_score": 43,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+        "bear_critique": " \u2022 Aset WLDUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.5028,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-28 19:48:20"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-28 19:48:26",
+        "symbol": "WLDUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 95,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat. | ADX momentum kuat (29.2) mendukung kelanjutan tren yang ekspansif."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 60,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 77,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "WLD",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-28 12:48:26",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-28 12:47:27",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup WLDUSDT (LONG) teridentifikasi via 5m Craig Percoco Morning Routine (SSL Sweep & FVG)."
+      },
+      {
+        "timestamp": "2026-09-28 12:48:26",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 57% vs Bear 43% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-28 12:48:26",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-28 12:48:26",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260928-8157",
     "symbol": "WLDUSDT",
     "side": "LONG",
@@ -3087,18 +3236,18 @@
     "ticket_id": "TCK-20260927-8291",
     "symbol": "ETHUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-27 13:16:58",
-    "updated_at": "2026-09-27 14:07:39",
+    "updated_at": "2026-09-28 12:54:19",
     "payload": {
-      "entry": 2706.2926,
-      "sl": 2684.6423,
-      "tp": 2771.2435,
-      "rr": 3.0
+      "entry": 2685.5562,
+      "sl": 2647.7055,
+      "tp": 2761.2575,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -3466,22 +3615,40 @@
     "ticket_id": "TCK-20260927-1554",
     "symbol": "SUIUSDT",
     "side": "LONG",
-    "strategy": "5m 4H-Range Breakout Re-entry",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
     "priority": "NORMAL",
     "created_at": "2026-09-27 12:23:21",
-    "updated_at": "2026-09-28 11:17:51",
+    "updated_at": "2026-09-28 12:55:05",
     "payload": {
-      "entry": 1.1771,
-      "sl": 1.1671,
-      "tp": 1.207,
-      "rr": 3.0
+      "entry": 1.1924,
+      "sl": 1.1566,
+      "tp": 1.2998,
+      "rr": 2.0
     },
     "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
+    "risk_result": {
+      "decision": "VETO",
+      "confidence": 94,
+      "suggested_risk_scale": 0.0,
+      "thesis": "VETO: \ud83d\udea8 [CROWDED LONGS VETO] SUI LONG DIBLOKIR: Funding Rate sangat tinggi (+0.0100%) dan L/S ratio (2.58) overleveraged. Risiko Long Squeeze (likuidasi massal buyer ritel) sangat ekstrim!",
+      "key_risks": [
+        "Crowded Retail Positioning",
+        "High Liquidation Cascade Risk"
+      ],
+      "invalidation_scenario": "Tunggu Funding Rate kembali netral dan rasio L/S normal.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": null,
+      "tri_perspective_risk": null
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-28 12:55:05",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
     "execution_result": null,
     "timeline": [
       {
@@ -3489,6 +3656,24 @@
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup SUIUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      },
+      {
+        "timestamp": "2026-09-28 12:55:05",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: VETO (94%)"
+      },
+      {
+        "timestamp": "2026-09-28 12:55:05",
+        "agent": "chief_risk_officer",
+        "stage": "APPROVED",
+        "note": "Opportunity Override: VETO: \ud83d\udea8 [CROWDED LONGS VETO] SUI LONG DIBLOKIR: Funding Rate sangat tinggi (+0.0100%) dan L/S ratio (2.58) overleveraged. Risiko Long Squeeze (likuidasi massal buyer ritel) sangat ekstrim!"
+      },
+      {
+        "timestamp": "2026-09-28 12:55:05",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
