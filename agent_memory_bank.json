@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-28T03:26:08.433431+00:00",
-    "total_reflections": 4,
-    "system_retention_score": 113.9
+    "last_reflection_at": "2026-09-28T05:39:09.265778+00:00",
+    "total_reflections": 5,
+    "system_retention_score": 123.9
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -57,16 +57,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 2,
+      "total_trades": 3,
       "wins": 0,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -73.31,
+      "net_pnl_usd": -123.49,
       "avg_r_multiple": -1.39,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-28 08:07:37",
-      "updated_at": "2026-09-28T03:58:36.667876+00:00"
+      "updated_at": "2026-09-28T05:39:09.265778+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -985,13 +985,14 @@
       "id": "RULE-AUTO-SOLUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "solusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-28T01:20:03.999290+00:00"
+      "created_at": "2026-09-28T01:20:03.999290+00:00",
+      "updated_at": "2026-09-28T05:39:09.265778+00:00"
     },
     {
       "id": "RULE-AUTO-BTCUSDT",
@@ -1032,6 +1033,28 @@
   ],
   "episodic_memories": [
     {
+      "id": "MEM-20260928-008",
+      "timestamp": "2026-09-28T05:39:09.265778+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -50.18,
+      "r_multiple": -1.43,
+      "pnl_pct": -3.02,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT 5m Order Flow CVD Absorption Scalp (net: -$50.18, -1.43R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "5m_order_flow_cvd_absorption_scalp",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-09-28T05:39:09.265778+00:00"
+    },
+    {
       "id": "MEM-20260928-007",
       "timestamp": "2026-09-28T03:26:08.433431+00:00",
       "symbol": "BNBUSDT",
@@ -1050,8 +1073,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 92,
-      "last_accessed": "2026-09-28T05:28:19.651385+00:00"
+      "access_count": 101,
+      "last_accessed": "2026-09-28T05:39:07.802110+00:00"
     },
     {
       "id": "MEM-20260928-006",
@@ -1072,8 +1095,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 3959,
-      "last_accessed": "2026-09-28T05:28:20.689702+00:00"
+      "access_count": 4146,
+      "last_accessed": "2026-09-28T05:39:07.802110+00:00"
     },
     {
       "id": "MEM-20260928-005",
@@ -1094,8 +1117,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 3959,
-      "last_accessed": "2026-09-28T05:28:20.689702+00:00"
+      "access_count": 4146,
+      "last_accessed": "2026-09-28T05:39:07.802110+00:00"
     },
     {
       "id": "MEM-20260928-004",
@@ -1116,8 +1139,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 11,
-      "last_accessed": "2026-09-28T05:23:05.209394+00:00"
+      "access_count": 12,
+      "last_accessed": "2026-09-28T05:30:25.202528+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -1136,8 +1159,8 @@
         "absorption"
       ],
       "importance": 9,
-      "access_count": 183,
-      "last_accessed": "2026-09-28T05:28:19.611867+00:00"
+      "access_count": 191,
+      "last_accessed": "2026-09-28T05:39:07.587700+00:00"
     },
     {
       "id": "MEM-20260903-002",
@@ -1156,8 +1179,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 2384,
-      "last_accessed": "2026-09-28T05:28:20.689702+00:00"
+      "access_count": 2441,
+      "last_accessed": "2026-09-28T05:39:07.720350+00:00"
     },
     {
       "id": "MEM-20260907-003",
@@ -1176,8 +1199,8 @@
         "orderflow"
       ],
       "importance": 8,
-      "access_count": 178,
-      "last_accessed": "2026-09-28T05:28:19.660833+00:00"
+      "access_count": 186,
+      "last_accessed": "2026-09-28T05:39:07.719084+00:00"
     }
   ]
 }
