@@ -1,11 +1,22 @@
 {
-  "dopamine_level": 6.15,
-  "cortisol_level": 64.64,
-  "state": "ELEVATED_STRESS",
-  "synaptic_risk_multiplier": 0.75,
+  "dopamine_level": 0.0,
+  "cortisol_level": 76.23,
+  "state": "AVERSIVE_TRAUMA_COOLDOWN",
+  "synaptic_risk_multiplier": 0.5,
   "anti_overconfidence_active": false,
-  "confluence_threshold_offset": 4.0,
+  "confluence_threshold_offset": 8.0,
   "recent_bursts": [
+    {
+      "timestamp": "2026-09-28 14:02:13",
+      "circuit": "PPL101_AVERSIVE_CORTISOL",
+      "event_type": "STOP_LOSS",
+      "symbol": "NEARUSDT",
+      "pnl_usd": -1.9,
+      "r_multiple": -0.08,
+      "delta_dopamine": -10.0,
+      "delta_cortisol": 12.0,
+      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$1.25 USDT)"
+    },
     {
       "timestamp": "2026-09-28 12:39:09",
       "circuit": "PPL101_AVERSIVE_CORTISOL",
@@ -63,8 +74,8 @@
     }
   ],
   "total_pam11_firings": 0,
-  "total_ppl101_firings": 5,
-  "last_updated": 1790578659.5456724,
-  "status_badge": "⚠️ ELEVATED STRESS",
-  "action_guidance": "Stres terdeteksi. Ukuran lot dikurangi 25%, filter konfluensi dinaikkan untuk menghindari chop."
+  "total_ppl101_firings": 6,
+  "last_updated": 1790578933.016047,
+  "status_badge": "🚨 AVERSIVE COOLDOWN (Stress Shield)",
+  "action_guidance": "Kortisol tinggi pasca drawdown/stop-out. Alokasi dipangkas 50%, konfluensi diperketat demi perlindungan modal."
 }
