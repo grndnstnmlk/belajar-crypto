@@ -444,10 +444,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-29 11:46:09",
-    "updated_at": "2026-09-29 13:11:13",
+    "updated_at": "2026-09-29 15:26:37",
     "payload": {
       "entry": 84296.5394,
       "sl": 81767.6432,
@@ -556,7 +556,11 @@
       "authorized_at": "2026-09-29 13:11:13",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-29 15:26:37"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-29 11:46:09",
@@ -581,6 +585,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-29 15:26:37",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
