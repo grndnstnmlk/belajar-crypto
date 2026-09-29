@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-29T11:42:38.066511+00:00",
-    "total_reflections": 25,
-    "system_retention_score": 118.0,
+    "last_reflection_at": "2026-09-29T11:49:47.182434+00:00",
+    "total_reflections": 26,
+    "system_retention_score": 117.0,
     "last_internet_learning_sync": "2026-09-29 03:16:58",
     "total_internet_learnings": 1
   },
@@ -221,16 +221,16 @@
         "Wyckoff Spring"
       ],
       "notes": "Oracle leader with strong fundamental holding. Highly respects horizontal support and resistance.",
-      "total_trades": 6,
+      "total_trades": 7,
       "wins": 4,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
-      "win_rate_pct": 66.7,
-      "net_pnl_usd": 0.21,
+      "win_rate_pct": 57.1,
+      "net_pnl_usd": -3.6,
       "avg_r_multiple": 0.03,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-09-29 02:05:15",
-      "updated_at": "2026-09-29T09:45:19.193682+00:00"
+      "updated_at": "2026-09-29T11:49:47.182421+00:00"
     },
     "UNIUSDT": {
       "symbol": "UNIUSDT",
@@ -1422,13 +1422,14 @@
       "id": "RULE-AUTO-LINKUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on LINKUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "linkusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-29T03:17:18.978773+00:00"
+      "created_at": "2026-09-29T03:17:18.978773+00:00",
+      "updated_at": "2026-09-29T11:49:47.182432+00:00"
     },
     {
       "id": "RULE-AUTO-ETHUSDT",
@@ -1444,6 +1445,28 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260929-029",
+      "timestamp": "2026-09-29T11:49:47.182408+00:00",
+      "symbol": "LINKUSDT",
+      "setup_type": "15m Key Level Rectangle Break & Retest",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -3.81,
+      "r_multiple": -0.19,
+      "pnl_pct": -0.42,
+      "root_cause": "Adverse volatility stop-out on LINKUSDT 15m Key Level Rectangle Break & Retest (net: -$3.81, -0.19R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on LINKUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "link",
+        "15m_key_level_rectangle_break_&_retest",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-29T11:49:47.182413+00:00"
+    },
     {
       "id": "MEM-20260929-028",
       "timestamp": "2026-09-29T11:42:38.066494+00:00",
@@ -1745,8 +1768,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 413,
-      "last_accessed": "2026-09-29T11:45:28.890580+00:00"
+      "access_count": 414,
+      "last_accessed": "2026-09-29T11:49:45.573116+00:00"
     },
     {
       "id": "MEM-20260928-015",
@@ -1839,8 +1862,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 10959,
-      "last_accessed": "2026-09-29T11:45:28.890589+00:00"
+      "access_count": 10981,
+      "last_accessed": "2026-09-29T11:49:45.573127+00:00"
     },
     {
       "id": "MEM-20260928-011",
@@ -1883,8 +1906,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 13663,
-      "last_accessed": "2026-09-29T11:47:26.068389+00:00"
+      "access_count": 13685,
+      "last_accessed": "2026-09-29T11:49:45.573125+00:00"
     },
     {
       "id": "MEM-20260928-009",
@@ -1905,8 +1928,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 486,
-      "last_accessed": "2026-09-29T11:44:46.943417+00:00"
+      "access_count": 487,
+      "last_accessed": "2026-09-29T11:49:04.898269+00:00"
     },
     {
       "id": "MEM-20260928-008",
@@ -1949,8 +1972,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 704,
-      "last_accessed": "2026-09-29T11:44:43.932813+00:00"
+      "access_count": 705,
+      "last_accessed": "2026-09-29T11:49:02.655228+00:00"
     },
     {
       "id": "MEM-20260928-006",
@@ -1971,8 +1994,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 19257,
-      "last_accessed": "2026-09-29T11:47:26.068388+00:00"
+      "access_count": 19279,
+      "last_accessed": "2026-09-29T11:49:45.573123+00:00"
     },
     {
       "id": "MEM-20260928-005",
@@ -1993,8 +2016,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 17285,
-      "last_accessed": "2026-09-29T11:45:26.751152+00:00"
+      "access_count": 17304,
+      "last_accessed": "2026-09-29T11:49:42.688324+00:00"
     },
     {
       "id": "MEM-20260928-004",
