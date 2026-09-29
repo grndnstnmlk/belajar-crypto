@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-29T22:02:38.848387+00:00",
-    "total_reflections": 36,
-    "system_retention_score": 108.3,
+    "last_reflection_at": "2026-09-29T23:04:45.593231+00:00",
+    "total_reflections": 37,
+    "system_retention_score": 107.8,
     "last_internet_learning_sync": "2026-09-30 02:12:45",
     "total_internet_learnings": 4
   },
@@ -164,14 +164,14 @@
         "CVD Absorption"
       ],
       "notes": "High beta to SOL and layer-1 rotations. Strong trend continuation when 1H EMA 50 aligns.",
-      "total_trades": 1,
+      "total_trades": 2,
       "wins": 0,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 0,
-      "net_pnl_usd": -17.58,
+      "net_pnl_usd": -19.4,
       "win_rate_pct": 0.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-09-29T19:30:30.267647+00:00",
+      "updated_at": "2026-09-29T23:04:45.593217+00:00",
       "avg_r_multiple": -0.86,
       "last_closed_at": "2026-09-29 21:50:40"
     },
@@ -1411,6 +1411,24 @@
       "net_pnl_usd": 0.0,
       "created_dynamically": true,
       "updated_at": "2026-09-29T20:49:45.896857+00:00"
+    },
+    "CELOUSDT": {
+      "symbol": "CELOUSDT",
+      "volatility_regime": "MODERATE",
+      "wick_risk_rating": "MODERATE",
+      "funding_sensitivity": "MODERATE",
+      "false_breakout_bias": "MODERATE",
+      "optimal_setups": [
+        "15m Order Block Retest",
+        "Naked POC Magnetic Pull",
+        "SFP Liquidity Sweep"
+      ],
+      "notes": "Active dynamic asset CELOUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
+      "total_trades": 0,
+      "win_rate_pct": 0.0,
+      "net_pnl_usd": 0.0,
+      "created_dynamically": true,
+      "updated_at": "2026-09-29T22:51:48.214055+00:00"
     }
   },
   "tactical_rules": [
@@ -1557,9 +1575,43 @@
       ],
       "created_at": "2026-09-29T09:20:25.965150+00:00",
       "updated_at": "2026-09-29T21:43:03.966344+00:00"
+    },
+    {
+      "id": "RULE-AUTO-AVAXUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on AVAXUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "avaxusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-09-29T23:04:45.593229+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260929-040",
+      "timestamp": "2026-09-29T23:04:45.593202+00:00",
+      "symbol": "AVAXUSDT",
+      "setup_type": "5m ICT Rejection Block Mean Threshold",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -1.82,
+      "r_multiple": -0.11,
+      "pnl_pct": -0.24,
+      "root_cause": "Adverse volatility stop-out on AVAXUSDT 5m ICT Rejection Block Mean Threshold (net: -$1.82, -0.11R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on AVAXUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "avax",
+        "5m_ict_rejection_block_mean_threshold",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-29T23:04:45.593207+00:00"
+    },
     {
       "id": "MEM-20260929-039",
       "timestamp": "2026-09-29T22:02:38.848371+00:00",
@@ -1969,8 +2021,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 244,
-      "last_accessed": "2026-09-29T22:40:53.771009+00:00"
+      "access_count": 248,
+      "last_accessed": "2026-09-29T22:49:37.140921+00:00"
     },
     {
       "id": "MEM-20260929-021",
@@ -2203,8 +2255,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 14427,
-      "last_accessed": "2026-09-29T22:42:43.145667+00:00"
+      "access_count": 14617,
+      "last_accessed": "2026-09-29T23:04:45.241605+00:00"
     },
     {
       "id": "MEM-20260928-011",
@@ -2247,8 +2299,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 17231,
-      "last_accessed": "2026-09-29T22:42:43.145665+00:00"
+      "access_count": 17430,
+      "last_accessed": "2026-09-29T23:04:45.241602+00:00"
     },
     {
       "id": "MEM-20260928-009",
@@ -2269,8 +2321,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 632,
-      "last_accessed": "2026-09-29T22:42:41.088715+00:00"
+      "access_count": 641,
+      "last_accessed": "2026-09-29T23:04:42.367385+00:00"
     },
     {
       "id": "MEM-20260928-008",
@@ -2291,8 +2343,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 792,
-      "last_accessed": "2026-09-29T22:42:41.079773+00:00"
+      "access_count": 803,
+      "last_accessed": "2026-09-29T23:04:39.437211+00:00"
     },
     {
       "id": "MEM-20260928-007",
@@ -2313,8 +2365,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 863,
-      "last_accessed": "2026-09-29T22:42:43.145653+00:00"
+      "access_count": 872,
+      "last_accessed": "2026-09-29T23:04:40.077801+00:00"
     },
     {
       "id": "MEM-20260928-006",
@@ -2335,8 +2387,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 22825,
-      "last_accessed": "2026-09-29T22:42:43.145662+00:00"
+      "access_count": 23024,
+      "last_accessed": "2026-09-29T23:04:45.241594+00:00"
     },
     {
       "id": "MEM-20260928-005",
@@ -2357,8 +2409,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 20196,
-      "last_accessed": "2026-09-29T22:42:42.091011+00:00"
+      "access_count": 20362,
+      "last_accessed": "2026-09-29T23:04:45.241607+00:00"
     },
     {
       "id": "MEM-20260928-004",
@@ -2379,8 +2431,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 767,
-      "last_accessed": "2026-09-29T22:42:41.079777+00:00"
+      "access_count": 776,
+      "last_accessed": "2026-09-29T23:04:39.437218+00:00"
     },
     {
       "id": "MEM-20260901-001",
