@@ -1,11 +1,22 @@
 {
-  "dopamine_level": 43.22,
-  "cortisol_level": 37.61,
-  "state": "EQUILIBRIUM_NEUTRAL",
-  "synaptic_risk_multiplier": 1.0,
+  "dopamine_level": 33.24,
+  "cortisol_level": 49.53,
+  "state": "ELEVATED_STRESS",
+  "synaptic_risk_multiplier": 0.75,
   "anti_overconfidence_active": false,
-  "confluence_threshold_offset": 0.0,
+  "confluence_threshold_offset": 4.0,
   "recent_bursts": [
+    {
+      "timestamp": "2026-09-29 21:50:48",
+      "circuit": "PPL101_AVERSIVE_CORTISOL",
+      "event_type": "STOP_LOSS",
+      "symbol": "AVAXUSDT",
+      "pnl_usd": -17.58,
+      "r_multiple": -0.86,
+      "delta_dopamine": -10.0,
+      "delta_cortisol": 12.0,
+      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$17.13 USDT)"
+    },
     {
       "timestamp": "2026-09-29 20:03:00",
       "circuit": "PPL101_AVERSIVE_CORTISOL",
@@ -159,22 +170,11 @@
       "delta_dopamine": 4.0,
       "delta_cortisol": -2.5,
       "note": "Position closed via 🟢 Profit Locked (+$6.21 USDT)"
-    },
-    {
-      "timestamp": "2026-09-29 04:01:06",
-      "circuit": "PPL101_AVERSIVE_CORTISOL",
-      "event_type": "STOP_LOSS",
-      "symbol": "ETHUSDT",
-      "pnl_usd": -4.18,
-      "r_multiple": -0.19,
-      "delta_dopamine": -10.0,
-      "delta_cortisol": 12.0,
-      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$3.88 USDT)"
     }
   ],
   "total_pam11_firings": 14,
-  "total_ppl101_firings": 9,
-  "last_updated": 1790693280.20885,
-  "status_badge": "⚖️ EQUILIBRIUM NEUTRAL",
-  "action_guidance": "Kondisi neuro-kognitif seimbang. Operasional trading desk kuantitatif berjalan sesuai parameter standar."
+  "total_ppl101_firings": 10,
+  "last_updated": 1790693448.9233866,
+  "status_badge": "⚠️ ELEVATED STRESS",
+  "action_guidance": "Stres terdeteksi. Ukuran lot dikurangi 25%, filter konfluensi dinaikkan untuk menghindari chop."
 }
