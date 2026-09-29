@@ -191,17 +191,17 @@
     "ticket_id": "TCK-20260929-1264",
     "symbol": "ETHUSDT",
     "side": "SHORT",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-29 00:52:31",
-    "updated_at": "2026-09-29 06:13:51",
+    "updated_at": "2026-09-29 06:46:11",
     "payload": {
-      "entry": 2681.7134,
-      "sl": 2660.2597,
-      "tp": 2746.0745,
+      "entry": 2697.5434,
+      "sl": 2675.9631,
+      "tp": 2762.2843,
       "rr": 3.0
     },
     "debate_result": null,
@@ -732,11 +732,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-28 18:37:47",
-    "updated_at": "2026-09-29 06:13:51",
+    "updated_at": "2026-09-29 06:19:50",
     "payload": {
-      "entry": 8.7136,
-      "sl": 8.7833,
-      "tp": 8.5045,
+      "entry": 8.6917,
+      "sl": 8.7612,
+      "tp": 8.4832,
       "rr": 3.0
     },
     "debate_result": null,
@@ -756,17 +756,17 @@
     "ticket_id": "TCK-20260928-1628",
     "symbol": "BNBUSDT",
     "side": "SHORT",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-28 18:35:21",
-    "updated_at": "2026-09-29 06:07:37",
+    "updated_at": "2026-09-29 06:19:50",
     "payload": {
-      "entry": 760.32,
-      "sl": 766.4026,
-      "tp": 742.0722,
+      "entry": 761.94,
+      "sl": 768.0355,
+      "tp": 743.6535,
       "rr": 3.0
     },
     "debate_result": null,
@@ -786,17 +786,17 @@
     "ticket_id": "TCK-20260928-1038",
     "symbol": "SOLUSDT",
     "side": "SHORT",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m 4H-Range Breakout Re-entry",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-28 18:32:41",
-    "updated_at": "2026-09-29 05:58:19",
+    "updated_at": "2026-09-29 06:19:50",
     "payload": {
-      "entry": 118.15,
-      "sl": 119.0952,
-      "tp": 115.3144,
+      "entry": 118.87,
+      "sl": 119.821,
+      "tp": 116.017,
       "rr": 3.0
     },
     "debate_result": null,
@@ -1381,20 +1381,119 @@
     "side": "SHORT",
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
     "priority": "HIGH",
     "created_at": "2026-09-28 18:01:38",
-    "updated_at": "2026-09-29 06:16:58",
+    "updated_at": "2026-09-29 06:29:49",
     "payload": {
-      "entry": 83840.5,
-      "sl": 83169.776,
-      "tp": 85852.672,
+      "entry": 83828.7,
+      "sl": 81313.839,
+      "tp": 91373.283,
       "rr": 3.0
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
+    "debate_result": {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 81313.839,
+      "tp_price": 91373.283,
+      "rr_ratio": 3.0,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "bull_score": 65,
+      "bear_score": 35,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset BTCUSDT tergabung dalam sektor narasi terkuat hari ini (\ud83d\udc51 Macro Heavyweights), menikmati rotasi modal institusional prima.",
+      "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (65% vs 35%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 81313.839,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-29 13:29:43"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup BTCUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (101.258 / -0.03%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "Global Macro Risk-Off: DXY Surging (101.258 / -0.03%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $81,313.8390.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 81313.839,
+        "tp_price": 91373.283,
+        "rr_ratio": 3.0,
+        "strategy": "5m Order Flow CVD Absorption Scalp",
+        "bull_score": 65,
+        "bear_score": 35,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset BTCUSDT tergabung dalam sektor narasi terkuat hari ini (\ud83d\udc51 Macro Heavyweights), menikmati rotasi modal institusional prima.",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (65% vs 35%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 81313.839,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-29 13:29:43"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-29 13:29:49",
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 65% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 63,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 64.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 74,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BTC",
+        "sector_key": "MACRO_BLUECHIP",
+        "sector_title": "Macro Heavyweights",
+        "sector_icon": "\ud83d\udc51",
+        "sector_rank": 1,
+        "is_leading_sector": true,
+        "sector_24h_avg": 0.93,
+        "relative_strength_vs_btc": -0.04,
+        "confluence_boost": 15
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-29 06:29:49",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
     "execution_result": null,
     "timeline": [
       {
@@ -1402,6 +1501,24 @@
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup BTCUSDT (SHORT) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-29 06:29:49",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 65% vs Bear 35% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-29 06:29:49",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-29 06:29:49",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
