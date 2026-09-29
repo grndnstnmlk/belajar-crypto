@@ -1,20 +1,168 @@
 [
   {
+    "ticket_id": "TCK-20260929-0571",
+    "symbol": "BABYUSDT",
+    "side": "LONG",
+    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
+    "priority": "HIGH",
+    "created_at": "2026-09-29 22:24:20",
+    "updated_at": "2026-09-29 22:25:08",
+    "payload": {
+      "entry": 0.014,
+      "sl": 0.0136,
+      "tp": 0.0152,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "BABYUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.0136,
+      "tp_price": 0.0152,
+      "rr_ratio": 3.0,
+      "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+      "bull_score": 62,
+      "bear_score": 38,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.65x Bids/Asks) menahan tekanan jual di bawah entry.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+      "bear_critique": " \u2022 Aset BABYUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (62% vs 38%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.0136,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-30 05:25:02"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup BABYUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (101.377 / +0.09%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Global Macro Risk-Off: DXY Surging (101.377 / +0.09%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0136.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BABYUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.0136,
+        "tp_price": 0.0152,
+        "rr_ratio": 3.0,
+        "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+        "bull_score": 62,
+        "bear_score": 38,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.65x Bids/Asks) menahan tekanan jual di bawah entry.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+        "bear_critique": " \u2022 Aset BABYUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (62% vs 38%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.0136,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-30 05:25:02"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-30 05:25:08",
+        "symbol": "BABYUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 62% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 62,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 62.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 73,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BABY",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-29 22:25:08",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-29 22:24:20",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup BABYUSDT (LONG) teridentifikasi via 5m Inverse FVG (IFVG) Liquidity Scalp."
+      },
+      {
+        "timestamp": "2026-09-29 22:25:08",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 62% vs Bear 38% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-29 22:25:08",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-29 22:25:08",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260929-7275",
     "symbol": "ETHUSDT",
     "side": "SHORT",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-29 21:50:57",
-    "updated_at": "2026-09-29 22:12:52",
+    "updated_at": "2026-09-29 22:38:59",
     "payload": {
-      "entry": 2682.77,
-      "sl": 2704.2322,
-      "tp": 2618.3834,
-      "rr": 3.0
+      "entry": 2679.0182,
+      "sl": 2713.0317,
+      "tp": 2610.9912,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -1300,18 +1448,18 @@
     "ticket_id": "TCK-20260929-5246",
     "symbol": "HBARUSDT",
     "side": "SHORT",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-29 19:45:55",
-    "updated_at": "2026-09-29 21:50:57",
+    "updated_at": "2026-09-29 22:34:27",
     "payload": {
-      "entry": 0.1037,
-      "sl": 0.1062,
-      "tp": 0.0986,
-      "rr": 2.04
+      "entry": 0.1027,
+      "sl": 0.1035,
+      "tp": 0.1003,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -1647,18 +1795,18 @@
     "ticket_id": "TCK-20260929-5991",
     "symbol": "XRPUSDT",
     "side": "SHORT",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-29 19:33:45",
-    "updated_at": "2026-09-29 22:12:52",
+    "updated_at": "2026-09-29 22:41:22",
     "payload": {
-      "entry": 1.4865,
-      "sl": 1.5165,
-      "tp": 1.4724,
-      "rr": 3.0
+      "entry": 1.4941,
+      "sl": 1.5272,
+      "tp": 1.428,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -2309,18 +2457,18 @@
     "ticket_id": "TCK-20260929-7409",
     "symbol": "SOLUSDT",
     "side": "SHORT",
-    "strategy": "5m Craig Percoco Morning Routine (BSL Sweep & FVG)",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-29 15:36:17",
-    "updated_at": "2026-09-29 22:10:35",
+    "updated_at": "2026-09-29 22:41:22",
     "payload": {
-      "entry": 119.1981,
-      "sl": 120.1517,
-      "tp": 116.3373,
-      "rr": 3.0
+      "entry": 119.0324,
+      "sl": 121.7528,
+      "tp": 113.5916,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -2503,11 +2651,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-29 15:32:24",
-    "updated_at": "2026-09-29 22:08:15",
+    "updated_at": "2026-09-29 22:36:43",
     "payload": {
-      "entry": 83531.6594,
-      "sl": 84199.9127,
-      "tp": 81526.8995,
+      "entry": 83538.0,
+      "sl": 84206.304,
+      "tp": 81533.088,
       "rr": 3.0
     },
     "debate_result": null,
@@ -6170,18 +6318,18 @@
     "ticket_id": "TCK-20260928-1628",
     "symbol": "BNBUSDT",
     "side": "SHORT",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-28 18:35:21",
-    "updated_at": "2026-09-29 22:12:52",
+    "updated_at": "2026-09-29 22:36:44",
     "payload": {
-      "entry": 759.5,
-      "sl": 765.576,
-      "tp": 741.272,
-      "rr": 3.0
+      "entry": 758.178,
+      "sl": 767.6,
+      "tp": 739.3339,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -7694,18 +7842,18 @@
     "ticket_id": "TCK-20260928-0236",
     "symbol": "NEARUSDT",
     "side": "LONG",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-28 10:04:40",
-    "updated_at": "2026-09-29 21:50:57",
+    "updated_at": "2026-09-29 22:15:11",
     "payload": {
-      "entry": 4.939,
-      "sl": 4.8089,
-      "tp": 5.1992,
-      "rr": 2.0
+      "entry": 4.9797,
+      "sl": 4.9399,
+      "tp": 5.0991,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -10744,18 +10892,18 @@
     "ticket_id": "TCK-20260927-1298",
     "symbol": "ZECUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-27 12:47:01",
-    "updated_at": "2026-09-29 22:12:52",
+    "updated_at": "2026-09-29 22:38:59",
     "payload": {
-      "entry": 1415.67,
-      "sl": 1426.9954,
-      "tp": 1381.6938,
-      "rr": 3.0
+      "entry": 1410.93,
+      "sl": 1442.72,
+      "tp": 1343.9,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
