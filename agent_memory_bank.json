@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-29T16:45:38.124895+00:00",
-    "total_reflections": 33,
-    "system_retention_score": 110.3,
+    "last_reflection_at": "2026-09-29T22:02:38.848387+00:00",
+    "total_reflections": 36,
+    "system_retention_score": 108.3,
     "last_internet_learning_sync": "2026-09-30 02:12:45",
     "total_internet_learnings": 4
   },
@@ -34,8 +34,8 @@
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
-      "volatility_regime": "MODERATE",
-      "wick_risk_rating": "MODERATE",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "HIGH",
       "false_breakout_bias": "MODERATE",
       "optimal_setups": [
@@ -45,14 +45,14 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 4,
+      "total_trades": 6,
       "wins": 2,
-      "losses": 2,
+      "losses": 4,
       "breakevens": 0,
-      "net_pnl_usd": -4.48,
-      "win_rate_pct": 50.0,
-      "last_traded_outcome": "WIN",
-      "updated_at": "2026-09-29T19:30:30.267642+00:00",
+      "net_pnl_usd": -12.58,
+      "win_rate_pct": 33.3,
+      "last_traded_outcome": "LOSS",
+      "updated_at": "2026-09-29T21:43:03.966333+00:00",
       "avg_r_multiple": -0.04,
       "last_closed_at": "2026-09-29 18:42:29"
     },
@@ -964,11 +964,15 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset BABYUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 0,
+      "total_trades": 1,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": 0.0,
+      "net_pnl_usd": -10.45,
       "created_dynamically": true,
-      "updated_at": "2026-09-28T03:20:48.055496+00:00"
+      "updated_at": "2026-09-29T22:02:38.848385+00:00",
+      "wins": 0,
+      "losses": 1,
+      "breakevens": 0,
+      "last_traded_outcome": "LOSS"
     },
     "ETHFIUSDT": {
       "symbol": "ETHFIUSDT",
@@ -1545,16 +1549,83 @@
       "id": "RULE-AUTO-ETHUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ETHUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.96,
       "trigger_conditions": [
         "ethusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-29T09:20:25.965150+00:00"
+      "created_at": "2026-09-29T09:20:25.965150+00:00",
+      "updated_at": "2026-09-29T21:43:03.966344+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260929-039",
+      "timestamp": "2026-09-29T22:02:38.848371+00:00",
+      "symbol": "BABYUSDT",
+      "setup_type": "5m Order Flow CVD Absorption Scalp",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -10.45,
+      "r_multiple": -0.7,
+      "pnl_pct": -1.18,
+      "root_cause": "Adverse volatility stop-out on BABYUSDT 5m Order Flow CVD Absorption Scalp (net: -$10.45, -0.70R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BABYUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "baby",
+        "5m_order_flow_cvd_absorption_scalp",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-29T22:02:38.848376+00:00"
+    },
+    {
+      "id": "MEM-20260929-038",
+      "timestamp": "2026-09-29T21:43:03.966318+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "5m ICT Rejection Block Mean Threshold",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -4.05,
+      "r_multiple": -0.26,
+      "pnl_pct": -0.52,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT 5m ICT Rejection Block Mean Threshold (net: -$4.05, -0.26R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "5m_ict_rejection_block_mean_threshold",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-29T21:43:03.966324+00:00"
+    },
+    {
+      "id": "MEM-20260929-037",
+      "timestamp": "2026-09-29T21:43:03.795854+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "5m ICT Rejection Block Mean Threshold",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -4.05,
+      "r_multiple": -0.26,
+      "pnl_pct": -0.52,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT 5m ICT Rejection Block Mean Threshold (net: -$4.05, -0.26R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "5m_ict_rejection_block_mean_threshold",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-29T21:43:03.795860+00:00"
+    },
     {
       "id": "MEM-20260929-036",
       "timestamp": "2026-09-29T16:45:38.124869+00:00",
@@ -1898,8 +1969,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 218,
-      "last_accessed": "2026-09-29T21:41:48.284626+00:00"
+      "access_count": 227,
+      "last_accessed": "2026-09-29T22:01:31.233406+00:00"
     },
     {
       "id": "MEM-20260929-021",
@@ -2132,8 +2203,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 13850,
-      "last_accessed": "2026-09-29T21:41:48.284637+00:00"
+      "access_count": 14044,
+      "last_accessed": "2026-09-29T22:01:33.244096+00:00"
     },
     {
       "id": "MEM-20260928-011",
@@ -2176,8 +2247,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 16627,
-      "last_accessed": "2026-09-29T21:41:48.284636+00:00"
+      "access_count": 16830,
+      "last_accessed": "2026-09-29T22:01:33.244093+00:00"
     },
     {
       "id": "MEM-20260928-009",
@@ -2198,8 +2269,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 605,
-      "last_accessed": "2026-09-29T21:41:19.978530+00:00"
+      "access_count": 614,
+      "last_accessed": "2026-09-29T22:01:04.870560+00:00"
     },
     {
       "id": "MEM-20260928-008",
@@ -2220,8 +2291,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 763,
-      "last_accessed": "2026-09-29T21:41:20.991490+00:00"
+      "access_count": 773,
+      "last_accessed": "2026-09-29T22:01:04.893728+00:00"
     },
     {
       "id": "MEM-20260928-007",
@@ -2242,8 +2313,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 836,
-      "last_accessed": "2026-09-29T21:41:19.981577+00:00"
+      "access_count": 845,
+      "last_accessed": "2026-09-29T22:01:04.857756+00:00"
     },
     {
       "id": "MEM-20260928-006",
@@ -2264,8 +2335,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 22221,
-      "last_accessed": "2026-09-29T21:41:48.284634+00:00"
+      "access_count": 22424,
+      "last_accessed": "2026-09-29T22:01:33.244085+00:00"
     },
     {
       "id": "MEM-20260928-005",
@@ -2286,8 +2357,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 19701,
-      "last_accessed": "2026-09-29T21:41:46.361446+00:00"
+      "access_count": 19867,
+      "last_accessed": "2026-09-29T22:01:33.244098+00:00"
     },
     {
       "id": "MEM-20260928-004",
@@ -2308,8 +2379,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 740,
-      "last_accessed": "2026-09-29T21:41:20.991495+00:00"
+      "access_count": 749,
+      "last_accessed": "2026-09-29T22:01:04.893732+00:00"
     },
     {
       "id": "MEM-20260901-001",
