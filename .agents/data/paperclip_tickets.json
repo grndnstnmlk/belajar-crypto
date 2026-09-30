@@ -1,15 +1,203 @@
 [
   {
+    "ticket_id": "TCK-20260930-1972",
+    "symbol": "STXUSDT",
+    "side": "LONG",
+    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-09-30 22:52:31",
+    "updated_at": "2026-09-30 22:52:31",
+    "payload": {
+      "entry": 0.3818,
+      "sl": 0.3659,
+      "tp": 0.4294,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-30 22:52:31",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup STXUSDT (LONG) teridentifikasi via 5m 15m-Key-Level Rectangle Break & Retest."
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260930-1930",
+    "symbol": "NIGHTUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
+    "priority": "HIGH",
+    "created_at": "2026-09-30 22:52:31",
+    "updated_at": "2026-09-30 22:55:37",
+    "payload": {
+      "entry": 0.0494,
+      "sl": 0.0194,
+      "tp": 0.0405,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "NIGHTUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.0194,
+      "tp_price": 0.0405,
+      "rr_ratio": 3.0,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "bull_score": 57,
+      "bear_score": 43,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+      "bear_critique": " \u2022 Aset NIGHTUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.0194,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-10-01 05:53:25"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup NIGHTUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (101.461 / +0.49%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Global Macro Risk-Off: DXY Surging (101.461 / +0.49%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0194.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "NIGHTUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.0194,
+        "tp_price": 0.0405,
+        "rr_ratio": 3.0,
+        "strategy": "5m Order Flow CVD Absorption Scalp",
+        "bull_score": 57,
+        "bear_score": 43,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+        "bear_critique": " \u2022 Aset NIGHTUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.0194,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-10-01 05:53:25"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-10-01 05:53:31",
+        "symbol": "NIGHTUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 60,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 73,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "NIGHT",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-30 22:53:31",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-30 22:55:37"
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-09-30 22:52:31",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup NIGHTUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-30 22:53:31",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 57% vs Bear 43% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-30 22:53:31",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-30 22:53:31",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-30 22:55:37",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260930-1929",
     "symbol": "STXUSDT",
     "side": "LONG",
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-30 22:44:41",
-    "updated_at": "2026-09-30 22:45:28",
+    "updated_at": "2026-09-30 22:47:13",
     "payload": {
       "entry": 0.3851,
       "sl": 0.3551,
@@ -118,7 +306,11 @@
       "authorized_at": "2026-09-30 22:45:28",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-30 22:47:13"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-30 22:44:41",
@@ -143,6 +335,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-30 22:47:13",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -152,27 +350,154 @@
     "side": "LONG",
     "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 22:44:41",
-    "updated_at": "2026-09-30 22:45:39",
+    "updated_at": "2026-09-30 22:47:13",
     "payload": {
       "entry": 0.0494,
       "sl": 0.0194,
       "tp": 0.0425,
       "rr": 3.0
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
-    "execution_result": null,
+    "debate_result": {
+      "symbol": "NIGHTUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.0194,
+      "tp_price": 0.0425,
+      "rr_ratio": 3.0,
+      "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+      "bull_score": 59,
+      "bear_score": 41,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m 15m-Key-Level Rectangle Break & Retest'.",
+      "bear_critique": " \u2022 Aset NIGHTUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.0194,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-10-01 05:46:05"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup NIGHTUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (101.461 / +0.49%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "Global Macro Risk-Off: DXY Surging (101.461 / +0.49%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0194.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "NIGHTUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.0194,
+        "tp_price": 0.0425,
+        "rr_ratio": 3.0,
+        "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+        "bull_score": 59,
+        "bear_score": 41,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m 15m-Key-Level Rectangle Break & Retest'.",
+        "bear_critique": " \u2022 Aset NIGHTUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.0194,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-10-01 05:46:05"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-10-01 05:46:11",
+        "symbol": "NIGHTUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 61,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 73,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "NIGHT",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-30 22:46:21",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-30 22:47:13"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-30 22:44:41",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup NIGHTUSDT (LONG) teridentifikasi via 5m 15m-Key-Level Rectangle Break & Retest."
+      },
+      {
+        "timestamp": "2026-09-30 22:46:21",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 59% vs Bear 41% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-30 22:46:21",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-30 22:46:21",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-30 22:47:13",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -180,22 +505,122 @@
     "ticket_id": "TCK-20260930-4705",
     "symbol": "NEARUSDT",
     "side": "LONG",
-    "strategy": "5m Opening Range Breakout (ORB V4.1)",
+    "strategy": "5m 4H-Range Breakout Re-entry",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
     "priority": "NORMAL",
     "created_at": "2026-09-30 22:41:24",
-    "updated_at": "2026-09-30 22:41:24",
+    "updated_at": "2026-09-30 22:54:24",
     "payload": {
-      "entry": 5.3909,
-      "sl": 5.3478,
-      "tp": 5.5202,
+      "entry": 5.355,
+      "sl": 5.1944,
+      "tp": 5.8368,
       "rr": 3.0
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
+    "debate_result": {
+      "symbol": "NEARUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 5.1944,
+      "tp_price": 5.8368,
+      "rr_ratio": 3.0,
+      "strategy": "5m 4H-Range Breakout Re-entry",
+      "bull_score": 65,
+      "bear_score": 35,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m 4H-Range Breakout Re-entry'.\n \u2022 Aset NEARUSDT berada dalam 3 besar rotasi sektor (\ud83e\udd16 AI & DePIN).",
+      "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (65% vs 35%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 5.1944,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-10-01 05:54:08"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup NEARUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (101.461 / +0.49%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Global Macro Risk-Off: DXY Surging (101.461 / +0.49%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $5.1944.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "NEARUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 5.1944,
+        "tp_price": 5.8368,
+        "rr_ratio": 3.0,
+        "strategy": "5m 4H-Range Breakout Re-entry",
+        "bull_score": 65,
+        "bear_score": 35,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m 4H-Range Breakout Re-entry'.\n \u2022 Aset NEARUSDT berada dalam 3 besar rotasi sektor (\ud83e\udd16 AI & DePIN).",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (65% vs 35%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 5.1944,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-10-01 05:54:08"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-10-01 05:54:13",
+        "symbol": "NEARUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 65% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 63,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 64.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 74,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "NEAR",
+        "sector_key": "AI_DEPIN",
+        "sector_title": "AI & DePIN",
+        "sector_icon": "\ud83e\udd16",
+        "sector_rank": 3,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.49,
+        "relative_strength_vs_btc": 0.38,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-30 22:54:24",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
     "execution_result": null,
     "timeline": [
       {
@@ -203,6 +628,24 @@
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup NEARUSDT (LONG) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      },
+      {
+        "timestamp": "2026-09-30 22:54:24",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 65% vs Bear 35% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-30 22:54:24",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-30 22:54:24",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
@@ -871,18 +1314,18 @@
     "ticket_id": "TCK-20260930-1557",
     "symbol": "BTCUSDT",
     "side": "SHORT",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-30 20:14:11",
-    "updated_at": "2026-09-30 20:36:40",
+    "updated_at": "2026-09-30 22:52:31",
     "payload": {
-      "entry": 83632.3,
-      "sl": 84441.3293,
-      "tp": 82014.2414,
-      "rr": 2.0
+      "entry": 83749.4951,
+      "sl": 84419.4911,
+      "tp": 81739.5071,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -1249,17 +1692,17 @@
     "ticket_id": "TCK-20260930-3366",
     "symbol": "ETHUSDT",
     "side": "SHORT",
-    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 20:00:43",
-    "updated_at": "2026-09-30 22:33:48",
+    "updated_at": "2026-09-30 22:52:31",
     "payload": {
-      "entry": 2687.54,
-      "sl": 2666.0397,
-      "tp": 2752.0409,
+      "entry": 2688.1621,
+      "sl": 2666.6568,
+      "tp": 2752.678,
       "rr": 3.0
     },
     "debate_result": null,
@@ -12735,322 +13178,6 @@
       },
       {
         "timestamp": "2026-09-30 02:35:44",
-        "agent": "head_of_execution",
-        "stage": "CLOSED",
-        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260930-9898",
-    "symbol": "PUMPUSDT",
-    "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "CLOSED",
-    "priority": "HIGH",
-    "created_at": "2026-09-30 02:30:09",
-    "updated_at": "2026-09-30 02:32:04",
-    "payload": {
-      "entry": 0.0159,
-      "sl": -0.0141,
-      "tp": 0.0062,
-      "rr": 3.0
-    },
-    "debate_result": {
-      "symbol": "PUMPUSDT",
-      "side": "LONG",
-      "entry_price": 0.0,
-      "sl_price": -0.0141,
-      "tp_price": 0.0062,
-      "rr_ratio": 3.0,
-      "strategy": "5m Order Flow CVD Absorption Scalp",
-      "bull_score": 60,
-      "bear_score": 40,
-      "winner": "BULL",
-      "verdict": "APPROVE",
-      "suggested_risk_scale": 1.0,
-      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.50x Bids/Asks) menahan tekanan jual di bawah entry.",
-      "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
-      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-      "invalidation_price": -0.0141,
-      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-      "timestamp": "2026-09-30 09:31:07"
-    },
-    "risk_result": {
-      "decision": "ADJUST_RISK",
-      "confidence": 85,
-      "suggested_risk_scale": 0.67,
-      "thesis": "ADJUST_RISK: Setup PUMPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (101.332 / +0.04%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
-      "key_risks": [
-        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
-        "Global Macro Risk-Off: DXY Surging (101.332 / +0.04%)"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $-0.0141.",
-      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
-      "adversarial_debate": {
-        "symbol": "PUMPUSDT",
-        "side": "LONG",
-        "entry_price": 0.0,
-        "sl_price": -0.0141,
-        "tp_price": 0.0062,
-        "rr_ratio": 3.0,
-        "strategy": "5m Order Flow CVD Absorption Scalp",
-        "bull_score": 60,
-        "bear_score": 40,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.50x Bids/Asks) menahan tekanan jual di bawah entry.",
-        "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": -0.0141,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-30 09:31:07"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-30 09:31:13",
-        "symbol": "PUMPUSDT",
-        "side": "LONG",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 85,
-          "desired_scale": 1.2,
-          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 60% menunjukkan dorongan positif moderat."
-        },
-        "conservative": {
-          "score": 70,
-          "desired_scale": 1.0,
-          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-        },
-        "neutral": {
-          "score": 62,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 62.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "APPROVED_OPTIMAL",
-          "composite_risk_score": 73,
-          "allocated_risk_scale": 1.12,
-          "stop_loss_profile": "RUNNER_EXPANSION",
-          "regime_weights": {
-            "aggressive": 0.45,
-            "neutral": 0.35,
-            "conservative": 0.2
-          },
-          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "PUMP",
-        "sector_key": "OTHER",
-        "sector_title": "Independent Asset",
-        "sector_icon": "\ud83e\ude99",
-        "sector_rank": 99,
-        "is_leading_sector": false,
-        "sector_24h_avg": 0.0,
-        "relative_strength_vs_btc": 0.0,
-        "confluence_boost": 0
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-30 02:31:13",
-      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
-    },
-    "execution_result": {
-      "status": "CLOSED",
-      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
-      "closed_at": "2026-09-30 02:32:04"
-    },
-    "timeline": [
-      {
-        "timestamp": "2026-09-30 02:30:09",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup PUMPUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
-      },
-      {
-        "timestamp": "2026-09-30 02:31:13",
-        "agent": "bull_analyst_agent",
-        "stage": "DEBATING",
-        "note": "Tauric Debate: Bull 60% vs Bear 40% | Arbiter: APPROVE"
-      },
-      {
-        "timestamp": "2026-09-30 02:31:13",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
-      },
-      {
-        "timestamp": "2026-09-30 02:31:13",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
-      },
-      {
-        "timestamp": "2026-09-30 02:32:04",
-        "agent": "head_of_execution",
-        "stage": "CLOSED",
-        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260930-7622",
-    "symbol": "SOLUSDT",
-    "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "CLOSED",
-    "priority": "HIGH",
-    "created_at": "2026-09-30 02:26:37",
-    "updated_at": "2026-09-30 02:28:41",
-    "payload": {
-      "entry": 119.52,
-      "sl": 115.9344,
-      "tp": 130.2768,
-      "rr": 3.0
-    },
-    "debate_result": {
-      "symbol": "SOLUSDT",
-      "side": "LONG",
-      "entry_price": 0.0,
-      "sl_price": 115.9344,
-      "tp_price": 130.2768,
-      "rr_ratio": 3.0,
-      "strategy": "5m Order Flow CVD Absorption Scalp",
-      "bull_score": 61,
-      "bear_score": 39,
-      "winner": "BULL",
-      "verdict": "APPROVE",
-      "suggested_risk_scale": 1.0,
-      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
-      "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
-      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (61% vs 39%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-      "invalidation_price": 115.9344,
-      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-      "timestamp": "2026-09-30 09:27:38"
-    },
-    "risk_result": {
-      "decision": "ADJUST_RISK",
-      "confidence": 85,
-      "suggested_risk_scale": 0.67,
-      "thesis": "ADJUST_RISK: Setup SOLUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (101.35 / +0.06%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
-      "key_risks": [
-        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
-        "Global Macro Risk-Off: DXY Surging (101.35 / +0.06%)"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $115.9344.",
-      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
-      "adversarial_debate": {
-        "symbol": "SOLUSDT",
-        "side": "LONG",
-        "entry_price": 0.0,
-        "sl_price": 115.9344,
-        "tp_price": 130.2768,
-        "rr_ratio": 3.0,
-        "strategy": "5m Order Flow CVD Absorption Scalp",
-        "bull_score": 61,
-        "bear_score": 39,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
-        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (61% vs 39%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 115.9344,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-30 09:27:38"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-30 09:27:44",
-        "symbol": "SOLUSDT",
-        "side": "LONG",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 85,
-          "desired_scale": 1.2,
-          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 61% menunjukkan dorongan positif moderat."
-        },
-        "conservative": {
-          "score": 70,
-          "desired_scale": 1.0,
-          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
-        },
-        "neutral": {
-          "score": 62,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 62.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "APPROVED_OPTIMAL",
-          "composite_risk_score": 73,
-          "allocated_risk_scale": 1.12,
-          "stop_loss_profile": "RUNNER_EXPANSION",
-          "regime_weights": {
-            "aggressive": 0.45,
-            "neutral": 0.35,
-            "conservative": 0.2
-          },
-          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "SOL",
-        "sector_key": "SOL_L1",
-        "sector_title": "Solana & High-Speed L1",
-        "sector_icon": "\u26a1",
-        "sector_rank": 4,
-        "is_leading_sector": false,
-        "sector_24h_avg": 2.85,
-        "relative_strength_vs_btc": 2.26,
-        "confluence_boost": -5
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-30 02:27:44",
-      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
-    },
-    "execution_result": {
-      "status": "CLOSED",
-      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
-      "closed_at": "2026-09-30 02:28:41"
-    },
-    "timeline": [
-      {
-        "timestamp": "2026-09-30 02:26:37",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup SOLUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
-      },
-      {
-        "timestamp": "2026-09-30 02:27:44",
-        "agent": "bull_analyst_agent",
-        "stage": "DEBATING",
-        "note": "Tauric Debate: Bull 61% vs Bear 39% | Arbiter: APPROVE"
-      },
-      {
-        "timestamp": "2026-09-30 02:27:44",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
-      },
-      {
-        "timestamp": "2026-09-30 02:27:44",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
-      },
-      {
-        "timestamp": "2026-09-30 02:28:41",
         "agent": "head_of_execution",
         "stage": "CLOSED",
         "note": "Position Exited on Exchange (Ledger Synced to Closed)"
