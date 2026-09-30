@@ -9198,10 +9198,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 01:48:41",
-    "updated_at": "2026-09-30 10:50:08",
+    "updated_at": "2026-09-30 13:00:36",
     "payload": {
       "entry": 83845.0705,
       "sl": 83174.3099,
@@ -9211,13 +9211,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$13.41 USDT)",
+      "realized_pnl": 13.4057,
+      "net_pnl": 13.0884,
+      "closed_at": "2026-09-30 13:00:36"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-30 01:48:41",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup BTCUSDT (SHORT) teridentifikasi via 5m ICT Rejection Block Mean Threshold."
+      },
+      {
+        "timestamp": "2026-09-30 13:00:36",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$13.41 USDT) | PnL: $+13.41 USDT (Net: $+13.09)"
       }
     ]
   },
