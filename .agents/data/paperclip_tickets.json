@@ -282,18 +282,18 @@
     "ticket_id": "TCK-20260930-1258",
     "symbol": "BNBUSDT",
     "side": "LONG",
-    "strategy": "5m Craig Percoco Morning Routine (BSL Sweep & FVG)",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 18:29:21",
-    "updated_at": "2026-09-30 20:09:55",
+    "updated_at": "2026-09-30 20:12:11",
     "payload": {
-      "entry": 765.27,
-      "sl": 771.3922,
-      "tp": 746.9034,
-      "rr": 3.0
+      "entry": 765.6829,
+      "sl": 756.9738,
+      "tp": 783.101,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -808,10 +808,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 18:02:10",
-    "updated_at": "2026-09-30 18:11:52",
+    "updated_at": "2026-09-30 20:12:23",
     "payload": {
       "entry": 84011.1004,
       "sl": 81490.7674,
@@ -921,7 +921,13 @@
       "authorized_at": "2026-09-30 18:11:52",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$5.97 USDT)",
+      "realized_pnl": -5.9664,
+      "net_pnl": -6.4244,
+      "closed_at": "2026-09-30 20:12:23"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-30 18:02:10",
@@ -946,6 +952,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-30 20:12:23",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$5.97 USDT) | PnL: $-5.97 USDT (Net: $-6.42)"
       }
     ]
   },
