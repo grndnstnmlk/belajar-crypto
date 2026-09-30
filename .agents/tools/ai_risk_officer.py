@@ -935,27 +935,28 @@ def evaluate_active_position_exit(symbol, side, entry_price, mark_price, r_multi
                 exhaustion_signals.append(f"Terkoreksi dari puncak +{highest_r:.2f}R ke +{r_multiple:.2f}R")
                 exhaustion_score += 35
 
-    # Calculate guaranteed profit SL level (+0.50R above entry for BUY, -0.50R below entry for SELL)
+    # Calculate guaranteed profit SL level (+1.00R above entry for BUY, -1.00R below entry for SELL)
+    # Quant Fix: Never choke trades at +0.25R or +0.50R; winners must capture >= +1.0R guaranteed!
     r_dist = abs(mark_price - entry_price) / max(r_multiple, 0.001) if r_multiple > 0 else (entry_price * 0.015)
     if side_clean == "BUY":
-        profit_sl = entry_price + (r_dist * 0.50)
+        profit_sl = entry_price + (r_dist * 1.00)
     else:
-        profit_sl = entry_price - (r_dist * 0.50)
+        profit_sl = entry_price - (r_dist * 1.00)
 
-    # 2. Decision Matrix (Akademi Crypto: Give runners room to breathe; do NOT choke trades < +0.8R)
+    # 2. Decision Matrix (Akademi Crypto: Give runners room to breathe; do NOT choke trades < +1.5R)
     action = "HOLD_RUNNER"
-    confidence = 75
+    confidence = 80
     suggested_sl = None
 
-    if r_multiple >= 1.20 and exhaustion_score >= 45:
+    if r_multiple >= 2.25 and exhaustion_score >= 65:
         action = "TAKE_PROFIT_NOW"
         confidence = 90
-        thesis = f"AI AUTO-TP: Posisi untung besar +{r_multiple:.2f}R terkonfirmasi mengalami kelelahan momentum ({', '.join(exhaustion_signals)}). Menutup posisi 100% untuk merealisasikan cuan maksimal ke kas!"
-    elif r_multiple >= 0.80 and exhaustion_score >= 35:
+        thesis = f"AI AUTO-TP: Posisi untung besar +{r_multiple:.2f}R terkonfirmasi mengalami kelelahan momentum parah ({', '.join(exhaustion_signals)}). Menutup posisi 100% untuk merealisasikan cuan maksimal ke kas!"
+    elif r_multiple >= 1.50 and exhaustion_score >= 45:
         action = "LOCK_PROFIT_SL"
         confidence = 85
         suggested_sl = profit_sl
-        thesis = f"AI PROFIT LOCK: Menggeser Stop Loss ke zona aman ${profit_sl:,.4f} (+0.50R). Posisi dijamin keluar cuan solid jika harga berbalik arah!"
+        thesis = f"AI PROFIT LOCK: Menggeser Stop Loss ke zona profit solid ${profit_sl:,.4f} (+1.00R). Posisi dijamin keluar cuan minimal 1R jika harga berbalik arah!"
     else:
         action = "HOLD_RUNNER"
         confidence = 80

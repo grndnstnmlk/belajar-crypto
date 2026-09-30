@@ -911,11 +911,11 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
 
         # -------------------------------------------------------------
         # STEP 1B.2: AI ADAPTIVE PROFIT HARVESTER & DYNAMIC EXIT SENTINEL
-        # Solves: Profit reversing into loss! When in solid profit (+1.00R+),
+        # Solves: Profit reversing into loss! When in solid profit (+1.50R+),
         # AI evaluates momentum exhaustion, RSI drop, or rejection wicks.
-        # Can execute: (1) Early 100% Market TP Harvest, or (2) Lock SL to Green (+0.50R).
+        # Can execute: (1) Early 100% Market TP Harvest (at >= +2.25R), or (2) Lock SL to Green (+1.00R).
         # -------------------------------------------------------------
-        if r_multiple >= 1.00 and not t_data.get("ai_harvested", False) and not t_data.get("tp1_taken", False):
+        if r_multiple >= 1.50 and not t_data.get("ai_harvested", False) and not t_data.get("tp1_taken", False):
             try:
                 ai_verdict = ai_risk_officer.evaluate_active_position_exit(
                     symbol=sym,
@@ -1006,7 +1006,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                             if success:
                                 t_data["ai_profit_locked"] = True
                                 t_data["current_sl"] = formatted_sl
-                                print(f"🛡️ [AI GREEN-EXIT PROFIT LOCK] {sym}: SL dinaikkan ke profit zone ${formatted_sl:,.4f} (+0.25R). Garansi Green Exit!")
+                                print(f"🛡️ [AI GREEN-EXIT PROFIT LOCK] {sym}: SL dinaikkan ke profit zone ${formatted_sl:,.4f} (+1.00R). Garansi Green Exit!")
                                 management_events.append(f"🛡️ {sym} AI Profit Lock @ ${formatted_sl:,.4f} (+{r_multiple:.2f}R)")
                                 try:
                                     telegram_notifier.notify_ai_profit_lock(
@@ -1031,7 +1031,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
             stall_audit = session_adaptive_strategy.audit_trade_dormancy_and_stall(
                 opened_at_str=t_data.get("opened_at", ""),
                 current_r=r_multiple,
-                max_stagnant_minutes=120
+                max_stagnant_minutes=360
             )
             if stall_audit.get("is_stalled") and not t_data.get("breakeven_locked", False):
                 print(f"🛡️ {stall_audit['reason']}")

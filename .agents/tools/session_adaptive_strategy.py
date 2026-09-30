@@ -164,10 +164,10 @@ def calculate_asian_range_and_judas_setup(candles_15m: List[List[Any]]) -> Dict[
 # -------------------------------------------------------------
 # 3. Universal Anti-Stall Time-Decay Shield
 # -------------------------------------------------------------
-def audit_trade_dormancy_and_stall(opened_at_str: str, current_r: float, max_stagnant_minutes: int = 120) -> Dict[str, Any]:
+def audit_trade_dormancy_and_stall(opened_at_str: str, current_r: float, max_stagnant_minutes: int = 360) -> Dict[str, Any]:
     """
     Protects capital from stagnant sideways chop:
-    If a trade is open for > 120 minutes and floating between -0.3R and +0.3R,
+    If a trade is open for > 360 minutes (6 hours) and floating between -0.3R and +0.3R,
     signals an Anti-Stall Early Exit at Breakeven.
     """
     try:

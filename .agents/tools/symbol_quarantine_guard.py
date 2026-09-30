@@ -319,8 +319,26 @@ def audit_symbol_quarantine(symbol, ledger_override=None):
             should_quarantine = True
             trigger_reason = f"Cumulative loss of -{cum_loss_r:.2f}R exceeded {CUMULATIVE_LOSS_R_LIMIT}R limit"
 
+    # 2b. Empirical Underperformance Gatekeeper (Akademi Crypto Module 03 Risk Filter)
+    # If a symbol has >= 4 trades with win rate <= 25% and net PnL < -$30.0,
+    # quarantine for 72 hours (4,320 mins) to prevent continuous altcoin bleeding.
+    until_dt = None
+    if not should_quarantine and len(sym_trades) >= 4 and latest_loss_time:
+        recent_batch = sym_trades[:10]
+        recent_wins = sum(1 for tr in recent_batch if float(tr.get("net_pnl_usd", tr.get("pnl_usd", 0.0))) > 0)
+        recent_pnl = sum(float(tr.get("net_pnl_usd", tr.get("pnl_usd", 0.0))) for tr in recent_batch)
+        recent_wr = (recent_wins / len(recent_batch)) * 100.0
+        if recent_wr <= 25.0 and recent_pnl < -30.0:
+            quarantine_mins = 4320  # 72 hours
+            elapsed_since_loss = (now - latest_loss_time).total_seconds() / 60.0
+            if elapsed_since_loss < quarantine_mins:
+                should_quarantine = True
+                trigger_reason = f"Empirical Negative Alpha: WR {recent_wr:.0f}% & Net ${recent_pnl:.2f} across {len(recent_batch)} trades (72h quarantine)"
+                until_dt = latest_loss_time + timedelta(minutes=quarantine_mins)
+
     if should_quarantine and latest_loss_time:
-        until_dt = latest_loss_time + timedelta(minutes=DEFAULT_QUARANTINE_MINUTES)
+        if until_dt is None:
+            until_dt = latest_loss_time + timedelta(minutes=DEFAULT_QUARANTINE_MINUTES)
         remaining_mins = max(0.1, (until_dt - now).total_seconds() / 60.0)
 
         # Save to persistent state

@@ -1383,9 +1383,32 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     if is_long_only and s.get("side", "").upper() in ["SELL", "SHORT"]:
                         print(f" 🛡️ [LONG-ONLY FILTER] Vetoed SHORT on {s['symbol']} (Long-Only mode active)")
                         continue
+
+                    # Empirical Strategy Veto: Reject toxic 5m strategies with proven negative EV (-$334 live drag)
+                    strat_name = s.get("strategy", "")
+                    banned_toxic_scalps = [
+                        "5m Order Flow CVD Absorption Scalp",
+                        "5m ICT Rejection Block Mean Threshold",
+                        "Craig Percoco 5m Morning Routine"
+                    ]
+                    if any(ts.lower() in strat_name.lower() for ts in banned_toxic_scalps):
+                        print(f" 🛑 [QUANT EV VETO] Scalp '{strat_name}' on {s['symbol']} vetoed due to negative historical expectancy.")
+                        continue
+
                     pair_sym = f"{s['symbol']}USDT"
                     if pair_sym in active_symbols or any(c["symbol"] == pair_sym for c in candidates):
                         continue
+
+                    # Check Symbol Quarantine
+                    try:
+                        import symbol_quarantine_guard
+                        q_check = symbol_quarantine_guard.audit_symbol_quarantine(pair_sym)
+                        if q_check.get("is_quarantined"):
+                            print(f" 🛑 [QUARANTINE VETO] {pair_sym} is currently quarantined: {q_check.get('reason')}")
+                            continue
+                    except Exception:
+                        pass
+
                     print(f" ⚡ [HIGH-R:R SCALP] {s['symbol']} | {s['side']} | {s['strategy']} | R:R 1:{s['rr_ratio']:.2f}")
                     candidates.append({
                         "symbol": pair_sym,
@@ -2087,24 +2110,25 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     active_leverage = leverage if leverage else default_lev
 
                     # Strict Fractional Kelly Risk Budgeting (Max 1.5% equity risk per trade)
-                    max_allowed_risk = b_equity * min(effective_risk_pct / 100.0, 0.015)
-                    b_risk_budget = max(10.0, max_allowed_risk)
-                    b_pos_usd = b_risk_budget / max(sl_pct, 0.008)
+                    max_allowed_risk = max(5.0, b_equity * min(effective_risk_pct / 100.0, 0.015))
+                    b_risk_budget = max_allowed_risk
+                    # Volatility-Normalized Sizing: position = risk / stop_distance
+                    b_pos_usd = b_risk_budget / max(sl_pct, 0.010)
 
-                    # Dynamic Sizing Floor: Ensures meaningful profit outcomes without exceeding max dollar risk
-                    min_floor = max(300.0, b_equity * 0.25 if best.get("is_scalp") else b_equity * 0.20)
-                    min_avail_req = max(15.0, min_floor / float(active_leverage) * 0.5)
+                    # Dynamic Sizing Floor: Ensures meaningful profit outcomes strictly within max dollar risk
+                    min_floor = max(200.0, b_equity * 0.20 if best.get("is_scalp") else b_equity * 0.15)
+                    min_avail_req = max(10.0, min_floor / float(active_leverage) * 0.5)
                     if b_pos_usd < min_floor and b_avail >= min_avail_req:
                         candidate_pos = min(min_floor, b_avail * 0.50 * float(active_leverage))
                         # Strictly verify candidate position does NOT breach max allowed dollar risk
-                        if (candidate_pos * sl_pct) <= max_allowed_risk * 1.25:
+                        if (candidate_pos * sl_pct) <= max_allowed_risk:
                             b_pos_usd = candidate_pos
                             b_risk_budget = b_pos_usd * sl_pct
-                            print(f" 🚀 [ANTI-RECEH SIZING FLOOR] Posisi disesuaikan ke nosional ${b_pos_usd:,.2f} (Margin: ${b_pos_usd/active_leverage:,.2f} @ {active_leverage}x | Risk: ${b_risk_budget:,.2f})!")
+                            print(f" 🚀 [VOLATILITY SIZING FLOOR] Posisi nosional disesuaikan ke ${b_pos_usd:,.2f} (Margin: ${b_pos_usd/active_leverage:,.2f} @ {active_leverage}x | Risk: ${b_risk_budget:,.2f})!")
 
-                    # Hard Risk Cap: Never permit a position whose SL loss exceeds max_allowed_risk
-                    if (b_pos_usd * sl_pct) > max_allowed_risk * 1.15:
-                        b_pos_usd = (max_allowed_risk * 1.15) / max(sl_pct, 0.008)
+                    # Hard Invariable Risk Cap: Under NO circumstances allow position loss to exceed max_allowed_risk
+                    if (b_pos_usd * sl_pct) > max_allowed_risk:
+                        b_pos_usd = max_allowed_risk / max(sl_pct, 0.010)
                         b_risk_budget = b_pos_usd * sl_pct
 
                     # Guardrails: Max 2.5x equity notional, max per-slot notional, max 70% available margin
