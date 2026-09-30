@@ -1,11 +1,22 @@
 {
-  "dopamine_level": 51.6068,
-  "cortisol_level": 49.50325,
-  "state": "ELEVATED_STRESS",
-  "synaptic_risk_multiplier": 0.75,
+  "dopamine_level": 76.6,
+  "cortisol_level": 31.964575000000004,
+  "state": "FLOW_STATE_OPTIMAL",
+  "synaptic_risk_multiplier": 1.15,
   "anti_overconfidence_active": false,
-  "confluence_threshold_offset": 4.0,
+  "confluence_threshold_offset": -2.0,
   "recent_bursts": [
+    {
+      "timestamp": "2026-09-30 19:59:44",
+      "circuit": "PAM11_DOPAMINERGIC_REWARD",
+      "event_type": "TRADE_PROFIT",
+      "symbol": "SOLUSDT",
+      "pnl_usd": 65.77,
+      "r_multiple": 3.36,
+      "delta_dopamine": 25.0,
+      "delta_cortisol": -16.81,
+      "note": "Position closed via 🟢 Profit Locked (+$67.22 USDT)"
+    },
     {
       "timestamp": "2026-09-30 19:47:41",
       "circuit": "PAM11_DOPAMINERGIC_REWARD",
@@ -159,22 +170,11 @@
       "delta_dopamine": -10.0,
       "delta_cortisol": 12.0,
       "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$11.84 USDT)"
-    },
-    {
-      "timestamp": "2026-09-30 12:08:45",
-      "circuit": "PPL101_AVERSIVE_CORTISOL",
-      "event_type": "STOP_LOSS",
-      "symbol": "NEARUSDT",
-      "pnl_usd": -24.74,
-      "r_multiple": -1.74,
-      "delta_dopamine": -17.43,
-      "delta_cortisol": 20.92,
-      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$24.42 USDT)"
     }
   ],
-  "total_pam11_firings": 22,
+  "total_pam11_firings": 23,
   "total_ppl101_firings": 28,
-  "last_updated": 1790772461.8986332,
-  "status_badge": "⚠️ ELEVATED STRESS",
-  "action_guidance": "Stres terdeteksi. Ukuran lot dikurangi 25%, filter konfluensi dinaikkan untuk menghindari chop."
+  "last_updated": 1790773184.9874303,
+  "status_badge": "⚡ FLOW STATE OPTIMAL",
+  "action_guidance": "Rasio Reward/Risk tinggi. Sinyal tajam dengan alokasi penuh dan ekspansi trailing stop runner."
 }
