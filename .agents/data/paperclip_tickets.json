@@ -1,5 +1,35 @@
 [
   {
+    "ticket_id": "TCK-20260930-3908",
+    "symbol": "ENAUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "HIGH",
+    "created_at": "2026-09-30 18:18:43",
+    "updated_at": "2026-09-30 18:18:43",
+    "payload": {
+      "entry": 0.2634,
+      "sl": 0.2604,
+      "tp": 0.2723,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-09-30 18:18:43",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup ENAUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260930-1000",
     "symbol": "SUIUSDT",
     "side": "LONG",
@@ -491,11 +521,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 16:18:27",
-    "updated_at": "2026-09-30 18:14:14",
+    "updated_at": "2026-09-30 18:16:34",
     "payload": {
-      "entry": 5.3432,
+      "entry": 5.344,
       "sl": 5.2449,
-      "tp": 5.5398,
+      "tp": 5.5439,
       "rr": 2.0
     },
     "debate_result": null,
@@ -707,10 +737,10 @@
     "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 15:37:22",
-    "updated_at": "2026-09-30 16:19:42",
+    "updated_at": "2026-09-30 18:20:31",
     "payload": {
       "entry": 770.4,
       "sl": 747.288,
@@ -819,7 +849,13 @@
       "authorized_at": "2026-09-30 16:19:42",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$3.42 USDT)",
+      "realized_pnl": -3.4242,
+      "net_pnl": -3.9131,
+      "closed_at": "2026-09-30 18:20:31"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-30 15:37:22",
@@ -844,6 +880,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-30 18:20:31",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$3.42 USDT) | PnL: $-3.42 USDT (Net: $-3.91)"
       }
     ]
   },
@@ -1712,12 +1754,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 14:20:32",
-    "updated_at": "2026-09-30 14:20:32",
+    "updated_at": "2026-09-30 18:18:43",
     "payload": {
-      "entry": 0.5528,
-      "sl": 0.5228,
-      "tp": 0.5681,
-      "rr": 2.0
+      "entry": 0.5292,
+      "sl": 0.5172,
+      "tp": 0.5533,
+      "rr": 2.01
     },
     "debate_result": null,
     "risk_result": null,
@@ -13076,164 +13118,6 @@
       },
       {
         "timestamp": "2026-09-30 01:07:00",
-        "agent": "head_of_execution",
-        "stage": "CLOSED",
-        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260929-5062",
-    "symbol": "PUMPUSDT",
-    "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "CLOSED",
-    "priority": "HIGH",
-    "created_at": "2026-09-29 23:02:15",
-    "updated_at": "2026-09-29 23:04:13",
-    "payload": {
-      "entry": 0.0059,
-      "sl": 0.0057,
-      "tp": 0.0065,
-      "rr": 3.0
-    },
-    "debate_result": {
-      "symbol": "PUMPUSDT",
-      "side": "LONG",
-      "entry_price": 0.0,
-      "sl_price": 0.0057,
-      "tp_price": 0.0065,
-      "rr_ratio": 3.0,
-      "strategy": "5m Order Flow CVD Absorption Scalp",
-      "bull_score": 60,
-      "bear_score": 40,
-      "winner": "BULL",
-      "verdict": "APPROVE",
-      "suggested_risk_scale": 1.0,
-      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.49x Bids/Asks) menahan tekanan jual di bawah entry.",
-      "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
-      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-      "invalidation_price": 0.0057,
-      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-      "timestamp": "2026-09-30 06:02:59"
-    },
-    "risk_result": {
-      "decision": "ADJUST_RISK",
-      "confidence": 85,
-      "suggested_risk_scale": 0.6,
-      "thesis": "ADJUST_RISK: Setup PUMPUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (101.377 / +0.09%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
-      "key_risks": [
-        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
-        "Global Macro Risk-Off: DXY Surging (101.377 / +0.09%)"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0057.",
-      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
-      "adversarial_debate": {
-        "symbol": "PUMPUSDT",
-        "side": "LONG",
-        "entry_price": 0.0,
-        "sl_price": 0.0057,
-        "tp_price": 0.0065,
-        "rr_ratio": 3.0,
-        "strategy": "5m Order Flow CVD Absorption Scalp",
-        "bull_score": 60,
-        "bear_score": 40,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Dinding bid support tebal (1.49x Bids/Asks) menahan tekanan jual di bawah entry.",
-        "bear_critique": " \u2022 Aset PUMPUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 0.0057,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-09-30 06:02:59"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-09-30 06:03:05",
-        "symbol": "PUMPUSDT",
-        "side": "LONG",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 85,
-          "desired_scale": 1.2,
-          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 60% menunjukkan dorongan positif moderat."
-        },
-        "conservative": {
-          "score": 45,
-          "desired_scale": 0.85,
-          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
-        },
-        "neutral": {
-          "score": 62,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 62.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "APPROVED_BALANCED",
-          "composite_risk_score": 61,
-          "allocated_risk_scale": 1.0,
-          "stop_loss_profile": "ATR_TRAILING",
-          "regime_weights": {
-            "aggressive": 0.25,
-            "neutral": 0.4,
-            "conservative": 0.35
-          },
-          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "PUMP",
-        "sector_key": "OTHER",
-        "sector_title": "Independent Asset",
-        "sector_icon": "\ud83e\ude99",
-        "sector_rank": 99,
-        "is_leading_sector": false,
-        "sector_24h_avg": 0.0,
-        "relative_strength_vs_btc": 0.0,
-        "confluence_boost": 0
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-29 23:03:05",
-      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
-    },
-    "execution_result": {
-      "status": "CLOSED",
-      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
-      "closed_at": "2026-09-29 23:04:13"
-    },
-    "timeline": [
-      {
-        "timestamp": "2026-09-29 23:02:15",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup PUMPUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
-      },
-      {
-        "timestamp": "2026-09-29 23:03:05",
-        "agent": "bull_analyst_agent",
-        "stage": "DEBATING",
-        "note": "Tauric Debate: Bull 60% vs Bear 40% | Arbiter: APPROVE"
-      },
-      {
-        "timestamp": "2026-09-29 23:03:05",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
-      },
-      {
-        "timestamp": "2026-09-29 23:03:05",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
-      },
-      {
-        "timestamp": "2026-09-29 23:04:13",
         "agent": "head_of_execution",
         "stage": "CLOSED",
         "note": "Position Exited on Exchange (Ledger Synced to Closed)"
