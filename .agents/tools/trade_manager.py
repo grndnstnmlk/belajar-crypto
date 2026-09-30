@@ -753,20 +753,21 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     op_dt = datetime.strptime(opened_at, fmt)
                     elapsed_min = (datetime.now() - op_dt).total_seconds() / 60.0
                     
-                    # Institutional Scalping Anti-Stall: 45 minutes holding period (gives trades room to breathe)
-                    timeout_min = float(t_data.get("anti_stall_minutes", 45.0))
+                    # Institutional Anti-Stall: 240 minutes (4 hours) holding window to give HTF setups space to unfold
+                    timeout_min = float(t_data.get("anti_stall_minutes", 240.0))
 
                     if elapsed_min >= timeout_min:
-                        # Case A: Trade has developed solid momentum (>= 0.75R) -> Lock Breakeven & Let Runners pursue Full TP!
-                        if r_multiple >= 0.75 and not t_data.get("breakeven_locked"):
-                            be_price = calculate_breakeven_price(sym, side, entry_price)
+                        # Only lock Breakeven once the trade has developed substantial momentum (>= 1.50R)
+                        # Prevents premature stop-outs during normal order block / FVG retests
+                        if r_multiple >= 1.50 and not t_data.get("breakeven_locked"):
+                            be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
                             is_be_reachable = (side == "BUY" and mark_price > be_price) or (side == "SELL" and mark_price < be_price)
                             if is_be_reachable:
                                 success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
                                 if success:
                                     t_data["breakeven_locked"] = True
                                     t_data["current_sl"] = be_price
-                                    print(f"🛡️ [ANTI-STALL BE LOCK] {sym}: Momentum positif (+{r_multiple:.2f}R pada {int(elapsed_min)}m). SL dikunci ke Breakeven ${be_price:,.4f}. Posisi Zero-Risk dibiarkan mengejar Full TP!")
+                                    print(f"🛡️ [ANTI-STALL BE LOCK] {sym}: Solid momentum (+{r_multiple:.2f}R pada {int(elapsed_min)}m). SL dikunci ke Breakeven ${be_price:,.4f}. Posisi Zero-Risk dibiarkan mengejar Full TP!")
                                     try:
                                         telegram_notifier.send_telegram_broadcast(
                                             f"🛡️ <b>MOMENTUM EXTENSION (BREAKEVEN LOCKED)</b> 🛡️\n"
@@ -777,40 +778,6 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                                         )
                                     except Exception:
                                         pass
-
-                        # Case B: Trade is floating positive (r_multiple >= 0.20 or upnl >= 1.50)
-                        # NEVER market-dump winners for pennies! Protect profit by locking Breakeven and allowing full target expansion!
-                        elif (r_multiple >= 0.20 or upnl >= 1.50) and not t_data.get("breakeven_locked"):
-                            be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
-                            is_be_reachable = (side == "BUY" and mark_price > be_price) or (side == "SELL" and mark_price < be_price)
-                            if is_be_reachable:
-                                success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
-                                if success:
-                                    t_data["breakeven_locked"] = True
-                                    t_data["current_sl"] = be_price
-                                    print(f"🛡️ [ANTI-STALL PROFIT PROTECT] {sym}: Profit mengambang (+{r_multiple:.2f}R | +${upnl:.2f} USDT). SL diamankan ke Breakeven ${be_price:,.4f}. Posisi dibiarkan mengejar Full TP bebas risiko!")
-                                    try:
-                                        telegram_notifier.send_telegram_broadcast(
-                                            f"🛡️ <b>ANTI-STALL ZERO-RISK AUTO-LOCK</b> 🛡️\n"
-                                            f"💎 <b>Aset:</b> <code>{sym}</code>\n"
-                                            f"⏱️ <b>Durasi:</b> {int(elapsed_min)} menit (uPnL: +${upnl:,.2f} USDT)\n"
-                                            f"🔒 <b>SL Diamankan ke BE:</b> <code>${be_price:,.4f}</code>\n"
-                                            f"🎯 <i>Posisi dibiarkan berlari mengejar TP penuh tanpa dipotong dini!</i>"
-                                        )
-                                    except Exception:
-                                        pass
-
-                        # Case C: Extended stagnation in negative territory (-0.60R <= R < 0.0) after 1.5x timeout
-                        # Tighten Stop Loss to cut max loss while giving the trade a second chance to recover
-                        elif elapsed_min >= (timeout_min * 1.5) and -0.60 <= r_multiple < 0.0:
-                            if not t_data.get("capital_shield_locked") and not t_data.get("breakeven_locked"):
-                                tightened_sl = entry_price - (r_dist * 0.40) if side == "BUY" else entry_price + (r_dist * 0.40)
-                                formatted_tight_sl = float(binance_client.format_price_precision(sym, tightened_sl, is_demo=is_demo))
-                                success, _ = update_binance_stop_loss(sym, side, formatted_tight_sl, is_demo=is_demo, user_email=user_email)
-                                if success:
-                                    t_data["capital_shield_locked"] = True
-                                    t_data["current_sl"] = formatted_tight_sl
-                                    print(f"🛡️ [ANTI-STALL TIGHTEN SL] {sym}: Stagnan di teritori negatif ({int(elapsed_min)}m | {r_multiple:.2f}R). SL diperketat ke ${formatted_tight_sl:,.4f} (-0.40R) demi membatasi risiko.")
                 except Exception:
                     pass
 
@@ -880,23 +847,20 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     pass
 
         # -------------------------------------------------------------
-        # STEP 1B: CAPITAL PRESERVATION SHIELD (+1.20R Scalp / +1.50R Swing -> SL to -0.40R)
-        # Reduces risk significantly while allowing breathing room for natural pullbacks!
+        # STEP 1B: CAPITAL PRESERVATION ZERO-RISK SHIELD (+1.50R+ -> SL to Breakeven)
+        # Guarantees zero capital risk once the trade has expanded solidly into +1.50R
         # -------------------------------------------------------------
-        shield_target_r = 1.20 if t_data.get("is_scalp") else 1.50
+        shield_target_r = 1.50
         if r_multiple >= shield_target_r and not t_data.get("capital_shield_locked") and not t_data.get("breakeven_locked") and not t_data.get("tp1_taken"):
-            if side == "BUY":
-                shield_sl = entry_price - (r_dist * 0.40)
-            else:
-                shield_sl = entry_price + (r_dist * 0.40)
-
-            formatted_shield_sl = float(binance_client.format_price_precision(sym, shield_sl))
+            be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
+            formatted_shield_sl = float(binance_client.format_price_precision(sym, be_price, is_demo=is_demo))
             success, _ = update_binance_stop_loss(sym, side, formatted_shield_sl, is_demo=is_demo, user_email=user_email)
             if success:
                 t_data["capital_shield_locked"] = True
+                t_data["breakeven_locked"] = True
                 t_data["current_sl"] = formatted_shield_sl
-                print(f"🛡️ [CAPITAL PRESERVATION SHIELD] {sym}: SL dinaikkan ke ${formatted_shield_sl:,.4f} (-0.4R | Puncak +{r_multiple:.2f}R).")
-                management_events.append(f"🛡️ {sym} Capital Shield @ ${formatted_shield_sl:,.4f} (+{r_multiple:.2f}R)")
+                print(f"🛡️ [CAPITAL PRESERVATION SHIELD] {sym}: SL diamankan ke Breakeven ${formatted_shield_sl:,.4f} (+{r_multiple:.2f}R). Posisi Bebas Risiko!")
+                management_events.append(f"🛡️ {sym} Capital Shield BE @ ${formatted_shield_sl:,.4f} (+{r_multiple:.2f}R)")
                 try:
                     telegram_notifier.notify_capital_shield_activated(
                         symbol=sym,

@@ -870,7 +870,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
             if dist_sl > 0:
                 bonus_rr = 0.5 if is_alpha_leader else 0.0
                 target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) else (effective_min_rr + bonus_rr))
-                tp = round(price + (dist_sl * target_rr), 4)
+                raw_tp = price + (dist_sl * target_rr)
+                # Front-run Take Profit by 0.15% to guarantee limit fill before liquidity wall reversal
+                tp = round(raw_tp * 0.9985, 4)
                 rr = (tp - price) / dist_sl
                 signal = {
                     "symbol": pair_sym,
@@ -880,6 +882,10 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                     "sl": sl,
                     "tp": tp,
                     "rr": rr,
+                    "is_scalp": False,
+                    "be_trigger_r": 1.50,
+                    "tp1_target_r": 2.50,
+                    "anti_stall_minutes": 240,
                     "is_3touch": has_bullish_3touch,
                     "is_fabio": has_bullish_auction,
                     "is_tim": has_bullish_sweep,
@@ -936,7 +942,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                 if dist_sl > 0:
                     bonus_rr = 0.5 if is_beta_laggard else 0.0
                     target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) else (effective_min_rr + bonus_rr))
-                    tp = round(price - (dist_sl * target_rr), 4)
+                    raw_tp = price - (dist_sl * target_rr)
+                    # Front-run Take Profit by 0.15% to guarantee limit fill before liquidity wall reversal
+                    tp = round(raw_tp * 1.0015, 4)
                     rr = (price - tp) / dist_sl
                     signal = {
                         "symbol": pair_sym,
@@ -946,6 +954,10 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                         "sl": sl,
                         "tp": tp,
                         "rr": rr,
+                        "is_scalp": False,
+                        "be_trigger_r": 1.50,
+                        "tp1_target_r": 2.50,
+                        "anti_stall_minutes": 240,
                         "is_3touch": has_bearish_3touch,
                         "is_fabio": has_bearish_auction,
                         "is_tim": has_bearish_sweep,
@@ -1009,9 +1021,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                             "rr": rr,
                             "is_scalp": False,
                             "is_institutional": True,
-                            "be_trigger_r": 1.00,
-                            "tp1_target_r": 1.75,
-                            "anti_stall_minutes": 45,
+                            "be_trigger_r": 1.50,
+                            "tp1_target_r": 2.25,
+                            "anti_stall_minutes": 240,
                             "strategy_name": s.get("strategy", "Institutional Quant Setup"),
                             "risk_pct": max_risk_pct,
                             "reason": f"🏛️ {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
@@ -1046,9 +1058,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                             "rr": rr,
                             "is_scalp": False,
                             "is_prop_desk": True,
-                            "be_trigger_r": 1.00,
-                            "tp1_target_r": 1.75,
-                            "anti_stall_minutes": 45,
+                            "be_trigger_r": 1.50,
+                            "tp1_target_r": 2.25,
+                            "anti_stall_minutes": 240,
                             "strategy_name": s.get("strategy", "Prop Desk Alpha Setup"),
                             "risk_pct": max_risk_pct,
                             "reason": f"🏢 {s.get('strategy')}: {s.get('summary')} ({macro_rationale})"
@@ -1080,9 +1092,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                             "rr": 3.5,
                             "is_scalp": False,
                             "is_seasonality": True,
-                            "be_trigger_r": 1.00,
-                            "tp1_target_r": 1.75,
-                            "anti_stall_minutes": 45,
+                            "be_trigger_r": 1.50,
+                            "tp1_target_r": 2.25,
+                            "anti_stall_minutes": 240,
                             "strategy_name": f"Seasonality: {active_s_names}",
                             "risk_pct": max_risk_pct,
                             "reason": f"🗓️ {active_s_names}: Calendar edge | MAE stop {mae_pct*100:.2f}%"
