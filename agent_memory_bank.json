@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-09-30T05:08:45.036067+00:00",
-    "total_reflections": 42,
-    "system_retention_score": 105.1,
+    "last_reflection_at": "2026-09-30T06:36:13.525322+00:00",
+    "total_reflections": 43,
+    "system_retention_score": 104.6,
     "last_internet_learning_sync": "2026-09-30 02:12:45",
     "total_internet_learnings": 4
   },
@@ -954,8 +954,8 @@
     },
     "BABYUSDT": {
       "symbol": "BABYUSDT",
-      "volatility_regime": "MODERATE",
-      "wick_risk_rating": "MODERATE",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "MODERATE",
       "optimal_setups": [
@@ -964,13 +964,13 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset BABYUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 2,
+      "total_trades": 3,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -22.65,
+      "net_pnl_usd": -34.87,
       "created_dynamically": true,
-      "updated_at": "2026-09-29T23:41:28.169799+00:00",
+      "updated_at": "2026-09-30T06:36:13.525309+00:00",
       "wins": 0,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
       "last_traded_outcome": "LOSS"
     },
@@ -1648,16 +1648,39 @@
       "id": "RULE-AUTO-BABYUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on BABYUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "babyusdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-09-29T23:41:28.169811+00:00"
+      "created_at": "2026-09-29T23:41:28.169811+00:00",
+      "updated_at": "2026-09-30T06:36:13.525321+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20260930-046",
+      "timestamp": "2026-09-30T06:36:13.525295+00:00",
+      "symbol": "BABYUSDT",
+      "setup_type": "5m ICT Rejection Block Mean Threshold",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -12.22,
+      "r_multiple": -0.86,
+      "pnl_pct": -1.58,
+      "root_cause": "Adverse volatility stop-out on BABYUSDT 5m ICT Rejection Block Mean Threshold (net: -$12.22, -0.86R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BABYUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "baby",
+        "5m_ict_rejection_block_mean_threshold",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-09-30T06:36:13.525300+00:00"
+    },
     {
       "id": "MEM-20260930-045",
       "timestamp": "2026-09-30T05:08:45.036041+00:00",
@@ -2433,8 +2456,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 17715,
-      "last_accessed": "2026-09-30T06:12:19.073501+00:00"
+      "access_count": 17935,
+      "last_accessed": "2026-09-30T06:36:13.168959+00:00"
     },
     {
       "id": "MEM-20260928-011",
@@ -2477,8 +2500,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 20664,
-      "last_accessed": "2026-09-30T06:12:19.073498+00:00"
+      "access_count": 20884,
+      "last_accessed": "2026-09-30T06:36:13.168957+00:00"
     },
     {
       "id": "MEM-20260928-009",
@@ -2499,8 +2522,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 765,
-      "last_accessed": "2026-09-30T06:11:35.057347+00:00"
+      "access_count": 774,
+      "last_accessed": "2026-09-30T06:33:52.161193+00:00"
     },
     {
       "id": "MEM-20260928-008",
@@ -2543,8 +2566,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1006,
-      "last_accessed": "2026-09-30T06:11:34.938567+00:00"
+      "access_count": 1015,
+      "last_accessed": "2026-09-30T06:33:55.381815+00:00"
     },
     {
       "id": "MEM-20260928-006",
@@ -2565,8 +2588,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 26258,
-      "last_accessed": "2026-09-30T06:12:19.073489+00:00"
+      "access_count": 26478,
+      "last_accessed": "2026-09-30T06:36:13.168951+00:00"
     },
     {
       "id": "MEM-20260928-005",
@@ -2587,8 +2610,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 23097,
-      "last_accessed": "2026-09-30T06:12:19.073506+00:00"
+      "access_count": 23299,
+      "last_accessed": "2026-09-30T06:36:13.168961+00:00"
     },
     {
       "id": "MEM-20260928-004",
