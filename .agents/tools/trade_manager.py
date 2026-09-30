@@ -227,6 +227,7 @@ def execute_manual_partial_tp(symbol, user_email=None, is_demo=True):
             "net_pnl_usd": round(est_pnl, 2),
             "r_multiple": r_mult,
             "exit_reason": f"🎯 Scale-Out TP1 (50% Liquidated @ {r_mult:+.2f}R)",
+            "opened_at": t_data.get("opened_at", ""),
             "closed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "source": "SCALE_OUT_MANUAL"
         })
@@ -545,6 +546,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                 "pnl_usd": round(realized_pnl, 2),
                 "pnl_pct": round(pnl_pct_calc, 2),
                 "reason": exit_reason,
+                "opened_at": t_info.get("opened_at", ""),
                 "closed_at": close_time or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
 
@@ -569,6 +571,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     "tp1_taken": tp1_taken,
                     "tp1_cash_usd": tp1_cash,
                     "exit_reason": exit_reason,
+                    "opened_at": t_info.get("opened_at", ""),
                     "closed_at": close_time or datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "source": "AUTONOMOUS_TRADE_MANAGER"
                 })
@@ -983,6 +986,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                                 "net_pnl_usd": round(realized_usd, 2),
                                 "r_multiple": round(r_multiple, 2),
                                 "exit_reason": f"🎯 AI Adaptive Profit Harvest (+${realized_usd:,.2f} USDT | +{r_multiple:.2f}R) - {ai_thesis}",
+                                "opened_at": t_data.get("opened_at", ""),
                                 "closed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                 "source": "AI_PROFIT_HARVESTER"
                             })
@@ -1114,6 +1118,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                             "net_pnl_usd": round(est_tp1_pnl, 2),
                             "r_multiple": round(r_multiple, 2),
                             "exit_reason": f"🎯 Scale-Out TP1 ({int(scale_pct*100)}% Locked @ +{r_multiple:.2f}R)",
+                            "opened_at": t_data.get("opened_at", ""),
                             "closed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "source": "SCALE_OUT_ENGINE"
                         })

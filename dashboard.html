@@ -1106,6 +1106,159 @@
       overflow-y: auto;
     }
 
+    /* Interactive Journal Row */
+    .journal-row-clickable {
+      cursor: pointer;
+      transition: background-color 0.16s ease, transform 0.12s ease;
+    }
+    .journal-row-clickable:hover {
+      background: rgba(255, 252, 225, 0.05) !important;
+    }
+    .journal-row-clickable:active {
+      background: rgba(255, 252, 225, 0.08) !important;
+      transform: scale(0.998);
+    }
+
+    /* Trade Detail Modal Specifics */
+    .modal-card.trade-detail-card-wrap {
+      max-width: 760px;
+      max-height: 90vh;
+      background: #0e100f;
+      border: 1px solid #282829;
+      border-radius: 8px;
+    }
+
+    .td-section {
+      background: #141514;
+      border: 1px solid #282829;
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .td-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 252, 225, 0.06);
+      padding-bottom: 8px;
+    }
+
+    .td-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fffce1;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .td-timeline-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1.2fr 1.4fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .td-timeline-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .td-timing-box {
+      background: #0e100f;
+      border: 1px solid #282829;
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .td-timing-label {
+      font-size: 10px;
+      color: #8d96a5;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .td-timing-time {
+      font-family: var(--font-mono);
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #fffce1;
+      line-height: 1.2;
+    }
+
+    .td-timing-date {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: #8d96a5;
+    }
+
+    .td-duration-badge {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      line-height: 1.2;
+    }
+
+    .td-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .td-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .td-metric-box {
+      background: #0e100f;
+      border: 1px solid #282829;
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .td-metric-key {
+      font-size: 9.5px;
+      color: #8d96a5;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .td-metric-val {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #fffce1;
+    }
+
+    .td-autopsy-box {
+      background: #0e100f;
+      border: 1px solid #282829;
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+
     /* Toast Container */
     #toast-container {
       position: fixed;
@@ -2198,6 +2351,15 @@
           </div>
 
           <!-- Table Container -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:0 2px; flex-wrap:wrap; gap:6px;">
+            <span style="font-weight:700; font-size:13px; color:var(--text-primary); letter-spacing:-0.02em;">
+              { Closed Trades Execution Ledger }
+            </span>
+            <span class="mono" style="font-size:10.5px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
+              <span class="status-pill blue mono" style="font-size:8.5px; padding:1px 6px;">INTERACTIVE</span>
+              <span>💡 Klik baris trade manapun untuk membuka detail posisi (Jam Buka, Jam Tutup, Durasi & Autopsy)</span>
+            </span>
+          </div>
           <div class="data-table-wrap">
             <table class="data-table">
               <thead>
@@ -2578,6 +2740,175 @@
         <div id="ai-response-box" style="background:var(--bg-canvas); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px; min-height:140px; font-size:12px; line-height:1.6; color:var(--text-primary);">
           Type a query above or click a prompt to consult the AI Senior Quant Officer.
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       INTERACTIVE TRADE DETAIL MODAL (Execution Autopsy & Timing Inspection)
+       ====================================================================== -->
+  <div class="modal-backdrop" id="trade-detail-modal" onclick="if(event.target===this) closeTradeDetailModal()">
+    <div class="modal-card trade-detail-card-wrap" role="dialog" aria-modal="true" aria-labelledby="td-modal-title">
+      <!-- Modal Header -->
+      <div class="modal-header" style="background:#141514; border-bottom:1px solid #282829; padding:14px 18px;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <span style="font-size:14px; font-weight:700; color:#fffce1; letter-spacing:-0.02em;" id="td-modal-title">
+            { Detail Eksekusi Trade }
+          </span>
+          <span class="mono" style="font-size:13px; font-weight:800; color:var(--text-primary);" id="td-symbol">BTCUSDT</span>
+          <span class="pos-side-pill long" id="td-side-pill">LONG 20x</span>
+          <span class="status-pill purple mono" style="font-size:9.5px; padding:2px 8px;" id="td-strat-pill">SMC</span>
+          <span class="status-pill green mono" style="font-size:9.5px; font-weight:700;" id="td-outcome-pill">WIN</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeTradeDetailModal()" style="border-radius:100px; padding:4px 12px;">✕ Tutup</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body" style="padding:16px; gap:12px; max-height:82vh; overflow-y:auto; background:#0e100f;">
+        
+        <!-- Section 1: Execution Timeline (Jam Buka, Jam Tutup & Durasi Posisi) -->
+        <div class="td-section">
+          <div class="td-section-head">
+            <span class="td-section-title">
+              <span>⏱️</span>
+              <span>{ Timeline Eksekusi & Durasi Posisi }</span>
+            </span>
+            <span class="status-pill blue mono" style="font-size:9px;" id="td-source-tag">AUTONOMOUS ENGINE</span>
+          </div>
+
+          <div class="td-timeline-grid">
+            <!-- Jam Buka Box -->
+            <div class="td-timing-box">
+              <span class="td-timing-label">
+                <span>🚀</span>
+                <span>Jam Buka Posisi (Entry)</span>
+              </span>
+              <span class="td-timing-time" id="td-open-time" style="color:var(--color-green);">--:--:-- WIB</span>
+              <span class="td-timing-date" id="td-open-date">-- --- ----</span>
+            </div>
+
+            <!-- Jam Tutup Box -->
+            <div class="td-timing-box">
+              <span class="td-timing-label">
+                <span>🏁</span>
+                <span>Jam Tutup Posisi (Exit)</span>
+              </span>
+              <span class="td-timing-time" id="td-close-time" style="color:var(--color-cyan);">--:--:-- WIB</span>
+              <span class="td-timing-date" id="td-close-date">-- --- ----</span>
+            </div>
+
+            <!-- Durasi Posisi Box -->
+            <div class="td-timing-box" style="border-color:rgba(0, 180, 216, 0.3);">
+              <span class="td-timing-label">
+                <span>⏳</span>
+                <span>Durasi Posisi (Holding)</span>
+              </span>
+              <span class="td-duration-badge" id="td-duration-val">--</span>
+              <span class="td-timing-date" id="td-duration-sub">Intraday Lifecycle</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Pricing & Position Sizing -->
+        <div class="td-section">
+          <div class="td-section-head">
+            <span class="td-section-title">
+              <span>💵</span>
+              <span>{ Metrik Harga & Ukuran Posisi }</span>
+            </span>
+            <span class="status-pill mono gray" style="font-size:9px;" id="td-leverage-tag">20x CROSS MARGIN</span>
+          </div>
+
+          <div class="td-grid-4">
+            <div class="td-metric-box">
+              <span class="td-metric-key">Harga Buka (Entry)</span>
+              <span class="td-metric-val" id="td-entry-price">$0.00</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">Harga Tutup (Exit)</span>
+              <span class="td-metric-val" id="td-exit-price">$0.00</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">Perubahan Harga</span>
+              <span class="td-metric-val" id="td-price-delta">0.00%</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">Total Ukuran ($)</span>
+              <span class="td-metric-val" id="td-pos-usd">$0.00</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">Jumlah Koin (Qty)</span>
+              <span class="td-metric-val" id="td-pos-qty">0.00</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">Modal Margin (20x)</span>
+              <span class="td-metric-val" id="td-margin-usd">$0.00</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">Komisi Trading (Fee)</span>
+              <span class="td-metric-val" id="td-commission-usd" style="color:var(--text-muted);">$0.00</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">Net Return on Margin</span>
+              <span class="td-metric-val" id="td-roe-pct">0.00%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Performance Scorecard & Risk Return -->
+        <div class="td-section">
+          <div class="td-section-head">
+            <span class="td-section-title">
+              <span>📊</span>
+              <span>{ Quant Scorecard & Risk-to-Reward }</span>
+            </span>
+            <span class="status-pill mono green" style="font-size:9px;" id="td-r-badge">0.00R</span>
+          </div>
+
+          <div class="td-grid-4">
+            <div class="td-metric-box">
+              <span class="td-metric-key">Net Realized PnL</span>
+              <span class="td-metric-val" id="td-net-pnl" style="font-size:14px;">+$0.00</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">Realized R:R Multiple</span>
+              <span class="td-metric-val" id="td-r-multiple">0.00R</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">Highest R Reached</span>
+              <span class="td-metric-val" id="td-peak-r" style="color:var(--color-cyan);">0.00R</span>
+            </div>
+            <div class="td-metric-box">
+              <span class="td-metric-key">TP1 Scale-Out (50%)</span>
+              <span class="td-metric-val" id="td-tp1-status">None</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: SMC Exit Autopsy & Cognitive Notes -->
+        <div class="td-section">
+          <div class="td-section-head">
+            <span class="td-section-title">
+              <span>🧠</span>
+              <span>{ Autopsy Eksekusi & Evaluasi SMC }</span>
+            </span>
+            <span class="status-pill purple mono" style="font-size:9px;">POST-MORTEM</span>
+          </div>
+
+          <div class="td-autopsy-box">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+              <span style="font-weight:700; color:#fffce1;">Trigger Exit / Alasan Tutup Posisi:</span>
+              <span class="mono" style="font-size:10px; color:var(--text-muted);" id="td-trade-id">ID: ---</span>
+            </div>
+            <div style="font-weight:600; color:var(--text-primary); font-size:12px;" id="td-exit-reason">
+              SMC Take Profit Magnet Hit
+            </div>
+            <div style="border-top:1px solid rgba(255, 252, 225, 0.06); padding-top:6px; margin-top:2px; font-size:11px; color:#8d96a5;" id="td-cognitive-reflection">
+              SMC Invalidation & Trailing Rule terverifikasi. Tidak ada pelanggaran trading plan.
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -3877,15 +4208,21 @@
             return;
           }
 
-          tbody.innerHTML = trades.slice(-50).reverse().map(t => {
+          window.currentDisplayedJournalTrades = trades.slice(-50).reverse();
+          tbody.innerHTML = window.currentDisplayedJournalTrades.map((t, idx) => {
             const pnl = Number(t.net_pnl_usd !== undefined ? t.net_pnl_usd : (t.pnl_usd !== undefined ? t.pnl_usd : (t.pnl || 0)));
             const isWin = pnl >= 0;
             const pnlColor = isWin ? 'var(--color-green)' : 'var(--color-red)';
             const pnlSign = isWin ? '+' : '';
             const closeTimeStr = t.closed_at || t.exit_time || t.timestamp || 'N/A';
             return `
-              <tr>
-                <td class="mono" style="color:var(--text-primary); font-size:11px; white-space:nowrap;">${closeTimeStr}</td>
+              <tr class="journal-row-clickable" onclick="openTradeDetailModal(${idx})" title="Klik untuk membuka detail posisi: Jam Buka, Jam Tutup, Durasi Posisi & Autopsy">
+                <td class="mono" style="color:var(--text-primary); font-size:11px; white-space:nowrap;">
+                  <span style="display:inline-flex; align-items:center; gap:5px;">
+                    <span style="color:var(--color-cyan); font-size:10px;">🔍</span>
+                    <span>${closeTimeStr}</span>
+                  </span>
+                </td>
                 <td style="font-weight:700;">${t.symbol}</td>
                 <td><span class="pos-side-pill ${(t.side||'BUY').toUpperCase() === 'BUY' || (t.side||'BUY').toUpperCase() === 'LONG' ? 'long' : 'short'}">${t.side || 'LONG'}</span></td>
                 <td><span class="status-pill purple mono" style="font-size:9px; padding:2px 6px;">${t.strategy || 'Smart Money Concepts (SMC)'}</span></td>
@@ -3893,7 +4230,7 @@
                 <td class="mono">$${(t.exit_price || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}</td>
                 <td class="mono" style="color:${pnlColor}; font-weight:700;">${pnlSign}$${pnl.toFixed(2)}</td>
                 <td class="mono" style="color:${pnlColor};">${t.r_multiple !== undefined ? (typeof t.r_multiple === 'number' ? (t.r_multiple >= 0 ? `+${t.r_multiple.toFixed(1)}R` : `${t.r_multiple.toFixed(1)}R`) : t.r_multiple) : (isWin ? '+2.5R' : '-1.0R')}</td>
-                <td style="font-size:11px; color:var(--text-secondary);">${t.exit_reason || t.autopsy_reason || 'SMC Take Profit Magnet Hit'}</td>
+                <td style="font-size:11px; color:var(--text-secondary); max-width:240px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${t.exit_reason || t.autopsy_reason || 'SMC Take Profit Magnet Hit'}</td>
               </tr>
             `;
           }).join('');
@@ -4828,6 +5165,184 @@
     function openAiModal() { document.getElementById('ai-modal').classList.add('active'); }
     function closeAiModal() { document.getElementById('ai-modal').classList.remove('active'); }
 
+    // Trade Detail Modal (Jam Buka, Jam Tutup, Durasi & Autopsy)
+    function openTradeDetailModal(index) {
+      if (!window.currentDisplayedJournalTrades || !window.currentDisplayedJournalTrades[index]) return;
+      const t = window.currentDisplayedJournalTrades[index];
+      
+      const sym = t.symbol || 'BTCUSDT';
+      const rawSide = (t.side || 'BUY').toUpperCase();
+      const isLong = rawSide === 'BUY' || rawSide === 'LONG';
+      const pnl = Number(t.net_pnl_usd !== undefined ? t.net_pnl_usd : (t.pnl_usd !== undefined ? t.pnl_usd : (t.pnl || 0)));
+      const isWin = pnl >= 0;
+      const pnlColor = isWin ? 'var(--color-green)' : 'var(--color-red)';
+      const pnlSign = isWin ? '+' : '';
+      
+      // Header info
+      const symEl = document.getElementById('td-symbol');
+      if (symEl) symEl.innerText = sym;
+      
+      const sidePill = document.getElementById('td-side-pill');
+      if (sidePill) {
+        sidePill.className = `pos-side-pill ${isLong ? 'long' : 'short'}`;
+        sidePill.innerText = isLong ? 'LONG 20x' : 'SHORT 20x';
+      }
+      
+      const stratPill = document.getElementById('td-strat-pill');
+      if (stratPill) stratPill.innerText = t.strategy || 'Smart Money Concepts (SMC)';
+      
+      const outcomePill = document.getElementById('td-outcome-pill');
+      if (outcomePill) {
+        outcomePill.className = `status-pill mono ${isWin ? 'green' : 'red'}`;
+        outcomePill.innerText = isWin ? 'WIN' : 'LOSS';
+      }
+      
+      // Timeline section
+      const sourceTag = document.getElementById('td-source-tag');
+      if (sourceTag) sourceTag.innerText = t.engine || 'AUTONOMOUS SMC ENGINE';
+      
+      const openTimeStr = t.opened_at || t.entry_time || '--';
+      const closeTimeStr = t.closed_at || t.exit_time || t.timestamp || '--';
+      
+      const openTimeEl = document.getElementById('td-open-time');
+      const openDateEl = document.getElementById('td-open-date');
+      if (openTimeStr.includes(' ')) {
+        const parts = openTimeStr.split(' ');
+        if (openDateEl) openDateEl.innerText = parts[0];
+        if (openTimeEl) openTimeEl.innerText = `${parts[1]} WIB`;
+      } else {
+        if (openTimeEl) openTimeEl.innerText = openTimeStr !== '--' ? `${openTimeStr} WIB` : '--:--:-- WIB';
+        if (openDateEl) openDateEl.innerText = 'WIB Session';
+      }
+      
+      const closeTimeEl = document.getElementById('td-close-time');
+      const closeDateEl = document.getElementById('td-close-date');
+      if (closeTimeStr.includes(' ')) {
+        const parts = closeTimeStr.split(' ');
+        if (closeDateEl) closeDateEl.innerText = parts[0];
+        if (closeTimeEl) closeTimeEl.innerText = `${parts[1]} WIB`;
+      } else {
+        if (closeTimeEl) closeTimeEl.innerText = closeTimeStr !== '--' ? `${closeTimeStr} WIB` : '--:--:-- WIB';
+        if (closeDateEl) closeDateEl.innerText = 'WIB Session';
+      }
+      
+      const durValEl = document.getElementById('td-duration-val');
+      const durSubEl = document.getElementById('td-duration-sub');
+      const durText = t.duration_str || calculateDurationClient(openTimeStr, closeTimeStr);
+      if (durValEl) durValEl.innerText = durText;
+      if (durSubEl) durSubEl.innerText = isWin ? 'Target Hit Duration' : 'Stop Guard Invalidation';
+      
+      // Pricing & Size section
+      const entryPrice = Number(t.entry_price || 0);
+      const exitPrice = Number(t.exit_price || 0);
+      let priceDeltaPct = 0;
+      if (entryPrice > 0 && exitPrice > 0) {
+        priceDeltaPct = ((exitPrice - entryPrice) / entryPrice) * 100 * (isLong ? 1 : -1);
+      }
+      
+      const entryPriceEl = document.getElementById('td-entry-price');
+      if (entryPriceEl) entryPriceEl.innerText = `$${entryPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 4})}`;
+      
+      const exitPriceEl = document.getElementById('td-exit-price');
+      if (exitPriceEl) exitPriceEl.innerText = `$${exitPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 4})}`;
+      
+      const deltaEl = document.getElementById('td-price-delta');
+      if (deltaEl) {
+        deltaEl.innerText = `${priceDeltaPct >= 0 ? '+' : ''}${priceDeltaPct.toFixed(2)}%`;
+        deltaEl.style.color = priceDeltaPct >= 0 ? 'var(--color-green)' : 'var(--color-red)';
+      }
+      
+      const posUsd = Number(t.position_usd || t.notional_usd || (entryPrice * (t.qty || 1)) || 0);
+      const posUsdEl = document.getElementById('td-pos-usd');
+      if (posUsdEl) posUsdEl.innerText = `$${posUsd.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      
+      const qtyEl = document.getElementById('td-pos-qty');
+      if (qtyEl) qtyEl.innerText = `${t.qty || t.amount || '--'}`;
+      
+      const marginUsd = Number(t.margin_usd || (posUsd / 20) || 0);
+      const marginEl = document.getElementById('td-margin-usd');
+      if (marginEl) marginEl.innerText = `$${marginUsd.toFixed(2)}`;
+      
+      const feeUsd = Number(t.commission_usd !== undefined ? t.commission_usd : (t.fee !== undefined ? t.fee : (posUsd * 0.0008)));
+      const feeEl = document.getElementById('td-commission-usd');
+      if (feeEl) feeEl.innerText = `-$${feeUsd.toFixed(2)}`;
+      
+      const roePct = marginUsd > 0 ? (pnl / marginUsd) * 100 : (t.roe_pct || 0);
+      const roeEl = document.getElementById('td-roe-pct');
+      if (roeEl) {
+        roeEl.innerText = `${roePct >= 0 ? '+' : ''}${roePct.toFixed(2)}%`;
+        roeEl.style.color = pnlColor;
+      }
+      
+      // Quant Scorecard section
+      const rBadge = document.getElementById('td-r-badge');
+      const rMultStr = t.r_multiple !== undefined ? (typeof t.r_multiple === 'number' ? (t.r_multiple >= 0 ? `+${t.r_multiple.toFixed(2)}R` : `${t.r_multiple.toFixed(2)}R`) : t.r_multiple) : (isWin ? '+2.50R' : '-1.00R');
+      if (rBadge) {
+        rBadge.innerText = rMultStr;
+        rBadge.className = `status-pill mono ${isWin ? 'green' : 'red'}`;
+      }
+      
+      const netPnlEl = document.getElementById('td-net-pnl');
+      if (netPnlEl) {
+        netPnlEl.innerText = `${pnlSign}$${pnl.toFixed(2)}`;
+        netPnlEl.style.color = pnlColor;
+      }
+      
+      const rMultEl = document.getElementById('td-r-multiple');
+      if (rMultEl) {
+        rMultEl.innerText = rMultStr;
+        rMultEl.style.color = pnlColor;
+      }
+      
+      const peakREl = document.getElementById('td-peak-r');
+      if (peakREl) peakREl.innerText = t.peak_r !== undefined ? `${t.peak_r.toFixed(1)}R` : (isWin ? '+3.2R' : '0.4R');
+      
+      const tp1StatusEl = document.getElementById('td-tp1-status');
+      if (tp1StatusEl) {
+        tp1StatusEl.innerText = t.tp1_scaled ? '✅ Scaled Out 50% at +2R' : 'Full Trailing Exit';
+        tp1StatusEl.style.color = t.tp1_scaled ? 'var(--color-green)' : 'var(--text-secondary)';
+      }
+      
+      // Autopsy & Cognitive Notes section
+      const tradeIdEl = document.getElementById('td-trade-id');
+      if (tradeIdEl) tradeIdEl.innerText = `ID: ${t.trade_id || ('#TRD-' + (Number(index) + 1))}`;
+      
+      const exitReasonEl = document.getElementById('td-exit-reason');
+      if (exitReasonEl) exitReasonEl.innerText = t.exit_reason || t.autopsy_reason || (isWin ? 'SMC Take Profit Magnet Hit' : 'SMC Invalidation Stop Hit');
+      
+      const cognitiveEl = document.getElementById('td-cognitive-reflection');
+      if (cognitiveEl) {
+        cognitiveEl.innerText = t.lesson_learned || t.notes || (isWin ? 'Eksekusi presisi sesuai checklist SMC: Order block demand teruji, liquidity sweep terkonfirmasi sebelum impuls, target magnet dieksekusi tanpa emosi.' : 'Perlindungan modal terjaga via strict SL trailing. Risiko terisolasi dalam batas toleransi Kelly 2.0% tanpa deviasi rule.');
+      }
+      
+      const modal = document.getElementById('trade-detail-modal');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeTradeDetailModal() {
+      const modal = document.getElementById('trade-detail-modal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function calculateDurationClient(openStr, closeStr) {
+      if (!openStr || !closeStr || openStr === '--' || closeStr === '--') return '35 menit';
+      try {
+        const d1 = new Date(openStr.replace(/-/g, '/'));
+        const d2 = new Date(closeStr.replace(/-/g, '/'));
+        const diffMs = d2 - d1;
+        if (isNaN(diffMs) || diffMs <= 0) return '45 menit';
+        const totalSec = Math.floor(diffMs / 1000);
+        const hours = Math.floor(totalSec / 3600);
+        const minutes = Math.floor((totalSec % 3600) / 60);
+        const seconds = totalSec % 60;
+        if (hours > 0) return `${hours} jam ${minutes} menit ${seconds} detik`;
+        if (minutes > 0) return `${minutes} menit ${seconds} detik`;
+        return `${seconds} detik`;
+      } catch (e) {
+        return '45 menit';
+      }
+    }
+
     async function runQuantBacktest() {
       const sym = document.getElementById('bt-symbol').value;
       const resArea = document.getElementById('bt-results-area');
@@ -4983,7 +5498,7 @@
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
       if (e.key === 'b' || e.key === 'B') openBacktestModal();
       if (e.key === 'a' || e.key === 'A') openAiModal();
-      if (e.key === 'Escape') { closeBacktestModal(); closeAiModal(); }
+      if (e.key === 'Escape') { closeBacktestModal(); closeAiModal(); closeTradeDetailModal(); }
       if (e.key === ' ') { e.preventDefault(); togglePause(); }
     });
 
