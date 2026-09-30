@@ -3,18 +3,18 @@
     "ticket_id": "TCK-20260930-1557",
     "symbol": "BTCUSDT",
     "side": "SHORT",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-30 20:14:11",
-    "updated_at": "2026-09-30 20:14:11",
+    "updated_at": "2026-09-30 20:24:34",
     "payload": {
-      "entry": 83617.0907,
-      "sl": 84286.0274,
-      "tp": 81610.2806,
-      "rr": 3.0
+      "entry": 83662.3,
+      "sl": 84657.8981,
+      "tp": 81671.1038,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -33,18 +33,18 @@
     "ticket_id": "TCK-20260930-8341",
     "symbol": "SOLUSDT",
     "side": "SHORT",
-    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 20:02:58",
-    "updated_at": "2026-09-30 20:09:55",
+    "updated_at": "2026-09-30 20:19:52",
     "payload": {
-      "entry": 117.4166,
-      "sl": 118.3559,
-      "tp": 114.5987,
-      "rr": 3.0
+      "entry": 117.55,
+      "sl": 120.3785,
+      "tp": 111.893,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -65,20 +65,120 @@
     "side": "LONG",
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "EXECUTING",
     "priority": "NORMAL",
     "created_at": "2026-09-30 20:00:43",
-    "updated_at": "2026-09-30 20:09:55",
+    "updated_at": "2026-09-30 20:17:30",
     "payload": {
-      "entry": 0.2571,
-      "sl": 0.255,
-      "tp": 0.2634,
+      "entry": 0.255,
+      "sl": 0.2473,
+      "tp": 0.2781,
       "rr": 3.0
     },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
+    "debate_result": {
+      "symbol": "BERAUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 0.2473,
+      "tp_price": 0.2781,
+      "rr_ratio": 3.0,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "bull_score": 57,
+      "bear_score": 43,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+      "bear_critique": " \u2022 Aset BERAUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 0.2473,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-10-01 03:17:23"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.6,
+      "thesis": "ADJUST_RISK: Setup BERAUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (101.498 / +0.52%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Global Macro Risk-Off: DXY Surging (101.498 / +0.52%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.2473.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "BERAUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 0.2473,
+        "tp_price": 0.2781,
+        "rr_ratio": 3.0,
+        "strategy": "5m Order Flow CVD Absorption Scalp",
+        "bull_score": 57,
+        "bear_score": 43,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+        "bear_critique": " \u2022 Aset BERAUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 0.2473,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-10-01 03:17:23"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-10-01 03:17:30",
+        "symbol": "BERAUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 45,
+          "desired_scale": 0.85,
+          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+        },
+        "neutral": {
+          "score": 60,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_BALANCED",
+          "composite_risk_score": 61,
+          "allocated_risk_scale": 1.0,
+          "stop_loss_profile": "ATR_TRAILING",
+          "regime_weights": {
+            "aggressive": 0.25,
+            "neutral": 0.4,
+            "conservative": 0.35
+          },
+          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "BERA",
+        "sector_key": "OTHER",
+        "sector_title": "Independent Asset",
+        "sector_icon": "\ud83e\ude99",
+        "sector_rank": 99,
+        "is_leading_sector": false,
+        "sector_24h_avg": 0.0,
+        "relative_strength_vs_btc": 0.0,
+        "confluence_boost": 0
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-30 20:17:30",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
     "execution_result": null,
     "timeline": [
       {
@@ -86,6 +186,24 @@
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup BERAUSDT (LONG) teridentifikasi via 5m ICT Rejection Block Mean Threshold."
+      },
+      {
+        "timestamp": "2026-09-30 20:17:30",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 57% vs Bear 43% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-30 20:17:30",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-30 20:17:30",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
       }
     ]
   },
@@ -99,11 +217,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-30 20:00:43",
-    "updated_at": "2026-09-30 20:00:43",
+    "updated_at": "2026-09-30 20:29:00",
     "payload": {
       "entry": 0.0474,
       "sl": 0.0174,
-      "tp": 0.0387,
+      "tp": 0.0394,
       "rr": 3.0
     },
     "debate_result": null,
@@ -129,11 +247,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 20:00:43",
-    "updated_at": "2026-09-30 20:14:11",
+    "updated_at": "2026-09-30 20:24:34",
     "payload": {
-      "entry": 2672.9528,
+      "entry": 2677.97,
       "sl": 2707.3858,
-      "tp": 2601.1779,
+      "tp": 2619.1384,
       "rr": 2.0
     },
     "debate_result": null,
@@ -318,11 +436,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 18:29:21",
-    "updated_at": "2026-09-30 20:14:11",
+    "updated_at": "2026-09-30 20:26:49",
     "payload": {
-      "entry": 766.06,
+      "entry": 767.91,
       "sl": 756.9738,
-      "tp": 784.2324,
+      "tp": 790.0524,
       "rr": 2.0
     },
     "debate_result": null,
@@ -342,17 +460,17 @@
     "ticket_id": "TCK-20260930-7559",
     "symbol": "WLDUSDT",
     "side": "LONG",
-    "strategy": "5m 4H-Range Breakout Re-entry",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 18:26:17",
-    "updated_at": "2026-09-30 18:54:24",
+    "updated_at": "2026-09-30 20:29:00",
     "payload": {
-      "entry": 0.5282,
-      "sl": 0.5222,
-      "tp": 0.5462,
+      "entry": 0.5388,
+      "sl": 0.5307,
+      "tp": 0.5632,
       "rr": 3.0
     },
     "debate_result": null,
@@ -375,10 +493,10 @@
     "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-30 18:18:43",
-    "updated_at": "2026-09-30 18:27:05",
+    "updated_at": "2026-09-30 20:30:38",
     "payload": {
       "entry": 0.2629,
       "sl": 0.255,
@@ -487,7 +605,13 @@
       "authorized_at": "2026-09-30 18:27:05",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$1.26 USDT)",
+      "realized_pnl": 1.26,
+      "net_pnl": 0.709,
+      "closed_at": "2026-09-30 20:30:38"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-30 18:18:43",
@@ -512,6 +636,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-30 20:30:38",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$1.26 USDT) | PnL: $+1.26 USDT (Net: $+0.71)"
       }
     ]
   },
@@ -1174,17 +1304,17 @@
     "ticket_id": "TCK-20260930-5643",
     "symbol": "XRPUSDT",
     "side": "LONG",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 16:10:35",
-    "updated_at": "2026-09-30 16:56:39",
+    "updated_at": "2026-09-30 20:24:34",
     "payload": {
-      "entry": 1.5108,
-      "sl": 1.4987,
-      "tp": 1.5471,
+      "entry": 1.4938,
+      "sl": 1.5058,
+      "tp": 1.4578,
       "rr": 3.0
     },
     "debate_result": null,
