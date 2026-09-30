@@ -194,10 +194,10 @@
     "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-09-30 01:08:57",
-    "updated_at": "2026-09-30 01:43:01",
+    "updated_at": "2026-09-30 01:44:22",
     "payload": {
       "entry": 83371.3,
       "sl": 84401.3117,
@@ -207,13 +207,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected)",
+      "realized_pnl": 0.0,
+      "net_pnl": 0.0,
+      "closed_at": "2026-09-30 01:44:22"
+    },
     "timeline": [
       {
         "timestamp": "2026-09-30 01:08:57",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup BTCUSDT (SHORT) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-30 01:44:22",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected) | PnL: $+0.00 USDT (Net: $+0.00)"
       }
     ]
   },
