@@ -24,6 +24,7 @@ Every visual modification to [`dashboard.html`](dashboard.html) must strictly ad
 - **Order Book Delta Sniping**: Reads Level-2 depth imbalance (>=2.5x) and CVD absorption to front-run limit walls and expand R:R to 1:5.0 - 1:8.0.
 - **Dynamic Beta-Neutral Portfolio Hedge**: Calculates Net Portfolio Beta-Weighted Delta ($USD\Delta$) and deploys BTC Short Hedges during BTC flash crash shocks.
 - **Ollama Real-Time Internet Web RAG & Continuous Learning**: Local AI Brain (`deepseek-r1:8b`) receives live web search and sentiment grounding (Cointelegraph, CoinDesk, Decrypt, Reddit, Jina Reader, Binance Vision) and autonomously runs continuous learning cycles committing discovered institutional tactics into `agent_memory_bank.json`.
+- **Eight-Agent Desk Pipeline & Harvest Moon Retro Office**: Autonomous 8-agent swarm handoff pipeline (01 Search -> 02 Risk -> 03 Whale -> 04 Shill -> 05 Analyst -> 06 Head of Desk -> 07 Sniper -> 08 Journal) with real-time 16-bit Harvest Moon retro office visualization in `dashboard.html` and telemetry endpoint `/api/desk/eight_agents`.
 - High-frequency position monitoring runs via dedicated background watcher threads.
 - All closed trades must be logged to the **Trade Journal** (`trade_journal_ledger.json`) with dynamic date filtering and today-first reporting.
 - Every modification must pass all tests in `scratch/total_system_debug.py` with a 100% health score.

@@ -565,6 +565,13 @@ def get_dashboard_feed_data(force_refresh=False):
     except Exception:
         feed["autoresearch"] = {}
 
+    # 8-Agent Desk Pipeline & Harvest Moon Retro Office State
+    try:
+        import eight_agent_desk
+        feed["eight_agents"] = eight_agent_desk.get_eight_agent_pipeline_state()
+    except Exception:
+        feed["eight_agents"] = {}
+
     feed["last_sync"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     _feed_cache = feed
@@ -918,6 +925,22 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path == "/api/desk/eight_agents":
+            try:
+                import eight_agent_desk
+                desk_data = eight_agent_desk.get_eight_agent_pipeline_state()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps(desk_data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
             return
 
         elif path == "/api/stream/events":

@@ -1346,6 +1346,371 @@
     .data-flash-down {
       animation: flash-red 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     }
+
+    /* ==========================================================================
+       HARVEST MOON 16-BIT RETRO TRADING OFFICE WIDGET STYLES
+       ========================================================================== */
+    .retro-office-card {
+      background: #0f1115;
+      border: 1px solid #282d38;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      position: relative;
+    }
+
+    .retro-office-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: #14171d;
+      border-bottom: 1px solid #282d38;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .retro-office-title-cluster {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .retro-office-pixel-icon {
+      font-size: 20px;
+      line-height: 1;
+      filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.4));
+      animation: retro-bounce 2s infinite ease-in-out;
+    }
+
+    @keyframes retro-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .retro-office-main-title {
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: -0.01em;
+      color: #fffce1;
+      text-transform: uppercase;
+    }
+
+    .retro-office-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .retro-floor-canvas {
+      position: relative;
+      background-color: #0b0d11;
+      background-image: 
+        linear-gradient(rgba(255, 252, 225, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 252, 225, 0.02) 1px, transparent 1px);
+      background-size: 28px 28px;
+      padding: 24px 20px;
+      min-height: 380px;
+      overflow: hidden;
+    }
+
+    /* Ambient Office Props */
+    .retro-ambient-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 14px;
+      background: rgba(18, 22, 29, 0.85);
+      border: 1px solid #1e2430;
+      border-radius: 6px;
+      margin-bottom: 18px;
+      font-size: 11px;
+    }
+
+    .retro-amb-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+    }
+
+    /* 8 Desks Grid Layout */
+    .retro-desks-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    @media (max-width: 1024px) {
+      .retro-desks-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .retro-desks-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .retro-workstation {
+      background: #14171e;
+      border: 1px solid #232936;
+      border-radius: 8px;
+      padding: 12px;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    .retro-workstation:hover {
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+    }
+
+    .retro-workstation.active-lead-desk {
+      border-color: #f59e0b;
+      background: linear-gradient(180deg, #171c26 0%, #131720 100%);
+      box-shadow: 0 0 24px rgba(245, 158, 11, 0.25), inset 0 0 12px rgba(245, 158, 11, 0.08);
+      animation: workstation-pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes workstation-pulse {
+      0%, 100% { border-color: #f59e0b; }
+      50% { border-color: #fcd34d; }
+    }
+
+    .retro-desk-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .retro-step-pill {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #1e2430;
+      color: #8d96a5;
+      letter-spacing: 0.05em;
+    }
+
+    .retro-workstation.active-lead-desk .retro-step-pill {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .retro-avatar-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      height: 76px;
+      background: #0d0f14;
+      border: 1px solid #1a1e27;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .retro-desk-illustration {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding-bottom: 6px;
+    }
+
+    /* Pixel Character Chibi */
+    .retro-character {
+      width: 36px;
+      height: 48px;
+      position: relative;
+      z-index: 2;
+      animation: char-type 1.4s infinite ease-in-out;
+      transform-origin: bottom center;
+    }
+
+    @keyframes char-type {
+      0%, 100% { transform: translateY(0) scaleY(1); }
+      30% { transform: translateY(-2px) scaleY(1.02); }
+      60% { transform: translateY(0) scaleY(0.98); }
+    }
+
+    .retro-crt-screen {
+      width: 28px;
+      height: 22px;
+      background: #050608;
+      border: 2px solid #2b3342;
+      border-radius: 3px;
+      margin-left: 6px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 8px rgba(0, 214, 143, 0.2);
+    }
+
+    .retro-crt-line {
+      width: 16px;
+      height: 2px;
+      background: #00d68f;
+      border-radius: 1px;
+      margin: 1px 0;
+      animation: crt-flicker 1.8s infinite;
+    }
+
+    @keyframes crt-flicker {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Floating Pixel Emote Bubble */
+    .retro-emote-bubble {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: #1c222e;
+      border: 1px solid #323b4e;
+      border-radius: 12px;
+      padding: 2px 6px;
+      font-size: 11px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      animation: emote-float 2.2s infinite ease-in-out;
+      z-index: 5;
+    }
+
+    @keyframes emote-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .retro-agent-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .retro-agent-name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .retro-agent-name {
+      font-weight: 700;
+      font-size: 11.5px;
+      color: var(--text-primary);
+    }
+
+    .retro-agent-role {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .retro-agent-action {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    /* Flying Golden Document / Handoff Folder */
+    .retro-flying-folder {
+      position: absolute;
+      width: 22px;
+      height: 18px;
+      background: #f59e0b;
+      border: 1px solid #fffce1;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.8);
+      z-index: 10;
+      pointer-events: none;
+      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: none;
+    }
+
+    /* Harvest Moon Dialogue Box */
+    .retro-dialogue-box {
+      margin-top: 18px;
+      background: #11141b;
+      border: 2px solid #2c3444;
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      position: relative;
+      box-shadow: inset 0 0 16px rgba(0,0,0,0.5);
+    }
+
+    .retro-dialogue-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      background: #191f2b;
+      border: 1px solid #364053;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .retro-dialogue-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .retro-dialogue-speaker {
+      font-weight: 800;
+      font-size: 12px;
+      color: #f59e0b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .retro-dialogue-text {
+      font-size: 11.5px;
+      color: #fffce1;
+      line-height: 1.45;
+    }
+
+    .retro-dialogue-target {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-cyan);
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -1410,10 +1775,10 @@
           <span>Journal</span>
           <span class="nav-tab-badge" style="background:var(--color-green-dim); color:var(--color-green);" id="header-journal-badge">TODAY</span>
         </button>
-        <button class="nav-tab-btn" onclick="switchView('paperclip')" id="tab-paperclip">
+        <button class="nav-tab-btn" onclick="switchView('paperclip')" id="tab-paperclip" title="8-Agent Trading Floor (Harvest Moon Edition)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <span>Firm Swarm</span>
-          <span class="nav-tab-badge" style="background:var(--color-purple-dim); color:var(--color-purple);">5 AGENTS</span>
+          <span>8-Agent Desk</span>
+          <span class="nav-tab-badge" style="background:var(--color-purple-dim); color:var(--color-purple);">8 AGENTS</span>
         </button>
         <button class="nav-tab-btn" onclick="switchView('memory')" id="tab-memory">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -1882,6 +2247,85 @@
             </div>
           </div>
 
+          <!-- ================================================================
+               HARVEST MOON 16-BIT RETRO TRADING OFFICE WIDGET
+               ================================================================ -->
+          <div class="retro-office-card" id="retro-office-section">
+            <div class="retro-office-header">
+              <div class="retro-office-title-cluster">
+                <span class="retro-office-pixel-icon">🏢</span>
+                <div>
+                  <div class="retro-office-main-title">{ 8-Agent Trading Floor • Harvest Moon Edition }</div>
+                  <div style="font-size:10.5px; color:var(--text-secondary); margin-top:2px;">
+                    Autonomous Swarm Operations: 8 Specialist AI Agents Working in Harmony
+                  </div>
+                </div>
+              </div>
+              <div class="retro-office-controls">
+                <span class="status-capsule green" id="retro-mood-pill">
+                  <span class="status-dot-pulse"></span>
+                  <span id="retro-mood-text">🟢 8/8 AGENTS OPERATIONAL</span>
+                </span>
+                <button class="btn btn-ghost btn-sm" id="retro-audio-btn" onclick="toggleRetroAudio()" title="Toggle Retro 8-bit Sound Effects">
+                  <span>🔇 Sound: OFF</span>
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="simulateHandoffDemo()" title="Simulate a trade lead moving across all 8 desks">
+                  <span>⚡ Pipeline Demo</span>
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="fetchEightAgentsData()" title="Refresh Office State">
+                  <span>🔄 Refresh</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="retro-floor-canvas" id="retro-floor-area">
+              <!-- Flying Golden Folder Animation Element -->
+              <div class="retro-flying-folder" id="retro-folder">📁</div>
+
+              <!-- Ambient Office Status Bar -->
+              <div class="retro-ambient-bar">
+                <div class="retro-amb-item" id="retro-amb-weather">
+                  <span>☀️</span>
+                  <span>Session: <strong>Tokyo / Asian 24/7</strong></span>
+                </div>
+                <div class="retro-amb-item" id="retro-amb-lead">
+                  <span>📁</span>
+                  <span>Current Lead: <strong style="color:var(--color-amber);" id="retro-lead-symbol">BTCUSDT</strong></span>
+                </div>
+                <div class="retro-amb-item" id="retro-amb-active-agent">
+                  <span>👤</span>
+                  <span>Active Desk: <strong style="color:var(--color-cyan);" id="retro-active-agent-name">Search (Piper)</strong></span>
+                </div>
+                <div class="retro-amb-item" id="retro-amb-coffee">
+                  <span>☕</span>
+                  <span>Coffee: <strong>42 Cups</strong></span>
+                </div>
+              </div>
+
+              <!-- 8 Desks Grid Layout -->
+              <div class="retro-desks-grid" id="retro-desks-container">
+                <!-- Dynamically rendered via renderEightAgents() -->
+              </div>
+
+              <!-- Harvest Moon Style Dialogue Box -->
+              <div class="retro-dialogue-box" id="retro-dialogue">
+                <div class="retro-dialogue-avatar" id="dialogue-avatar">👨‍💻</div>
+                <div class="retro-dialogue-body">
+                  <div class="retro-dialogue-speaker">
+                    <span id="dialogue-name">Piper (Scout)</span>
+                    <span style="font-size:9.5px; padding:1px 6px; border-radius:3px; background:#1e2430; color:#8d96a5;" id="dialogue-role">01 SEARCH</span>
+                  </div>
+                  <div class="retro-dialogue-text" id="dialogue-quote">
+                    "Radar mendeteksi pergerakan volume tinggi pada koin BTCUSDT. Menyiapkan berkas untuk dioper ke meja Risk!"
+                  </div>
+                  <div class="retro-dialogue-target" id="dialogue-target">
+                    Lead Target: BTCUSDT | Action: Scanning 145 crypto pairs for volume surges
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Kanban Delegation Grid -->
           <div class="kanban-board-grid">
             <div class="kanban-col">
@@ -2207,6 +2651,7 @@
       } else if (viewName === 'paperclip') {
         loadPaperclipData();
         loadCognitiveStream();
+        fetchEightAgentsData();
       } else if (viewName === 'memory') {
         loadMemoryData();
       } else if (viewName === 'dexradar') {
@@ -2522,6 +2967,11 @@
             cbBtn.title = 'Circuit Breaker AKTIF (Klik untuk mematikan)';
           }
         }
+      }
+
+      // Harvest Moon 8-Agent Desk Live Update
+      if (data.eight_agents) {
+        renderEightAgents(data.eight_agents);
       }
     }
 
@@ -3589,10 +4039,337 @@
             }
           }
         });
-        // Trigger live cognitive stream refresh with paperclip
+        // Trigger live cognitive stream & eight agents desk refresh
         loadCognitiveStream();
+        fetchEightAgentsData();
       } catch (e) {
         console.warn("Could not load paperclip:", e);
+      }
+    }
+
+    /* ======================================================================
+       HARVEST MOON 16-BIT RETRO TRADING OFFICE JAVASCRIPT LOGIC
+       ====================================================================== */
+    let retroAudioEnabled = false;
+    let retroAudioCtx = null;
+    let currentEightAgentsData = null;
+    let selectedAgentId = null;
+    let isHandoffAnimating = false;
+
+    function initRetroAudio() {
+      if (!retroAudioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          retroAudioCtx = new AudioContext();
+        }
+      }
+      if (retroAudioCtx && retroAudioCtx.state === 'suspended') {
+        retroAudioCtx.resume();
+      }
+    }
+
+    function toggleRetroAudio() {
+      retroAudioEnabled = !retroAudioEnabled;
+      const btn = document.getElementById('retro-audio-btn');
+      if (retroAudioEnabled) {
+        initRetroAudio();
+        if (btn) btn.innerHTML = '<span>🔊 Sound: ON</span>';
+        playRetroSound('coin');
+        showToast('🔊 Retro 8-bit Audio: ACTIVE');
+      } else {
+        if (btn) btn.innerHTML = '<span>🔇 Sound: OFF</span>';
+        showToast('🔇 Retro Audio: MUTED');
+      }
+    }
+
+    function playRetroSound(type) {
+      if (!retroAudioEnabled) return;
+      initRetroAudio();
+      if (!retroAudioCtx) return;
+
+      const now = retroAudioCtx.currentTime;
+
+      if (type === 'blip') {
+        const osc = retroAudioCtx.createOscillator();
+        const gain = retroAudioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(retroAudioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === 'stamp') {
+        const osc = retroAudioCtx.createOscillator();
+        const gain = retroAudioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.15);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.connect(gain);
+        gain.connect(retroAudioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } else if (type === 'coin') {
+        const osc = retroAudioCtx.createOscillator();
+        const gain = retroAudioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(987.77, now);
+        osc.frequency.setValueAtTime(1318.51, now + 0.08);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.connect(gain);
+        gain.connect(retroAudioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'fanfare') {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = retroAudioCtx.createOscillator();
+          const gain = retroAudioCtx.createGain();
+          const t = now + (idx * 0.1);
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.1, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+          osc.connect(gain);
+          gain.connect(retroAudioCtx.destination);
+          osc.start(t);
+          osc.stop(t + 0.25);
+        });
+      }
+    }
+
+    function getPixelCharacterSvg(role, isWorking) {
+      const skinColor = '#ffdbac';
+      let hairColor = '#5c4033';
+      let shirtColor = '#3b82f6';
+      let accessory = '';
+
+      if (role === 'SEARCH') {
+        hairColor = '#d97706';
+        shirtColor = '#3b82f6';
+        accessory = '<rect x="10" y="16" width="16" height="5" fill="#1e293b" rx="2" /><circle cx="14" cy="18.5" r="2.5" fill="#00d68f"/><circle cx="22" cy="18.5" r="2.5" fill="#00d68f"/>';
+      } else if (role === 'RISK') {
+        hairColor = '#475569';
+        shirtColor = '#f59e0b';
+        accessory = '<polygon points="18,34 14,30 22,30" fill="#dc2626"/>';
+      } else if (role === 'WHALE') {
+        hairColor = '#1e293b';
+        shirtColor = '#00b4d8';
+        accessory = '<rect x="6" y="8" width="24" height="4" fill="#0f172a" /><rect x="9" y="4" width="18" height="5" fill="#1e293b" />';
+      } else if (role === 'SHILL') {
+        hairColor = '#e11d48';
+        shirtColor = '#a855f7';
+        accessory = '<rect x="6" y="14" width="3" height="8" fill="#38bdf8"/><rect x="27" y="14" width="3" height="8" fill="#38bdf8"/><path d="M9 14 Q18 9 27 14" stroke="#38bdf8" stroke-width="2" fill="none"/>';
+      } else if (role === 'ANALYST') {
+        hairColor = '#334155';
+        shirtColor = '#00d68f';
+        accessory = '<rect x="11" y="17" width="14" height="4" fill="#f8fafc" opacity="0.8"/>';
+      } else if (role === 'HEAD_OF_DESK') {
+        hairColor = '#e2e8f0';
+        shirtColor = '#6d28d9';
+        accessory = '<polygon points="18,35 15,30 21,30" fill="#f59e0b"/>';
+      } else if (role === 'SNIPER') {
+        hairColor = '#0f172a';
+        shirtColor = '#f6465d';
+        accessory = '<rect x="8" y="16" width="20" height="4" fill="#ef4444" opacity="0.9"/>';
+      } else if (role === 'JOURNAL') {
+        hairColor = '#78350f';
+        shirtColor = '#10b981';
+        accessory = '<rect x="7" y="10" width="22" height="3" fill="#92400e"/>';
+      }
+
+      return `
+        <svg class="retro-character" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="9" y="8" width="18" height="10" fill="${hairColor}" rx="3"/>
+          <rect x="10" y="14" width="16" height="14" fill="${skinColor}" rx="3"/>
+          <rect x="13" y="19" width="3" height="3" fill="#0f172a"/>
+          <rect x="20" y="19" width="3" height="3" fill="#0f172a"/>
+          <rect x="11" y="23" width="2.5" height="1.5" fill="#f43f5e" opacity="0.6"/>
+          <rect x="22.5" y="23" width="2.5" height="1.5" fill="#f43f5e" opacity="0.6"/>
+          ${accessory}
+          <rect x="8" y="28" width="20" height="15" fill="${shirtColor}" rx="2"/>
+          <circle cx="${isWorking ? '10' : '11'}" cy="37" r="2.5" fill="${skinColor}"/>
+          <circle cx="${isWorking ? '26' : '25'}" cy="37" r="2.5" fill="${skinColor}"/>
+          <rect x="2" y="44" width="32" height="4" fill="#3e2723" rx="1"/>
+        </svg>
+      `;
+    }
+
+    function renderEightAgents(deskData) {
+      if (!deskData || !Array.isArray(deskData.agents)) return;
+      currentEightAgentsData = deskData;
+
+      // Update Header Badges
+      const moodText = document.getElementById('retro-mood-text');
+      const moodPill = document.getElementById('retro-mood-pill');
+      if (moodText && deskData.mood_badge) moodText.innerText = deskData.mood_badge;
+      if (moodPill) {
+        if (deskData.desk_mood === 'COFFEE_BREAK') moodPill.className = 'status-capsule amber';
+        else if (deskData.desk_mood === 'ALERT') moodPill.className = 'status-capsule red';
+        else moodPill.className = 'status-capsule green';
+      }
+
+      // Update Ambient Bar
+      const leadEl = document.getElementById('retro-lead-symbol');
+      if (leadEl && deskData.active_lead_symbol) leadEl.innerText = deskData.active_lead_symbol;
+
+      const agentNameEl = document.getElementById('retro-active-agent-name');
+      if (agentNameEl && deskData.active_agent) agentNameEl.innerText = deskData.active_agent;
+
+      // Render 8 Desks
+      const container = document.getElementById('retro-desks-container');
+      if (!container) return;
+
+      const activeStep = deskData.active_step || 1;
+
+      container.innerHTML = deskData.agents.map((ag) => {
+        const isActive = (ag.id === activeStep) || (selectedAgentId === ag.id);
+        const isWorking = ag.state === 'WORKING' || ag.state === 'ACTIVE' || isActive;
+
+        return `
+          <div class="retro-workstation ${isActive ? 'active-lead-desk' : ''}" 
+               id="workstation-${ag.id}" 
+               onclick="selectDeskForDialogue(${ag.id})">
+            
+            <div class="retro-desk-top-row">
+              <span class="retro-step-pill" style="${isActive ? 'color:#f59e0b;' : ''}">0${ag.id} ${ag.role}</span>
+              <span style="font-size:9.5px; color:${isActive ? 'var(--color-green)' : 'var(--text-muted)'}; display:flex; align-items:center; gap:4px;">
+                <span class="status-dot-pulse" style="width:6px; height:6px; background:${isActive ? 'var(--color-green)' : '#535b69'};"></span>
+                <span>${ag.state}</span>
+              </span>
+            </div>
+
+            <div class="retro-avatar-stage">
+              <div class="retro-emote-bubble" style="${isActive ? 'border-color:#f59e0b; background:#292010;' : ''}">
+                ${ag.emote || '💬'}
+              </div>
+
+              <div class="retro-desk-illustration">
+                ${getPixelCharacterSvg(ag.role, isWorking)}
+                
+                <div class="retro-crt-screen">
+                  <div class="retro-crt-line"></div>
+                  <div class="retro-crt-line" style="width:11px; background:${ag.color || '#00d68f'};"></div>
+                  <div class="retro-crt-line" style="width:14px;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="retro-agent-meta">
+              <div class="retro-agent-name-row">
+                <span class="retro-agent-name">${ag.name}</span>
+                <span class="mono" style="font-size:9px; color:${ag.color || 'var(--color-blue)'}; font-weight:700;">${ag.avatar.toUpperCase()}</span>
+              </div>
+              <div class="retro-agent-role">${ag.title}</div>
+              <div class="retro-agent-action" title="${ag.action}">
+                ${ag.action}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const displayAgent = deskData.agents.find(a => a.id === (selectedAgentId || activeStep)) || deskData.agents[0];
+      updateDialogueBox(displayAgent, deskData.active_lead_symbol);
+    }
+
+    function selectDeskForDialogue(agentId) {
+      selectedAgentId = agentId;
+      playRetroSound('blip');
+      if (currentEightAgentsData && currentEightAgentsData.agents) {
+        const ag = currentEightAgentsData.agents.find(a => a.id === agentId);
+        if (ag) {
+          updateDialogueBox(ag, currentEightAgentsData.active_lead_symbol);
+          document.querySelectorAll('.retro-workstation').forEach(w => w.classList.remove('active-lead-desk'));
+          const el = document.getElementById(`workstation-${agentId}`);
+          if (el) el.classList.add('active-lead-desk');
+        }
+      }
+    }
+
+    function updateDialogueBox(ag, leadSymbol) {
+      if (!ag) return;
+      const avatarEl = document.getElementById('dialogue-avatar');
+      const nameEl = document.getElementById('dialogue-name');
+      const roleEl = document.getElementById('dialogue-role');
+      const quoteEl = document.getElementById('dialogue-quote');
+      const targetEl = document.getElementById('dialogue-target');
+
+      const emojiMap = {
+        'scout': '👨‍💻',
+        'auditor': '👩‍⚖️',
+        'detective': '🕵️',
+        'social': '👩‍💼',
+        'chartist': '🧑‍💻',
+        'boss': '👨‍💼',
+        'sniper': '🥷',
+        'clerk': '🧑‍💼'
+      };
+
+      if (avatarEl) avatarEl.innerText = emojiMap[ag.avatar] || '👨‍💻';
+      if (nameEl) nameEl.innerText = ag.name;
+      if (roleEl) roleEl.innerText = `0${ag.id} ${ag.role}`;
+      if (quoteEl) quoteEl.innerText = `"${ag.quote || ag.action}"`;
+      if (targetEl) targetEl.innerText = `Focus: ${ag.lead || leadSymbol || 'BTCUSDT'} | Props: ${ag.props || 'Workstation'}`;
+    }
+
+    function simulateHandoffDemo() {
+      if (isHandoffAnimating) return;
+      isHandoffAnimating = true;
+      showToast('⚡ Running 8-Agent Pipeline Simulation Demo...');
+      playRetroSound('coin');
+
+      const steps = [1, 2, 3, 4, 5, 6, 7, 8];
+      let currIdx = 0;
+
+      const folder = document.getElementById('retro-folder');
+
+      const interval = setInterval(() => {
+        if (currIdx >= steps.length) {
+          clearInterval(interval);
+          isHandoffAnimating = false;
+          if (folder) folder.style.display = 'none';
+          playRetroSound('fanfare');
+          showToast('🎉 Trade Pipeline Executed & Logged to Journal!');
+          return;
+        }
+
+        const agentId = steps[currIdx];
+        selectDeskForDialogue(agentId);
+
+        if (agentId === 2) playRetroSound('stamp');
+        else if (agentId === 6) playRetroSound('stamp');
+        else if (agentId === 7) playRetroSound('coin');
+        else playRetroSound('blip');
+
+        const deskEl = document.getElementById(`workstation-${agentId}`);
+        if (deskEl && folder) {
+          const rect = deskEl.getBoundingClientRect();
+          const floorRect = document.getElementById('retro-floor-area')?.getBoundingClientRect();
+          if (floorRect) {
+            folder.style.display = 'flex';
+            folder.style.left = `${rect.left - floorRect.left + (rect.width / 2) - 11}px`;
+            folder.style.top = `${rect.top - floorRect.top + 10}px`;
+          }
+        }
+
+        currIdx++;
+      }, 750);
+    }
+
+    async function fetchEightAgentsData() {
+      try {
+        const res = await fetch('/api/desk/eight_agents');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderEightAgents(data);
+      } catch (e) {
+        console.warn('Could not fetch eight agents state:', e);
       }
     }
 
@@ -4246,6 +5023,7 @@
       loadJournalData();
       loadPaperclipData();
       loadCognitiveStream();
+      fetchEightAgentsData();
       loadMemoryData();
       loadDexRadarData();
       loadWhaleTrackerData();
@@ -4265,6 +5043,7 @@
         } else if (activeView === 'paperclip') {
           loadPaperclipData();
           loadCognitiveStream();
+          fetchEightAgentsData();
         } else if (activeView === 'memory') {
           loadMemoryData();
         } else if (activeView === 'dexradar') {
