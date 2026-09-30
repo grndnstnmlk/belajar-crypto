@@ -1,5 +1,205 @@
 [
   {
+    "ticket_id": "TCK-20260930-6401",
+    "symbol": "NEARUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
+    "priority": "HIGH",
+    "created_at": "2026-09-30 04:53:26",
+    "updated_at": "2026-09-30 04:56:11",
+    "payload": {
+      "entry": 4.975,
+      "sl": 4.8257,
+      "tp": 5.4229,
+      "rr": 3.0
+    },
+    "debate_result": {
+      "symbol": "NEARUSDT",
+      "side": "LONG",
+      "entry_price": 0.0,
+      "sl_price": 4.8257,
+      "tp_price": 5.4229,
+      "rr_ratio": 3.0,
+      "strategy": "5m Order Flow CVD Absorption Scalp",
+      "bull_score": 63,
+      "bear_score": 37,
+      "winner": "BULL",
+      "verdict": "APPROVE",
+      "suggested_risk_scale": 1.0,
+      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset NEARUSDT berada dalam 3 besar rotasi sektor (\ud83e\udd16 AI & DePIN).",
+      "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (63% vs 37%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+      "invalidation_price": 4.8257,
+      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+      "timestamp": "2026-09-30 11:55:02"
+    },
+    "risk_result": {
+      "decision": "ADJUST_RISK",
+      "confidence": 85,
+      "suggested_risk_scale": 0.67,
+      "thesis": "ADJUST_RISK: Setup NEARUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (101.451 / +0.48%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+      "key_risks": [
+        "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+        "Global Macro Risk-Off: DXY Surging (101.451 / +0.48%)"
+      ],
+      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $4.8257.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": {
+        "symbol": "NEARUSDT",
+        "side": "LONG",
+        "entry_price": 0.0,
+        "sl_price": 4.8257,
+        "tp_price": 5.4229,
+        "rr_ratio": 3.0,
+        "strategy": "5m Order Flow CVD Absorption Scalp",
+        "bull_score": 63,
+        "bear_score": 37,
+        "winner": "BULL",
+        "verdict": "APPROVE",
+        "suggested_risk_scale": 1.0,
+        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Aset NEARUSDT berada dalam 3 besar rotasi sektor (\ud83e\udd16 AI & DePIN).",
+        "bear_critique": " \u2022 Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (63% vs 37%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+        "invalidation_price": 4.8257,
+        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+        "timestamp": "2026-09-30 11:55:02"
+      },
+      "tri_perspective_risk": {
+        "timestamp": "2026-09-30 11:55:08",
+        "symbol": "NEARUSDT",
+        "side": "LONG",
+        "engine": "Algorithmic Quant Heuristic Matrix",
+        "aggressive": {
+          "score": 85,
+          "desired_scale": 1.2,
+          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 63% menunjukkan dorongan positif moderat."
+        },
+        "conservative": {
+          "score": 70,
+          "desired_scale": 1.0,
+          "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+        },
+        "neutral": {
+          "score": 63,
+          "desired_scale": 1.1,
+          "half_kelly_pct": 3.0,
+          "thesis": "Probabilitas kemenangan model: 63.2%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+        },
+        "fund_manager": {
+          "verdict": "APPROVED_OPTIMAL",
+          "composite_risk_score": 74,
+          "allocated_risk_scale": 1.12,
+          "stop_loss_profile": "RUNNER_EXPANSION",
+          "regime_weights": {
+            "aggressive": 0.45,
+            "neutral": 0.35,
+            "conservative": 0.2
+          },
+          "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+        }
+      },
+      "sentiment_narrative": {
+        "symbol": "NEAR",
+        "sector_key": "AI_DEPIN",
+        "sector_title": "AI & DePIN",
+        "sector_icon": "\ud83e\udd16",
+        "sector_rank": 2,
+        "is_leading_sector": false,
+        "sector_24h_avg": 2.79,
+        "relative_strength_vs_btc": 2.79,
+        "confluence_boost": 5
+      }
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-09-30 04:55:08",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-09-30 04:56:11"
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-09-30 04:53:26",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup NEARUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-30 04:55:08",
+        "agent": "bull_analyst_agent",
+        "stage": "DEBATING",
+        "note": "Tauric Debate: Bull 63% vs Bear 37% | Arbiter: APPROVE"
+      },
+      {
+        "timestamp": "2026-09-30 04:55:08",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
+      },
+      {
+        "timestamp": "2026-09-30 04:55:08",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-09-30 04:56:11",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TCK-20260930-6340",
+    "symbol": "AVAXUSDT",
+    "side": "LONG",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "CLOSED",
+    "priority": "HIGH",
+    "created_at": "2026-09-30 04:53:26",
+    "updated_at": "2026-09-30 05:08:43",
+    "payload": {
+      "entry": 11.2736,
+      "sl": 11.1834,
+      "tp": 11.5442,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$9.65 USDT)",
+      "realized_pnl": -9.648,
+      "net_pnl": -9.9503,
+      "closed_at": "2026-09-30 05:08:43"
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-09-30 04:53:26",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup AVAXUSDT (LONG) teridentifikasi via 5m Order Flow CVD Absorption Scalp."
+      },
+      {
+        "timestamp": "2026-09-30 05:08:43",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$9.65 USDT) | PnL: $-9.65 USDT (Net: $-9.95)"
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20260930-1079",
     "symbol": "BNBUSDT",
     "side": "SHORT",
@@ -9,11 +209,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 04:39:01",
-    "updated_at": "2026-09-30 04:43:38",
+    "updated_at": "2026-09-30 05:01:25",
     "payload": {
-      "entry": 763.5486,
+      "entry": 762.78,
       "sl": 771.8925,
-      "tp": 746.8607,
+      "tp": 744.555,
       "rr": 2.0
     },
     "debate_result": null,
@@ -355,11 +555,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-30 04:26:33",
-    "updated_at": "2026-09-30 04:43:37",
+    "updated_at": "2026-09-30 05:07:41",
     "payload": {
-      "entry": 119.1143,
+      "entry": 119.09,
       "sl": 121.8444,
-      "tp": 113.6541,
+      "tp": 113.5812,
       "rr": 2.0
     },
     "debate_result": null,
@@ -4011,18 +4211,18 @@
     "ticket_id": "TCK-20260930-8896",
     "symbol": "ZECUSDT",
     "side": "SHORT",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-30 02:51:08",
-    "updated_at": "2026-09-30 04:43:37",
+    "updated_at": "2026-09-30 04:50:07",
     "payload": {
-      "entry": 1408.68,
-      "sl": 1438.3004,
-      "tp": 1349.4392,
-      "rr": 2.0
+      "entry": 1408.4892,
+      "sl": 1419.7571,
+      "tp": 1374.6855,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -6259,18 +6459,18 @@
     "ticket_id": "TCK-20260930-1473",
     "symbol": "BTCUSDT",
     "side": "SHORT",
-    "strategy": "5m ICT Rejection Block Mean Threshold",
+    "strategy": "5m Order Flow CVD Absorption Scalp",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-30 01:48:41",
-    "updated_at": "2026-09-30 04:39:01",
+    "updated_at": "2026-09-30 05:04:41",
     "payload": {
-      "entry": 83372.9067,
-      "sl": 84100.7966,
-      "tp": 81798.6068,
-      "rr": 2.0
+      "entry": 83297.6608,
+      "sl": 83964.0421,
+      "tp": 81298.5169,
+      "rr": 3.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -8147,18 +8347,18 @@
     "ticket_id": "TCK-20260929-7275",
     "symbol": "ETHUSDT",
     "side": "SHORT",
-    "strategy": "5m Order Flow CVD Absorption Scalp",
+    "strategy": "5m ICT Rejection Block Mean Threshold",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-09-29 21:50:57",
-    "updated_at": "2026-09-30 04:39:01",
+    "updated_at": "2026-09-30 05:07:41",
     "payload": {
-      "entry": 2672.89,
-      "sl": 2694.2731,
-      "tp": 2608.7407,
-      "rr": 3.0
+      "entry": 2670.3,
+      "sl": 2703.366,
+      "tp": 2604.9878,
+      "rr": 2.0
     },
     "debate_result": null,
     "risk_result": null,
@@ -9797,11 +9997,11 @@
     "stage": "DISCOVERED",
     "priority": "HIGH",
     "created_at": "2026-09-29 19:33:45",
-    "updated_at": "2026-09-30 04:39:01",
+    "updated_at": "2026-09-30 05:04:41",
     "payload": {
-      "entry": 1.4877,
+      "entry": 1.496,
       "sl": 1.5265,
-      "tp": 1.4389,
+      "tp": 1.435,
       "rr": 2.0
     },
     "debate_result": null,
@@ -13962,114 +14162,6 @@
         "agent": "head_of_execution",
         "stage": "CLOSED",
         "note": "Position Exited on Exchange (Ledger Synced to Closed)"
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260929-1264",
-    "symbol": "ETHUSDT",
-    "side": "SHORT",
-    "strategy": "5m Opening Range Breakout (ORB V4.1)",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "CLOSED",
-    "priority": "NORMAL",
-    "created_at": "2026-09-29 00:52:31",
-    "updated_at": "2026-09-29 09:20:25",
-    "payload": {
-      "entry": 2710.5368,
-      "sl": 2629.2207,
-      "tp": 2954.4851,
-      "rr": 3.0
-    },
-    "debate_result": null,
-    "risk_result": {
-      "decision": "VETO",
-      "confidence": 94,
-      "suggested_risk_scale": 0.0,
-      "thesis": "VETO: \ud83d\udea8 [CROWDED LONGS VETO] ETH LONG DIBLOKIR: Funding Rate sangat tinggi (+0.0100%) dan L/S ratio (2.54) overleveraged. Risiko Long Squeeze (likuidasi massal buyer ritel) sangat ekstrim!",
-      "key_risks": [
-        "Crowded Retail Positioning",
-        "High Liquidation Cascade Risk"
-      ],
-      "invalidation_scenario": "Tunggu Funding Rate kembali netral dan rasio L/S normal.",
-      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
-      "adversarial_debate": null,
-      "tri_perspective_risk": null
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-09-29 07:19:48",
-      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
-    },
-    "execution_result": {
-      "status": "CLOSED",
-      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$1.83 USDT)",
-      "realized_pnl": -1.8271,
-      "net_pnl": -2.2986,
-      "closed_at": "2026-09-29 09:20:25"
-    },
-    "timeline": [
-      {
-        "timestamp": "2026-09-29 00:52:31",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup ETHUSDT (SHORT) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
-      },
-      {
-        "timestamp": "2026-09-29 07:19:48",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: VETO (94%)"
-      },
-      {
-        "timestamp": "2026-09-29 07:19:48",
-        "agent": "chief_risk_officer",
-        "stage": "APPROVED",
-        "note": "Opportunity Override: VETO: \ud83d\udea8 [CROWDED LONGS VETO] ETH LONG DIBLOKIR: Funding Rate sangat tinggi (+0.0100%) dan L/S ratio (2.54) overleveraged. Risiko Long Squeeze (likuidasi massal buyer ritel) sangat ekstrim!"
-      },
-      {
-        "timestamp": "2026-09-29 07:19:48",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
-      },
-      {
-        "timestamp": "2026-09-29 09:20:25",
-        "agent": "trade_journaler_autopsy",
-        "stage": "CLOSED",
-        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$1.83 USDT) | PnL: $-1.83 USDT (Net: $-2.30)"
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20260929-6680",
-    "symbol": "ONDOUSDT",
-    "side": "SHORT",
-    "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
-    "priority": "NORMAL",
-    "created_at": "2026-09-29 00:41:56",
-    "updated_at": "2026-09-29 06:10:35",
-    "payload": {
-      "entry": 0.5092,
-      "sl": 0.5158,
-      "tp": 0.4894,
-      "rr": 3.0
-    },
-    "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
-    "execution_result": null,
-    "timeline": [
-      {
-        "timestamp": "2026-09-29 00:41:56",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup ONDOUSDT (SHORT) teridentifikasi via 5m ICT Rejection Block Mean Threshold."
       }
     ]
   }
