@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-01T07:02:54.003770+00:00",
-    "total_reflections": 7,
-    "system_retention_score": 108.2
+    "last_reflection_at": "2026-10-01T07:20:32.277788+00:00",
+    "total_reflections": 9,
+    "system_retention_score": 111.1
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -327,8 +327,8 @@
     },
     "ENAUSDT": {
       "symbol": "ENAUSDT",
-      "volatility_regime": "VERY_HIGH",
-      "wick_risk_rating": "HIGH",
+      "volatility_regime": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "VERY_HIGH",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -336,16 +336,16 @@
         "15m FVG Reversal"
       ],
       "notes": "Synthetic dollar yield token; strongly skewed by funding rates.",
-      "total_trades": 5,
+      "total_trades": 6,
       "wins": 2,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 1,
-      "win_rate_pct": 40.0,
-      "net_pnl_usd": -31.23,
+      "win_rate_pct": 33.3,
+      "net_pnl_usd": -54.03,
       "avg_r_multiple": -0.14,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-10-01 07:34:50",
-      "updated_at": "2026-10-01T07:02:54.003759+00:00"
+      "updated_at": "2026-10-01T07:02:54.276355+00:00"
     },
     "PEPEUSDT": {
       "symbol": "PEPEUSDT",
@@ -454,7 +454,15 @@
         "ASI Alliance Breakout",
         "SFP High Sweep Short"
       ],
-      "notes": "AI narrative leader. Sharp momentum bursts during Asian & London sessions."
+      "notes": "AI narrative leader. Sharp momentum bursts during Asian & London sessions.",
+      "total_trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "breakevens": 0,
+      "net_pnl_usd": -14.06,
+      "win_rate_pct": 0.0,
+      "last_traded_outcome": "LOSS",
+      "updated_at": "2026-10-01T07:20:32.277785+00:00"
     },
     "SEIUSDT": {
       "symbol": "SEIUSDT",
@@ -1086,16 +1094,61 @@
       "id": "RULE-AUTO-ENAUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ENAUSDT due to elevated wick risk.",
-      "confidence": 0.88,
+      "confidence": 0.92,
       "trigger_conditions": [
         "enausdt",
         "defensive_entry",
         "volatility_guard"
       ],
-      "created_at": "2026-10-01T07:02:54.003768+00:00"
+      "created_at": "2026-10-01T07:02:54.003768+00:00",
+      "updated_at": "2026-10-01T07:02:54.276364+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261001-012",
+      "timestamp": "2026-10-01T07:20:32.277769+00:00",
+      "symbol": "FETUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -14.06,
+      "r_multiple": -0.69,
+      "pnl_pct": -1.55,
+      "root_cause": "Adverse volatility stop-out on FETUSDT Smart Money Concepts (SMC) (net: -$14.06, -0.69R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on FETUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "fet",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-10-01T07:20:32.277775+00:00"
+    },
+    {
+      "id": "MEM-20261001-011",
+      "timestamp": "2026-10-01T07:02:54.276342+00:00",
+      "symbol": "ENAUSDT",
+      "setup_type": "Opening Range Breakout (ORB)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -22.8,
+      "r_multiple": -1.03,
+      "pnl_pct": -1.57,
+      "root_cause": "Adverse volatility stop-out on ENAUSDT Opening Range Breakout (ORB) (net: -$22.80, -1.03R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ENAUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "ena",
+        "opening_range_breakout_(orb)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 7,
+      "last_accessed": "2026-10-01T07:19:15.512262+00:00"
+    },
     {
       "id": "MEM-20261001-010",
       "timestamp": "2026-10-01T07:02:54.003746+00:00",
@@ -1115,8 +1168,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1,
-      "last_accessed": "2026-10-01T07:02:54.003751+00:00"
+      "access_count": 7,
+      "last_accessed": "2026-10-01T07:19:15.512268+00:00"
     },
     {
       "id": "MEM-20261001-009",
@@ -1137,8 +1190,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 29,
-      "last_accessed": "2026-10-01T07:00:54.027897+00:00"
+      "access_count": 36,
+      "last_accessed": "2026-10-01T07:19:14.515087+00:00"
     },
     {
       "id": "MEM-20261001-008",
@@ -1161,8 +1214,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 30,
-      "last_accessed": "2026-10-01T06:21:58.749350+00:00"
+      "access_count": 36,
+      "last_accessed": "2026-10-01T07:19:15.512270+00:00"
     },
     {
       "id": "MEM-20261001-007",
@@ -1185,8 +1238,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1357,
-      "last_accessed": "2026-10-01T07:01:30.479750+00:00"
+      "access_count": 1514,
+      "last_accessed": "2026-10-01T07:19:45.833517+00:00"
     },
     {
       "id": "MEM-20261001-006",
@@ -1207,8 +1260,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 62,
-      "last_accessed": "2026-10-01T07:00:54.028826+00:00"
+      "access_count": 70,
+      "last_accessed": "2026-10-01T07:19:14.652892+00:00"
     },
     {
       "id": "MEM-20261001-005",
@@ -1231,8 +1284,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1357,
-      "last_accessed": "2026-10-01T07:01:30.479757+00:00"
+      "access_count": 1508,
+      "last_accessed": "2026-10-01T07:19:45.833527+00:00"
     },
     {
       "id": "MEM-20261001-004",
@@ -1253,8 +1306,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 61,
-      "last_accessed": "2026-10-01T07:00:54.028843+00:00"
+      "access_count": 69,
+      "last_accessed": "2026-10-01T07:19:14.652897+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -1273,8 +1326,8 @@
         "absorption"
       ],
       "importance": 9,
-      "access_count": 72,
-      "last_accessed": "2026-10-01T07:00:54.026670+00:00"
+      "access_count": 79,
+      "last_accessed": "2026-10-01T07:19:13.477094+00:00"
     },
     {
       "id": "MEM-20260903-002",
@@ -1293,8 +1346,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 1237,
-      "last_accessed": "2026-10-01T07:01:30.479760+00:00"
+      "access_count": 1373,
+      "last_accessed": "2026-10-01T07:19:45.833531+00:00"
     },
     {
       "id": "MEM-20260907-003",
@@ -1313,8 +1366,8 @@
         "orderflow"
       ],
       "importance": 8,
-      "access_count": 67,
-      "last_accessed": "2026-10-01T07:00:56.493762+00:00"
+      "access_count": 74,
+      "last_accessed": "2026-10-01T07:19:14.436556+00:00"
     }
   ]
 }
