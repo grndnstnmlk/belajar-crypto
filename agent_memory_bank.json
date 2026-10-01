@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-01T07:24:39.385815+00:00",
-    "total_reflections": 10,
-    "system_retention_score": 114.6
+    "last_reflection_at": "2026-10-01T07:25:40.999897+00:00",
+    "total_reflections": 11,
+    "system_retention_score": 112.7
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -208,16 +208,16 @@
         "Volume Surge Pullback"
       ],
       "notes": "AI and Web3 infrastructure bellwether. Clean price action on 1H timeframes.",
-      "total_trades": 17,
+      "total_trades": 18,
       "wins": 7,
-      "losses": 9,
+      "losses": 10,
       "breakevens": 1,
-      "win_rate_pct": 41.2,
-      "net_pnl_usd": -34.93,
+      "win_rate_pct": 38.9,
+      "net_pnl_usd": -49.71,
       "avg_r_multiple": -0.13,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-10-01 07:15:03",
-      "updated_at": "2026-10-01T04:24:54.440062+00:00"
+      "updated_at": "2026-10-01T07:25:40.999888+00:00"
     },
     "LINKUSDT": {
       "symbol": "LINKUSDT",
@@ -1114,9 +1114,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-10-01T07:24:39.385813+00:00"
+    },
+    {
+      "id": "RULE-AUTO-NEARUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on NEARUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "nearusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-10-01T07:25:40.999895+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261001-014",
+      "timestamp": "2026-10-01T07:25:40.999875+00:00",
+      "symbol": "NEARUSDT",
+      "setup_type": "15m Key Level Rectangle Break & Retest",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -14.78,
+      "r_multiple": -0.78,
+      "pnl_pct": -1.55,
+      "root_cause": "Adverse volatility stop-out on NEARUSDT 15m Key Level Rectangle Break & Retest (net: -$14.78, -0.78R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on NEARUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "near",
+        "15m_key_level_rectangle_break_&_retest",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-10-01T07:25:40.999880+00:00"
+    },
     {
       "id": "MEM-20261001-013",
       "timestamp": "2026-10-01T07:24:39.385793+00:00",
