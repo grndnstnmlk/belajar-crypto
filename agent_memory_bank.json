@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-01T05:48:55.474259+00:00",
-    "total_reflections": 6,
-    "system_retention_score": 99.8
+    "last_reflection_at": "2026-10-01T07:02:54.003770+00:00",
+    "total_reflections": 7,
+    "system_retention_score": 108.2
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -336,16 +336,16 @@
         "15m FVG Reversal"
       ],
       "notes": "Synthetic dollar yield token; strongly skewed by funding rates.",
-      "total_trades": 4,
+      "total_trades": 5,
       "wins": 2,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 1,
-      "win_rate_pct": 50.0,
-      "net_pnl_usd": -8.43,
+      "win_rate_pct": 40.0,
+      "net_pnl_usd": -31.23,
       "avg_r_multiple": -0.14,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-10-01 07:34:50",
-      "updated_at": "2026-10-01T05:02:45.304771+00:00"
+      "updated_at": "2026-10-01T07:02:54.003759+00:00"
     },
     "PEPEUSDT": {
       "symbol": "PEPEUSDT",
@@ -1081,9 +1081,43 @@
       ],
       "created_at": "2026-10-01T04:24:54.457482+00:00",
       "updated_at": "2026-10-01T04:25:00.311180+00:00"
+    },
+    {
+      "id": "RULE-AUTO-ENAUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ENAUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "enausdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-10-01T07:02:54.003768+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261001-010",
+      "timestamp": "2026-10-01T07:02:54.003746+00:00",
+      "symbol": "ENAUSDT",
+      "setup_type": "Opening Range Breakout (ORB)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -22.8,
+      "r_multiple": -1.03,
+      "pnl_pct": -1.57,
+      "root_cause": "Adverse volatility stop-out on ENAUSDT Opening Range Breakout (ORB) (net: -$22.80, -1.03R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ENAUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "ena",
+        "opening_range_breakout_(orb)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-10-01T07:02:54.003751+00:00"
+    },
     {
       "id": "MEM-20261001-009",
       "timestamp": "2026-10-01T05:48:55.474237+00:00",
@@ -1103,8 +1137,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 26,
-      "last_accessed": "2026-10-01T06:54:30.925707+00:00"
+      "access_count": 29,
+      "last_accessed": "2026-10-01T07:00:54.027897+00:00"
     },
     {
       "id": "MEM-20261001-008",
@@ -1151,8 +1185,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1287,
-      "last_accessed": "2026-10-01T06:55:00.977276+00:00"
+      "access_count": 1357,
+      "last_accessed": "2026-10-01T07:01:30.479750+00:00"
     },
     {
       "id": "MEM-20261001-006",
@@ -1173,8 +1207,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 59,
-      "last_accessed": "2026-10-01T06:54:32.780919+00:00"
+      "access_count": 62,
+      "last_accessed": "2026-10-01T07:00:54.028826+00:00"
     },
     {
       "id": "MEM-20261001-005",
@@ -1197,8 +1231,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1287,
-      "last_accessed": "2026-10-01T06:55:00.977283+00:00"
+      "access_count": 1357,
+      "last_accessed": "2026-10-01T07:01:30.479757+00:00"
     },
     {
       "id": "MEM-20261001-004",
@@ -1219,8 +1253,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 58,
-      "last_accessed": "2026-10-01T06:54:32.780950+00:00"
+      "access_count": 61,
+      "last_accessed": "2026-10-01T07:00:54.028843+00:00"
     },
     {
       "id": "MEM-20260901-001",
@@ -1239,8 +1273,8 @@
         "absorption"
       ],
       "importance": 9,
-      "access_count": 69,
-      "last_accessed": "2026-10-01T06:54:33.199730+00:00"
+      "access_count": 72,
+      "last_accessed": "2026-10-01T07:00:54.026670+00:00"
     },
     {
       "id": "MEM-20260903-002",
@@ -1259,8 +1293,8 @@
         "solana"
       ],
       "importance": 10,
-      "access_count": 1171,
-      "last_accessed": "2026-10-01T06:55:00.977285+00:00"
+      "access_count": 1237,
+      "last_accessed": "2026-10-01T07:01:30.479760+00:00"
     },
     {
       "id": "MEM-20260907-003",
@@ -1279,8 +1313,8 @@
         "orderflow"
       ],
       "importance": 8,
-      "access_count": 64,
-      "last_accessed": "2026-10-01T06:54:33.193646+00:00"
+      "access_count": 67,
+      "last_accessed": "2026-10-01T07:00:56.493762+00:00"
     }
   ]
 }
