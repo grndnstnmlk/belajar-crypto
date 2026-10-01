@@ -1,11 +1,22 @@
 {
-  "dopamine_level": 32.36,
-  "cortisol_level": 65.85,
-  "state": "ELEVATED_STRESS",
-  "synaptic_risk_multiplier": 0.75,
+  "dopamine_level": 22.659999999999997,
+  "cortisol_level": 76.81,
+  "state": "AVERSIVE_TRAUMA_COOLDOWN",
+  "synaptic_risk_multiplier": 0.5,
   "anti_overconfidence_active": false,
-  "confluence_threshold_offset": 4.0,
+  "confluence_threshold_offset": 8.0,
   "recent_bursts": [
+    {
+      "timestamp": "2026-10-01 11:20:08",
+      "circuit": "PPL101_AVERSIVE_CORTISOL",
+      "event_type": "STOP_LOSS",
+      "symbol": "BNBUSDT",
+      "pnl_usd": -8.56,
+      "r_multiple": -0.54,
+      "delta_dopamine": -10.0,
+      "delta_cortisol": 12.0,
+      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$7.47 USDT)"
+    },
     {
       "timestamp": "2026-10-01 11:08:12",
       "circuit": "PAM11_DOPAMINERGIC_REWARD",
@@ -159,22 +170,11 @@
       "delta_dopamine": -10.0,
       "delta_cortisol": 12.0,
       "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$5.97 USDT)"
-    },
-    {
-      "timestamp": "2026-10-01 02:13:07",
-      "circuit": "PPL101_AVERSIVE_CORTISOL",
-      "event_type": "STOP_LOSS",
-      "symbol": "SUIUSDT",
-      "pnl_usd": -14.08,
-      "r_multiple": -0.64,
-      "delta_dopamine": -10.0,
-      "delta_cortisol": 12.0,
-      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$13.55 USDT)"
     }
   ],
   "total_pam11_firings": 39,
-  "total_ppl101_firings": 38,
-  "last_updated": 1790827692.6825337,
-  "status_badge": "⚠️ ELEVATED STRESS",
-  "action_guidance": "Stres terdeteksi. Ukuran lot dikurangi 25%, filter konfluensi dinaikkan untuk menghindari chop."
+  "total_ppl101_firings": 39,
+  "last_updated": 1790828408.2682142,
+  "status_badge": "🚨 AVERSIVE COOLDOWN (Stress Shield)",
+  "action_guidance": "Kortisol tinggi pasca drawdown/stop-out. Alokasi dipangkas 50%, konfluensi diperketat demi perlindungan modal."
 }
