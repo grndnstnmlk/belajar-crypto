@@ -1,11 +1,22 @@
 {
-  "dopamine_level": 33.84,
-  "cortisol_level": 38.26,
-  "state": "EQUILIBRIUM_NEUTRAL",
-  "synaptic_risk_multiplier": 1.0,
+  "dopamine_level": 24.78,
+  "cortisol_level": 48.61,
+  "state": "ELEVATED_STRESS",
+  "synaptic_risk_multiplier": 0.75,
   "anti_overconfidence_active": false,
-  "confluence_threshold_offset": 0.0,
+  "confluence_threshold_offset": 4.0,
   "recent_bursts": [
+    {
+      "timestamp": "2026-10-02 03:51:32",
+      "circuit": "PPL101_AVERSIVE_CORTISOL",
+      "event_type": "STOP_LOSS",
+      "symbol": "STXUSDT",
+      "pnl_usd": -10.06,
+      "r_multiple": -0.65,
+      "delta_dopamine": -10.0,
+      "delta_cortisol": 12.0,
+      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$10.06 USDT)"
+    },
     {
       "timestamp": "2026-10-01 22:31:47",
       "circuit": "PAM11_DOPAMINERGIC_REWARD",
@@ -159,22 +170,11 @@
       "delta_dopamine": 4.0,
       "delta_cortisol": -2.5,
       "note": "Position closed via 🟢 Profit Locked (+$9.84 USDT)"
-    },
-    {
-      "timestamp": "2026-10-01 11:25:00",
-      "circuit": "PPL101_AVERSIVE_CORTISOL",
-      "event_type": "STOP_LOSS",
-      "symbol": "BNBUSDT",
-      "pnl_usd": -8.56,
-      "r_multiple": -0.29,
-      "delta_dopamine": -10.0,
-      "delta_cortisol": 12.0,
-      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$7.47 USDT)"
     }
   ],
   "total_pam11_firings": 6,
-  "total_ppl101_firings": 11,
-  "last_updated": 1790887410.078065,
-  "status_badge": "⚖️ EQUILIBRIUM NEUTRAL",
-  "action_guidance": "Kondisi neuro-kognitif seimbang. Operasional trading desk kuantitatif berjalan sesuai parameter standar."
+  "total_ppl101_firings": 12,
+  "last_updated": 1790889196.2295005,
+  "status_badge": "⚠️ ELEVATED STRESS",
+  "action_guidance": "Stres terdeteksi. Ukuran lot dikurangi 25%, filter konfluensi dinaikkan untuk menghindari chop."
 }

@@ -1,92 +1,97 @@
 {
-  "symbol": "ARUSDT",
-  "timestamp": "2026-10-02 03:43:23",
-  "best_bid": 4.251,
-  "best_ask": 4.253,
-  "mid_price": 4.252,
-  "spread_usd": 0.002,
-  "spread_bps": 4.7,
-  "order_imbalance_ratio": 0.046,
-  "bid_ask_volume_ratio": 1.1,
-  "is_imbalance_2_5x": false,
-  "delta_absorption_detected": false,
-  "absorption_type": "NONE",
-  "bid_depth_20_usd": 40656.42,
-  "ask_depth_20_usd": 37098.89,
-  "cvd_delta_pct": -31.49,
-  "buy_taker_vol": 1644.32,
-  "sell_taker_vol": 3156.01,
-  "micro_bias": "NEUTRAL_TRANSITIONAL",
-  "bias_label": "\ud83d\udfe1 TRANSITIONAL ORDERBOOK",
-  "sniper_action": "WAIT_FOR_ORDERBOOK_ALIGNMENT",
+  "symbol": "BTCUSDT",
+  "timestamp": "2026-10-02 04:13:29",
+  "best_bid": 84576.4,
+  "best_ask": 84578.7,
+  "mid_price": 84577.55,
+  "spread_usd": 2.3,
+  "spread_bps": 0.27,
+  "order_imbalance_ratio": -0.352,
+  "bid_ask_volume_ratio": 0.48,
+  "is_imbalance_2_5x": true,
+  "delta_absorption_detected": true,
+  "absorption_type": "BEARISH_DELTA_ABSORPTION",
+  "bid_depth_20_usd": 201500.57,
+  "ask_depth_20_usd": 420114.53,
+  "cvd_delta_pct": 49.78,
+  "buy_taker_vol": 0.7534,
+  "sell_taker_vol": 0.2526,
+  "micro_bias": "INSTITUTIONAL_SELL_ABSORPTION",
+  "bias_label": "\ud83d\udd34 ASK WALL ABSORPTION (Retail Market Buys Trapped into MM Limit Asks / OIR <= -0.25)",
+  "sniper_action": "SNIPE_SHORT_FRONT_RUN_ASK_WALL",
   "bid_walls_count": 2,
-  "ask_walls_count": 0,
+  "ask_walls_count": 1,
   "strongest_bid_wall": {
-    "price": 4.232,
-    "qty": 1697.29,
-    "notional_usd": 7182.93,
-    "multiplier": 3.5
+    "price": 84646.0,
+    "qty": 1.7998,
+    "notional_usd": 152345.87,
+    "multiplier": 15.1
   },
-  "strongest_ask_wall": null,
+  "strongest_ask_wall": {
+    "price": 84646.01,
+    "qty": 4.47515,
+    "notional_usd": 378803.59,
+    "multiplier": 18.0
+  },
   "depth_bands": {
     "10bps": {
-      "bid_qty": 634.68,
-      "ask_qty": 732.43,
-      "bid_usd": 2696.41,
-      "ask_usd": 3116.43,
-      "imbalance": -0.072,
-      "imbalance_usd": -0.072
+      "bid_qty": 4.2995,
+      "ask_qty": 11.7788,
+      "bid_usd": 363917.95,
+      "ask_usd": 997055.09,
+      "imbalance": -0.465,
+      "imbalance_usd": -0.465
     },
     "25bps": {
-      "bid_qty": 2536.68,
-      "ask_qty": 4800.25,
-      "bid_usd": 10768.03,
-      "ask_usd": 20445.36,
-      "imbalance": -0.309,
-      "imbalance_usd": -0.31
+      "bid_qty": 4.2995,
+      "ask_qty": 11.7788,
+      "bid_usd": 363917.95,
+      "ask_usd": 997055.09,
+      "imbalance": -0.465,
+      "imbalance_usd": -0.465
     },
     "50bps": {
-      "bid_qty": 9964.17,
-      "ask_qty": 9145.66,
-      "bid_usd": 42225.44,
-      "ask_usd": 38987.25,
-      "imbalance": 0.043,
-      "imbalance_usd": 0.04
+      "bid_qty": 4.2995,
+      "ask_qty": 11.7788,
+      "bid_usd": 363917.95,
+      "ask_usd": 997055.09,
+      "imbalance": -0.465,
+      "imbalance_usd": -0.465
     },
     "100bps": {
-      "bid_qty": 19134.63,
-      "ask_qty": 13560.61,
-      "bid_usd": 80908.74,
-      "ask_usd": 57898.03,
-      "imbalance": 0.17,
-      "imbalance_usd": 0.166
+      "bid_qty": 4.2995,
+      "ask_qty": 11.7788,
+      "bid_usd": 363917.95,
+      "ask_usd": 997055.09,
+      "imbalance": -0.465,
+      "imbalance_usd": -0.465
     }
   },
   "imbalance_vector": [
-    -0.072,
-    -0.309,
-    0.043,
-    0.17
+    -0.465,
+    -0.465,
+    -0.465,
+    -0.465
   ],
-  "imbalance_10bps": -0.072,
-  "imbalance_25bps": -0.309,
-  "imbalance_50bps": 0.043,
-  "imbalance_100bps": 0.17,
+  "imbalance_10bps": -0.465,
+  "imbalance_25bps": -0.465,
+  "imbalance_50bps": -0.465,
+  "imbalance_100bps": -0.465,
   "book_top_5": {
     "bids": [
-      "4.25 x 30.6000",
-      "4.25 x 27.0000",
-      "4.25 x 143.4500",
-      "4.25 x 433.6300",
-      "4.25 x 151.0400"
+      "84646.00 x 1.7998",
+      "84645.99 x 0.0007",
+      "84645.33 x 0.0001",
+      "84644.65 x 0.0001",
+      "84644.64 x 0.0151"
     ],
     "asks": [
-      "4.25 x 27.0000",
-      "4.25 x 153.8900",
-      "4.25 x 399.7300",
-      "4.26 x 151.8100",
-      "4.26 x 423.7800"
+      "84646.01 x 4.4752",
+      "84646.06 x 0.0020",
+      "84646.07 x 0.0095",
+      "84646.23 x 0.0001",
+      "84646.24 x 0.0299"
     ]
   },
-  "microstructure_regime": "BALANCED_SPREAD_EQUILIBRIUM"
+  "microstructure_regime": "STRONG_NEAR_TOUCH_ASK_DISTRIBUTION"
 }
