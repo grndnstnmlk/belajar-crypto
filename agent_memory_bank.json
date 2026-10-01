@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-01T07:25:40.999897+00:00",
-    "total_reflections": 11,
-    "system_retention_score": 112.7
+    "last_reflection_at": "2026-10-01T08:11:27.908807+00:00",
+    "total_reflections": 12,
+    "system_retention_score": 123.7
   },
   "coin_profiles": {
     "BTCUSDT": {
@@ -455,14 +455,14 @@
         "SFP High Sweep Short"
       ],
       "notes": "AI narrative leader. Sharp momentum bursts during Asian & London sessions.",
-      "total_trades": 1,
+      "total_trades": 2,
       "wins": 0,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 0,
-      "net_pnl_usd": -14.06,
+      "net_pnl_usd": -27.41,
       "win_rate_pct": 0.0,
       "last_traded_outcome": "LOSS",
-      "updated_at": "2026-10-01T07:20:32.277785+00:00"
+      "updated_at": "2026-10-01T08:11:27.908797+00:00"
     },
     "SEIUSDT": {
       "symbol": "SEIUSDT",
@@ -1126,9 +1126,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-10-01T07:25:40.999895+00:00"
+    },
+    {
+      "id": "RULE-AUTO-FETUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on FETUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "fetusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-10-01T08:11:27.908805+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261001-015",
+      "timestamp": "2026-10-01T08:11:27.908783+00:00",
+      "symbol": "FETUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -13.35,
+      "r_multiple": -0.65,
+      "pnl_pct": -1.55,
+      "root_cause": "Adverse volatility stop-out on FETUSDT Smart Money Concepts (SMC) (net: -$13.35, -0.65R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on FETUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "fet",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-10-01T08:11:27.908789+00:00"
+    },
     {
       "id": "MEM-20261001-014",
       "timestamp": "2026-10-01T07:25:40.999875+00:00",
@@ -1148,8 +1182,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 13,
-      "last_accessed": "2026-10-01T07:54:04.164863+00:00"
+      "access_count": 21,
+      "last_accessed": "2026-10-01T08:09:44.764446+00:00"
     },
     {
       "id": "MEM-20261001-013",
@@ -1170,8 +1204,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 286,
-      "last_accessed": "2026-10-01T07:54:32.618581+00:00"
+      "access_count": 462,
+      "last_accessed": "2026-10-01T08:10:10.444660+00:00"
     },
     {
       "id": "MEM-20261001-012",
@@ -1192,8 +1226,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 286,
-      "last_accessed": "2026-10-01T07:54:32.618588+00:00"
+      "access_count": 454,
+      "last_accessed": "2026-10-01T08:10:10.444665+00:00"
     },
     {
       "id": "MEM-20261001-011",
@@ -1214,8 +1248,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 21,
-      "last_accessed": "2026-10-01T07:54:04.167512+00:00"
+      "access_count": 29,
+      "last_accessed": "2026-10-01T08:09:44.596069+00:00"
     },
     {
       "id": "MEM-20261001-010",
@@ -1236,8 +1270,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 21,
-      "last_accessed": "2026-10-01T07:54:04.167516+00:00"
+      "access_count": 29,
+      "last_accessed": "2026-10-01T08:09:44.596077+00:00"
     },
     {
       "id": "MEM-20261001-009",
@@ -1258,8 +1292,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 50,
-      "last_accessed": "2026-10-01T07:54:04.387527+00:00"
+      "access_count": 58,
+      "last_accessed": "2026-10-01T08:09:44.755791+00:00"
     },
     {
       "id": "MEM-20261001-008",
@@ -1282,8 +1316,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 50,
-      "last_accessed": "2026-10-01T07:54:04.167517+00:00"
+      "access_count": 58,
+      "last_accessed": "2026-10-01T08:09:44.596082+00:00"
     },
     {
       "id": "MEM-20261001-007",
@@ -1306,8 +1340,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1834,
-      "last_accessed": "2026-10-01T07:54:32.618590+00:00"
+      "access_count": 1994,
+      "last_accessed": "2026-10-01T08:10:10.444667+00:00"
     },
     {
       "id": "MEM-20261001-006",
@@ -1328,8 +1362,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 84,
-      "last_accessed": "2026-10-01T07:54:05.147155+00:00"
+      "access_count": 92,
+      "last_accessed": "2026-10-01T08:09:43.504746+00:00"
     },
     {
       "id": "MEM-20261001-005",
@@ -1352,8 +1386,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1812,
-      "last_accessed": "2026-10-01T07:54:32.618591+00:00"
+      "access_count": 1956,
+      "last_accessed": "2026-10-01T08:10:10.444669+00:00"
     },
     {
       "id": "MEM-20261001-004",
@@ -1374,8 +1408,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 83,
-      "last_accessed": "2026-10-01T07:54:05.147162+00:00"
+      "access_count": 91,
+      "last_accessed": "2026-10-01T08:09:43.504753+00:00"
     },
     {
       "id": "MEM-20260901-001",
