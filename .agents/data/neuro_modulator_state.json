@@ -1,11 +1,44 @@
 {
-  "dopamine_level": 48.79,
-  "cortisol_level": 43.89,
-  "state": "EQUILIBRIUM_NEUTRAL",
-  "synaptic_risk_multiplier": 1.0,
+  "dopamine_level": 32.36,
+  "cortisol_level": 65.85,
+  "state": "ELEVATED_STRESS",
+  "synaptic_risk_multiplier": 0.75,
   "anti_overconfidence_active": false,
-  "confluence_threshold_offset": 0.0,
+  "confluence_threshold_offset": 4.0,
   "recent_bursts": [
+    {
+      "timestamp": "2026-10-01 11:08:12",
+      "circuit": "PAM11_DOPAMINERGIC_REWARD",
+      "event_type": "TRADE_PROFIT",
+      "symbol": "QNTUSDT",
+      "pnl_usd": 9.57,
+      "r_multiple": 0.49,
+      "delta_dopamine": 4.0,
+      "delta_cortisol": -2.5,
+      "note": "Position closed via 🟢 Profit Locked (+$9.84 USDT)"
+    },
+    {
+      "timestamp": "2026-10-01 11:06:36",
+      "circuit": "PPL101_AVERSIVE_CORTISOL",
+      "event_type": "STOP_LOSS",
+      "symbol": "BTCUSDT",
+      "pnl_usd": -6.42,
+      "r_multiple": -0.3,
+      "delta_dopamine": -10.0,
+      "delta_cortisol": 12.0,
+      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$5.97 USDT)"
+    },
+    {
+      "timestamp": "2026-10-01 11:06:33",
+      "circuit": "PPL101_AVERSIVE_CORTISOL",
+      "event_type": "STOP_LOSS",
+      "symbol": "NEARUSDT",
+      "pnl_usd": -15.2,
+      "r_multiple": -1.05,
+      "delta_dopamine": -10.46,
+      "delta_cortisol": 12.56,
+      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$14.81 USDT)"
+    },
     {
       "timestamp": "2026-10-01 11:06:31",
       "circuit": "PAM11_DOPAMINERGIC_REWARD",
@@ -137,44 +170,11 @@
       "delta_dopamine": -10.0,
       "delta_cortisol": 12.0,
       "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$13.55 USDT)"
-    },
-    {
-      "timestamp": "2026-10-01 01:20:31",
-      "circuit": "PPL101_AVERSIVE_CORTISOL",
-      "event_type": "STOP_LOSS",
-      "symbol": "BNBUSDT",
-      "pnl_usd": -3.91,
-      "r_multiple": -0.17,
-      "delta_dopamine": -10.0,
-      "delta_cortisol": 12.0,
-      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$3.42 USDT)"
-    },
-    {
-      "timestamp": "2026-10-01 00:39:31",
-      "circuit": "PAM11_DOPAMINERGIC_REWARD",
-      "event_type": "TRADE_PROFIT",
-      "symbol": "BTCUSDT",
-      "pnl_usd": 0.78,
-      "r_multiple": 0.05,
-      "delta_dopamine": 4.0,
-      "delta_cortisol": -2.5,
-      "note": "Position closed via 🟢 Profit Locked (+$1.07 USDT)"
-    },
-    {
-      "timestamp": "2026-10-01 00:19:05",
-      "circuit": "PAM11_DOPAMINERGIC_REWARD",
-      "event_type": "TRADE_PROFIT",
-      "symbol": "SOLUSDT",
-      "pnl_usd": 1.16,
-      "r_multiple": 0.09,
-      "delta_dopamine": 4.0,
-      "delta_cortisol": -2.5,
-      "note": "Position closed via 🟢 Profit Locked (+$1.61 USDT)"
     }
   ],
-  "total_pam11_firings": 38,
-  "total_ppl101_firings": 36,
-  "last_updated": 1790827591.1156428,
-  "status_badge": "⚖️ EQUILIBRIUM NEUTRAL",
-  "action_guidance": "Kondisi neuro-kognitif seimbang. Operasional trading desk kuantitatif berjalan sesuai parameter standar."
+  "total_pam11_firings": 39,
+  "total_ppl101_firings": 38,
+  "last_updated": 1790827692.6825337,
+  "status_badge": "⚠️ ELEVATED STRESS",
+  "action_guidance": "Stres terdeteksi. Ukuran lot dikurangi 25%, filter konfluensi dinaikkan untuk menghindari chop."
 }
