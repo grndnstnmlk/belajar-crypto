@@ -1,0 +1,164 @@
+{
+  "status": "OPERATIONAL",
+  "config": {
+    "auto_copy_enabled": true,
+    "max_slippage_bps": 15.0,
+    "risk_pct_per_trade": 1.5,
+    "max_active_copies": 3,
+    "default_leverage": 20,
+    "require_smc_confluence": true,
+    "min_whale_ticket_usd": 5000.0,
+    "min_whale_win_rate": 65.0
+  },
+  "masters": [
+    {
+      "id": "master_wintermute",
+      "name": "Wintermute Institutional Desk",
+      "entity_type": "MARKET_MAKER",
+      "win_rate": 78.4,
+      "chain": "ethereum/solana",
+      "focus": "MOMENTUM_ACCUMULATION",
+      "reputation_score": 94,
+      "is_active": true
+    },
+    {
+      "id": "master_dwf_labs",
+      "name": "DWF Labs Alpha Inventory",
+      "entity_type": "HIGH_BETA_MAKER",
+      "win_rate": 74.2,
+      "chain": "multi-chain",
+      "focus": "PUMP_IGNITION_BREAKOUT",
+      "reputation_score": 88,
+      "is_active": true
+    },
+    {
+      "id": "master_gmx_whale_01",
+      "name": "GMX Top Perpetuals Whale",
+      "entity_type": "PERP_WHALE",
+      "win_rate": 81.5,
+      "chain": "arbitrum",
+      "focus": "SMC_SWING_LONGS",
+      "reputation_score": 92,
+      "is_active": true
+    },
+    {
+      "id": "master_binance_reserves",
+      "name": "Binance 14 Hot Reserves Cluster",
+      "entity_type": "EXCHANGE_RESERVE",
+      "win_rate": 89.0,
+      "chain": "ethereum",
+      "focus": "LARGE_BLOCK_ABSORPTION",
+      "reputation_score": 96,
+      "is_active": true
+    }
+  ],
+  "active_copies": [
+    {
+      "trade_id": "CPY_1790959411041",
+      "master_id": "master_wintermute",
+      "master_name": "Wintermute Institutional Desk",
+      "symbol": "SOLUSDT",
+      "side": "BUY",
+      "whale_ticket_usd": 250000.0,
+      "whale_entry_price": 120.0,
+      "copy_entry_price": 120.08,
+      "slippage_bps": 6.67,
+      "sizing": {
+        "notional_usd": 3750.0,
+        "quantity": 31.2292,
+        "risk_capital_usd": 75.0,
+        "leverage": 20,
+        "proportional_ratio": 0.015,
+        "quantity_formatted": "31.22"
+      },
+      "brackets": {
+        "stop_loss": 117.9186,
+        "tp1_scale_out": 124.4029,
+        "tp2_runner": 128.7258
+      },
+      "status": "COPIED_ACTIVE",
+      "timestamp": "2026-10-02 23:43:30",
+      "dispatch": {
+        "order_placed": true,
+        "order_id": 4215603226,
+        "mode": "BINANCE_DEMO"
+      }
+    },
+    {
+      "trade_id": "CPY_1790959370715",
+      "master_id": "master_wintermute",
+      "master_name": "Wintermute Institutional Desk",
+      "symbol": "SOLUSDT",
+      "side": "BUY",
+      "whale_ticket_usd": 250000.0,
+      "whale_entry_price": 120.0,
+      "copy_entry_price": 120.08,
+      "slippage_bps": 6.67,
+      "sizing": {
+        "notional_usd": 3750.0,
+        "quantity": 31.2292,
+        "risk_capital_usd": 75.0,
+        "leverage": 20,
+        "proportional_ratio": 0.015
+      },
+      "brackets": {
+        "stop_loss": 117.9186,
+        "tp1_scale_out": 124.4029,
+        "tp2_runner": 128.7258
+      },
+      "status": "COPIED_ACTIVE",
+      "timestamp": "2026-10-02 23:42:50",
+      "dispatch": {
+        "order_placed": false,
+        "mode": "PAPER_TEST"
+      }
+    }
+  ],
+  "recent_signals": [
+    {
+      "success": true,
+      "decision": "COPIED_SUCCESS",
+      "trade_id": "CPY_1790959411041",
+      "symbol": "SOLUSDT",
+      "master": "Wintermute Institutional Desk",
+      "slippage_bps": 6.67,
+      "smc_score": 75.0,
+      "sizing": {
+        "notional_usd": 3750.0,
+        "quantity": 31.2292,
+        "risk_capital_usd": 75.0,
+        "leverage": 20,
+        "proportional_ratio": 0.015,
+        "quantity_formatted": "31.22"
+      },
+      "timestamp": "2026-10-02 23:43:30"
+    },
+    {
+      "success": true,
+      "decision": "COPIED_SUCCESS",
+      "trade_id": "CPY_1790959370715",
+      "symbol": "SOLUSDT",
+      "master": "Wintermute Institutional Desk",
+      "slippage_bps": 6.67,
+      "smc_score": 75.0,
+      "sizing": {
+        "notional_usd": 3750.0,
+        "quantity": 31.2292,
+        "risk_capital_usd": 75.0,
+        "leverage": 20,
+        "proportional_ratio": 0.015
+      },
+      "timestamp": "2026-10-02 23:42:50"
+    }
+  ],
+  "history": [],
+  "stats": {
+    "total_signals_evaluated": 2,
+    "trades_copied": 2,
+    "trades_vetoed_smc": 0,
+    "trades_skipped_slippage": 0,
+    "slippage_saved_bps_total": 0.0,
+    "win_rate": 0.0,
+    "last_sync_utc": "2026-10-02 23:42:50"
+  }
+}
