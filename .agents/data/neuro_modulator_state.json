@@ -1,11 +1,22 @@
 {
-  "dopamine_level": 30.38,
-  "cortisol_level": 39.69,
-  "state": "EQUILIBRIUM_NEUTRAL",
-  "synaptic_risk_multiplier": 1.0,
+  "dopamine_level": 21.1,
+  "cortisol_level": 50.61,
+  "state": "ELEVATED_STRESS",
+  "synaptic_risk_multiplier": 0.75,
   "anti_overconfidence_active": false,
-  "confluence_threshold_offset": 0.0,
+  "confluence_threshold_offset": 4.0,
   "recent_bursts": [
+    {
+      "timestamp": "2026-10-02 07:41:50",
+      "circuit": "PPL101_AVERSIVE_CORTISOL",
+      "event_type": "STOP_LOSS",
+      "symbol": "BTCUSDT",
+      "pnl_usd": -0.62,
+      "r_multiple": -0.02,
+      "delta_dopamine": -10.0,
+      "delta_cortisol": 12.0,
+      "note": "Position closed via 🛡️ Breakeven Exit (+0.0R Protected)"
+    },
     {
       "timestamp": "2026-10-02 03:51:32",
       "circuit": "PPL101_AVERSIVE_CORTISOL",
@@ -159,22 +170,11 @@
       "delta_dopamine": 4.0,
       "delta_cortisol": -2.5,
       "note": "Position closed via 🟢 Profit Locked (+$1.88 USDT)"
-    },
-    {
-      "timestamp": "2026-10-01 11:25:00",
-      "circuit": "PAM11_DOPAMINERGIC_REWARD",
-      "event_type": "TRADE_PROFIT",
-      "symbol": "QNTUSDT",
-      "pnl_usd": 9.57,
-      "r_multiple": 0.49,
-      "delta_dopamine": 4.0,
-      "delta_cortisol": -2.5,
-      "note": "Position closed via 🟢 Profit Locked (+$9.84 USDT)"
     }
   ],
   "total_pam11_firings": 6,
-  "total_ppl101_firings": 12,
-  "last_updated": 1790900035.8716018,
-  "status_badge": "⚖️ EQUILIBRIUM NEUTRAL",
-  "action_guidance": "Kondisi neuro-kognitif seimbang. Operasional trading desk kuantitatif berjalan sesuai parameter standar."
+  "total_ppl101_firings": 13,
+  "last_updated": 1790901710.0194414,
+  "status_badge": "⚠️ ELEVATED STRESS",
+  "action_guidance": "Stres terdeteksi. Ukuran lot dikurangi 25%, filter konfluensi dinaikkan untuk menghindari chop."
 }
