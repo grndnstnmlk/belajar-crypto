@@ -1864,9 +1864,221 @@
       color: var(--color-cyan);
       margin-top: 2px;
     }
+
+    /* ======================================================================
+       COUCOU / MOCHI DYNAMIC ISLAND NOTCH COMPANION (Louis-CFM/coucou)
+       ====================================================================== */
+    .coucou-island-container {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .coucou-notch-pill {
+      height: 32px;
+      background: #0e100f;
+      border: 1px solid #282829;
+      border-top: none;
+      border-radius: 0 0 16px 16px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .coucou-notch-pill:hover {
+      border-color: #3f3f46;
+      background: #141514;
+    }
+
+    .coucou-island-container.expanded .coucou-notch-pill {
+      border-radius: 0 0 8px 8px;
+      background: #141514;
+      border-color: #3f3f46;
+    }
+
+    /* Mochi Squircle Pet */
+    .mochi-avatar-wrap {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .mochi-body {
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(135deg, #fffce1 0%, #fef08a 100%);
+      border-radius: 6px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      box-shadow: 0 2px 6px rgba(254, 240, 138, 0.25);
+      animation: mochi-breathe 3.5s ease-in-out infinite;
+      transition: all 0.2s ease;
+    }
+
+    .mochi-eye {
+      width: 4px;
+      height: 5px;
+      background: #0e100f;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.05s ease-out;
+    }
+
+    .mochi-eye::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: 1.5px;
+      height: 1.5px;
+      background: #ffffff;
+      border-radius: 50%;
+    }
+
+    @keyframes mochi-breathe {
+      0%, 100% { transform: scale(1, 1); }
+      50% { transform: scale(1.05, 0.95); }
+    }
+
+    .mochi-body.blinking .mochi-eye {
+      transform: scaleY(0.1) !important;
+    }
+
+    .mochi-body.dizzy {
+      animation: mochi-wobble 0.2s ease-in-out infinite !important;
+      background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%) !important;
+    }
+
+    .mochi-body.dizzy .mochi-eye {
+      border-radius: 2px;
+      transform: rotate(45deg);
+    }
+
+    @keyframes mochi-wobble {
+      0%, 100% { transform: rotate(-8deg); }
+      50% { transform: rotate(8deg); }
+    }
+
+    .mochi-bouncing {
+      animation: mochi-jump 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
+    @keyframes mochi-jump {
+      0% { transform: translateY(0) scale(1, 1); }
+      40% { transform: translateY(-7px) scale(0.9, 1.15); }
+      100% { transform: translateY(0) scale(1, 1); }
+    }
+
+    /* Dynamic Island Drawer */
+    .coucou-island-drawer {
+      display: none;
+      width: 380px;
+      background: #141514;
+      border: 1px solid #282829;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 14px 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .coucou-island-container.expanded .coucou-island-drawer {
+      display: flex;
+    }
   </style>
 </head>
 <body>
+
+  <!-- ======================================================================
+       COUCOU / MOCHI DYNAMIC ISLAND NOTCH (Louis-CFM/coucou)
+       ====================================================================== -->
+  <div class="coucou-island-container" id="coucou-island">
+    <div class="coucou-notch-pill" onclick="toggleCoucouIsland()" title="Coucou / Mochi AI Desk Companion (Click to expand)">
+      <div class="mochi-avatar-wrap" id="mochi-avatar" onclick="event.stopPropagation(); pokeMochiCompanion()">
+        <div class="mochi-body" id="mochi-body">
+          <div class="mochi-eye" id="mochi-eye-left"></div>
+          <div class="mochi-eye" id="mochi-eye-right"></div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px; font-size:11px; font-family:var(--font-mono);">
+        <span style="font-weight:700; color:#fffce1;" id="coucou-pill-agent">Aegis (Risk)</span>
+        <span style="color:var(--text-muted);">·</span>
+        <span style="color:var(--color-green); font-size:10px;" id="coucou-pill-activity">Auditing Order Flow</span>
+      </div>
+      <span class="status-dot-pulse" style="background:var(--color-cyan); box-shadow:0 0 8px var(--color-cyan);" id="coucou-pill-dot"></span>
+    </div>
+
+    <!-- Expanded Island Drawer -->
+    <div class="coucou-island-drawer" id="coucou-drawer">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:12px; font-weight:700; color:#fffce1;">{ Coucou Desk Companion }</span>
+          <span class="status-pill cyan mono" id="coucou-drawer-status" style="font-size:9px;">WORKING</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="toggleCoucouIsland()" style="border-radius:100px; padding:2px 8px; font-size:10px;">▲ Minimize</button>
+      </div>
+
+      <!-- Mochi Interactive Speech / Mood Card -->
+      <div style="background:#0e100f; border:1px solid #282829; border-radius:6px; padding:10px; display:flex; align-items:center; gap:12px;">
+        <div class="mochi-avatar-wrap" style="width:34px; height:34px; cursor:pointer;" onclick="pokeMochiCompanion()" title="Poke Mochi!">
+          <div class="mochi-body" id="mochi-body-large" style="width:34px; height:34px; border-radius:10px;">
+            <div class="mochi-eye" id="mochi-eye-left-lg" style="width:6px; height:8px;"></div>
+            <div class="mochi-eye" id="mochi-eye-right-lg" style="width:6px; height:8px;"></div>
+          </div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:11px; font-weight:700; color:#fffce1;" id="coucou-mochi-speech">"Coucou! Watching your 20x trading agents."</div>
+          <div style="font-size:10px; color:var(--text-muted); margin-top:2px;" id="coucou-mochi-subtext">Click Mochi to play · Poke repeatedly to make dizzy</div>
+        </div>
+      </div>
+
+      <!-- Active Agent Details -->
+      <div style="background:#0e100f; border:1px solid #282829; border-radius:6px; padding:8px 10px; font-size:11px; font-family:var(--font-mono);">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--text-muted);">ACTIVE AGENT:</span>
+          <span style="color:var(--color-cyan); font-weight:700;" id="coucou-agent-name">02_RISK_AEGIS</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:3px;">
+          <span style="color:var(--text-muted);">CURRENT ACTION:</span>
+          <span style="color:#fffce1;" id="coucou-agent-action">Order Book Imbalance Scanning</span>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div style="display:flex; gap:6px; justify-content:flex-end;">
+        <button class="btn btn-ghost btn-sm" onclick="pokeMochiCompanion()" style="border-radius:100px; font-size:10.5px; border:1px solid var(--border-light);">
+          👋 Poke Mochi
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="triggerCoucouAction('approve')" style="border-radius:100px; font-size:10.5px; border:1px solid rgba(0,214,143,0.4); color:var(--color-green);">
+          ✓ Allow / Approve
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="triggerCoucouAction('veto')" style="border-radius:100px; font-size:10.5px; border:1px solid rgba(246,70,93,0.4); color:var(--color-red);">
+          ✕ Deny / Lock BE
+        </button>
+      </div>
+    </div>
+  </div>
 
   <div class="app-container">
     
@@ -1910,6 +2122,16 @@
         <span class="status-capsule green" id="header-sse-pill" title="Server-Sent Events Realtime Stream (<50ms)" style="font-size:10px;">
           <span class="status-dot-pulse" style="background:var(--color-green); box-shadow:0 0 8px var(--color-green);"></span>
           <span id="header-sse-text">⚡ SSE LIVE</span>
+        </span>
+
+        <span class="status-capsule purple" id="header-sentry-pill" title="Sentry Observability Engine (Click for Telemetry)" style="font-size:10px; cursor:pointer;" onclick="openSentryModal()">
+          <span class="status-dot-pulse" id="header-sentry-dot" style="background:var(--color-purple); box-shadow:0 0 8px var(--color-purple);"></span>
+          <span id="header-sentry-text">SENTRY READY</span>
+        </span>
+
+        <span class="status-capsule cyan" id="header-astra-pill" title="AstraQuant 7-Tier Calculus &amp; CIO Council (Click for Matrix)" style="font-size:10px; cursor:pointer;" onclick="openAstraModal()">
+          <span class="status-dot-pulse" id="header-astra-dot" style="background:var(--color-cyan); box-shadow:0 0 8px var(--color-cyan);"></span>
+          <span id="header-astra-text">ASTRA CALCULUS</span>
         </span>
       </div>
 
@@ -2740,6 +2962,161 @@
         <div id="ai-response-box" style="background:var(--bg-canvas); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px; min-height:140px; font-size:12px; line-height:1.6; color:var(--text-primary);">
           Type a query above or click a prompt to consult the AI Senior Quant Officer.
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       SENTRY OBSERVABILITY & CRASH TELEMETRY MODAL
+       ====================================================================== -->
+  <div class="modal-backdrop" id="sentry-modal" onclick="if(event.target===this) closeSentryModal()">
+    <div class="modal-card" style="max-width:620px; background:#141514; border:1px solid #282829; border-radius:8px;">
+      <div class="modal-header" style="background:#141514; border-bottom:1px solid #282829; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#a855f7; box-shadow:0 0 8px #a855f7;"></span>
+          <span style="font-size:13px; font-weight:700; color:#fffce1; letter-spacing:-0.02em;">{ Sentry Observability &amp; Crash Telemetry }</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeSentryModal()" style="border-radius:100px; padding:4px 12px; border:1px solid #282829;">✕ Tutup</button>
+      </div>
+      <div class="modal-body" style="padding:18px; display:flex; flex-direction:column; gap:14px; background:#0e100f; max-height:80vh; overflow-y:auto;">
+        
+        <!-- Status Overview Bento -->
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">STATUS</div>
+            <div id="modal-sentry-state" style="font-size:12px; font-weight:700; color:var(--color-green); margin-top:4px;" class="mono">ACTIVE</div>
+          </div>
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">SDK VERSION</div>
+            <div id="modal-sentry-version" style="font-size:12px; font-weight:700; color:#fffce1; margin-top:4px;" class="mono">2.71.0</div>
+          </div>
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">ENVIRONMENT</div>
+            <div id="modal-sentry-env" style="font-size:12px; font-weight:700; color:var(--color-cyan); margin-top:4px;" class="mono">production</div>
+          </div>
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">EVENTS LOGGED</div>
+            <div id="modal-sentry-count" style="font-size:12px; font-weight:700; color:var(--color-purple); margin-top:4px;" class="mono">0</div>
+          </div>
+        </div>
+
+        <!-- DSN Configuration Details -->
+        <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11px; font-weight:700; color:#fffce1;">SENTRY INGEST DSN</span>
+            <span id="modal-sentry-dsn-badge" class="status-pill purple mono" style="font-size:9.5px;">LOCAL CACHE</span>
+          </div>
+          <div id="modal-sentry-dsn-value" style="font-size:11px; color:var(--text-secondary); margin-top:6px; font-family:var(--font-mono); word-break:break-all;">
+            Ready for DSN (Add SENTRY_DSN in .env for remote ingestion)
+          </div>
+        </div>
+
+        <!-- End-to-End Diagnostic Probes -->
+        <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:12px;">
+          <div style="font-size:11px; font-weight:700; color:#fffce1; margin-bottom:8px;">{ LIVE TELEMETRY PROBES }</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="triggerSentryProbe('message')" style="border-radius:100px; border:1px solid var(--border-light); font-size:11px;">
+              📡 Send Diagnostic Message Probe
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="triggerSentryProbe('exception')" style="border-radius:100px; border:1px solid rgba(246,70,93,0.4); color:var(--color-red); font-size:11px;">
+              ⚡ Simulate Controlled Exception
+            </button>
+          </div>
+          <div id="sentry-probe-result" style="display:none; margin-top:10px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid #282829; border-radius:4px; font-size:11px; color:var(--color-green); font-family:var(--font-mono);">
+          </div>
+        </div>
+
+        <!-- Recent In-Memory Telemetry Buffer -->
+        <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:11px; font-weight:700; color:#fffce1;">RECENT TELEMETRY EVENTS BUFFER</span>
+            <span style="font-size:9.5px; color:var(--text-muted); font-family:var(--font-mono);">AUTO-SCRUBBED</span>
+          </div>
+          <div id="modal-sentry-events-list" style="max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
+            <div style="font-size:11px; color:var(--text-muted); font-style:italic;">No events captured in this session yet.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       ASTRAQUANT 7-TIER DERIVATIVE CALCULUS & CIO COUNCIL MODAL
+       ====================================================================== -->
+  <div class="modal-backdrop" id="astra-modal" onclick="if(event.target===this) closeAstraModal()">
+    <div class="modal-card" style="max-width:760px; background:#141514; border:1px solid #282829; border-radius:8px;">
+      <div class="modal-header" style="background:#141514; border-bottom:1px solid #282829; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--color-cyan); box-shadow:0 0 8px var(--color-cyan);"></span>
+          <span style="font-size:13px; font-weight:700; color:#fffce1; letter-spacing:-0.02em;">{ AstraQuant 7-Tier Calculus &amp; CIO Council }</span>
+          <span class="status-pill cyan mono" style="font-size:9px; padding:1px 6px;">COUNCIL PRO</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeAstraModal()" style="border-radius:100px; padding:4px 12px; border:1px solid #282829;">✕ Tutup</button>
+      </div>
+      <div class="modal-body" style="padding:18px; display:flex; flex-direction:column; gap:14px; background:#0e100f; max-height:82vh; overflow-y:auto;">
+        
+        <!-- CIO Overview Bento -->
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">ALPHA SCORE</div>
+            <div id="astra-alpha-score" style="font-size:13px; font-weight:700; color:var(--color-green); margin-top:4px;" class="mono">+0.0</div>
+          </div>
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">MARKET REGIME</div>
+            <div id="astra-regime" style="font-size:11.5px; font-weight:700; color:#fffce1; margin-top:4px;" class="mono">MODERATE</div>
+          </div>
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">CIO ACTION</div>
+            <div id="astra-cio-action" style="font-size:11px; font-weight:700; color:var(--color-cyan); margin-top:4px;" class="mono">WAIT_CONFIRMATION</div>
+          </div>
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">CONSENSUS MODE</div>
+            <div id="astra-consensus-mode" style="font-size:11.5px; font-weight:700; color:var(--color-purple); margin-top:4px;" class="mono">PARANOID_VETO</div>
+          </div>
+        </div>
+
+        <!-- 7-Tier Microstructure Matrix Grid -->
+        <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:11px; font-weight:700; color:#fffce1;">{ 7-TIER DERIVATIVE MICROSTRUCTURE CALCULUS }</span>
+            <span style="font-size:9.5px; color:var(--text-muted); font-family:var(--font-mono);">CONTINUOUS PHYSICS</span>
+          </div>
+          <div id="astra-factors-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:8px;">
+            <div style="font-size:11px; color:var(--text-muted); font-style:italic;">Loading factor calculus matrix...</div>
+          </div>
+        </div>
+
+        <!-- 4-Seat Adversarial Council Board -->
+        <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:11px; font-weight:700; color:#fffce1;">{ ADVERSARIAL COUNCIL PRO &amp; VETO STATUS }</span>
+            <span style="font-size:9.5px; color:var(--color-green); font-family:var(--font-mono);" id="astra-cio-summary">Consensus Evaluating...</span>
+          </div>
+          <div id="astra-council-seats" style="display:flex; flex-direction:column; gap:6px;">
+            <div style="font-size:11px; color:var(--text-muted); font-style:italic;">Loading council seats...</div>
+          </div>
+        </div>
+
+        <!-- Dual-Leg Cloud OCO Bracket Blueprint -->
+        <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:11px; font-weight:700; color:#fffce1;">{ DUAL-LEG CLOUD OCO BRACKET BLUEPRINT }</span>
+            <span class="status-pill green mono" style="font-size:9px;">100% STOP COVERAGE</span>
+          </div>
+          <div id="astra-bracket-details" style="font-size:11.5px; line-height:1.6; color:var(--text-secondary); font-family:var(--font-mono);">
+            TP1 (50% Scale-Out @ 1.8x ATR) · TP2 Runner (SL Breakeven Ratchet) · 8h Time Invalidation Stop
+          </div>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button class="btn btn-ghost btn-sm" onclick="loadAstraData()" style="border-radius:100px; border:1px solid var(--border-light); font-size:11px;">
+              🔄 Re-calculate 7-Tier Matrix
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="triggerAstraDebate('PARANOID_VETO')" style="border-radius:100px; border:1px solid var(--color-cyan); color:var(--color-cyan); font-size:11px;">
+              ⚡ Run Paranoid Veto Debate
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -5404,6 +5781,237 @@
       } catch (e) {}
     }
 
+    /* ======================================================================
+       SENTRY OBSERVABILITY CONTROLLER
+       ====================================================================== */
+    function openSentryModal() {
+      const modal = document.getElementById('sentry-modal');
+      if (modal) {
+        modal.classList.add('active');
+        loadSentryStatus();
+      }
+    }
+
+    function closeSentryModal() {
+      const modal = document.getElementById('sentry-modal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    async function loadSentryStatus() {
+      try {
+        const res = await fetch('/api/sentry/status');
+        if (!res.ok) return;
+        const d = await res.json();
+        
+        const pill = document.getElementById('header-sentry-pill');
+        const textEl = document.getElementById('header-sentry-text');
+        const dotEl = document.getElementById('header-sentry-dot');
+
+        if (d.dsn_configured) {
+          if (textEl) textEl.textContent = 'SENTRY LIVE';
+          if (dotEl) {
+            dotEl.style.background = 'var(--color-purple)';
+            dotEl.style.boxShadow = '0 0 8px var(--color-purple)';
+          }
+          if (pill) pill.title = `Sentry Ingestion Active (${d.environment}) · ${d.dsn_masked}`;
+        } else {
+          if (textEl) textEl.textContent = 'SENTRY READY';
+          if (dotEl) {
+            dotEl.style.background = '#f59e0b';
+            dotEl.style.boxShadow = '0 0 8px rgba(245,158,11,0.5)';
+          }
+          if (pill) pill.title = 'Sentry Engine Ready (In-Memory Telemetry & Local Buffer Active)';
+        }
+
+        // Modal Updates
+        const mState = document.getElementById('modal-sentry-state');
+        const mVer = document.getElementById('modal-sentry-version');
+        const mEnv = document.getElementById('modal-sentry-env');
+        const mCount = document.getElementById('modal-sentry-count');
+        const mDsnBadge = document.getElementById('modal-sentry-dsn-badge');
+        const mDsnVal = document.getElementById('modal-sentry-dsn-value');
+        const mList = document.getElementById('modal-sentry-events-list');
+
+        if (mState) mState.textContent = d.dsn_configured ? 'REMOTE LIVE' : 'LOCAL CACHE';
+        if (mVer) mVer.textContent = d.sdk_version || '2.71.0';
+        if (mEnv) mEnv.textContent = d.environment || 'production';
+        if (mCount) mCount.textContent = d.total_captured || 0;
+
+        if (mDsnBadge) {
+          mDsnBadge.textContent = d.dsn_configured ? 'INGESTING' : 'OFFLINE BUFFER';
+          mDsnBadge.className = d.dsn_configured ? 'status-pill green mono' : 'status-pill purple mono';
+        }
+        if (mDsnVal) {
+          mDsnVal.textContent = d.dsn_masked || 'Local buffer operational. Add SENTRY_DSN to .env to stream events to Sentry cloud.';
+        }
+
+        if (mList && d.recent_events && d.recent_events.length > 0) {
+          mList.innerHTML = d.recent_events.map(ev => {
+            const isErr = ev.type === 'exception';
+            const color = isErr ? 'var(--color-red)' : 'var(--color-purple)';
+            const title = isErr ? (ev.error_class + ': ' + ev.error) : (ev.message || 'Diagnostic Probe');
+            return `
+              <div style="padding:6px 10px; background:rgba(255,255,255,0.02); border-left:2px solid ${color}; border-radius:4px; font-size:11px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-weight:700; color:${color}; font-family:var(--font-mono);">${ev.type.toUpperCase()}</span>
+                  <span style="color:var(--text-muted); font-size:10px; font-family:var(--font-mono);">${ev.timestamp}</span>
+                </div>
+                <div style="color:var(--text-primary); margin-top:2px;">${title}</div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (e) {}
+    }
+
+    async function triggerSentryProbe(type) {
+      const box = document.getElementById('sentry-probe-result');
+      if (box) {
+        box.style.display = 'block';
+        box.style.color = 'var(--text-muted)';
+        box.innerHTML = 'Sending diagnostic probe to Sentry engine...';
+      }
+      try {
+        const res = await fetch('/api/sentry/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: type, message: `Mission Control UI probe (${type})` })
+        });
+        const d = await res.json();
+        if (box) {
+          box.style.color = d.success ? 'var(--color-green)' : 'var(--color-red)';
+          box.innerHTML = `✓ Event Captured | Event ID: <b>${d.event_id || 'cached'}</b> | Mode: ${d.initialized ? 'Remote Sentry Stream' : 'Local Telemetry Cache'}`;
+        }
+        setTimeout(loadSentryStatus, 400);
+      } catch (err) {
+        if (box) {
+          box.style.color = 'var(--color-red)';
+          box.innerHTML = `Error: ${err.message}`;
+        }
+      }
+    }
+
+    /* ======================================================================
+       ASTRAQUANT 7-TIER CALCULUS & CIO COUNCIL CONTROLLER
+       ====================================================================== */
+    function openAstraModal() {
+      const modal = document.getElementById('astra-modal');
+      if (modal) {
+        modal.classList.add('active');
+        loadAstraData();
+      }
+    }
+
+    function closeAstraModal() {
+      const modal = document.getElementById('astra-modal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    async function loadAstraData() {
+      const sym = window.activeSymbol ? (window.activeSymbol.endsWith('USDT') ? window.activeSymbol : window.activeSymbol + 'USDT') : 'BTCUSDT';
+      try {
+        const res = await fetch(`/api/astra/summary?symbol=${sym}`);
+        if (!res.ok) return;
+        const d = await res.json();
+
+        // Header pill update
+        const headerText = document.getElementById('header-astra-text');
+        const headerPill = document.getElementById('header-astra-pill');
+        if (headerText) {
+          const sign = d.unified_alpha_score >= 0 ? '+' : '';
+          headerText.textContent = `ASTRA: ${sign}${d.unified_alpha_score}`;
+        }
+        if (headerPill) {
+          headerPill.title = `Astra Alpha: ${d.unified_alpha_score} | Regime: ${d.market_regime} | CIO: ${d.cio_verdict?.action}`;
+        }
+
+        // Modal Bento
+        const mAlpha = document.getElementById('astra-alpha-score');
+        const mRegime = document.getElementById('astra-regime');
+        const mAction = document.getElementById('astra-cio-action');
+        const mMode = document.getElementById('astra-consensus-mode');
+        const mSumm = document.getElementById('astra-cio-summary');
+
+        if (mAlpha) {
+          mAlpha.textContent = (d.unified_alpha_score >= 0 ? '+' : '') + d.unified_alpha_score;
+          mAlpha.style.color = d.unified_alpha_score >= 15 ? 'var(--color-green)' : (d.unified_alpha_score <= -15 ? 'var(--color-red)' : 'var(--color-amber)');
+        }
+        if (mRegime) mRegime.textContent = d.market_regime;
+        if (mAction) {
+          mAction.textContent = d.cio_verdict?.action || 'WAIT';
+          mAction.style.color = (d.cio_verdict?.action || '').includes('LONG') ? 'var(--color-green)' : ((d.cio_verdict?.action || '').includes('SHORT') ? 'var(--color-red)' : 'var(--color-cyan)');
+        }
+        if (mMode) mMode.textContent = d.cio_verdict?.arbitration_mode || 'PARANOID_VETO';
+        if (mSumm) mSumm.textContent = d.cio_verdict?.summary || 'Consensus Evaluated';
+
+        // 7-Tier Factors Grid
+        const grid = document.getElementById('astra-factors-grid');
+        if (grid && d.calculus_matrix) {
+          const f = d.calculus_matrix;
+          const items = [
+            { label: 'T0 SETTLEMENT', val: `FR: ${f.T0_settlement?.funding_rate_pct}% · OI Δ: ${f.T0_settlement?.oi_change_1h_pct}%`, tag: f.T0_settlement?.verdict },
+            { label: 'T0.5 ORDER FLOW', val: `Net: ${f.T0_5_orderflow?.net_taker_volume_ratio} · CVD: ${f.T0_5_orderflow?.cvd_divergence}`, tag: f.T0_5_orderflow?.verdict },
+            { label: 'T1 L2 DEPTH', val: `OBI: ${f.T1_orderbook?.orderbook_imbalance_obi} · B/A: ${f.T1_orderbook?.bid_ask_depth_ratio}x`, tag: f.T1_orderbook?.verdict },
+            { label: 'T1.5 OPTIONS', val: `IV: ${f.T1_5_options?.atm_implied_volatility_pct}% · Skew: ${f.T1_5_options?.put_call_skew_25d}`, tag: f.T1_5_options?.verdict },
+            { label: 'T2 TERM BASIS', val: `Basis: ${f.T2_term_structure?.annualized_basis_pct}% annualized`, tag: f.T2_term_structure?.verdict },
+            { label: 'T3 AUCTION VWAP', val: `POC: $${f.T3_auction_profile?.poc?.toLocaleString()} · ${f.T3_auction_profile?.auction_state}`, tag: f.T3_auction_profile?.verdict },
+            { label: 'T4 KINEMATICS', val: `Hist Accel: ${f.T4_kinematics?.macd_hist_acceleration} · ADX: ${f.T4_kinematics?.adx}`, tag: f.T4_kinematics?.verdict }
+          ];
+          grid.innerHTML = items.map(it => `
+            <div style="background:#0e100f; border:1px solid #282829; border-radius:4px; padding:8px 10px;">
+              <div style="font-size:9.5px; font-weight:700; color:var(--color-cyan); font-family:var(--font-mono);">${it.label}</div>
+              <div style="font-size:11px; color:#fffce1; margin-top:2px;">${it.val}</div>
+              <div style="font-size:9.5px; color:var(--text-muted); margin-top:2px; font-family:var(--font-mono);">${it.tag || 'NORMAL'}</div>
+            </div>
+          `).join('');
+        }
+
+        // 4 Council Seats
+        const seatsCont = document.getElementById('astra-council-seats');
+        if (seatsCont && d.council_seats) {
+          seatsCont.innerHTML = d.council_seats.map(s => {
+            const isBull = s.stance === 'BULLISH' || s.stance === 'APPROVED';
+            const isVeto = s.stance.includes('VETO') || s.stance === 'REJECT_VETO';
+            const color = isVeto ? 'var(--color-red)' : (isBull ? 'var(--color-green)' : 'var(--color-amber)');
+            return `
+              <div style="background:#0e100f; border-left:3px solid ${color}; border-radius:4px; padding:7px 10px; font-size:11px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-weight:700; color:#fffce1; font-family:var(--font-mono);">${s.seat}</span>
+                  <span style="font-weight:700; color:${color}; font-family:var(--font-mono); font-size:10px;">${s.stance} (${s.score}%)</span>
+                </div>
+                <div style="color:var(--text-secondary); margin-top:2px; font-size:10.5px;">${s.notes}</div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Cloud Bracket
+        const brEl = document.getElementById('astra-bracket-details');
+        if (brEl && d.cloud_bracket_blueprint) {
+          const b = d.cloud_bracket_blueprint;
+          const leg1 = b.cloud_bracket_legs?.leg_1_tp1_scale_out;
+          const leg2 = b.cloud_bracket_legs?.leg_2_tp2_runner;
+          brEl.innerHTML = `
+            <div><b>Leg 1 (TP1 Scale-Out):</b> $${leg1?.target_price?.toLocaleString()} (${leg1?.allocation_pct}% size, 1.8x ATR) [${leg1?.order_type}]</div>
+            <div><b>Leg 2 (TP2 Runner):</b> $${leg2?.target_price?.toLocaleString()} (${leg2?.allocation_pct}% size) · Auto-ratchet SL to $${leg2?.ratchet_sl_after_tp1?.toLocaleString()} (Breakeven +0.1R)</div>
+            <div><b>Exchange Stop Coverage:</b> 100% Exchange-side Cloud OCO · Initial Stop: $${b.stop_loss_coverage?.initial_stop?.toLocaleString()}</div>
+            <div><b>Time Invalidation Stop:</b> ${b.time_invalidation_stop?.max_hold_hours}h max holding window (Closes position if momentum stalls)</div>
+          `;
+        }
+
+      } catch (e) {}
+    }
+
+    async function triggerAstraDebate(mode) {
+      const sym = window.activeSymbol ? (window.activeSymbol.endsWith('USDT') ? window.activeSymbol : window.activeSymbol + 'USDT') : 'BTCUSDT';
+      try {
+        const res = await fetch(`/api/astra/council?symbol=${sym}&mode=${mode}`);
+        if (res.ok) {
+          await loadAstraData();
+        }
+      } catch (e) {}
+    }
+
     async function triggerInternetLearnNow() {
       const box = document.getElementById('ai-response-box');
       const btn = document.getElementById('btn-learn-internet');
@@ -5529,6 +6137,183 @@
       });
     });
 
+    /* ======================================================================
+       COUCOU / MOCHI DYNAMIC ISLAND COMPANION CONTROLLER
+       ====================================================================== */
+    let coucouExpanded = false;
+    let mochiPokeCounter = 0;
+    let mochiLastPokeTime = 0;
+    let mochiDizzyTimer = null;
+
+    function initCoucouCompanion() {
+      // Parallax eye tracking towards cursor
+      window.addEventListener('mousemove', (e) => {
+        const eyes = [
+          { l: document.getElementById('mochi-eye-left'), r: document.getElementById('mochi-eye-right'), max: 1.8 },
+          { l: document.getElementById('mochi-eye-left-lg'), r: document.getElementById('mochi-eye-right-lg'), max: 3.0 }
+        ];
+
+        eyes.forEach(pair => {
+          if (pair.l && pair.r) {
+            const rect = pair.l.getBoundingClientRect();
+            const dx = e.clientX - (rect.left + rect.width / 2);
+            const dy = e.clientY - (rect.top + rect.height / 2);
+            const dist = Math.hypot(dx, dy) || 1;
+            const ox = (dx / dist) * Math.min(pair.max, dist * 0.05);
+            const oy = (dy / dist) * Math.min(pair.max, dist * 0.05);
+            pair.l.style.transform = `translate(${ox.toFixed(1)}px, ${oy.toFixed(1)}px)`;
+            pair.r.style.transform = `translate(${ox.toFixed(1)}px, ${oy.toFixed(1)}px)`;
+          }
+        });
+      });
+
+      // Periodic natural eye blinks
+      setInterval(() => {
+        const bodies = [document.getElementById('mochi-body'), document.getElementById('mochi-body-large')];
+        bodies.forEach(b => {
+          if (b && !b.classList.contains('dizzy')) {
+            b.classList.add('blinking');
+            setTimeout(() => b.classList.remove('blinking'), 140);
+          }
+        });
+      }, 4000);
+    }
+
+    function toggleCoucouIsland() {
+      coucouExpanded = !coucouExpanded;
+      const island = document.getElementById('coucou-island');
+      if (island) {
+        if (coucouExpanded) {
+          island.classList.add('expanded');
+          loadCoucouData();
+        } else {
+          island.classList.remove('expanded');
+        }
+      }
+    }
+
+    function playMochiSound(type = 'chirp') {
+      try {
+        initRetroAudio();
+        if (!retroAudioCtx) return;
+        const now = retroAudioCtx.currentTime;
+        const osc = retroAudioCtx.createOscillator();
+        const gain = retroAudioCtx.createGain();
+
+        osc.connect(gain);
+        gain.connect(retroAudioCtx.destination);
+
+        if (type === 'chirp') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12); // A5
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'dizzy') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.linearRampToValueAtTime(150, now + 0.3);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        }
+      } catch (e) {}
+    }
+
+    function pokeMochiCompanion() {
+      const now = Date.now();
+      if (now - mochiLastPokeTime < 2500) {
+        mochiPokeCounter++;
+      } else {
+        mochiPokeCounter = 1;
+      }
+      mochiLastPokeTime = now;
+
+      const bodies = [document.getElementById('mochi-body'), document.getElementById('mochi-body-large')];
+      const speech = document.getElementById('coucou-mochi-speech');
+
+      if (mochiPokeCounter >= 4) {
+        // Dizzy state!
+        bodies.forEach(b => b && b.classList.add('dizzy'));
+        if (speech) speech.textContent = '"Waaah! Mochi is so dizzy! @_@"';
+        playMochiSound('dizzy');
+        if (mochiDizzyTimer) clearTimeout(mochiDizzyTimer);
+        mochiDizzyTimer = setTimeout(() => {
+          bodies.forEach(b => b && b.classList.remove('dizzy'));
+          if (speech) speech.textContent = '"Whew! Mochi is back to watching the desk."';
+          mochiPokeCounter = 0;
+        }, 3500);
+      } else {
+        // Happy jump!
+        bodies.forEach(b => {
+          if (b) {
+            b.classList.remove('mochi-bouncing');
+            void b.offsetWidth;
+            b.classList.add('mochi-bouncing');
+          }
+        });
+        playMochiSound('chirp');
+        const greetings = [
+          '"Coucou! Watching your 20x trading agents."',
+          '"*waves happily* All risk guardrails green!"',
+          '"Kelly sizing 2.0% locked and verified!"',
+          '"SMC order blocks aligned with 4H trend!"'
+        ];
+        if (speech) speech.textContent = greetings[Math.floor(Math.random() * greetings.length)];
+      }
+
+      fetch('/api/coucou/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'poke' })
+      }).catch(() => {});
+    }
+
+    async function triggerCoucouAction(action) {
+      try {
+        const res = await fetch('/api/coucou/action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: action })
+        });
+        const d = await res.json();
+        playMochiSound('chirp');
+        showToast(action === 'approve' ? '✓ Trade Intent APPROVED via Coucou Island' : '🛡️ Veto Executed / Capital Locked');
+        setTimeout(loadCoucouData, 300);
+      } catch (e) {}
+    }
+
+    async function loadCoucouData() {
+      try {
+        const res = await fetch('/api/coucou/status');
+        if (!res.ok) return;
+        const d = await res.json();
+
+        // Notch Pill
+        const pillAgent = document.getElementById('coucou-pill-agent');
+        const pillAct = document.getElementById('coucou-pill-activity');
+        const pillDot = document.getElementById('coucou-pill-dot');
+
+        if (pillAgent) pillAgent.textContent = d.agent_name || 'Aegis (Risk)';
+        if (pillAct) pillAct.textContent = d.activity || 'Auditing Order Flow';
+        if (pillDot) {
+          pillDot.style.background = d.status === 'ATTENTION_REQUIRED' ? 'var(--color-amber)' : 'var(--color-green)';
+        }
+
+        // Drawer
+        const dStatus = document.getElementById('coucou-drawer-status');
+        const dAgent = document.getElementById('coucou-agent-name');
+        const dAct = document.getElementById('coucou-agent-action');
+
+        if (dStatus) dStatus.textContent = d.status || 'WORKING';
+        if (dAgent) dAgent.textContent = d.active_agent || '02_RISK_AEGIS';
+        if (dAct) dAct.textContent = d.activity || 'Order Book Imbalance Scanning';
+      } catch (e) {}
+    }
+
     // Bootstrapping on Load
     window.addEventListener('DOMContentLoaded', () => {
       initChart();
@@ -5545,10 +6330,17 @@
       loadDexBridgeStatus();
       fetchSeasonalityStatus();
       loadAiHardwareProfile();
+      loadSentryStatus();
+      loadAstraData();
+      initCoucouCompanion();
+      loadCoucouData();
       
       startPollingFallback();
       setInterval(() => {
         loadAiHardwareProfile();
+        loadSentryStatus();
+        loadAstraData();
+        loadCoucouData();
         if (activeView === 'terminal') {
           loadChartKlines(activeSymbol, activeTimeframe);
         } else if (activeView === 'intel') {

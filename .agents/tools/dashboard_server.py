@@ -47,6 +47,8 @@ import liquidity_heatmap
 import ai_risk_officer
 import market_radar
 import threading
+import sentry_monitor
+sentry_monitor.init_sentry(service_name="dashboard_server")
 
 try:
     import hyperopt_optimizer
@@ -2068,6 +2070,85 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"status": "ERROR", "error": str(e)}).encode("utf-8"))
             return
 
+        elif path in ("/api/sentry/status", "/api/sentry_status"):
+            try:
+                data = sentry_monitor.get_sentry_status()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                sentry_monitor.capture_exception(e)
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path in ("/api/astra/calculus", "/api/astra/matrix"):
+            try:
+                import astra_calculus_engine
+                q_sym = params.get("symbol", ["BTCUSDT"])[0]
+                data = astra_calculus_engine.compute_full_7tier_calculus(q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path in ("/api/astra/council", "/api/astra/cio"):
+            try:
+                import astra_calculus_engine
+                q_sym = params.get("symbol", ["BTCUSDT"])[0]
+                q_mode = params.get("mode", ["PARANOID_VETO"])[0]
+                data = astra_calculus_engine.run_adversarial_council_debate(symbol=q_sym, consensus_mode=q_mode)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path in ("/api/astra/summary", "/api/astra/telemetry"):
+            try:
+                import astra_calculus_engine
+                q_sym = params.get("symbol", ["BTCUSDT"])[0]
+                data = astra_calculus_engine.get_astra_synthesis_summary(q_sym)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
+            return
+
+        elif path in ("/api/coucou/status", "/api/coucou/telemetry"):
+            try:
+                import coucou_companion
+                data = coucou_companion.get_coucou_telemetry()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
+            return
+
         super().do_GET()
 
     def do_POST(self):
@@ -2193,6 +2274,82 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 headline = payload.get("headline", "")
                 source = payload.get("source", "Bloomberg Crypto")
                 res = laya_reflex_engine.classify_market_headline(headline, source)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/sentry/test", "/api/sentry/probe"):
+            try:
+                probe_type = payload.get("type", "message")
+                custom_msg = payload.get("message")
+                res = sentry_monitor.send_test_event(test_type=probe_type, custom_msg=custom_msg)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                sentry_monitor.capture_exception(e)
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/astra/bracket", "/api/astra/cloud_bracket"):
+            try:
+                import astra_calculus_engine
+                sym = payload.get("symbol", "BTCUSDT")
+                side = payload.get("side", "LONG")
+                entry_p = float(payload.get("entry_price", 85500.0))
+                sl_p = float(payload.get("stop_loss", 84500.0))
+                qty = float(payload.get("quantity", 0.1))
+                bracket = astra_calculus_engine.plan_dual_leg_cloud_bracket(
+                    symbol=sym, side=side, entry_price=entry_p, stop_loss=sl_p, total_quantity=qty
+                )
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "bracket": bracket}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/coucou/event", "/api/coucou/broadcast"):
+            try:
+                import coucou_companion
+                agent = payload.get("coucou_agent", payload.get("agent", "Aegis"))
+                activity = payload.get("activity", "Desk Operation")
+                mood = payload.get("mood", "WORKING")
+                status = payload.get("status", "WORKING")
+                approval = payload.get("approval_payload")
+                res = coucou_companion.record_event(agent, activity, mood=mood, status=status, approval_payload=approval)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "state": res}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/coucou/action", "/api/coucou/act"):
+            try:
+                import coucou_companion
+                action = payload.get("action", "poke")
+                params = payload.get("params")
+                res = coucou_companion.handle_user_action(action, params)
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
@@ -3189,10 +3346,13 @@ def run_server(port=PORT):
         pass
     try:
         with ThreadedTCPServer(("", port), MissionControlHandler) as httpd:
+            s_status = sentry_monitor.get_sentry_status()
+            s_mode = "LIVE" if s_status.get("dsn_configured") else "READY (Local/Offline)"
             print("=" * 65)
             print(f"       🖥️  MISSION CONTROL DASHBOARD SERVER ONLINE")
             print(f"       🌐  URL: http://localhost:{port}")
             print(f"       📊  Feed: http://localhost:{port}/api/feed")
+            print(f"       🛡️  Sentry Observability: {s_mode} (v{s_status.get('sdk_version', '2.71.0')})")
             print("=" * 65)
             httpd.serve_forever()
     except OSError as e:

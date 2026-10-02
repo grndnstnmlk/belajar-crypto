@@ -445,6 +445,23 @@ Return ONLY valid JSON matching this schema:
     return prompt
 
 
+def compile_astra_5zone_prompt(setup: Dict[str, Any], market_context: Optional[Dict[str, Any]] = None) -> str:
+    """
+    Synthesizes prompt using AstraQuant's 5-Zone Hierarchical KV-Cache structure:
+    Zone 0: Immutable System Doctrine & Read-Only Output Schema (Static, 100% Cached)
+    Zone 1: Slow-Moving Episodic Lessons & Traps (6-hour cadence)
+    Zone 2: Medium-Moving Dominance & Macro Intelligence (10-minute cadence)
+    Zone 3: Cycle 7-Tier Factor Calculus Matrix (15-minute cadence)
+    Zone 4: High-Frequency Volatile State & Setup Geometry (Dynamic)
+    """
+    try:
+        import astra_calculus_engine
+        sym = setup.get("symbol", "BTCUSDT")
+        return astra_calculus_engine.compile_5zone_cached_prompt(symbol=sym, setup=setup)
+    except Exception:
+        return compile_cognitive_perception(setup, market_context)
+
+
 SYSTEM_PROMPT = """You are the Conscious Cognitive Core of an institutional crypto trading workstation.
 Your primary directive is Capital Preservation (Rule #1: Never lose capital).
 You possess acute market awareness, Theory of Mind (anticipating Market Maker stop hunts and liquidity sweeps),

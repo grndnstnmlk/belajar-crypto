@@ -44,6 +44,18 @@ def clear_screen():
     os.system("cls" if sys.platform == "win32" else "clear")
 
 def print_banner():
+    sentry_status_str = f"{C.BRIGHT_GREEN}READY (Local Cache){C.RESET}"
+    try:
+        import sentry_monitor
+        sentry_monitor.init_sentry(service_name="autopilot_launcher")
+        st = sentry_monitor.get_sentry_status()
+        if st.get("dsn_configured"):
+            sentry_status_str = f"{C.BRIGHT_GREEN}LIVE (Remote Monitoring){C.RESET}"
+        else:
+            sentry_status_str = f"{C.BRIGHT_YELLOW}READY (Offline/Local Cache){C.RESET}"
+    except Exception:
+        pass
+
     banner = f"""{C.BRIGHT_CYAN}=========================================================================================
  █████╗ ██╗  ██╗ █████╗ ██████╗ ███████╗███╗   ███╗██╗     ██████╗██████╗ ██╗   ██╗██████╗ ████████╗ ██████╗ 
 ██╔══██╗██║ ██╔╝██╔══██╗██╔══██╗██╔════╝████╗ ████║██║    ██╔════╝██╔══██╗╚██╗ ██╔╝██╔══██╗╚══██╔══╝██╔═══██╗
@@ -57,6 +69,7 @@ def print_banner():
       {C.GRAY}🧠 QUANT & ML :{C.RESET} {C.BRIGHT_CYAN}Optuna Hyperopt + Dissimilarity Index Anomaly Gate + Dynamic Pairlist{C.RESET}
       {C.GRAY}🌐 DASHBOARD  :{C.RESET} {C.BRIGHT_CYAN}http://localhost:5000 [GSAP Animated Chalkboard]{C.RESET}
       {C.GRAY}📱 TELEGRAM   :{C.RESET} {C.BRIGHT_GREEN}Notifikasi Instan + Two-Way Remote Controller (/status, /positions){C.RESET}
+      {C.GRAY}🛡️ OBSERVABILITY:{C.RESET} {sentry_status_str}
 {C.BRIGHT_CYAN}========================================================================================={C.RESET}
 """
     print(banner)
