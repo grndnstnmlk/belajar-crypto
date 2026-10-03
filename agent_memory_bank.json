@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-03T21:07:47.799427+00:00",
-    "total_reflections": 25,
-    "system_retention_score": 128.3,
+    "last_reflection_at": "2026-10-03T22:02:03.861704+00:00",
+    "total_reflections": 26,
+    "system_retention_score": 127.4,
     "last_internet_learning_sync": "2026-10-04 03:41:49",
     "total_internet_learnings": 1
   },
@@ -672,16 +672,16 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset QNTUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 4,
-      "win_rate_pct": 75.0,
-      "net_pnl_usd": 119.58,
+      "total_trades": 5,
+      "win_rate_pct": 60.0,
+      "net_pnl_usd": 104.04,
       "created_dynamically": true,
-      "updated_at": "2026-10-03T20:42:19.496489+00:00",
+      "updated_at": "2026-10-03T22:02:03.861693+00:00",
       "wins": 3,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 0,
       "avg_r_multiple": 1.46,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-10-01 11:08:06"
     },
     "ZROUSDT": {
@@ -1890,9 +1890,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-10-02T17:39:36.465485+00:00"
+    },
+    {
+      "id": "RULE-AUTO-QNTUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on QNTUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "qntusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-10-03T22:02:03.861702+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261003-029",
+      "timestamp": "2026-10-03T22:02:03.861676+00:00",
+      "symbol": "QNTUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -15.54,
+      "r_multiple": -0.76,
+      "pnl_pct": -1.49,
+      "root_cause": "Adverse volatility stop-out on QNTUSDT Smart Money Concepts (SMC) (net: -$15.54, -0.76R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on QNTUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "qnt",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-10-03T22:02:03.861682+00:00"
+    },
     {
       "id": "MEM-20261003-028",
       "timestamp": "2026-10-03T21:07:47.799407+00:00",
@@ -1936,8 +1970,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 28,
-      "last_accessed": "2026-10-03T21:41:12.384136+00:00"
+      "access_count": 37,
+      "last_accessed": "2026-10-03T22:00:19.100904+00:00"
     },
     {
       "id": "MEM-20261002-026",
@@ -1958,8 +1992,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 82,
-      "last_accessed": "2026-10-03T21:41:11.307546+00:00"
+      "access_count": 91,
+      "last_accessed": "2026-10-03T22:00:20.998621+00:00"
     },
     {
       "id": "MEM-20261002-025",
@@ -2162,8 +2196,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 561,
-      "last_accessed": "2026-10-03T21:41:11.288427+00:00"
+      "access_count": 570,
+      "last_accessed": "2026-10-03T22:00:19.090595+00:00"
     },
     {
       "id": "MEM-20261001-016",
@@ -2250,8 +2284,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 16034,
-      "last_accessed": "2026-10-03T21:41:37.233767+00:00"
+      "access_count": 16223,
+      "last_accessed": "2026-10-03T22:00:46.072655+00:00"
     },
     {
       "id": "MEM-20261001-012",
@@ -2272,8 +2306,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 15483,
-      "last_accessed": "2026-10-03T21:41:37.233773+00:00"
+      "access_count": 15672,
+      "last_accessed": "2026-10-03T22:00:46.072661+00:00"
     },
     {
       "id": "MEM-20261001-011",
@@ -2386,8 +2420,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 15766,
-      "last_accessed": "2026-10-03T21:41:37.233775+00:00"
+      "access_count": 15946,
+      "last_accessed": "2026-10-03T22:00:46.072663+00:00"
     },
     {
       "id": "MEM-20261001-006",
@@ -2408,8 +2442,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 774,
-      "last_accessed": "2026-10-03T21:41:11.483013+00:00"
+      "access_count": 783,
+      "last_accessed": "2026-10-03T22:00:19.105559+00:00"
     },
     {
       "id": "MEM-20261001-005",
@@ -2432,8 +2466,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 13775,
-      "last_accessed": "2026-10-03T21:41:37.233778+00:00"
+      "access_count": 13928,
+      "last_accessed": "2026-10-03T22:00:46.072664+00:00"
     },
     {
       "id": "MEM-20261001-004",
@@ -2454,8 +2488,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 773,
-      "last_accessed": "2026-10-03T21:41:11.483019+00:00"
+      "access_count": 782,
+      "last_accessed": "2026-10-03T22:00:19.105563+00:00"
     },
     {
       "id": "MEM-20260901-001",
