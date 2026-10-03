@@ -1564,8 +1564,8 @@ def scan_symbol_scalp(symbol):
     candidate["is_scalp"] = True
     candidate["timeframe"] = candidate.get("timeframe", "5m")
     candidate["target_duration"] = candidate.get("target_duration", "10-25 menit")
-    candidate["be_trigger_r"] = 1.50  # Institutional Breakeven (Gives trade breathing room)
-    candidate["tp1_target_r"] = 2.25  # Institutional Partial Scale-Out (50%)
+    candidate["be_trigger_r"] = 1.00  # Institutional Breakeven (Locks risk-free at +1.0R)
+    candidate["tp1_target_r"] = 1.25  # Institutional Partial Scale-Out (50% at +1.25R)
     candidate["anti_stall_minutes"] = 45  # Extended life for momentum development
 
     # Penyesuaian 6: HTF Macro Bias Lock Veto (4H / 1D EMA Direction)

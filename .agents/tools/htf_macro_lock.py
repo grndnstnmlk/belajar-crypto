@@ -149,11 +149,11 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                 if btc_4h_bias == "BULLISH" or (btc_4h_p > btc_4h_e20 > btc_4h_e50 > 0):
                     btc_4h_bull = True
             
-            if btc_4h_bull:
+            if btc_4h_bull and htf_trend not in ["BEARISH", "BEARISH_PULLBACK"]:
                 is_approved = False
                 rejection_reason = (
                     f"🛑 HTF MACRO LOCK: Setup SHORT pada {pair_sym} DITOLAK. "
-                    f"BTC Makro 4H sedang confirmed BULLISH (Price > EMA20 > EMA50). "
+                    f"BTC Makro 4H sedang confirmed BULLISH dan {pair_sym} tidak dalam confirmed breakdown 4H. "
                     f"Dilarang melawan arus tren naik utama Bitcoin (Akademi Crypto Module 01 & 04)."
                 )
 

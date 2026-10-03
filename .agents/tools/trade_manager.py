@@ -753,13 +753,12 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     op_dt = datetime.strptime(opened_at, fmt)
                     elapsed_min = (datetime.now() - op_dt).total_seconds() / 60.0
                     
-                    # Institutional Anti-Stall: 240 minutes (4 hours) holding window to give HTF setups space to unfold
-                    timeout_min = float(t_data.get("anti_stall_minutes", 240.0))
+                    # Institutional Anti-Stall: 60 minutes holding window for fast scalp setups to prevent multi-hour capital stagnation
+                    timeout_min = float(t_data.get("anti_stall_minutes", 60.0))
 
                     if elapsed_min >= timeout_min:
-                        # Only lock Breakeven once the trade has developed substantial momentum (>= 1.50R)
-                        # Prevents premature stop-outs during normal order block / FVG retests
-                        if r_multiple >= 1.50 and not t_data.get("breakeven_locked"):
+                        # Lock Breakeven once trade reaches +1.00R momentum
+                        if r_multiple >= 1.00 and not t_data.get("breakeven_locked"):
                             be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
                             is_be_reachable = (side == "BUY" and mark_price > be_price) or (side == "SELL" and mark_price < be_price)
                             if is_be_reachable:
@@ -823,10 +822,10 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
             pass
 
         # -------------------------------------------------------------
-        # STEP 1A.3: INSTITUTIONAL SCALPER BREAKEVEN (+1.50R -> BE + Cushion)
-        # Prevents premature stop-outs by giving trades room to breathe until +1.50R
+        # STEP 1A.3: INSTITUTIONAL SCALPER BREAKEVEN (+1.00R -> BE + Cushion)
+        # Prevents premature stop-outs while locking zero-risk as soon as 1R gain is secured
         # -------------------------------------------------------------
-        scalp_be_r = float(t_data.get("be_trigger_r", 1.50))
+        scalp_be_r = float(t_data.get("be_trigger_r", 1.00))
         if t_data.get("is_scalp") and r_multiple >= scalp_be_r and not t_data.get("breakeven_locked"):
             be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
             success, _ = update_binance_stop_loss(sym, side, be_price, is_demo=is_demo, user_email=user_email)
@@ -837,7 +836,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                 management_events.append(f"🛡️ {sym} Scalper BE Protected @ ${be_price:,.4f} (+{r_multiple:.2f}R)")
                 try:
                     telegram_notifier.send_telegram_broadcast(
-                        f"🛡️ <b>SCALPER BREAKEVEN (+1.50R)</b> 🛡️\n"
+                        f"🛡️ <b>SCALPER BREAKEVEN (+1.00R)</b> 🛡️\n"
                         f"💎 <b>Simbol:</b> <code>{sym}</code>\n"
                         f"📈 <b>Pencapaian:</b> +{r_multiple:.2f}R\n"
                         f"🔒 <b>SL Diamankan ke BE:</b> <code>${be_price:,.4f}</code>\n"
@@ -847,10 +846,10 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     pass
 
         # -------------------------------------------------------------
-        # STEP 1B: CAPITAL PRESERVATION ZERO-RISK SHIELD (+1.50R+ -> SL to Breakeven)
-        # Guarantees zero capital risk once the trade has expanded solidly into +1.50R
+        # STEP 1B: CAPITAL PRESERVATION ZERO-RISK SHIELD (+1.00R+ -> SL to Breakeven)
+        # Guarantees zero capital risk once the trade has expanded solidly into +1.00R
         # -------------------------------------------------------------
-        shield_target_r = 1.50
+        shield_target_r = 1.00
         if r_multiple >= shield_target_r and not t_data.get("capital_shield_locked") and not t_data.get("breakeven_locked") and not t_data.get("tp1_taken"):
             be_price = calculate_breakeven_price(sym, side, entry_price, is_demo=is_demo)
             formatted_shield_sl = float(binance_client.format_price_precision(sym, be_price, is_demo=is_demo))
@@ -1008,11 +1007,11 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
             pass
 
         # -------------------------------------------------------------
-        # STEP 1C: PARTIAL TAKE PROFIT 1 (SCALE-OUT 50% @ +2.25R Scalp / +2.50R Swing + RUNNER SMC TRAILING)
+        # STEP 1C: PARTIAL TAKE PROFIT 1 (SCALE-OUT 50% @ +1.35R Scalp / +1.75R Swing + RUNNER SMC TRAILING)
         # Realizes cash profit into wallet & locks remaining (Runner) at Breakeven!
         # Synthesized from Akademi Crypto Module 03 (Money Management)
         # -------------------------------------------------------------
-        tp1_target_r = 2.25 if t_data.get("is_scalp") else 2.50
+        tp1_target_r = 1.35 if t_data.get("is_scalp") else 1.75
         if r_multiple >= tp1_target_r and not t_data.get("tp1_taken", False):
             current_amt = abs(amt)
             scale_pct = 0.50

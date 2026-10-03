@@ -210,7 +210,8 @@ def audit_symbol_quarantine(symbol, ledger_override=None):
     now_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
     state = load_quarantine_state()
-    active_q = state.get("quarantines", {}).get(sym)
+    active_q = state.get("quarantines", {}).get(sym) or state.get("quarantines", {}).get(f"{sym}USDT") or state.get("quarantines", {}).get(sym.replace("USDT", ""))
+    matched_q_key = sym if state.get("quarantines", {}).get(sym) else (f"{sym}USDT" if state.get("quarantines", {}).get(f"{sym}USDT") else sym.replace("USDT", ""))
 
     # 1. Check existing active quarantine from state file
     if active_q:
@@ -228,8 +229,9 @@ def audit_symbol_quarantine(symbol, ledger_override=None):
             }
         elif until_dt and until_dt <= now:
             # Quarantine expired, cleanup
-            del state["quarantines"][sym]
-            save_quarantine_state(state)
+            if matched_q_key in state.get("quarantines", {}):
+                del state["quarantines"][matched_q_key]
+                save_quarantine_state(state)
 
     # 2. Check ledger dynamically for recent consecutive losses
     trades = []

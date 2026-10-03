@@ -189,16 +189,16 @@
       background: transparent;
       border: none;
       color: var(--text-secondary);
-      padding: 5px 12px;
+      padding: 4px 9px;
       border-radius: var(--radius-sm);
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 500;
       font-family: var(--font-sans);
       letter-spacing: -0.02em;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.15s ease;
       white-space: nowrap;
     }
@@ -1866,33 +1866,27 @@
     }
 
     /* ======================================================================
-       COUCOU / MOCHI DYNAMIC ISLAND NOTCH COMPANION (Louis-CFM/coucou)
+       COUCOU / MOCHI DYNAMIC ISLAND COMPANION (Louis-CFM/coucou)
        ====================================================================== */
     .coucou-island-container {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
+      position: relative;
+      display: inline-flex;
       align-items: center;
-      transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1020;
       user-select: none;
     }
 
     .coucou-notch-pill {
-      height: 32px;
+      height: 30px;
       background: #0e100f;
       border: 1px solid #282829;
-      border-top: none;
-      border-radius: 0 0 16px 16px;
-      padding: 0 14px;
-      display: flex;
+      border-radius: 100px;
+      padding: 0 10px;
+      display: inline-flex;
       align-items: center;
-      gap: 9px;
+      gap: 7px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -1902,9 +1896,9 @@
     }
 
     .coucou-island-container.expanded .coucou-notch-pill {
-      border-radius: 0 0 8px 8px;
+      border-radius: 100px;
       background: #141514;
-      border-color: #3f3f46;
+      border-color: var(--color-cyan);
     }
 
     /* Mochi Squircle Pet */
@@ -1992,93 +1986,214 @@
     /* Dynamic Island Drawer */
     .coucou-island-drawer {
       display: none;
-      width: 380px;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 360px;
       background: #141514;
       border: 1px solid #282829;
-      border-top: none;
-      border-radius: 0 0 12px 12px;
+      border-radius: 10px;
       padding: 14px 16px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
       flex-direction: column;
       gap: 10px;
+      z-index: 1060;
     }
 
     .coucou-island-container.expanded .coucou-island-drawer {
       display: flex;
     }
+
+    /* ==========================================================================
+       CONSOLIDATED TELEMETRY POPOVER & TOOLS DROPDOWN STYLES
+       ========================================================================== */
+    .telemetry-popover-anchor,
+    .tools-dropdown-anchor {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .telemetry-master-btn {
+      cursor: pointer;
+      border: 1px solid rgba(0, 214, 143, 0.35);
+      background: rgba(0, 214, 143, 0.08);
+      color: var(--color-green);
+      padding: 4px 11px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .telemetry-master-btn:hover {
+      background: rgba(0, 214, 143, 0.16);
+      border-color: rgba(0, 214, 143, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .telemetry-popover-flyout {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 330px;
+      background: #11141a;
+      border: 1px solid #282829;
+      border-radius: 8px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
+      z-index: 1050;
+      padding: 12px;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .telemetry-popover-flyout.active {
+      display: flex;
+      animation: popover-fade-in 0.2s ease-out;
+    }
+
+    @keyframes popover-fade-in {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .telemetry-flyout-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fffce1;
+      font-family: var(--font-sans);
+    }
+
+    .telemetry-flyout-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .telemetry-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .telemetry-item:hover {
+      background: var(--bg-card-subtle);
+      border-color: var(--border-light);
+    }
+
+    .telemetry-lbl {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-weight: 500;
+    }
+
+    /* Tools Dropdown Menu */
+    .tools-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 250px;
+      background: #11141a;
+      border: 1px solid #282829;
+      border-radius: 8px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
+      z-index: 1050;
+      padding: 10px;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tools-dropdown-menu.active {
+      display: flex;
+      animation: popover-fade-in 0.2s ease-out;
+    }
+
+    .tools-dropdown-header {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #fffce1;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 6px;
+      margin-bottom: 2px;
+      font-family: var(--font-sans);
+    }
+
+    .tools-menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .tools-menu-item:hover {
+      background: var(--bg-card-subtle);
+      border-color: var(--border-light);
+    }
+
+    .tools-item-label {
+      font-size: 11.5px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Responsive Header Micro-spacing */
+    @media (max-width: 1600px) {
+      #header-regime-pill {
+        display: none !important;
+      }
+      .coucou-compact-hide {
+        display: none !important;
+      }
+      #header-ai-text {
+        display: none !important;
+      }
+      .equity-lbl {
+        display: none !important;
+      }
+    }
+    @media (max-width: 1300px) {
+      .brand-tag {
+        display: none !important;
+      }
+      .nav-tab-btn {
+        padding: 4px 6px !important;
+        font-size: 10.5px !important;
+      }
+      header.terminal-nav {
+        padding: 0 10px !important;
+        gap: 8px !important;
+      }
+      .header-controls {
+        gap: 6px !important;
+      }
+    }
   </style>
 </head>
 <body>
-
-  <!-- ======================================================================
-       COUCOU / MOCHI DYNAMIC ISLAND NOTCH (Louis-CFM/coucou)
-       ====================================================================== -->
-  <div class="coucou-island-container" id="coucou-island">
-    <div class="coucou-notch-pill" onclick="toggleCoucouIsland()" title="Coucou / Mochi AI Desk Companion (Click to expand)">
-      <div class="mochi-avatar-wrap" id="mochi-avatar" onclick="event.stopPropagation(); pokeMochiCompanion()">
-        <div class="mochi-body" id="mochi-body">
-          <div class="mochi-eye" id="mochi-eye-left"></div>
-          <div class="mochi-eye" id="mochi-eye-right"></div>
-        </div>
-      </div>
-      <div style="display:flex; align-items:center; gap:6px; font-size:11px; font-family:var(--font-mono);">
-        <span style="font-weight:700; color:#fffce1;" id="coucou-pill-agent">Aegis (Risk)</span>
-        <span style="color:var(--text-muted);">·</span>
-        <span style="color:var(--color-green); font-size:10px;" id="coucou-pill-activity">Auditing Order Flow</span>
-      </div>
-      <span class="status-dot-pulse" style="background:var(--color-cyan); box-shadow:0 0 8px var(--color-cyan);" id="coucou-pill-dot"></span>
-    </div>
-
-    <!-- Expanded Island Drawer -->
-    <div class="coucou-island-drawer" id="coucou-drawer">
-      <div style="display:flex; align-items:center; justify-content:space-between;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:12px; font-weight:700; color:#fffce1;">{ Coucou Desk Companion }</span>
-          <span class="status-pill cyan mono" id="coucou-drawer-status" style="font-size:9px;">WORKING</span>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="toggleCoucouIsland()" style="border-radius:100px; padding:2px 8px; font-size:10px;">▲ Minimize</button>
-      </div>
-
-      <!-- Mochi Interactive Speech / Mood Card -->
-      <div style="background:#0e100f; border:1px solid #282829; border-radius:6px; padding:10px; display:flex; align-items:center; gap:12px;">
-        <div class="mochi-avatar-wrap" style="width:34px; height:34px; cursor:pointer;" onclick="pokeMochiCompanion()" title="Poke Mochi!">
-          <div class="mochi-body" id="mochi-body-large" style="width:34px; height:34px; border-radius:10px;">
-            <div class="mochi-eye" id="mochi-eye-left-lg" style="width:6px; height:8px;"></div>
-            <div class="mochi-eye" id="mochi-eye-right-lg" style="width:6px; height:8px;"></div>
-          </div>
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:11px; font-weight:700; color:#fffce1;" id="coucou-mochi-speech">"Coucou! Watching your 20x trading agents."</div>
-          <div style="font-size:10px; color:var(--text-muted); margin-top:2px;" id="coucou-mochi-subtext">Click Mochi to play · Poke repeatedly to make dizzy</div>
-        </div>
-      </div>
-
-      <!-- Active Agent Details -->
-      <div style="background:#0e100f; border:1px solid #282829; border-radius:6px; padding:8px 10px; font-size:11px; font-family:var(--font-mono);">
-        <div style="display:flex; justify-content:space-between;">
-          <span style="color:var(--text-muted);">ACTIVE AGENT:</span>
-          <span style="color:var(--color-cyan); font-weight:700;" id="coucou-agent-name">02_RISK_AEGIS</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-top:3px;">
-          <span style="color:var(--text-muted);">CURRENT ACTION:</span>
-          <span style="color:#fffce1;" id="coucou-agent-action">Order Book Imbalance Scanning</span>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div style="display:flex; gap:6px; justify-content:flex-end;">
-        <button class="btn btn-ghost btn-sm" onclick="pokeMochiCompanion()" style="border-radius:100px; font-size:10.5px; border:1px solid var(--border-light);">
-          👋 Poke Mochi
-        </button>
-        <button class="btn btn-ghost btn-sm" onclick="triggerCoucouAction('approve')" style="border-radius:100px; font-size:10.5px; border:1px solid rgba(0,214,143,0.4); color:var(--color-green);">
-          ✓ Allow / Approve
-        </button>
-        <button class="btn btn-ghost btn-sm" onclick="triggerCoucouAction('veto')" style="border-radius:100px; font-size:10.5px; border:1px solid rgba(246,70,93,0.4); color:var(--color-red);">
-          ✕ Deny / Lock BE
-        </button>
-      </div>
-    </div>
-  </div>
 
   <div class="app-container">
     
@@ -2086,7 +2201,7 @@
          TOP NAVIGATION BAR
          ====================================================================== -->
     <header class="terminal-nav">
-      <!-- Brand Cluster -->
+      <!-- Brand & Consolidated Telemetry Cluster -->
       <div class="brand-cluster">
         <div class="brand-logo-badge">
           <!-- Terminal Icon SVG -->
@@ -2100,38 +2215,48 @@
           <span class="brand-tag">AI DESK</span>
         </div>
         
-        <div class="border-beam-wrap" title="Autonomous Trading Desk Engine">
-          <div class="border-beam-inner">
-            <span class="status-capsule green" id="header-status-pill">
-              <span class="status-dot-pulse"></span>
-              <span>AUTOPILOT LIVE</span>
-            </span>
+        <!-- Master Telemetry Health Dropdown Pill -->
+        <div class="telemetry-popover-anchor" id="telemetry-anchor">
+          <button class="telemetry-master-btn" id="header-status-pill" onclick="toggleTelemetryPopover(event)" title="Click to view full System Telemetry Matrix">
+            <span class="status-dot-pulse"></span>
+            <span id="telemetry-master-label">AUTOPILOT LIVE</span>
+            <span style="font-size:9px; color:var(--text-muted); margin-left:2px;">▾</span>
+          </button>
+
+          <!-- Consolidated Telemetry Flyout Menu -->
+          <div class="telemetry-popover-flyout" id="telemetry-flyout">
+            <div class="telemetry-flyout-header">
+              <span>{ System Microstructure & Telemetry }</span>
+              <span class="status-pill green mono" style="font-size:9px;">100% HEALTH</span>
+            </div>
+            <div class="telemetry-flyout-grid">
+              <div class="telemetry-item" id="pop-ws-item">
+                <span class="telemetry-lbl">Binance Futures WebSocket</span>
+                <span class="status-capsule green mono" id="header-ws-pill" style="font-size:10px;"><span class="status-dot-pulse"></span><span id="header-ws-text">WS &lt;50MS</span></span>
+              </div>
+              <div class="telemetry-item" id="pop-sse-item">
+                <span class="telemetry-lbl">Server-Sent Events Stream</span>
+                <span class="status-capsule green mono" id="header-sse-pill" style="font-size:10px;"><span class="status-dot-pulse"></span><span id="header-sse-text">⚡ SSE LIVE</span></span>
+              </div>
+              <div class="telemetry-item" id="pop-sentry-item" onclick="openSentryModal()" style="cursor:pointer;" title="Open Sentry Telemetry">
+                <span class="telemetry-lbl">Sentry Observability Engine</span>
+                <span class="status-capsule purple mono" id="header-sentry-pill" style="font-size:10px;"><span class="status-dot-pulse" id="header-sentry-dot"></span><span id="header-sentry-text">SENTRY READY</span></span>
+              </div>
+              <div class="telemetry-item" id="pop-astra-item" onclick="openAstraModal()" style="cursor:pointer;" title="Open Astra Calculus">
+                <span class="telemetry-lbl">AstraQuant 7-Tier Calculus</span>
+                <span class="status-capsule cyan mono" id="header-astra-pill" style="font-size:10px;"><span class="status-dot-pulse" id="header-astra-dot"></span><span id="header-astra-text">ASTRA CALCULUS</span></span>
+              </div>
+              <div class="telemetry-item" id="pop-copy-item" onclick="openCopySniperModal()" style="cursor:pointer;" title="Open Whale Copy Sniper">
+                <span class="telemetry-lbl">Whale Copy Sniper (&lt;15bps)</span>
+                <span class="status-capsule amber mono" id="header-copy-pill" style="font-size:10px;"><span class="status-dot-pulse" id="header-copy-dot"></span><span id="header-copy-text">COPY SNIPER &lt;15BPS</span></span>
+              </div>
+            </div>
           </div>
         </div>
         
         <span class="status-capsule blue" id="header-regime-pill" title="Current Market Regime">
           <span class="status-dot-pulse" style="background:var(--color-blue); box-shadow:0 0 8px var(--color-blue);"></span>
           <span>BTC: TRENDING</span>
-        </span>
-
-        <span class="status-capsule green" id="header-ws-pill" title="Native Binance Futures WebSocket (<50ms)" style="font-size:10px;">
-          <span class="status-dot-pulse" style="background:var(--color-green); box-shadow:0 0 8px var(--color-green);"></span>
-          <span id="header-ws-text">WS &lt;50MS</span>
-        </span>
-
-        <span class="status-capsule green" id="header-sse-pill" title="Server-Sent Events Realtime Stream (<50ms)" style="font-size:10px;">
-          <span class="status-dot-pulse" style="background:var(--color-green); box-shadow:0 0 8px var(--color-green);"></span>
-          <span id="header-sse-text">⚡ SSE LIVE</span>
-        </span>
-
-        <span class="status-capsule purple" id="header-sentry-pill" title="Sentry Observability Engine (Click for Telemetry)" style="font-size:10px; cursor:pointer;" onclick="openSentryModal()">
-          <span class="status-dot-pulse" id="header-sentry-dot" style="background:var(--color-purple); box-shadow:0 0 8px var(--color-purple);"></span>
-          <span id="header-sentry-text">SENTRY READY</span>
-        </span>
-
-        <span class="status-capsule cyan" id="header-astra-pill" title="AstraQuant 7-Tier Calculus &amp; CIO Council (Click for Matrix)" style="font-size:10px; cursor:pointer;" onclick="openAstraModal()">
-          <span class="status-dot-pulse" id="header-astra-dot" style="background:var(--color-cyan); box-shadow:0 0 8px var(--color-cyan);"></span>
-          <span id="header-astra-text">ASTRA CALCULUS</span>
         </span>
       </div>
 
@@ -2153,7 +2278,6 @@
         <button class="nav-tab-btn" onclick="switchView('paperclip')" id="tab-paperclip" title="8-Agent Trading Floor (Harvest Moon Edition)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span>8-Agent Desk</span>
-          <span class="nav-tab-badge" style="background:var(--color-purple-dim); color:var(--color-purple);">8 AGENTS</span>
         </button>
         <button class="nav-tab-btn" onclick="switchView('memory')" id="tab-memory">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -2162,48 +2286,123 @@
         <button class="nav-tab-btn" onclick="switchView('dexradar')" id="tab-dexradar">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           <span>DEX & Whales</span>
-          <span class="nav-tab-badge" style="background:var(--color-cyan-dim); color:var(--color-cyan);">STREAM</span>
         </button>
       </nav>
 
-      <!-- Right Header Actions -->
+      <!-- Right Header Actions & Integrated Companion -->
       <div class="header-controls">
-        <div class="equity-capsule">
-          <span class="equity-lbl">Equity</span>
-          <span class="equity-num mono" id="header-equity">$5,250.00</span>
+        <!-- Coucou / Mochi AI Desk Companion Pill -->
+        <div class="coucou-island-container" id="coucou-island">
+          <div class="coucou-notch-pill" onclick="toggleCoucouIsland(event)" title="Coucou / Mochi AI Desk Companion (Click to expand)">
+            <div class="mochi-avatar-wrap" id="mochi-avatar" onclick="event.stopPropagation(); pokeMochiCompanion()">
+              <div class="mochi-body" id="mochi-body">
+                <div class="mochi-eye" id="mochi-eye-left"></div>
+                <div class="mochi-eye" id="mochi-eye-right"></div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:4px; font-size:10px; font-family:var(--font-mono);">
+              <span style="font-weight:700; color:#fffce1; max-width:65px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="coucou-pill-agent">Aegis</span>
+              <span style="color:var(--text-muted);" class="coucou-compact-hide">·</span>
+              <span style="color:var(--color-green); font-size:9px; max-width:55px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" class="coucou-compact-hide" id="coucou-pill-activity">Audit</span>
+            </div>
+            <span class="status-dot-pulse" style="background:var(--color-cyan); box-shadow:0 0 8px var(--color-cyan);" id="coucou-pill-dot"></span>
+          </div>
+
+          <!-- Expanded Island Drawer -->
+          <div class="coucou-island-drawer" id="coucou-drawer">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12px; font-weight:700; color:#fffce1;">{ Coucou Desk Companion }</span>
+                <span class="status-pill cyan mono" id="coucou-drawer-status" style="font-size:9px;">WORKING</span>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="toggleCoucouIsland(event)" style="border-radius:100px; padding:2px 8px; font-size:10px;">▲ Minimize</button>
+            </div>
+
+            <!-- Mochi Interactive Speech / Mood Card -->
+            <div style="background:#0e100f; border:1px solid #282829; border-radius:6px; padding:10px; display:flex; align-items:center; gap:12px;">
+              <div class="mochi-avatar-wrap" style="width:34px; height:34px; cursor:pointer;" onclick="pokeMochiCompanion()" title="Poke Mochi!">
+                <div class="mochi-body" id="mochi-body-large" style="width:34px; height:34px; border-radius:10px;">
+                  <div class="mochi-eye" id="mochi-eye-left-lg" style="width:6px; height:8px;"></div>
+                  <div class="mochi-eye" id="mochi-eye-right-lg" style="width:6px; height:8px;"></div>
+                </div>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:11px; font-weight:700; color:#fffce1;" id="coucou-mochi-speech">"Coucou! Watching your 20x trading agents."</div>
+                <div style="font-size:10px; color:var(--text-muted); margin-top:2px;" id="coucou-mochi-subtext">Click Mochi to play · Poke repeatedly to make dizzy</div>
+              </div>
+            </div>
+
+            <!-- Active Agent Details -->
+            <div style="background:#0e100f; border:1px solid #282829; border-radius:6px; padding:8px 10px; font-size:11px; font-family:var(--font-mono);">
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-muted);">ACTIVE AGENT:</span>
+                <span style="color:var(--color-cyan); font-weight:700;" id="coucou-agent-name">02_RISK_AEGIS</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-top:3px;">
+                <span style="color:var(--text-muted);">CURRENT ACTION:</span>
+                <span style="color:#fffce1;" id="coucou-agent-action">Order Book Imbalance Scanning</span>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="display:flex; gap:6px; justify-content:flex-end;">
+              <button class="btn btn-ghost btn-sm" onclick="pokeMochiCompanion()" style="border-radius:100px; font-size:10.5px; border:1px solid var(--border-light);">
+                👋 Poke Mochi
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="triggerCoucouAction('approve')" style="border-radius:100px; font-size:10.5px; border:1px solid rgba(0,214,143,0.4); color:var(--color-green);">
+                ✓ Allow / Approve
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="triggerCoucouAction('veto')" style="border-radius:100px; font-size:10.5px; border:1px solid rgba(246,70,93,0.4); color:var(--color-red);">
+                ✕ Deny / Lock BE
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="equity-capsule" id="header-ai-capsule" style="cursor:pointer;" onclick="openAiModal()" title="Local AI Brain Status (Ollama / GPU)">
-          <span class="equity-lbl">AI Core</span>
-          <span class="equity-num mono" id="header-ai-text" style="color:var(--color-purple); font-size:11px;">🤖 Detecting GPU...</span>
+        <!-- Equity Capsule -->
+        <div class="equity-capsule" style="padding:4px 8px;">
+          <span class="equity-lbl" style="font-size:10px;">Equity</span>
+          <span class="equity-num mono" id="header-equity" style="font-size:11.5px;">$5,250.00</span>
         </div>
 
-        <button class="btn btn-primary btn-sm" id="mode-badge-btn" onclick="toggleTradingMode()" title="Toggle Strategy Regime (HYBRID / SCALP / SWING)">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
-          <span id="mode-text">HYBRID</span>
+        <!-- Unified Ask AI & Local Brain Button -->
+        <button class="equity-capsule" id="header-ai-capsule" onclick="openAiModal()" title="Ask AI Senior Quant Officer [A] · GPU Status" style="cursor:pointer; border-radius:100px; gap:6px; padding:4px 10px; border-color:rgba(168, 85, 247, 0.35);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--color-purple);"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="equity-lbl" style="color:var(--color-purple); font-weight:600;">Ask AI</span>
+          <span class="equity-num mono" id="header-ai-text" style="color:var(--color-purple); font-size:10px; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🤖 Online</span>
         </button>
 
-        <button class="btn btn-ghost btn-sm" onclick="openBacktestModal()" title="Run Quant Simulator [B]">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>
-          <span>Backtest</span>
-        </button>
+        <!-- Tools Dropdown Anchor (Consolidates Backtest, Pause, Mode, Circuit Breaker) -->
+        <div class="tools-dropdown-anchor" id="tools-dropdown-anchor">
+          <button class="btn btn-ghost btn-sm" onclick="toggleToolsDropdown(event)" title="Desk Tools & Strategy Regime Settings" style="border-radius:100px; gap:5px; padding:4px 10px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Tools</span>
+            <span style="font-size:9px; color:var(--text-muted);">▾</span>
+          </button>
 
-        <button class="btn btn-ghost btn-sm" onclick="openAiModal()" title="Ask AI Senior Quant Officer [A]" style="color:var(--color-purple);">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>Ask AI</span>
-        </button>
+          <div class="tools-dropdown-menu" id="tools-dropdown-menu">
+            <div class="tools-dropdown-header">{ Desk Engines & Controls }</div>
+            <div class="tools-menu-item" id="mode-badge-btn" onclick="toggleTradingMode()" title="Toggle Strategy Regime (HYBRID / SCALP / SWING)">
+              <span class="tools-item-label">Strategy Regime</span>
+              <span class="status-pill blue mono" id="mode-text" style="font-size:10px; padding:2px 8px;">HYBRID</span>
+            </div>
+            <div class="tools-menu-item" onclick="openBacktestModal(); closeToolsDropdown();" title="Run Quant Simulator [B]">
+              <span class="tools-item-label">Quant Backtest [B]</span>
+              <span class="mono" style="font-size:10px; color:var(--text-muted);">SIMULATOR</span>
+            </div>
+            <div class="tools-menu-item" id="pause-btn" onclick="togglePause()" title="Pause or Resume Desk Execution">
+              <span class="tools-item-label">Desk Execution</span>
+              <span class="status-pill green mono" id="pause-status-lbl" style="font-size:10px; padding:2px 8px;">RUNNING</span>
+            </div>
+            <div class="tools-menu-item" id="cb-btn" onclick="togglePortfolioCircuitBreaker()" title="Matikan / Nyalakan Portfolio Circuit Breaker">
+              <span class="tools-item-label">Circuit Breaker</span>
+              <span class="status-pill green mono" id="cb-btn-text" style="font-size:10px; padding:2px 8px;">CB: Active</span>
+            </div>
+          </div>
+        </div>
 
-        <button class="btn btn-ghost btn-sm" id="pause-btn" onclick="togglePause()" title="Pause/Resume Desk Execution">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-          <span>Pause</span>
-        </button>
-
-        <button class="btn btn-ghost btn-sm" id="cb-btn" onclick="togglePortfolioCircuitBreaker()" title="Matikan / Nyalakan Portfolio Circuit Breaker">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span id="cb-btn-text">CB: Active</span>
-        </button>
-
-        <button class="btn btn-danger btn-sm" onclick="closeAllPositions()" title="Emergency Close All Positions">
+        <!-- Emergency Close All Button -->
+        <button class="btn btn-danger btn-sm" onclick="closeAllPositions()" title="Emergency Close All Positions" style="border-radius:100px; padding:4px 10px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           <span>Close All</span>
         </button>
@@ -2897,6 +3096,56 @@
                   <button class="btn btn-primary btn-sm" onclick="submitNewWhaleWallet()">+ Add</button>
                 </div>
               </div>
+
+              <!-- Whale / Smart-Money Copy Sniper Card (MohammedRashad/Crypto-Copy-Trader) -->
+              <div class="bento-card" style="margin-top: 2px;">
+                <div class="bento-card-header" style="flex-wrap:wrap; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="bento-card-title">🎯 Whale Copy Sniper</span>
+                    <span class="status-pill amber mono" id="copy-status-pill" style="font-size:9px; padding:1px 6px;">SNIPING &lt;15BPS</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <button class="btn btn-sm" onclick="toggleCopySniperAuto()" id="btn-toggle-copy-auto" style="border-radius:100px; border-color:var(--color-green); color:var(--color-green); font-size:10.5px;">⚡ Auto-Copy: ON</button>
+                    <button class="btn btn-ghost btn-sm" onclick="openCopySniperModal()" style="border-radius:100px; font-size:10.5px; border:1px solid #282829;">⚙ Config</button>
+                    <button class="btn btn-ghost btn-sm" onclick="triggerTestWhaleCopy()" style="border-radius:100px; font-size:10.5px; border:1px solid var(--border-light); color:#fffce1;">🎯 Test Copy</button>
+                  </div>
+                </div>
+
+                <!-- Parameters summary grid -->
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin: 8px 0;">
+                  <div style="background:#0e100f; border:1px solid #282829; border-radius:4px; padding:6px 8px;">
+                    <div style="font-size:9px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">MAX SLIPPAGE</div>
+                    <div id="copy-card-slippage" style="font-size:11px; font-weight:700; color:var(--color-amber); margin-top:2px;" class="mono">&lt; 15.0 bps</div>
+                  </div>
+                  <div style="background:#0e100f; border:1px solid #282829; border-radius:4px; padding:6px 8px;">
+                    <div style="font-size:9px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">SLAVE SIZING</div>
+                    <div id="copy-card-risk" style="font-size:11px; font-weight:700; color:var(--color-green); margin-top:2px;" class="mono">1.5% Kelly (20x)</div>
+                  </div>
+                  <div style="background:#0e100f; border:1px solid #282829; border-radius:4px; padding:6px 8px;">
+                    <div style="font-size:9px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">CONFLUENCE</div>
+                    <div id="copy-card-smc" style="font-size:11px; font-weight:700; color:var(--color-cyan); margin-top:2px;" class="mono">4H HTF Lock</div>
+                  </div>
+                </div>
+
+                <!-- Tracked Masters -->
+                <div style="margin-bottom:6px;">
+                  <div style="font-size:10px; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:4px;">🏛️ Tracked Master Whales:</div>
+                  <div id="copy-masters-chips" style="display:flex; flex-wrap:wrap; gap:4px;">
+                    <span class="status-pill mono" style="font-size:9.5px; background:rgba(255,255,255,0.03); border:1px solid #282829; color:#fffce1;">Wintermute MM (78% WR)</span>
+                    <span class="status-pill mono" style="font-size:9.5px; background:rgba(255,255,255,0.03); border:1px solid #282829; color:#fffce1;">DWF Labs Alpha (71% WR)</span>
+                    <span class="status-pill mono" style="font-size:9.5px; background:rgba(255,255,255,0.03); border:1px solid #282829; color:#fffce1;">GMX Whale Top (83% WR)</span>
+                    <span class="status-pill mono" style="font-size:9.5px; background:rgba(255,255,255,0.03); border:1px solid #282829; color:#fffce1;">Jump Trading (74% WR)</span>
+                  </div>
+                </div>
+
+                <!-- Live Copy Executions Container -->
+                <div>
+                  <div style="font-size:10px; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:4px;">⚡ Live Executed Copies:</div>
+                  <div id="copy-executions-container" style="display:flex; flex-direction:column; gap:4px; max-height:160px; overflow-y:auto;">
+                    <div style="padding:10px; text-align:center; color:var(--text-muted); font-size:10.5px;">Listening for master whale fill events...</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -3115,6 +3364,82 @@
               ⚡ Run Paranoid Veto Debate
             </button>
           </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       WHALE / SMART-MONEY COPY SNIPER MODAL (MohammedRashad/Crypto-Copy-Trader)
+       ====================================================================== -->
+  <div class="modal-backdrop" id="copy-sniper-modal" onclick="if(event.target===this) closeCopySniperModal()">
+    <div class="modal-card" style="max-width:760px; background:#141514; border:1px solid #282829; border-radius:8px;">
+      <div class="modal-header" style="background:#141514; border-bottom:1px solid #282829; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--color-amber); box-shadow:0 0 8px var(--color-amber);"></span>
+          <span style="font-size:13px; font-weight:700; color:#fffce1; letter-spacing:-0.02em;">{ Whale / Smart-Money Copy Sniper Engine }</span>
+          <span class="status-pill amber mono" style="font-size:9px; padding:1px 6px;">MASTER-SLAVE 20X</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeCopySniperModal()" style="border-radius:100px; padding:4px 12px; border:1px solid #282829;">✕ Tutup</button>
+      </div>
+      <div class="modal-body" style="padding:18px; display:flex; flex-direction:column; gap:14px; background:#0e100f; max-height:82vh; overflow-y:auto;">
+        
+        <!-- Guardrail Status Overview -->
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">SLIPPAGE HURDLE</div>
+            <div id="modal-copy-slippage" style="font-size:13px; font-weight:700; color:var(--color-amber); margin-top:4px;" class="mono">&lt; 15.0 bps</div>
+          </div>
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">KELLY SIZING</div>
+            <div id="modal-copy-risk" style="font-size:11.5px; font-weight:700; color:var(--color-green); margin-top:4px;" class="mono">1.5% CAPITAL</div>
+          </div>
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">ACTIVE MASTERS</div>
+            <div id="modal-copy-masters-count" style="font-size:12px; font-weight:700; color:#fffce1; margin-top:4px;" class="mono">4 TRACKED</div>
+          </div>
+          <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:10px;">
+            <div style="font-size:9.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">AUTO-SNIPER</div>
+            <div id="modal-copy-status" style="font-size:11.5px; font-weight:700; color:var(--color-green); margin-top:4px;" class="mono">ACTIVE</div>
+          </div>
+        </div>
+
+        <!-- Master Traders Roster -->
+        <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:11px; font-weight:700; color:#fffce1;">{ MASTER TRADERS ROSTER (SMART MONEY &amp; MARKET MAKERS) }</span>
+            <span style="font-size:9.5px; color:var(--text-muted); font-family:var(--font-mono);">PROPORTIONAL MIRRORING</span>
+          </div>
+          <div id="modal-copy-masters-table" style="display:flex; flex-direction:column; gap:6px;">
+            <div style="font-size:11px; color:var(--text-muted); font-style:italic;">Loading master traders roster...</div>
+          </div>
+        </div>
+
+        <!-- Execution & Slippage Guardrail Ledger -->
+        <div style="background:#141514; border:1px solid #282829; border-radius:6px; padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:11px; font-weight:700; color:#fffce1;">{ RECENT SNIPER EXECUTIONS &amp; SLIPPAGE AUDITS }</span>
+            <span class="status-pill amber mono" style="font-size:9px;">REALTIME LEDGER</span>
+          </div>
+          <div id="modal-copy-ledger" style="display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto;">
+            <div style="font-size:11px; color:var(--text-muted); font-style:italic;">No copy trades triggered yet.</div>
+          </div>
+        </div>
+
+        <!-- Interactive Actions -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-ghost btn-sm" onclick="triggerTestWhaleCopy()" style="border-radius:100px; border:1px solid var(--color-amber); color:var(--color-amber); font-size:11px;">
+              🎯 Test Whale Signal Execution
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleCopySniperAuto()" style="border-radius:100px; border:1px solid var(--border-light); font-size:11px;">
+              ⚡ Toggle Auto-Sniper
+            </button>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="loadCopySniperData()" style="border-radius:100px; border:1px solid #282829; font-size:11px;">
+            🔄 Refresh Status
+          </button>
         </div>
 
       </div>
@@ -3366,6 +3691,7 @@
         loadDexRadarData();
         loadWhaleTrackerData();
         loadDexBridgeStatus();
+        loadCopySniperData();
       }
     }
 
@@ -6179,7 +6505,8 @@
       }, 4000);
     }
 
-    function toggleCoucouIsland() {
+    function toggleCoucouIsland(e) {
+      if (e) e.stopPropagation();
       coucouExpanded = !coucouExpanded;
       const island = document.getElementById('coucou-island');
       if (island) {
@@ -6191,6 +6518,49 @@
         }
       }
     }
+
+    function toggleTelemetryPopover(e) {
+      if (e) e.stopPropagation();
+      const flyout = document.getElementById('telemetry-flyout');
+      if (flyout) flyout.classList.toggle('active');
+      // Close other popovers if open
+      const toolsMenu = document.getElementById('tools-dropdown-menu');
+      if (toolsMenu) toolsMenu.classList.remove('active');
+    }
+
+    function toggleToolsDropdown(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('tools-dropdown-menu');
+      if (menu) menu.classList.toggle('active');
+      // Close other popovers if open
+      const flyout = document.getElementById('telemetry-flyout');
+      if (flyout) flyout.classList.remove('active');
+    }
+
+    function closeToolsDropdown() {
+      const menu = document.getElementById('tools-dropdown-menu');
+      if (menu) menu.classList.remove('active');
+    }
+
+    // Global outside click listener to close popovers and companion drawer
+    document.addEventListener('click', function(e) {
+      const telemAnchor = document.getElementById('telemetry-anchor');
+      const telemFlyout = document.getElementById('telemetry-flyout');
+      if (telemAnchor && telemFlyout && !telemAnchor.contains(e.target)) {
+        telemFlyout.classList.remove('active');
+      }
+
+      const toolsAnchor = document.getElementById('tools-dropdown-anchor');
+      const toolsMenu = document.getElementById('tools-dropdown-menu');
+      if (toolsAnchor && toolsMenu && !toolsAnchor.contains(e.target)) {
+        toolsMenu.classList.remove('active');
+      }
+
+      const coucouIsland = document.getElementById('coucou-island');
+      if (coucouIsland && !coucouIsland.contains(e.target) && coucouExpanded) {
+        toggleCoucouIsland();
+      }
+    });
 
     function playMochiSound(type = 'chirp') {
       try {
@@ -6297,8 +6667,13 @@
         const pillAct = document.getElementById('coucou-pill-activity');
         const pillDot = document.getElementById('coucou-pill-dot');
 
-        if (pillAgent) pillAgent.textContent = d.agent_name || 'Aegis (Risk)';
-        if (pillAct) pillAct.textContent = d.activity || 'Auditing Order Flow';
+        if (pillAgent) {
+          const raw = (d.agent_name || 'Aegis').replace(/^\d+_[A-Z]+_/, '').replace(/\s*\(.*\)/, '').trim();
+          pillAgent.textContent = raw || 'Aegis';
+        }
+        if (pillAct) {
+          pillAct.textContent = (d.activity || 'Audit').split(' ')[0];
+        }
         if (pillDot) {
           pillDot.style.background = d.status === 'ATTENTION_REQUIRED' ? 'var(--color-amber)' : 'var(--color-green)';
         }
@@ -6312,6 +6687,199 @@
         if (dAgent) dAgent.textContent = d.active_agent || '02_RISK_AEGIS';
         if (dAct) dAct.textContent = d.activity || 'Order Book Imbalance Scanning';
       } catch (e) {}
+    }
+
+    /* ======================================================================
+       WHALE / SMART-MONEY COPY SNIPER CONTROLLER (MohammedRashad/Crypto-Copy-Trader)
+       ====================================================================== */
+    function openCopySniperModal() {
+      const modal = document.getElementById('copy-sniper-modal');
+      if (modal) {
+        modal.classList.add('active');
+        loadCopySniperData();
+      }
+    }
+
+    function closeCopySniperModal() {
+      const modal = document.getElementById('copy-sniper-modal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    async function toggleCopySniperAuto() {
+      try {
+        const statusRes = await fetch('/api/copy_trader/status');
+        const statusData = await statusRes.json();
+        const currentVal = statusData.config?.auto_copy_enabled ?? true;
+        const newVal = !currentVal;
+
+        const res = await fetch('/api/copy_trader/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ auto_copy_enabled: newVal })
+        });
+        const d = await res.json();
+        showToast(`⚡ Whale Copy Sniper: ${newVal ? 'AUTO-COPY ENABLED' : 'AUTO-COPY PAUSED'}`);
+        loadCopySniperData();
+      } catch (err) {
+        showToast(`Error: ${err.message}`);
+      }
+    }
+
+    async function triggerTestWhaleCopy() {
+      showToast('🎯 Firing Whale Copy Sniper Test Signal on Demo 20x...');
+      try {
+        const res = await fetch('/api/copy_trader/trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            master_id: "wintermute_01",
+            symbol: "BTCUSDT",
+            side: "BUY",
+            whale_fill_price: 80000.0,
+            trade_size_usd: 50000.0,
+            execute_live: true
+          })
+        });
+        const d = await res.json();
+        if (d.success && d.execution?.executed) {
+          showToast(`✓ Order Placed on Binance Futures 20x! ID: ${d.execution.order_id || 'DEMO'}`);
+        } else if (d.reason) {
+          showToast(`🛡️ Guardrail: ${d.reason}`);
+        } else {
+          showToast(`Result: ${d.status || 'Evaluated'}`);
+        }
+        loadCopySniperData();
+      } catch (err) {
+        showToast(`Execution Error: ${err.message}`);
+      }
+    }
+
+    async function loadCopySniperData() {
+      try {
+        const res = await fetch('/api/copy_trader/status');
+        if (!res.ok) return;
+        const d = await res.json();
+
+        // 1. Header Pill Update
+        const headerPill = document.getElementById('header-copy-pill');
+        const headerText = document.getElementById('header-copy-text');
+        const headerDot = document.getElementById('header-copy-dot');
+        const isAuto = d.config?.auto_copy_enabled ?? true;
+        const maxSlip = d.config?.max_slippage_bps ?? 15.0;
+
+        if (headerText) {
+          headerText.textContent = isAuto ? `COPY SNIPER <${maxSlip}BPS` : 'COPY SNIPER: PAUSED';
+        }
+        if (headerDot) {
+          headerDot.style.background = isAuto ? 'var(--color-amber)' : 'var(--text-muted)';
+        }
+        if (headerPill) {
+          headerPill.title = `Whale Copy Sniper: ${d.status} | Masters: ${d.active_masters_count} | Auto: ${isAuto ? 'ON' : 'OFF'} | Max Slippage: ${maxSlip} bps`;
+        }
+
+        // 2. Card in view-dexradar
+        const cardStatus = document.getElementById('copy-status-pill');
+        const btnToggle = document.getElementById('btn-toggle-copy-auto');
+        const cardSlip = document.getElementById('copy-card-slippage');
+        const cardRisk = document.getElementById('copy-card-risk');
+        const mastersChips = document.getElementById('copy-masters-chips');
+        const execContainer = document.getElementById('copy-executions-container');
+
+        if (cardStatus) {
+          cardStatus.textContent = isAuto ? `SNIPING <${maxSlip}BPS` : 'PAUSED';
+          cardStatus.className = isAuto ? 'status-pill amber mono' : 'status-pill mono';
+        }
+        if (btnToggle) {
+          btnToggle.textContent = isAuto ? '⚡ Auto-Copy: ON' : '⏸ Auto-Copy: OFF';
+          btnToggle.style.color = isAuto ? 'var(--color-green)' : 'var(--text-muted)';
+          btnToggle.style.borderColor = isAuto ? 'var(--color-green)' : 'var(--border-light)';
+        }
+        if (cardSlip) cardSlip.textContent = `< ${maxSlip} bps`;
+        if (cardRisk) cardRisk.textContent = `${d.config?.risk_pct_per_trade ?? 1.5}% Kelly (${d.config?.default_leverage ?? 20}x)`;
+
+        if (mastersChips && d.masters) {
+          mastersChips.innerHTML = d.masters.map(m => `
+            <span class="status-pill mono" style="font-size:9.5px; background:rgba(255,255,255,0.03); border:1px solid #282829; color:#fffce1;">
+              ${m.name} (${m.win_rate_pct}% WR · ${m.avg_rr}R)
+            </span>
+          `).join('');
+        }
+
+        if (execContainer && d.recent_copies) {
+          if (d.recent_copies.length === 0) {
+            execContainer.innerHTML = '<div style="padding:10px; text-align:center; color:var(--text-muted); font-size:10.5px;">Listening for master whale fill events...</div>';
+          } else {
+            execContainer.innerHTML = d.recent_copies.slice(-5).reverse().map(c => {
+              const isWin = c.status === 'COPIED';
+              const sideColor = c.side === 'BUY' ? 'var(--color-green)' : 'var(--color-red)';
+              return `
+                <div style="background:#0e100f; border:1px solid #282829; border-radius:4px; padding:6px 8px; font-size:10.5px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <span style="font-weight:700; color:${sideColor}; font-family:var(--font-mono);">${c.side} ${c.symbol}</span>
+                    <span style="color:var(--text-muted); margin-left:4px;">Whale: $${c.whale_fill_price?.toLocaleString()}</span>
+                    <span style="color:var(--color-cyan); margin-left:4px;">Slip: ${c.slippage_bps ?? 0} bps</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="status-pill ${isWin ? 'green' : 'amber'} mono" style="font-size:9px;">${c.status}</span>
+                    <span style="color:var(--text-muted); font-size:9.5px; font-family:var(--font-mono);">${c.order_id ? '#' + c.order_id.toString().slice(-4) : 'SIM'}</span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+
+        // 3. Modal Elements
+        const mSlip = document.getElementById('modal-copy-slippage');
+        const mRisk = document.getElementById('modal-copy-risk');
+        const mCount = document.getElementById('modal-copy-masters-count');
+        const mStat = document.getElementById('modal-copy-status');
+        const mMastersTable = document.getElementById('modal-copy-masters-table');
+        const mExecutionLedger = document.getElementById('modal-copy-ledger');
+
+        if (mSlip) mSlip.textContent = `< ${maxSlip} bps`;
+        if (mRisk) mRisk.textContent = `${d.config?.risk_pct_per_trade ?? 1.5}% CAPITAL (${d.config?.default_leverage ?? 20}x)`;
+        if (mCount) mCount.textContent = `${d.active_masters_count ?? 4} TRACKED`;
+        if (mStat) {
+          mStat.textContent = isAuto ? 'ACTIVE' : 'PAUSED';
+          mStat.style.color = isAuto ? 'var(--color-green)' : 'var(--text-muted)';
+        }
+
+        if (mMastersTable && d.masters) {
+          mMastersTable.innerHTML = d.masters.map(m => `
+            <div style="background:#0e100f; border:1px solid #282829; border-radius:4px; padding:7px 10px; display:flex; justify-content:space-between; align-items:center; font-size:11px;">
+              <div>
+                <span style="font-weight:700; color:#fffce1; font-family:var(--font-mono);">${m.name}</span>
+                <span style="color:var(--text-muted); margin-left:6px; font-size:10px;">${m.type} · ${m.exchange_or_chain}</span>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <span class="mono" style="color:var(--color-green); font-size:10.5px;">${m.win_rate_pct}% WR</span>
+                <span class="mono" style="color:var(--color-cyan); font-size:10.5px;">Avg ${m.avg_rr}R</span>
+                <span class="status-pill green mono" style="font-size:9px;">${m.copy_mode}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        if (mExecutionLedger && d.recent_copies) {
+          if (d.recent_copies.length === 0) {
+            mExecutionLedger.innerHTML = '<div style="font-size:11px; color:var(--text-muted); font-style:italic;">No copy trades executed yet.</div>';
+          } else {
+            mExecutionLedger.innerHTML = d.recent_copies.map(c => `
+              <div style="background:#0e100f; border-left:3px solid ${c.status === 'COPIED' ? 'var(--color-green)' : 'var(--color-red)'}; border-radius:4px; padding:7px 10px; font-size:11px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-weight:700; color:#fffce1; font-family:var(--font-mono);">${c.symbol} ${c.side} · Whale $${c.whale_fill_price} → Slave $${c.slave_fill_price}</span>
+                  <span class="mono" style="font-size:10px; color:${c.slippage_bps <= 15 ? 'var(--color-green)' : 'var(--color-red)'};">${c.slippage_bps ?? 0} bps</span>
+                </div>
+                <div style="color:var(--text-secondary); margin-top:2px; font-size:10.5px; display:flex; justify-content:space-between;">
+                  <span>Master: ${c.master_id} · Ratio: ${c.proportional_ratio ?? '1.0'}x · Order: #${c.order_id || 'N/A'}</span>
+                  <span style="color:var(--text-muted); font-family:var(--font-mono); font-size:9.5px;">${c.timestamp || 'Just now'}</span>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (err) {}
     }
 
     // Bootstrapping on Load
@@ -6332,6 +6900,7 @@
       loadAiHardwareProfile();
       loadSentryStatus();
       loadAstraData();
+      loadCopySniperData();
       initCoucouCompanion();
       loadCoucouData();
       
@@ -6341,6 +6910,7 @@
         loadSentryStatus();
         loadAstraData();
         loadCoucouData();
+        loadCopySniperData();
         if (activeView === 'terminal') {
           loadChartKlines(activeSymbol, activeTimeframe);
         } else if (activeView === 'intel') {
@@ -6356,6 +6926,7 @@
         } else if (activeView === 'dexradar') {
           loadDexRadarData();
           loadWhaleTrackerData();
+          loadCopySniperData();
         }
       }, 5000);
     });

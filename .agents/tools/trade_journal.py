@@ -276,6 +276,10 @@ def normalize_strategy_name(name: str) -> str:
         n = n[1:-1].strip()
 
     n_lower = n.lower()
+    if "funding" in n_lower or "squeeze" in n_lower or "liquidation" in n_lower:
+        return "Perp Funding Squeeze & Liquidation Cascade"
+    if "whale" in n_lower or "onchain" in n_lower or "on-chain" in n_lower or "smart money flow" in n_lower:
+        return "On-Chain Whale & Smart Money Flow"
     if "cvd" in n_lower or "order flow" in n_lower or "absorption" in n_lower:
         return "5m Order Flow CVD Absorption Scalp"
     if "rejection block" in n_lower or "mean threshold" in n_lower:
@@ -483,6 +487,24 @@ def sync_binance_history(user_email="dxmade@gmail.com", is_demo=True, limit=50):
             ts = int(inc.get("time", 0)) / 1000.0
             dt_str = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
             sym = inc.get("symbol", "UNKNOWN")
+
+            # Check if this trade was already recorded by AUTONOMOUS_TRADE_MANAGER
+            already_recorded = False
+            for prev_t in journal:
+                if prev_t.get("source") != "BINANCE_INCOME" and prev_t.get("symbol") == sym:
+                    prev_closed = prev_t.get("closed_at", "")
+                    if prev_closed:
+                        try:
+                            dt1 = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            dt2 = datetime.strptime(prev_closed, "%Y-%m-%d %H:%M:%S")
+                            if abs((dt1 - dt2).total_seconds()) <= 180 and abs(prev_t.get("pnl_usd", 0) - pnl) < 1.0:
+                                already_recorded = True
+                                break
+                        except Exception:
+                            pass
+            if already_recorded:
+                existing_ids.add(t_id)
+                continue
 
             # Infer real position side from journal history or active metadata to prevent skewed Long/Short metrics
             inferred_side = "LONG"

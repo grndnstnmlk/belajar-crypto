@@ -101,11 +101,13 @@ EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
 # Curated High-Performing Crypto Assets on Binance Futures (High Win-Rate Ledger & Volume Champions)
 DEFAULT_WATCHLIST = [
     "BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "SUI", "LINK", "ADA", "AVAX",
-    "NEAR", "LTC", "UNI", "TAO", "ENA", "WLD", "RUNE", "FIL", "SAGA", "QNT",
+    "NEAR", "LTC", "UNI", "TAO", "ENA", "AAVE", "RUNE", "FIL", "SAGA", "QNT",
     "DASH", "DOT", "APT", "ARB", "OP"
 ]
-# All coins returned - no arbitrary blacklists; governed by Coin Personality Playbook
-BLACKLIST_COINS = set()
+# Audited blacklist: toxic altcoins with severe slippage & negative alpha
+BLACKLIST_COINS = {
+    "ZRO", "DEXE", "WLD", "BABY", "PLUME", "FET"
+}
 
 try:
     import pairlist_pipeline
@@ -127,6 +129,8 @@ def get_effective_watchlist() -> list:
                 pairs = dyn_pairs
         except Exception:
             pass
+    if pairs and BLACKLIST_COINS:
+        pairs = [p for p in pairs if p.upper() not in BLACKLIST_COINS and p.upper().replace("USDT", "") not in BLACKLIST_COINS]
     return pairs if pairs else DEFAULT_WATCHLIST
 
 PID_FILE = os.path.join(DATA_DIR, "trading_desk.pid")
@@ -245,9 +249,9 @@ def get_dynamic_futures_watchlist(top_n=25, is_demo=True):
             champions = pairlist_pipeline.get_active_dynamic_pairlist()
             if champions and len(champions) >= 4:
                 anchor = ["BTC", "ETH", "SOL", "BNB", "XRP"]
-                merged = [a for a in anchor if a in champions] + [c for c in champions if c not in anchor]
+                merged = [a for a in anchor if a in champions and a not in BLACKLIST_COINS] + [c for c in champions if c not in anchor and c not in BLACKLIST_COINS]
                 for a in anchor:
-                    if a not in merged:
+                    if a not in merged and a not in BLACKLIST_COINS:
                         merged.append(a)
                 return merged[:top_n]
         except Exception:

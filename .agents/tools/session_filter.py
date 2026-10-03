@@ -140,17 +140,82 @@ def is_scalping_killzone_active(dt=None) -> Tuple[bool, str, str]:
 def classify_strategy_archetype(setup: dict) -> dict:
     """
     Classifies trading setup into an institutional strategy archetype:
-    - MEAN_REVERSION: VWAP elasticity, Fabio Auction, Patrick Nill 3-Touch, Range Bounce.
+    - FUNDING_SQUEEZE_LIQUIDATION: Perp Funding Squeeze, 8h Settlement Countdown, Liquidation Cluster Cascade.
+    - ORDERFLOW_CVD_ABSORPTION: Level-2 Depth Imbalance (>=2.5x), CVD Absorption, Iceberg Limit Wall Defense.
+    - VOLATILITY_COMPRESSION_EXPANSION: Volatility Coil, Opening Range Breakout (ORB V4.1), Bollinger Squeeze.
+    - ONCHAIN_SMART_MONEY_FLOW: Whale Cluster Tracking, DEX Trending Alpha, CEX Inflow/Outflow Drift.
     - LIQUIDITY_SWEEP: SFP (Swing Failure), Judas Swing, Tim MSS, Rejection Block, Stop-Hunt.
+    - MEAN_REVERSION: VWAP elasticity, Fabio Auction, Patrick Nill 3-Touch, Range Bounce.
     - PULLBACK_STRUCTURE: 20-EMA Trap, FVG Retest, Inverse FVG (IFVG) Role Reversal.
-    - BREAKOUT_MOMENTUM: Rectangle Breakout, ORB, Volume Expansion, Momentum Chase.
+    - BREAKOUT_MOMENTUM: Rectangle Breakout, Volume Expansion, Momentum Chase.
     - GENERAL: Standard discretionary/rule-based setup.
     """
     strat = str(setup.get("strategy", "")).lower()
     reason = str(setup.get("reason", "")).lower()
-    combo = f"{strat} {reason}"
+    strategy_name = str(setup.get("strategy_name", "")).lower()
+    combo = f"{strat} {reason} {strategy_name}"
 
+    # 1. Crypto-Native: Perp Funding Squeeze & Liquidation Cascade
     if (
+        setup.get("is_funding_squeeze") or "funding" in combo or "short squeeze" in combo or
+        "long squeeze" in combo or "funding squeeze" in combo or "liquidation hunt" in combo or
+        "liquidation cluster" in combo or "liquidation cascade" in combo or "liquidation" in combo or
+        "oi spike" in combo or "open interest squeeze" in combo or "flash dump" in combo or
+        setup.get("is_liquidation_hunt")
+    ):
+        return {
+            "archetype": "FUNDING_SQUEEZE_LIQUIDATION",
+            "name": "💥 Perp Funding Squeeze & Liquidation Cascade",
+            "dead_zone_friendly": True,
+            "asian_friendly": True,
+            "kz_friendly": True
+        }
+
+    # 2. Crypto-Native: Order Book Delta & CVD Absorption Scalp
+    elif (
+        setup.get("is_cvd") or "cvd" in combo or "absorption" in combo or
+        "delta divergence" in combo or "order flow" in combo or "orderflow" in combo or
+        "bid wall" in combo or "ask wall" in combo or "orderbook delta" in combo or
+        "depth imbalance" in combo or "delta sniper" in combo
+    ):
+        return {
+            "archetype": "ORDERFLOW_CVD_ABSORPTION",
+            "name": "🛡️ Order Book Delta & CVD Absorption",
+            "dead_zone_friendly": True,
+            "asian_friendly": True,
+            "kz_friendly": True
+        }
+
+    # 3. Crypto-Native: On-Chain Whale & Smart Money Flow
+    elif (
+        "whale" in combo or "onchain" in combo or "on-chain" in combo or
+        "smart money flow" in combo or "dex trending" in combo or "inflow drift" in combo or
+        "arkham" in combo or "nansen" in combo or setup.get("is_whale_setup")
+    ):
+        return {
+            "archetype": "ONCHAIN_SMART_MONEY_FLOW",
+            "name": "🐋 On-Chain Whale & Smart Money Inflow",
+            "dead_zone_friendly": True,
+            "asian_friendly": True,
+            "kz_friendly": True
+        }
+
+    # 4. Crypto-Native: Volatility Compression & Expansion (ORB / Bollinger Squeeze)
+    elif (
+        "orb" in combo or "opening range" in combo or "volatility squeeze" in combo or
+        "bollinger squeeze" in combo or "keltner" in combo or "compression" in combo or
+        setup.get("is_orb")
+    ):
+        return {
+            "archetype": "VOLATILITY_COMPRESSION_EXPANSION",
+            "name": "⚡ Volatility Coil & High-Velocity Expansion (ORB)",
+            "dead_zone_friendly": False,
+            "asian_friendly": False,
+            "kz_friendly": True
+        }
+
+    # 5. ICT & SMC: SFP & Institutional Liquidity Sweep
+    elif (
         setup.get("is_sfp") or "sfp" in combo or "swing failure" in combo or
         setup.get("is_judas") or "judas" in combo or
         setup.get("is_tim") or "tim mss" in combo or "liquidity sweep" in combo or "stop-hunt" in combo or "stop hunt" in combo or
@@ -163,6 +228,8 @@ def classify_strategy_archetype(setup: dict) -> dict:
             "asian_friendly": True,
             "kz_friendly": True
         }
+
+    # 6. Mean Reversion & Auction Inversion
     elif (
         setup.get("is_vwap") or "vwap" in combo or "mean reversion" in combo or "elasticity" in combo or
         setup.get("is_fabio") or "fabio" in combo or "auction" in combo or
@@ -177,6 +244,8 @@ def classify_strategy_archetype(setup: dict) -> dict:
             "asian_friendly": True,
             "kz_friendly": False
         }
+
+    # 7. Pullback & Value Area Retest
     elif (
         "20-ema" in combo or "20 ema" in combo or "pullback trap" in combo or
         "ifvg" in combo or "inverse fvg" in combo or
@@ -190,9 +259,11 @@ def classify_strategy_archetype(setup: dict) -> dict:
             "asian_friendly": True,
             "kz_friendly": True
         }
+
+    # 8. Breakout & Momentum Expansion
     elif (
         "rectangle" in combo or "breakout" in combo or "break & retest" in combo or
-        "orb" in combo or "opening range" in combo or "momentum" in combo or "trendline break" in combo
+        "momentum" in combo or "trendline break" in combo
     ):
         return {
             "archetype": "BREAKOUT_MOMENTUM",
@@ -223,7 +294,7 @@ def get_adaptive_threshold(setup: dict, session_info: dict) -> Tuple[int, str]:
     """
     Computes dynamic minimum confluence threshold based on:
     1. Active Session (Dead Zone vs Asian vs London/NY Kill Zones)
-    2. Strategy Archetype (Mean Reversion / Liquidity Sweep vs Breakout / Momentum)
+    2. Strategy Archetype (Crypto-Native Squeeze/Absorption vs Classic SMC/Breakout)
     """
     archetype_info = classify_strategy_archetype(setup)
     archetype = archetype_info["archetype"]
@@ -232,21 +303,27 @@ def get_adaptive_threshold(setup: dict, session_info: dict) -> Tuple[int, str]:
 
     if session_code == "DEAD_ZONE":
         if is_aggr:
-            if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+            if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP", "ORDERFLOW_CVD_ABSORPTION"]:
                 return 60, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} allowed in Dead Zone at Grade B+ (60%)"
+            elif archetype in ["FUNDING_SQUEEZE_LIQUIDATION", "ONCHAIN_SMART_MONEY_FLOW"]:
+                return 62, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} cascade/flow allowed at 62% in Dead Zone"
             elif archetype == "PULLBACK_STRUCTURE":
                 return 65, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} key-level retest allowed at 65% in Dead Zone"
-            elif archetype == "BREAKOUT_MOMENTUM":
+            elif archetype in ["BREAKOUT_MOMENTUM", "VOLATILITY_COMPRESSION_EXPANSION"]:
                 return 72, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} momentum breakout allowed at 72% in Dead Zone"
             else:
                 return 65, f"Strategy-Adaptive [⚡ Aggressive]: General setups allowed at 65% in Dead Zone"
 
-        if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+        if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP", "ORDERFLOW_CVD_ABSORPTION"]:
             # Range-bound dead zone favors mean reversion and boundary stop-hunts
             return 75, f"Strategy-Adaptive: {archetype_info['name']} allowed in Dead Zone at Grade A (75%)"
+        elif archetype == "FUNDING_SQUEEZE_LIQUIDATION":
+            return 72, f"Strategy-Adaptive: {archetype_info['name']} high-impact cascade allowed at 72% in Dead Zone"
+        elif archetype == "ONCHAIN_SMART_MONEY_FLOW":
+            return 75, f"Strategy-Adaptive: {archetype_info['name']} institutional flow allowed at 75% in Dead Zone"
         elif archetype == "PULLBACK_STRUCTURE":
             return 80, f"Strategy-Adaptive: {archetype_info['name']} requires solid key-level confluence (80%) in Dead Zone"
-        elif archetype == "BREAKOUT_MOMENTUM":
+        elif archetype in ["BREAKOUT_MOMENTUM", "VOLATILITY_COMPRESSION_EXPANSION"]:
             # Breakouts in thin order books have ~75% fakeout rate; strictly require 90%
             return 90, f"Strategy-Adaptive: {archetype_info['name']} restricted to Elite A+ (90%) to block Dead Zone fakeouts"
         else:
@@ -254,22 +331,30 @@ def get_adaptive_threshold(setup: dict, session_info: dict) -> Tuple[int, str]:
 
     elif session_code == "ASIA":
         if is_aggr:
-            if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+            if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP", "ORDERFLOW_CVD_ABSORPTION"]:
                 return 65, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} optimal for Asian Range (65%)"
-            elif archetype == "BREAKOUT_MOMENTUM":
+            elif archetype in ["FUNDING_SQUEEZE_LIQUIDATION", "ONCHAIN_SMART_MONEY_FLOW"]:
+                return 68, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} allowed at 68% in Asian Session"
+            elif archetype in ["BREAKOUT_MOMENTUM", "VOLATILITY_COMPRESSION_EXPANSION"]:
                 return 75, f"Strategy-Adaptive [⚡ Aggressive]: {archetype_info['name']} requires 75% during Asian consolidation"
             else:
                 return 70, f"Strategy-Adaptive [⚡ Aggressive]: Asian session aggressive threshold (70%)"
 
-        if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+        if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP", "ORDERFLOW_CVD_ABSORPTION"]:
             return 75, f"Strategy-Adaptive: {archetype_info['name']} optimal for Asian Range (75%)"
-        elif archetype == "BREAKOUT_MOMENTUM":
+        elif archetype in ["FUNDING_SQUEEZE_LIQUIDATION", "ONCHAIN_SMART_MONEY_FLOW"]:
+            return 75, f"Strategy-Adaptive: {archetype_info['name']} optimal for Asian Range (75%)"
+        elif archetype in ["BREAKOUT_MOMENTUM", "VOLATILITY_COMPRESSION_EXPANSION"]:
             return 85, f"Strategy-Adaptive: {archetype_info['name']} requires higher bar (85%) during Asian consolidation"
         else:
             return 78, f"Strategy-Adaptive: Standard Asian session threshold (78%)"
 
     elif session_code in ["LONDON_KZ", "NY_KZ"]:
-        if archetype in ["BREAKOUT_MOMENTUM", "PULLBACK_STRUCTURE", "LIQUIDITY_SWEEP"]:
+        if archetype in [
+            "BREAKOUT_MOMENTUM", "VOLATILITY_COMPRESSION_EXPANSION",
+            "PULLBACK_STRUCTURE", "LIQUIDITY_SWEEP",
+            "FUNDING_SQUEEZE_LIQUIDATION", "ORDERFLOW_CVD_ABSORPTION", "ONCHAIN_SMART_MONEY_FLOW"
+        ]:
             return 75, f"Strategy-Adaptive: High institutional liquidity allows aggressive 75% threshold for {archetype_info['name']}"
         elif archetype == "MEAN_REVERSION":
             return 80, f"Strategy-Adaptive: Counter-trend reversion requires 80% during strong Kill Zone expansion"
@@ -277,9 +362,11 @@ def get_adaptive_threshold(setup: dict, session_info: dict) -> Tuple[int, str]:
             return 78, f"Strategy-Adaptive: Active Kill Zone institutional threshold (78%)"
 
     else:  # TRANSITION
-        if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP"]:
+        if archetype in ["MEAN_REVERSION", "LIQUIDITY_SWEEP", "ORDERFLOW_CVD_ABSORPTION"]:
             return 76, f"Strategy-Adaptive: {archetype_info['name']} calibrated at 76%"
-        elif archetype == "BREAKOUT_MOMENTUM":
+        elif archetype in ["FUNDING_SQUEEZE_LIQUIDATION", "ONCHAIN_SMART_MONEY_FLOW"]:
+            return 76, f"Strategy-Adaptive: {archetype_info['name']} calibrated at 76%"
+        elif archetype in ["BREAKOUT_MOMENTUM", "VOLATILITY_COMPRESSION_EXPANSION"]:
             return 85, f"Strategy-Adaptive: Breakout requires 85% during inter-session drift"
         else:
             return 80, f"Strategy-Adaptive: Transition window standard threshold (80%)"

@@ -427,7 +427,17 @@ def get_dashboard_feed_data(force_refresh=False):
     cur_mode = state.get("mode", "SWING").upper()
     if os.environ.get("DESK_LONG_ONLY", "0") == "1":
         cur_mode = "LONG_ONLY"
-    feed["is_paused"] = state.get("paused", False)
+    
+    paperclip_cb = False
+    try:
+        import paperclip_orchestrator
+        fstate = paperclip_orchestrator.load_firm_state()
+        paperclip_cb = bool(fstate.get("circuit_breaker_active", False))
+    except Exception:
+        pass
+
+    feed["is_paused"] = state.get("paused", False) or paperclip_cb
+    feed["circuit_breaker_active"] = paperclip_cb
     feed["mode"] = cur_mode
     feed["timeframes"] = {
         "active_mode": cur_mode,
@@ -1839,6 +1849,28 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path == "/api/arbitrage/funding_basis":
+            try:
+                top_n = int(params.get("top_n", [5])[0])
+                cache_file = os.path.join(DATA_DIR, "funding_arbitrage_cache.json")
+                if os.path.exists(cache_file):
+                    with open(cache_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                else:
+                    data = {"status": "OPERATIONAL", "top_opportunities": []}
+                if "top_opportunities" in data and top_n > 0:
+                    data["top_opportunities"] = data["top_opportunities"][:top_n]
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "data": data}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         elif path == "/api/osint/forensics":
             try:
                 import crypto_osint_forensics_hub
@@ -2149,6 +2181,21 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
             return
 
+        elif path in ("/api/copy_trader/status", "/api/copy_trader/telemetry"):
+            try:
+                import whale_copy_sniper
+                data = whale_copy_sniper.get_copy_sniper_telemetry()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "ERROR", "error": str(e)}, ensure_ascii=False).encode("utf-8"))
+            return
+
         super().do_GET()
 
     def do_POST(self):
@@ -2361,6 +2408,36 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
+        elif path in ("/api/copy_trader/trigger", "/api/copy_trader/evaluate"):
+            try:
+                import whale_copy_sniper
+                res = whale_copy_sniper.evaluate_and_copy_whale_trade(payload, is_demo=True)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        elif path in ("/api/copy_trader/config", "/api/copy_trader/settings"):
+            try:
+                import whale_copy_sniper
+                res = whale_copy_sniper.update_sniper_config(payload)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
         if path == "/api/whale-tracker/add":
             try:
                 addr = payload.get("address")
@@ -2471,6 +2548,13 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 import symbol_quarantine_guard
                 state = symbol_quarantine_guard.reset_portfolio_circuit_breaker()
+                try:
+                    import paperclip_orchestrator
+                    fstate = paperclip_orchestrator.load_firm_state()
+                    if fstate.get("circuit_breaker_active"):
+                        paperclip_orchestrator.toggle_circuit_breaker(reason="Reset via Web Dashboard")
+                except Exception:
+                    pass
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
@@ -3050,6 +3134,18 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             new_paused = not state.get("paused", False)
             state["paused"] = new_paused
             telegram_notifier.save_desk_state(state)
+
+            # If resuming, also ensure Paperclip circuit breaker is unpaused
+            try:
+                import paperclip_orchestrator
+                fstate = paperclip_orchestrator.load_firm_state()
+                if not new_paused and fstate.get("circuit_breaker_active"):
+                    paperclip_orchestrator.toggle_circuit_breaker(reason="Resumed via Web Dashboard")
+                elif new_paused and not fstate.get("circuit_breaker_active"):
+                    paperclip_orchestrator.toggle_circuit_breaker(reason="Paused via Web Dashboard")
+            except Exception:
+                pass
+
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()

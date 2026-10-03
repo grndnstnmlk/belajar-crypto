@@ -47,12 +47,15 @@ import market_eyes
 # Default fallback universe (Top 25 premier liquid assets)
 FALLBACK_PAIRLIST = [
     "BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "SUI", "LINK", "ADA", "AVAX",
-    "NEAR", "LTC", "UNI", "TAO", "ENA", "WLD", "RUNE", "FIL", "SAGA", "QNT",
+    "NEAR", "LTC", "UNI", "TAO", "ENA", "AAVE", "RUNE", "FIL", "SAGA", "QNT",
     "DASH", "DOT", "APT", "ARB", "OP"
 ]
 
 STATIC_BLACKLIST = {
-    "USDC", "FDUSD", "TUSD", "BUSD", "DAI", "EUR"
+    # Stables and Fiat
+    "USDC", "FDUSD", "TUSD", "BUSD", "DAI", "EUR",
+    # Toxic / High Slippage & Negative Alpha Altcoins audited from Trade Ledger:
+    "ZRO", "DEXE", "WLD", "BABY", "PLUME", "FET"
 }
 
 
