@@ -1,11 +1,22 @@
 {
-  "dopamine_level": 41.45,
-  "cortisol_level": 25.96,
-  "state": "EQUILIBRIUM_NEUTRAL",
-  "synaptic_risk_multiplier": 1.0,
+  "dopamine_level": 23.206020872757573,
+  "cortisol_level": 47.87477495269091,
+  "state": "ELEVATED_STRESS",
+  "synaptic_risk_multiplier": 0.75,
   "anti_overconfidence_active": false,
-  "confluence_threshold_offset": 0.0,
+  "confluence_threshold_offset": 4.0,
   "recent_bursts": [
+    {
+      "timestamp": "2026-10-04 18:43:32",
+      "circuit": "PPL101_AVERSIVE_CORTISOL",
+      "event_type": "STOP_LOSS",
+      "symbol": "ARUSDT",
+      "pnl_usd": -31.04,
+      "r_multiple": -1.84,
+      "delta_dopamine": -18.4,
+      "delta_cortisol": 22.08,
+      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$30.68 USDT)"
+    },
     {
       "timestamp": "2026-10-04 06:25:53",
       "circuit": "PPL101_AVERSIVE_CORTISOL",
@@ -159,22 +170,11 @@
       "delta_dopamine": 4.0,
       "delta_cortisol": -2.5,
       "note": "Position closed via 🟢 Profit Locked (+$1.20 USDT)"
-    },
-    {
-      "timestamp": "2026-10-01 20:45:12",
-      "circuit": "PAM11_DOPAMINERGIC_REWARD",
-      "event_type": "TRADE_PROFIT",
-      "symbol": "XRPUSDT",
-      "pnl_usd": 0.88,
-      "r_multiple": 0.09,
-      "delta_dopamine": 4.0,
-      "delta_cortisol": -2.5,
-      "note": "Position closed via 🟢 Profit Locked (+$1.20 USDT)"
     }
   ],
   "total_pam11_firings": 8,
-  "total_ppl101_firings": 21,
-  "last_updated": 1791113405.9719296,
-  "status_badge": "⚖️ EQUILIBRIUM NEUTRAL",
-  "action_guidance": "Kondisi neuro-kognitif seimbang. Operasional trading desk kuantitatif berjalan sesuai parameter standar."
+  "total_ppl101_firings": 22,
+  "last_updated": 1791114212.0062208,
+  "status_badge": "⚠️ ELEVATED STRESS",
+  "action_guidance": "Stres terdeteksi. Ukuran lot dikurangi 25%, filter konfluensi dinaikkan untuk menghindari chop."
 }
