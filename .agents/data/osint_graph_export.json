@@ -1,6 +1,6 @@
 {
   "schema_version": "flowsint-v1.0",
-  "timestamp": "2026-10-04 01:46:25",
+  "timestamp": "2026-10-04 19:56:31",
   "graph_summary": {
     "total_nodes": 9,
     "total_edges": 9,
@@ -22,7 +22,7 @@
       "properties": {
         "security_score": 100,
         "risk_status": "INSTITUTIONAL_SAFE",
-        "liquidity_usd": 131571.69,
+        "liquidity_usd": 148689.92,
         "contract_address": "E4Ap4icMLwKot8rkkTbq5JkS5kZxt5XCE3yfxbzYBjHx"
       }
     },
@@ -40,7 +40,7 @@
       "type": "LIQUIDITY_POOL",
       "properties": {
         "address": "2RmBs1KYzkDuaRR4F8zU9rPR6KT16eCgJ9YS1c8XXZgQ",
-        "liquidity_usd": 131571.69
+        "liquidity_usd": 148689.92
       }
     },
     {
@@ -48,27 +48,27 @@
       "label": "ETH",
       "type": "TOKEN",
       "properties": {
-        "security_score": 50,
-        "risk_status": "CAUTION",
-        "liquidity_usd": 6620.75,
-        "contract_address": "0xEc680B4160DD30A35A30b412e1677cEAE82417f1"
+        "security_score": 100,
+        "risk_status": "INSTITUTIONAL_SAFE",
+        "liquidity_usd": 1720080.74,
+        "contract_address": "0x0000000000000000000000000000000000000000"
       }
     },
     {
-      "id": "chain:robinhood",
-      "label": "ROBINHOOD",
+      "id": "chain:ethereum",
+      "label": "ETHEREUM",
       "type": "BLOCKCHAIN",
       "properties": {
         "layer": "L1/L2"
       }
     },
     {
-      "id": "pool:0xAc3E07",
-      "label": "Pool (robinhood)",
+      "id": "pool:0x00b9ed",
+      "label": "Pool (ethereum)",
       "type": "LIQUIDITY_POOL",
       "properties": {
-        "address": "0xAc3E07600B81b9590bCA625a456e777fB68B09C3",
-        "liquidity_usd": 6620.75
+        "address": "0x00b9edc1583bf6ef09ff3a09f6c23ecb57fd7d0bb75625717ec81eed181e22d7",
+        "liquidity_usd": 1720080.74
       }
     },
     {
@@ -98,7 +98,7 @@
       "target": "token:BTC",
       "relationship": "MONITORS",
       "properties": {
-        "last_scanned": "2026-10-04T01:46:25.147968"
+        "last_scanned": "2026-10-04T19:56:31.719998"
       }
     },
     {
@@ -112,7 +112,7 @@
       "target": "pool:2RmBs1KY",
       "relationship": "POOLED_IN",
       "properties": {
-        "volume_24h": 104953.69
+        "volume_24h": 78833.19
       }
     },
     {
@@ -120,21 +120,21 @@
       "target": "token:ETH",
       "relationship": "MONITORS",
       "properties": {
-        "last_scanned": "2026-10-04T01:46:25.147979"
+        "last_scanned": "2026-10-04T19:56:31.720008"
       }
     },
     {
       "source": "token:ETH",
-      "target": "chain:robinhood",
+      "target": "chain:ethereum",
       "relationship": "DEPLOYED_ON",
       "properties": {}
     },
     {
       "source": "token:ETH",
-      "target": "pool:0xAc3E07",
+      "target": "pool:0x00b9ed",
       "relationship": "POOLED_IN",
       "properties": {
-        "volume_24h": 6.91
+        "volume_24h": 3229691.95
       }
     },
     {
@@ -142,7 +142,7 @@
       "target": "token:SOL",
       "relationship": "MONITORS",
       "properties": {
-        "last_scanned": "2026-10-04T01:46:25.147983"
+        "last_scanned": "2026-10-04T19:56:31.720012"
       }
     },
     {
@@ -156,7 +156,7 @@
       "target": "pool:6PSZcwpE",
       "relationship": "POOLED_IN",
       "properties": {
-        "volume_24h": 106309.95
+        "volume_24h": 223511.29
       }
     }
   ]
