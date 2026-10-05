@@ -30407,5 +30407,422 @@
     "action": "STANDBY_LOW_CONFLUENCE",
     "balance": 2480.89849841,
     "positions_count": 1
+  },
+  {
+    "timestamp": "2026-10-05 08:16:22",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2481.41151922,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-10-05 08:19:15",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2482.60236162,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-10-05 08:22:08",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "ADAUSDT",
+      "base": "ADA",
+      "side": "LONG",
+      "price": 0.26675562,
+      "sl": 0.2588,
+      "tp": 0.2908,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 1.0,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 45,
+      "is_mean_reversion_or_sweep": false,
+      "macro_aligned": true,
+      "strategy": "5m Opening Range Breakout (ORB V4.1)",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Opening Range Breakout (ORB V4.1)]: ORB Bullish Expansion (🌐 Daily Crypto 00:00 UTC Open): 5m candle body decisively broke above 15m Opening Range High ($0.27) @ $0.27. SL at OR Mid ($0.26), targeting 3R ($0.27). (Target: 15-35 menit)",
+      "confluence_score": 83,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 0.5,
+        "thought_process": "Autonomous fast reflex verified ADAUSDT LONG (R:R 1:3.00). Playbook scale: 0.50x. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield) Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria. Tatacara Menang ADA: Beli di Range Low, jual di Range High. Sabar menunggu ekspansi terarah. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield)",
+        "timestamp": "2026-10-05 08:24:48"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.67,
+        "thesis": "ADJUST_RISK: Setup ADAUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (102.001 / +0.62%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Global Macro Risk-Off: DXY Surging (102.001 / +0.62%)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.2588.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "ADAUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 0.2588,
+          "tp_price": 0.2908,
+          "rr_ratio": 3.0,
+          "strategy": "5m Opening Range Breakout (ORB V4.1)",
+          "bull_score": 60,
+          "bear_score": 40,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Dinding bid support tebal (1.60x Bids/Asks) menahan tekanan jual di bawah entry.",
+          "bear_critique": " • Aset ADAUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (60% vs 40%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 0.2588,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-10-05 08:25:20"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-10-05 08:25:31",
+          "symbol": "ADAUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 95,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 60% menunjukkan dorongan positif moderat. | ADX momentum kuat (40.0) mendukung kelanjutan tren yang ekspansif."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 62,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 62.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 78,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "ADA",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 2909.0,
+    "risk_budget_usd": 12.416464082800001
+  },
+  {
+    "timestamp": "2026-10-05 08:26:31",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2482.66246297,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:29:12",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2479.54587105,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:31:55",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2474.28754522,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:34:18",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2470.75999409,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:37:01",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2470.75617573,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:39:42",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2470.78296943,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:42:23",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2471.50658125,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:45:08",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2471.78831062,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:47:28",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2474.68397573,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:50:10",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2475.09021283,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:52:52",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2474.67320013,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:55:24",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2473.81919861,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 08:58:01",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2474.71580751,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:00:33",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2473.96099817,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:02:59",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2476.80617573,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:05:29",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2479.29247877,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:07:44",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2481.33072642,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:10:11",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2482.91870065,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:12:22",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2484.18440628,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:14:42",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2488.60403138,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:17:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2498.49232485,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:19:28",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2493.27539346,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:21:41",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2491.91655982,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:23:48",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2492.16060672,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:26:08",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2492.44891599,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:28:16",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2493.98640902,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:30:29",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2489.65387431,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:32:44",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2487.98374231,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:34:52",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2487.39336444,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:37:08",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2488.64875186,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:39:22",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2495.863034,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:41:39",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2499.24965339,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:43:55",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2497.72655043,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:46:06",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2497.49871182,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:48:17",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2496.37457573,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:50:27",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2494.81319045,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:52:24",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2493.48137573,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:54:36",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2492.45889301,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:56:48",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2493.67038846,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 09:58:56",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2491.87388603,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 10:01:12",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2490.43026135,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 10:03:26",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2488.21124367,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 10:05:26",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2486.65457573,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 10:07:33",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2487.94936186,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 10:09:41",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2488.80663997,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 10:11:42",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2488.97177573,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 10:13:40",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2490.27576467,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-05 10:15:52",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2491.39758358,
+    "positions_count": 2
   }
 ]
