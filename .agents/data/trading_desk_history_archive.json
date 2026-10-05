@@ -28321,5 +28321,645 @@
     "action": "STANDBY_LOW_CONFLUENCE",
     "balance": 2538.66200371,
     "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-04 19:26:10",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2537.76334169,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-04 19:29:10",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2538.18089343,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-04 19:39:52",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2515.83447755,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-04 19:50:25",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "AXSUSDT",
+      "base": "AXS",
+      "side": "LONG",
+      "price": 1.37314929,
+      "sl": 1.3334,
+      "tp": 1.4982,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 1.0,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 45,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Inverse FVG (IFVG) Liquidity Scalp]: Bullish Inversion: Bearish FVG [$1.38 - $1.38] inverted by displacement breakout. Retest confirmed at $1.37 with sweep low @ $1.36. Targeting 3R. (Target: 15-30 menit)",
+      "confluence_score": 100,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 0.5,
+        "thought_process": "Autonomous fast reflex verified AXSUSDT LONG (R:R 1:3.00). Playbook scale: 0.50x. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield) Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria. Disiplin pada risk-to-reward minimal 1:2.0, kunci BE saat profit +0.75R. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield)",
+        "timestamp": "2026-10-04 19:52:38"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.67,
+        "thesis": "ADJUST_RISK: Setup AXSUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Liquidation Hunt active: ⚡ [LIQUIDATION HUNT ALPHA] AXS LONG DI-BOOST (+15% Konfluensi): Eksploitasi short squeeze pada posisi ritel yang panik short (FR: -0.0601% | L/S: 1.83)., Global Macro Risk-Off: DXY Surging (101.924 / +0.55%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Liquidation Hunt active: ⚡ [LIQUIDATION HUNT ALPHA] AXS LONG DI-BOOST (+15% Konfluensi): Eksploitasi short squeeze pada posisi ritel yang panik short (FR: -0.0601% | L/S: 1.83).",
+          "Global Macro Risk-Off: DXY Surging (101.924 / +0.55%)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $1.3334.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "AXSUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 1.3334,
+          "tp_price": 1.4982,
+          "rr_ratio": 3.0,
+          "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
+          "bull_score": 59,
+          "bear_score": 41,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Setup terkonfirmasi oleh model probabilitas tinggi: '5m Inverse FVG (IFVG) Liquidity Scalp'.",
+          "bear_critique": " • Aset AXSUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 1.3334,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-10-04 19:53:02"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-10-04 19:53:07",
+          "symbol": "AXSUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 61,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 73,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "AXS",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 582.0,
+    "risk_budget_usd": 12.57917238775
+  },
+  {
+    "timestamp": "2026-10-04 19:54:14",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2513.77084562,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-10-04 20:07:49",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2510.70830442,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-10-04 20:10:26",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "BNBUSDT",
+      "base": "BNB",
+      "side": "LONG",
+      "price": 790.37414419,
+      "sl": 765.9076,
+      "tp": 860.6592,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 1.0,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 45,
+      "is_mean_reversion_or_sweep": false,
+      "macro_aligned": true,
+      "strategy": "5m Opening Range Breakout (ORB V4.1)",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Opening Range Breakout (ORB V4.1)]: ORB Bullish Expansion (🇺🇸 New York US Pre-Market Open): 5m candle body decisively broke above 15m Opening Range High ($789.12) @ $789.60. SL at OR Mid ($788.14), targeting 3R ($793.26). (Target: 15-35 menit)",
+      "confluence_score": 100,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 0.5,
+        "thought_process": "Autonomous fast reflex verified BNBUSDT LONG (R:R 1:3.00). Playbook scale: 0.50x. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield) Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria. Beli di Range Low setelah SFP wick, targetkan Range High. Karakteristik tenang dan terukur. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield)",
+        "timestamp": "2026-10-04 20:14:08"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.67,
+        "thesis": "ADJUST_RISK: Setup BNBUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (101.924 / +0.55%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Global Macro Risk-Off: DXY Surging (101.924 / +0.55%)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $765.9076.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "BNBUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 765.9076,
+          "tp_price": 860.6592,
+          "rr_ratio": 3.0,
+          "strategy": "5m Opening Range Breakout (ORB V4.1)",
+          "bull_score": 61,
+          "bear_score": 39,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+          "bear_critique": " • Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (61% vs 39%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 765.9076,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-10-04 20:14:20"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-10-04 20:14:26",
+          "symbol": "BNBUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 61% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 62,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 62.4%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 73,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "BNB",
+          "sector_key": "MACRO_BLUECHIP",
+          "sector_title": "Macro Heavyweights",
+          "sector_icon": "👑",
+          "sector_rank": 4,
+          "is_leading_sector": false,
+          "sector_24h_avg": 1.08,
+          "relative_strength_vs_btc": 0.72,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 0.94,
+    "risk_budget_usd": 12.5469763336
+  },
+  {
+    "timestamp": "2026-10-04 20:20:14",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2511.87912072,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-04 20:22:46",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2513.27386514,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-04 20:29:05",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2511.36966528,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-04 20:31:39",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "SOLUSDT",
+      "base": "SOL",
+      "side": "LONG",
+      "price": 121.72,
+      "sl": 118.0684,
+      "tp": 132.6748,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 1.0,
+      "tp1_target_r": 1.25,
+      "anti_stall_minutes": 45,
+      "is_mean_reversion_or_sweep": false,
+      "macro_aligned": true,
+      "strategy": "5m Opening Range Breakout (ORB V4.1)",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m Opening Range Breakout (ORB V4.1)]: ORB Bullish Expansion (🇺🇸 New York US Pre-Market Open): 5m candle body decisively broke above 15m Opening Range High ($121.58) @ $121.68. SL at OR Mid ($121.39), targeting 3R ($122.45). (Target: 15-35 menit)",
+      "confluence_score": 90,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 0.5,
+        "thought_process": "Autonomous fast reflex verified SOLUSDT LONG (R:R 1:3.00). Playbook scale: 0.50x. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield) Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria. Gunakan SL buffer lebih lebar (1.5%) untuk mengantisipasi wick hunt sekunder. Manfaatkan Smart Pyramiding (+30%) saat +2R tercapai. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield)",
+        "timestamp": "2026-10-04 20:33:38"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.6,
+        "thesis": "ADJUST_RISK: Setup SOLUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (101.924 / +0.55%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Global Macro Risk-Off: DXY Surging (101.924 / +0.55%)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $118.0684.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "SOLUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 118.0684,
+          "tp_price": 132.6748,
+          "rr_ratio": 3.0,
+          "strategy": "5m Opening Range Breakout (ORB V4.1)",
+          "bull_score": 57,
+          "bear_score": 43,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.",
+          "bear_critique": " • Aset SOLUSDT berada di sektor narasi laggard (⚡ Solana & High-Speed L1), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (57% vs 43%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 118.0684,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-10-04 20:33:53"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-10-04 20:33:59",
+          "symbol": "SOLUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 57% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 60,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 60.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 61,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "SOL",
+          "sector_key": "SOL_L1",
+          "sector_title": "Solana & High-Speed L1",
+          "sector_icon": "⚡",
+          "sector_rank": 5,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.87,
+          "relative_strength_vs_btc": 0.34,
+          "confluence_boost": -5
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 6.33,
+    "risk_budget_usd": 12.558277492300002
+  },
+  {
+    "timestamp": "2026-10-04 20:35:21",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2506.30674546,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 20:37:55",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2506.80773364,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 20:40:09",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2507.65492033,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 20:42:37",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2509.89355952,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 20:48:35",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2508.23923345,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 20:51:07",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2508.24863281,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 20:53:31",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2507.29834951,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 20:55:46",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2509.4975401,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 20:58:00",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2508.37259875,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:03:38",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2506.487129,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:05:39",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2507.35906742,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:10:25",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2503.37960028,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:12:34",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2505.53675973,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:14:47",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2504.75551564,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:17:17",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2503.67145315,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:19:37",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2502.50134499,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:21:58",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2502.21715096,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:38:20",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2503.27854442,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:50:14",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2499.62602137,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 21:57:13",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2498.56706312,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 22:18:22",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2502.83382962,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 22:21:39",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2501.31445502,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 22:25:43",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2491.59831946,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 22:34:00",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2488.18260553,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 22:36:45",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2489.61013782,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 22:50:20",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2490.06705677,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 22:52:27",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2488.7374479,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 22:56:36",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2490.83257463,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 22:58:43",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2489.89301946,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:05:39",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2488.76935603,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:17:25",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2494.05101306,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:27:20",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2494.34004208,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:30:11",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2494.82569777,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:33:22",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2496.26715992,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:36:32",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2496.32578362,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:40:21",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2494.17320279,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:43:10",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2494.31471772,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:46:03",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2492.2846834,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:48:43",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2492.18008338,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-04 23:52:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2494.10263841,
+    "positions_count": 3
   }
 ]
