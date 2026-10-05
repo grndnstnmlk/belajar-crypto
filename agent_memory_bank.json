@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-05T16:11:52.267164+00:00",
-    "total_reflections": 41,
-    "system_retention_score": 121.9,
+    "last_reflection_at": "2026-10-05T17:53:45.997912+00:00",
+    "total_reflections": 42,
+    "system_retention_score": 121.6,
     "last_internet_learning_sync": "2026-10-04 20:07:39",
     "total_internet_learnings": 1
   },
@@ -1808,13 +1808,13 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset MT558663060812USDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 3,
+      "total_trades": 4,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -60.06,
+      "net_pnl_usd": -80.08,
       "created_dynamically": true,
-      "updated_at": "2026-10-05T15:33:30.529107+00:00",
+      "updated_at": "2026-10-05T17:53:45.997897+00:00",
       "wins": 0,
-      "losses": 3,
+      "losses": 4,
       "breakevens": 0,
       "last_traded_outcome": "LOSS"
     },
@@ -2143,17 +2143,39 @@
       "id": "RULE-AUTO-MT558663060812USDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on MT558663060812USDT due to elevated wick risk.",
-      "confidence": 0.92,
+      "confidence": 0.96,
       "trigger_conditions": [
         "mt558663060812usdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-10-05T15:27:44.149078+00:00",
-      "updated_at": "2026-10-05T15:33:30.529120+00:00"
+      "updated_at": "2026-10-05T17:53:45.997911+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261005-045",
+      "timestamp": "2026-10-05T17:53:45.997881+00:00",
+      "symbol": "MT558663060812USDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -20.02,
+      "r_multiple": -1.0,
+      "pnl_pct": -20.02,
+      "root_cause": "Adverse volatility stop-out on MT558663060812USDT Smart Money Concepts (SMC) (net: -$20.02, -1.00R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on MT558663060812USDT and check Macro News Blackout Shield.",
+      "tags": [
+        "mt558663060812",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-10-05T17:53:45.997887+00:00"
+    },
     {
       "id": "MEM-20261005-044",
       "timestamp": "2026-10-05T16:11:52.267139+00:00",
@@ -2869,8 +2891,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 33187,
-      "last_accessed": "2026-10-05T17:47:04.875030+00:00"
+      "access_count": 33191,
+      "last_accessed": "2026-10-05T17:52:24.697854+00:00"
     },
     {
       "id": "MEM-20261001-012",
@@ -2891,8 +2913,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 31578,
-      "last_accessed": "2026-10-05T17:47:04.875041+00:00"
+      "access_count": 31582,
+      "last_accessed": "2026-10-05T17:52:24.697860+00:00"
     },
     {
       "id": "MEM-20261001-011",
@@ -3005,8 +3027,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 31158,
-      "last_accessed": "2026-10-05T17:47:04.875043+00:00"
+      "access_count": 31162,
+      "last_accessed": "2026-10-05T17:52:24.697862+00:00"
     },
     {
       "id": "MEM-20261001-006",
@@ -3051,8 +3073,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 26843,
-      "last_accessed": "2026-10-05T17:47:04.875045+00:00"
+      "access_count": 26847,
+      "last_accessed": "2026-10-05T17:52:24.697863+00:00"
     },
     {
       "id": "MEM-20261001-004",
