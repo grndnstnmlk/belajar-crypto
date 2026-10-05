@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-04T19:34:31.826592+00:00",
-    "total_reflections": 34,
-    "system_retention_score": 123.4,
+    "last_reflection_at": "2026-10-05T00:32:11.329324+00:00",
+    "total_reflections": 35,
+    "system_retention_score": 124.6,
     "last_internet_learning_sync": "2026-10-04 20:07:39",
     "total_internet_learnings": 1
   },
@@ -1512,13 +1512,13 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset AXSUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 1,
+      "total_trades": 2,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -13.15,
+      "net_pnl_usd": -36.63,
       "created_dynamically": true,
-      "updated_at": "2026-10-04T19:25:42.326489+00:00",
+      "updated_at": "2026-10-05T00:32:11.329311+00:00",
       "wins": 0,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 0,
       "last_traded_outcome": "LOSS"
     },
@@ -1861,6 +1861,24 @@
       "net_pnl_usd": 0.0,
       "created_dynamically": true,
       "updated_at": "2026-10-04T22:08:50.921270+00:00"
+    },
+    "GLMRUSDT": {
+      "symbol": "GLMRUSDT",
+      "volatility_regime": "MODERATE",
+      "wick_risk_rating": "MODERATE",
+      "funding_sensitivity": "MODERATE",
+      "false_breakout_bias": "MODERATE",
+      "optimal_setups": [
+        "15m Order Block Retest",
+        "Naked POC Magnetic Pull",
+        "SFP Liquidity Sweep"
+      ],
+      "notes": "Active dynamic asset GLMRUSDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
+      "total_trades": 0,
+      "win_rate_pct": 0.0,
+      "net_pnl_usd": 0.0,
+      "created_dynamically": true,
+      "updated_at": "2026-10-05T00:10:27.813341+00:00"
     }
   },
   "tactical_rules": [
@@ -2044,9 +2062,43 @@
       ],
       "created_at": "2026-10-03T22:02:03.861702+00:00",
       "updated_at": "2026-10-04T12:40:05.405741+00:00"
+    },
+    {
+      "id": "RULE-AUTO-AXSUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on AXSUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "axsusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-10-05T00:32:11.329322+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261005-038",
+      "timestamp": "2026-10-05T00:32:11.329280+00:00",
+      "symbol": "AXSUSDT",
+      "setup_type": "5m Inverse Fair Value Gap (IFVG)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -23.48,
+      "r_multiple": -1.86,
+      "pnl_pct": -3.12,
+      "root_cause": "Adverse volatility stop-out on AXSUSDT 5m Inverse Fair Value Gap (IFVG) (net: -$23.48, -1.86R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on AXSUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "axs",
+        "5m_inverse_fair_value_gap_(ifvg)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-10-05T00:32:11.329285+00:00"
+    },
     {
       "id": "MEM-20261004-037",
       "timestamp": "2026-10-04T19:34:31.826566+00:00",
@@ -2066,8 +2118,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 137,
-      "last_accessed": "2026-10-05T00:08:14.144696+00:00"
+      "access_count": 147,
+      "last_accessed": "2026-10-05T00:29:43.914906+00:00"
     },
     {
       "id": "MEM-20261004-036",
@@ -2222,8 +2274,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 260,
-      "last_accessed": "2026-10-05T00:08:14.144702+00:00"
+      "access_count": 270,
+      "last_accessed": "2026-10-05T00:29:43.914910+00:00"
     },
     {
       "id": "MEM-20261003-029",
@@ -2244,8 +2296,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 173,
-      "last_accessed": "2026-10-05T00:08:13.385090+00:00"
+      "access_count": 183,
+      "last_accessed": "2026-10-05T00:30:16.582624+00:00"
     },
     {
       "id": "MEM-20261003-028",
@@ -2290,8 +2342,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 476,
-      "last_accessed": "2026-10-05T00:08:11.013829+00:00"
+      "access_count": 487,
+      "last_accessed": "2026-10-05T00:32:10.274108+00:00"
     },
     {
       "id": "MEM-20261002-026",
@@ -2356,8 +2408,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 346,
-      "last_accessed": "2026-10-05T00:08:14.144704+00:00"
+      "access_count": 356,
+      "last_accessed": "2026-10-05T00:29:43.914912+00:00"
     },
     {
       "id": "MEM-20261002-023",
@@ -2400,8 +2452,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 700,
-      "last_accessed": "2026-10-05T00:08:13.727392+00:00"
+      "access_count": 711,
+      "last_accessed": "2026-10-05T00:32:08.997110+00:00"
     },
     {
       "id": "MEM-20261001-021",
@@ -2446,8 +2498,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 813,
-      "last_accessed": "2026-10-05T00:08:13.727398+00:00"
+      "access_count": 824,
+      "last_accessed": "2026-10-05T00:32:08.997116+00:00"
     },
     {
       "id": "MEM-20261001-019",
@@ -2516,8 +2568,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1013,
-      "last_accessed": "2026-10-05T00:08:10.883999+00:00"
+      "access_count": 1024,
+      "last_accessed": "2026-10-05T00:32:10.020607+00:00"
     },
     {
       "id": "MEM-20261001-016",
@@ -2582,8 +2634,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1063,
-      "last_accessed": "2026-10-05T00:08:10.890032+00:00"
+      "access_count": 1073,
+      "last_accessed": "2026-10-05T00:30:12.778898+00:00"
     },
     {
       "id": "MEM-20261001-013",
@@ -2604,8 +2656,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 26243,
-      "last_accessed": "2026-10-05T00:08:44.791690+00:00"
+      "access_count": 26487,
+      "last_accessed": "2026-10-05T00:32:10.436515+00:00"
     },
     {
       "id": "MEM-20261001-012",
@@ -2626,8 +2678,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 25190,
-      "last_accessed": "2026-10-05T00:08:44.791696+00:00"
+      "access_count": 25414,
+      "last_accessed": "2026-10-05T00:32:10.436521+00:00"
     },
     {
       "id": "MEM-20261001-011",
@@ -2740,8 +2792,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 25058,
-      "last_accessed": "2026-10-05T00:08:44.791698+00:00"
+      "access_count": 25281,
+      "last_accessed": "2026-10-05T00:32:10.436523+00:00"
     },
     {
       "id": "MEM-20261001-006",
@@ -2786,8 +2838,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 21658,
-      "last_accessed": "2026-10-05T00:08:44.791699+00:00"
+      "access_count": 21849,
+      "last_accessed": "2026-10-05T00:32:10.436524+00:00"
     },
     {
       "id": "MEM-20261001-004",
