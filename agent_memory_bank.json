@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-05T09:47:10.921202+00:00",
-    "total_reflections": 36,
-    "system_retention_score": 124.6,
+    "last_reflection_at": "2026-10-05T15:27:44.149080+00:00",
+    "total_reflections": 37,
+    "system_retention_score": 124.9,
     "last_internet_learning_sync": "2026-10-04 20:07:39",
     "total_internet_learnings": 1
   },
@@ -1800,13 +1800,13 @@
         "SFP Liquidity Sweep"
       ],
       "notes": "Active dynamic asset MT558663060812USDT. Standard institutional SMC guardrails and 1:3.5R target applied.",
-      "total_trades": 1,
+      "total_trades": 2,
       "win_rate_pct": 0.0,
-      "net_pnl_usd": -20.02,
+      "net_pnl_usd": -40.04,
       "created_dynamically": true,
-      "updated_at": "2026-10-04T12:20:47.922083+00:00",
+      "updated_at": "2026-10-05T15:27:44.149033+00:00",
       "wins": 0,
-      "losses": 1,
+      "losses": 2,
       "breakevens": 0,
       "last_traded_outcome": "LOSS"
     },
@@ -2112,9 +2112,43 @@
         "volatility_guard"
       ],
       "created_at": "2026-10-05T00:32:11.329322+00:00"
+    },
+    {
+      "id": "RULE-AUTO-MT558663060812USDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on MT558663060812USDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "mt558663060812usdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-10-05T15:27:44.149078+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261005-040",
+      "timestamp": "2026-10-05T15:27:44.149016+00:00",
+      "symbol": "MT558663060812USDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -20.02,
+      "r_multiple": -1.0,
+      "pnl_pct": -20.02,
+      "root_cause": "Adverse volatility stop-out on MT558663060812USDT Smart Money Concepts (SMC) (net: -$20.02, -1.00R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on MT558663060812USDT and check Macro News Blackout Shield.",
+      "tags": [
+        "mt558663060812",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-10-05T15:27:44.149022+00:00"
+    },
     {
       "id": "MEM-20261005-039",
       "timestamp": "2026-10-05T09:47:10.921185+00:00",
@@ -2158,8 +2192,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 130,
-      "last_accessed": "2026-10-05T15:17:11.045033+00:00"
+      "access_count": 135,
+      "last_accessed": "2026-10-05T15:27:09.369139+00:00"
     },
     {
       "id": "MEM-20261004-037",
@@ -2202,8 +2236,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 132,
-      "last_accessed": "2026-10-05T15:17:11.045040+00:00"
+      "access_count": 137,
+      "last_accessed": "2026-10-05T15:27:09.369144+00:00"
     },
     {
       "id": "MEM-20261004-035",
@@ -2404,8 +2438,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 722,
-      "last_accessed": "2026-10-05T15:17:10.230278+00:00"
+      "access_count": 727,
+      "last_accessed": "2026-10-05T15:27:09.871882+00:00"
     },
     {
       "id": "MEM-20261002-026",
@@ -2514,8 +2548,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 946,
-      "last_accessed": "2026-10-05T15:17:11.101512+00:00"
+      "access_count": 951,
+      "last_accessed": "2026-10-05T15:27:10.949571+00:00"
     },
     {
       "id": "MEM-20261001-021",
@@ -2560,8 +2594,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 1059,
-      "last_accessed": "2026-10-05T15:17:11.101519+00:00"
+      "access_count": 1064,
+      "last_accessed": "2026-10-05T15:27:10.949578+00:00"
     },
     {
       "id": "MEM-20261001-019",
@@ -2630,8 +2664,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1259,
-      "last_accessed": "2026-10-05T15:17:10.235300+00:00"
+      "access_count": 1264,
+      "last_accessed": "2026-10-05T15:27:11.035813+00:00"
     },
     {
       "id": "MEM-20261001-016",
@@ -2696,8 +2730,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 1309,
-      "last_accessed": "2026-10-05T15:17:11.382595+00:00"
+      "access_count": 1314,
+      "last_accessed": "2026-10-05T15:27:09.464632+00:00"
     },
     {
       "id": "MEM-20261001-013",
@@ -2718,8 +2752,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 31788,
-      "last_accessed": "2026-10-05T15:17:11.528410+00:00"
+      "access_count": 31904,
+      "last_accessed": "2026-10-05T15:27:41.209631+00:00"
     },
     {
       "id": "MEM-20261001-012",
@@ -2740,8 +2774,8 @@
         "risk_discipline"
       ],
       "importance": 8,
-      "access_count": 30275,
-      "last_accessed": "2026-10-05T15:17:11.528417+00:00"
+      "access_count": 30386,
+      "last_accessed": "2026-10-05T15:27:41.209638+00:00"
     },
     {
       "id": "MEM-20261001-011",
@@ -2762,8 +2796,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 905,
-      "last_accessed": "2026-10-05T15:17:10.258004+00:00"
+      "access_count": 910,
+      "last_accessed": "2026-10-05T15:27:09.459615+00:00"
     },
     {
       "id": "MEM-20261001-010",
@@ -2784,8 +2818,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 905,
-      "last_accessed": "2026-10-05T15:17:10.258008+00:00"
+      "access_count": 910,
+      "last_accessed": "2026-10-05T15:27:09.459619+00:00"
     },
     {
       "id": "MEM-20261001-009",
@@ -2830,8 +2864,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 934,
-      "last_accessed": "2026-10-05T15:17:10.258012+00:00"
+      "access_count": 939,
+      "last_accessed": "2026-10-05T15:27:09.459623+00:00"
     },
     {
       "id": "MEM-20261001-007",
@@ -2854,8 +2888,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 29973,
-      "last_accessed": "2026-10-05T15:17:11.528419+00:00"
+      "access_count": 30074,
+      "last_accessed": "2026-10-05T15:27:41.209640+00:00"
     },
     {
       "id": "MEM-20261001-006",
@@ -2900,8 +2934,8 @@
         "win"
       ],
       "importance": 7,
-      "access_count": 25835,
-      "last_accessed": "2026-10-05T15:17:11.528420+00:00"
+      "access_count": 25921,
+      "last_accessed": "2026-10-05T15:27:41.209642+00:00"
     },
     {
       "id": "MEM-20261001-004",
