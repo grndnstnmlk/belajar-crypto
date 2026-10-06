@@ -816,10 +816,10 @@
     "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "stage": "CLOSED",
     "priority": "HIGH",
     "created_at": "2026-10-06 04:22:29",
-    "updated_at": "2026-10-06 05:05:50",
+    "updated_at": "2026-10-06 09:27:50",
     "payload": {
       "entry": 1.1792,
       "sl": 1.1698,
@@ -829,13 +829,25 @@
     "debate_result": null,
     "risk_result": null,
     "board_decision": null,
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected)",
+      "realized_pnl": 0.0108,
+      "net_pnl": -0.6211,
+      "closed_at": "2026-10-06 09:27:50"
+    },
     "timeline": [
       {
         "timestamp": "2026-10-06 04:22:29",
         "agent": "scalper_specialists",
         "stage": "DISCOVERED",
         "note": "Setup FILUSDT (LONG) teridentifikasi via 5m Inverse FVG (IFVG) Liquidity Scalp."
+      },
+      {
+        "timestamp": "2026-10-06 09:27:50",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udee1\ufe0f Breakeven Exit (+0.0R Protected) | PnL: $+0.01 USDT (Net: $-0.62)"
       }
     ]
   },
