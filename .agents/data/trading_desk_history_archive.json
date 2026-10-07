@@ -35107,5 +35107,645 @@
     "action": "STANDBY_LOW_CONFLUENCE",
     "balance": 2871.8956001,
     "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 13:27:05",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2876.4566001,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 13:28:23",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2876.2826001,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 13:29:47",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2877.9940656,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 13:31:18",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2876.9548231,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 13:32:36",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2873.5123709,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 13:33:58",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2863.0215991,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 13:35:12",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2871.87772375,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 13:36:29",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2874.1152652,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 13:37:47",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2872.1833301,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 13:39:10",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2870.8975719,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 13:40:25",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "WLDUSDT",
+      "base": "WLD",
+      "side": "LONG",
+      "price": 0.5339,
+      "sl": 0.519,
+      "tp": 0.583,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 1.5,
+      "tp1_target_r": 2.25,
+      "anti_stall_minutes": 45,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m 4H-Range Breakout Re-entry",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m 4H-Range Breakout Re-entry]: 4H Range Low ($0.53) Fakeout Failure: 5m candle body pushed outside to $0.53 then closed back inside at $0.53. Targeting 3R reversal back into range. (Target: 15-35 menit)",
+      "confluence_score": 81,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 0.5,
+        "thought_process": "Autonomous fast reflex verified WLDUSDT LONG (R:R 1:3.00). Playbook scale: 0.50x. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield) Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria. Tatacara Menang WLD: Manfaatkan funding rate squeeze. Jika funding negatif ekstrem, cari peluang Long di liquidity sweep. Kunci BE di +0.65R. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield)",
+        "timestamp": "2026-10-01 13:41:15"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.6,
+        "thesis": "ADJUST_RISK: Setup WLDUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (101.631 / +0.43%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "Global Macro Risk-Off: DXY Surging (101.631 / +0.43%)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.5190.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "WLDUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 0.519,
+          "tp_price": 0.583,
+          "rr_ratio": 3.0,
+          "strategy": "5m 4H-Range Breakout Re-entry",
+          "bull_score": 52,
+          "bear_score": 48,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Setup terkonfirmasi oleh model probabilitas tinggi: '5m 4H-Range Breakout Re-entry'.",
+          "bear_critique": " • Dinding ask resistansi masif (0.63x Bids/Asks) membatasi potensi kenaikan.\n • Aset WLDUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (52% vs 48%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 0.519,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-10-01 13:41:29"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-10-01 13:41:34",
+          "symbol": "WLDUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 75,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 58,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 58.8%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 57,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "WLD",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 1553.0,
+    "risk_budget_usd": 14.3151079955
+  },
+  {
+    "timestamp": "2026-10-01 13:42:42",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2862.68858018,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:44:03",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2862.68858018,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:45:23",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2853.73273321,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:46:39",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2854.93254025,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:48:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2856.92787943,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:49:27",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2856.32482048,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:50:49",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2862.68858018,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:52:09",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2859.71903768,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:53:28",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2863.06316221,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:54:45",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2859.05912884,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 13:56:10",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2856.95623777,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 13:57:28",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2855.66339341,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 13:58:46",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2856.46409261,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 14:00:02",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2856.40407019,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 14:01:29",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2851.51351064,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 14:05:07",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 5160.2,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 14:07:51",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2852.6711849,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 14:09:14",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2852.72030128,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 14:10:32",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2850.39420658,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 14:11:52",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2839.52047858,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 14:13:15",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2836.52217039,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 14:14:30",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2832.88293275,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 14:15:49",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "WLDUSDT",
+      "base": "WLD",
+      "side": "LONG",
+      "price": 0.5381,
+      "sl": 0.5222,
+      "tp": 0.5866,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 1.5,
+      "tp1_target_r": 2.25,
+      "anti_stall_minutes": 45,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m 15m-Key-Level Rectangle Break & Retest]: 15m Resistance ($0.54) broken & flipped to Support: Rectangle [$0.54 - $0.54] retested with bullish rejection @ $0.54. SL @ $0.54, targeting 3R ($0.54). (Target: 15-35 menit)",
+      "confluence_score": 94,
+      "confluence_grade": "A+ (Elite Institutional)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 0.5,
+        "thought_process": "Autonomous fast reflex verified WLDUSDT LONG (R:R 1:3.00). Playbook scale: 0.50x. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield) Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria. Tatacara Menang WLD: Manfaatkan funding rate squeeze. Jika funding negatif ekstrem, cari peluang Long di liquidity sweep. Kunci BE di +0.65R. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield)",
+        "timestamp": "2026-10-01 14:16:35"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.67,
+        "thesis": "ADJUST_RISK: Setup WLDUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (101.634 / +0.43%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_OPTIMAL (Scale 1.12x)",
+        "key_risks": [
+          "Global Macro Risk-Off: DXY Surging (101.634 / +0.43%)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.5222.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "WLDUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 0.5222,
+          "tp_price": 0.5866,
+          "rr_ratio": 3.0,
+          "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+          "bull_score": 59,
+          "bear_score": 41,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Setup terkonfirmasi oleh model probabilitas tinggi: '5m 15m-Key-Level Rectangle Break & Retest'.",
+          "bear_critique": " • Aset WLDUSDT berada di sektor narasi laggard (🪙 Independent Asset), minim dorongan momentum spekulatif.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 0.5222,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-10-01 14:16:50"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-10-01 14:16:55",
+          "symbol": "WLDUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 70,
+            "desired_scale": 1.0,
+            "thesis": "Diversifikasi portofolio aman; tidak ada penumpukan risiko terarah."
+          },
+          "neutral": {
+            "score": 61,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_OPTIMAL",
+            "composite_risk_score": 73,
+            "allocated_risk_scale": 1.12,
+            "stop_loss_profile": "RUNNER_EXPANSION",
+            "regime_weights": {
+              "aggressive": 0.45,
+              "neutral": 0.35,
+              "conservative": 0.2
+            },
+            "synthesis": "APPROVED OPTIMAL: Konvergensi tinggi dari ketiga perspektif. Alokasi penuh 1.12x diizinkan dengan runner expansion."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "WLD",
+          "sector_key": "OTHER",
+          "sector_title": "Independent Asset",
+          "sector_icon": "🪙",
+          "sector_rank": 99,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.0,
+          "relative_strength_vs_btc": 0.0,
+          "confluence_boost": 0
+        }
+      },
+      "stop_loss_profile": "RUNNER_EXPANSION"
+    },
+    "quantity": 1455.0,
+    "risk_budget_usd": 14.1805400782
+  },
+  {
+    "timestamp": "2026-10-01 14:18:03",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2819.86951695,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 14:19:17",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2839.20730438,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 14:20:35",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2815.00136642,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 14:24:46",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 5160.2,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-10-01 14:30:02",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 5160.2,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 14:32:39",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2782.47236062,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 14:33:57",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2782.47236062,
+    "positions_count": 0
+  },
+  {
+    "timestamp": "2026-10-01 14:39:06",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2781.80569125,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-10-01 14:40:22",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2781.2677498,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-10-01 14:43:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2781.99854111,
+    "positions_count": 1
+  },
+  {
+    "timestamp": "2026-10-01 14:47:04",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 5160.2,
+    "positions_count": 2
+  },
+  {
+    "timestamp": "2026-10-01 14:48:19",
+    "action": "EXECUTE_TRADE",
+    "trade": {
+      "symbol": "FETUSDT",
+      "base": "FET",
+      "side": "LONG",
+      "price": 0.2369,
+      "sl": 0.2305,
+      "tp": 0.2589,
+      "rr": 3.0,
+      "risk_pct": 1.5,
+      "is_scalp": true,
+      "be_trigger_r": 1.5,
+      "tp1_target_r": 2.25,
+      "anti_stall_minutes": 45,
+      "is_mean_reversion_or_sweep": true,
+      "macro_aligned": true,
+      "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+      "orderflow_metrics": {},
+      "reason": "⚡ HIGH-R:R SCALP [5m 15m-Key-Level Rectangle Break & Retest]: 15m Resistance ($0.24) broken & flipped to Support: Rectangle [$0.23 - $0.24] retested with bullish rejection @ $0.24. SL @ $0.23, targeting 3R ($0.25). (Target: 15-35 menit)",
+      "confluence_score": 80,
+      "confluence_grade": "A (High Confluence)",
+      "cognitive_review": {
+        "provider": "local_quant_reflex_engine",
+        "status": "FALLBACK_READY (Quick reflex / warming LLM)",
+        "latency_sec": 0.0008,
+        "verdict": "APPROVE",
+        "confidence": 86,
+        "risk_scale": 0.5,
+        "thought_process": "Autonomous fast reflex verified FETUSDT LONG (R:R 1:3.00). Playbook scale: 0.50x. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield) Clearance granted.",
+        "bull_argument": "Favorable risk-to-reward ratio 1:3.00 with defined structural stop-loss.",
+        "bear_critique": "Standard intra-day market volatility and execution slippage.",
+        "reason": "Fast Quant Reflex: Setup R:R 1:3.00 satisfies mathematical expectancy criteria. Tatacara Menang FET: Ikuti tren 1H/4H, entry di FVG discount, biarkan runner berjalan hingga 1:2.4R. | Neuro: 🚨 AVERSIVE COOLDOWN (Stress Shield)",
+        "timestamp": "2026-10-01 14:49:08"
+      },
+      "ai_audit": {
+        "decision": "ADJUST_RISK",
+        "confidence": 85,
+        "suggested_risk_scale": 0.6,
+        "thesis": "ADJUST_RISK: Setup FETUSDT (LONG) diterima dengan catatan risiko kehati-hatian (BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk., Global Macro Risk-Off: DXY Surging (101.732 / +0.53%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
+        "key_risks": [
+          "BTC 1H Bearish - 5m Scalp Mean-Reversion dijalankan dengan Micro-Risk.",
+          "Global Macro Risk-Off: DXY Surging (101.732 / +0.53%)"
+        ],
+        "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.2305.",
+        "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+        "adversarial_debate": {
+          "symbol": "FETUSDT",
+          "side": "LONG",
+          "entry_price": 0.0,
+          "sl_price": 0.2305,
+          "tp_price": 0.2589,
+          "rr_ratio": 3.0,
+          "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
+          "bull_score": 65,
+          "bear_score": 35,
+          "winner": "BULL",
+          "verdict": "APPROVE",
+          "suggested_risk_scale": 1.0,
+          "bull_thesis": " • BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n • Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n • Setup terkonfirmasi oleh model probabilitas tinggi: '5m 15m-Key-Level Rectangle Break & Retest'.\n • Aset FETUSDT berada dalam 3 besar rotasi sektor (🤖 AI & DePIN).",
+          "bear_critique": " • Risiko volatilitas pasar kripto umum; tidak ditemukan anomali red-flag kritis pada order book.",
+          "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (65% vs 35%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
+          "invalidation_price": 0.2305,
+          "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
+          "timestamp": "2026-10-01 14:49:22"
+        },
+        "tri_perspective_risk": {
+          "timestamp": "2026-10-01 14:49:27",
+          "symbol": "FETUSDT",
+          "side": "LONG",
+          "engine": "Algorithmic Quant Heuristic Matrix",
+          "aggressive": {
+            "score": 85,
+            "desired_scale": 1.2,
+            "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 65% menunjukkan dorongan positif moderat."
+          },
+          "conservative": {
+            "score": 45,
+            "desired_scale": 0.85,
+            "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
+          },
+          "neutral": {
+            "score": 63,
+            "desired_scale": 1.1,
+            "half_kelly_pct": 3.0,
+            "thesis": "Probabilitas kemenangan model: 64.0%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
+          },
+          "fund_manager": {
+            "verdict": "APPROVED_BALANCED",
+            "composite_risk_score": 62,
+            "allocated_risk_scale": 1.0,
+            "stop_loss_profile": "ATR_TRAILING",
+            "regime_weights": {
+              "aggressive": 0.25,
+              "neutral": 0.4,
+              "conservative": 0.35
+            },
+            "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
+          }
+        },
+        "sentiment_narrative": {
+          "symbol": "FET",
+          "sector_key": "AI_DEPIN",
+          "sector_title": "AI & DePIN",
+          "sector_icon": "🤖",
+          "sector_rank": 3,
+          "is_leading_sector": false,
+          "sector_24h_avg": 0.91,
+          "relative_strength_vs_btc": 0.7,
+          "confluence_boost": 5
+        }
+      },
+      "stop_loss_profile": "ATR_TRAILING"
+    },
+    "quantity": 3616.0,
+    "risk_budget_usd": 13.909122724300001
+  },
+  {
+    "timestamp": "2026-10-01 14:50:32",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2779.4146835,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 14:54:27",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2781.48088394,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 14:58:00",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2769.82739439,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 14:59:19",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2772.19958888,
+    "positions_count": 3
+  },
+  {
+    "timestamp": "2026-10-01 15:03:15",
+    "action": "STANDBY_LOW_CONFLUENCE",
+    "balance": 2772.2556846,
+    "positions_count": 3
   }
 ]
