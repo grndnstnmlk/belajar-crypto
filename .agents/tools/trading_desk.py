@@ -836,7 +836,12 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
 
     signal = None
     if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) and rsi_safe_long:
-        if price_equilibrium_pct > 75.0 and not (has_bullish_sweep or has_bullish_rb or has_bullish_sfp):
+        # Blueprint Pillar 1: Hard HTF Macro Bias Lock (4H & Daily Trend Alignment)
+        htf_swing_check = htf_macro_lock.audit_htf_macro_bias(pair_sym, "LONG")
+        if not htf_swing_check.get("is_approved", True):
+            pass
+        # Blueprint Pillar 2: SMC Discount Zone Gate (Never Buy in Overextended Premium > 60%)
+        elif price_equilibrium_pct > 60.0:
             pass
         elif deriv_intel and deriv_intel.get("bias") == "BEARISH_SQUEEZE_RISK":
             pass
@@ -873,44 +878,49 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
             dist_sl = price - sl
             if dist_sl > 0:
                 bonus_rr = 0.5 if is_alpha_leader else 0.0
-                target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) else (effective_min_rr + bonus_rr))
+                # Blueprint Pillar 3: Minimum Asymmetric Target (>= 1:3.50R)
+                target_rr = max(3.50, effective_min_rr, (4.0 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) else (effective_min_rr + bonus_rr))
                 raw_tp = price + (dist_sl * target_rr)
                 # Front-run Take Profit by 0.15% to guarantee limit fill before liquidity wall reversal
                 tp = round(raw_tp * 0.9985, 4)
                 rr = (tp - price) / dist_sl
-                signal = {
-                    "symbol": pair_sym,
-                    "base": sym,
-                    "side": "LONG",
-                    "price": price,
-                    "sl": sl,
-                    "tp": tp,
-                    "rr": rr,
-                    "is_scalp": False,
-                    "be_trigger_r": 1.50,
-                    "tp1_target_r": 2.50,
-                    "anti_stall_minutes": 240,
-                    "is_3touch": has_bullish_3touch,
-                    "is_fabio": has_bullish_auction,
-                    "is_tim": has_bullish_sweep,
-                    "is_sfp": has_bullish_sfp,
-                    "sfp_setup": sfp_setup if has_bullish_sfp else None,
-                    "is_rejection_block": has_bullish_rb,
-                    "rejection_block_setup": rb_setup if has_bullish_rb else None,
-                    "is_alpha_leader": is_alpha_leader,
-                    "sub_genome": sub_label,
-                    "risk_pct": effective_max_risk,
-                    "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
-                }
+                # Blueprint Pillar 3 Hard Gate: Discard if R:R < 1:3.00
+                if rr >= 3.00:
+                    signal = {
+                        "symbol": pair_sym,
+                        "base": sym,
+                        "side": "LONG",
+                        "price": price,
+                        "sl": sl,
+                        "tp": tp,
+                        "rr": rr,
+                        "is_scalp": False,
+                        "be_trigger_r": 1.00,
+                        "tp1_target_r": 2.25,
+                        "anti_stall_minutes": 240,
+                        "is_3touch": has_bullish_3touch,
+                        "is_fabio": has_bullish_auction,
+                        "is_tim": has_bullish_sweep,
+                        "is_sfp": has_bullish_sfp,
+                        "sfp_setup": sfp_setup if has_bullish_sfp else None,
+                        "is_rejection_block": has_bullish_rb,
+                        "rejection_block_setup": rb_setup if has_bullish_rb else None,
+                        "is_alpha_leader": is_alpha_leader,
+                        "sub_genome": sub_label,
+                        "risk_pct": min(1.50, max(0.75, effective_max_risk)),
+                        "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
+                    }
 
     elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) and rsi_safe_short:
         if (is_alpha_leader and not (has_bearish_sweep or has_bearish_rb or has_bearish_sfp)) or not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction or has_bearish_sfp):
             pass
         else:
+            # Blueprint Pillar 1: Hard HTF Macro Bias Lock (4H & Daily Trend Alignment)
             htf_swing_check = htf_macro_lock.audit_htf_macro_bias(pair_sym, "SHORT")
             if not htf_swing_check.get("is_approved", True):
                 pass
-            elif price_equilibrium_pct < 50.0 and not (has_bearish_sweep or has_bearish_rb or has_bearish_sfp):
+            # Blueprint Pillar 2: SMC Premium Zone Gate (Never Short in Deep Discount < 40%)
+            elif price_equilibrium_pct < 40.0:
                 pass
             elif deriv_intel and deriv_intel.get("bias") == "BULLISH_SQUEEZE":
                 pass
@@ -945,35 +955,38 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                 dist_sl = sl - price
                 if dist_sl > 0:
                     bonus_rr = 0.5 if is_beta_laggard else 0.0
-                    target_rr = max(effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) else (effective_min_rr + bonus_rr))
+                    # Blueprint Pillar 3: Minimum Asymmetric Target (>= 1:3.50R)
+                    target_rr = max(3.50, effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) else (effective_min_rr + bonus_rr))
                     raw_tp = price - (dist_sl * target_rr)
                     # Front-run Take Profit by 0.15% to guarantee limit fill before liquidity wall reversal
                     tp = round(raw_tp * 1.0015, 4)
                     rr = (price - tp) / dist_sl
-                    signal = {
-                        "symbol": pair_sym,
-                        "base": sym,
-                        "side": "SHORT",
-                        "price": price,
-                        "sl": sl,
-                        "tp": tp,
-                        "rr": rr,
-                        "is_scalp": False,
-                        "be_trigger_r": 1.50,
-                        "tp1_target_r": 2.50,
-                        "anti_stall_minutes": 240,
-                        "is_3touch": has_bearish_3touch,
-                        "is_fabio": has_bearish_auction,
-                        "is_tim": has_bearish_sweep,
-                        "is_sfp": has_bearish_sfp,
-                        "sfp_setup": sfp_setup if has_bearish_sfp else None,
-                        "is_rejection_block": has_bearish_rb,
-                        "rejection_block_setup": rb_setup if has_bearish_rb else None,
-                        "is_beta_laggard": is_beta_laggard,
-                        "sub_genome": sub_label,
-                        "risk_pct": effective_max_risk,
-                        "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
-                    }
+                    # Blueprint Pillar 3 Hard Gate: Discard if R:R < 1:3.00
+                    if rr >= 3.00:
+                        signal = {
+                            "symbol": pair_sym,
+                            "base": sym,
+                            "side": "SHORT",
+                            "price": price,
+                            "sl": sl,
+                            "tp": tp,
+                            "rr": rr,
+                            "is_scalp": False,
+                            "be_trigger_r": 1.00,
+                            "tp1_target_r": 2.25,
+                            "anti_stall_minutes": 240,
+                            "is_3touch": has_bearish_3touch,
+                            "is_fabio": has_bearish_auction,
+                            "is_tim": has_bearish_sweep,
+                            "is_sfp": has_bearish_sfp,
+                            "sfp_setup": sfp_setup if has_bearish_sfp else None,
+                            "is_rejection_block": has_bearish_rb,
+                            "rejection_block_setup": rb_setup if has_bearish_rb else None,
+                            "is_beta_laggard": is_beta_laggard,
+                            "sub_genome": sub_label,
+                            "risk_pct": min(1.50, max(0.75, effective_max_risk)),
+                            "reason": f"{reason_tag} + RSI {rsi:.1f} + R:R 1:{rr:.2f} [{sub_label}]"
+                        }
 
     if signal and signal["rr"] >= effective_min_rr:
         is_approved, macro_info, macro_rationale = topdown_confluence.check_topdown_alignment(
@@ -1344,7 +1357,7 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
 
     desk_mode = telegram_notifier.get_desk_mode().upper()
     if desk_mode not in ["SCALP", "SWING", "HYBRID", "LONG_ONLY"]:
-        desk_mode = "HYBRID"
+        desk_mode = "SWING"
 
     is_long_only = (desk_mode == "LONG_ONLY") or (os.environ.get("DESK_LONG_ONLY", "0") == "1") or long_only
 
@@ -1400,16 +1413,27 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                         print(f" 🛡️ [LONG-ONLY FILTER] Vetoed SHORT on {s['symbol']} (Long-Only mode active)")
                         continue
 
-                    # Empirical Strategy Veto: Reject toxic 5m strategies with proven negative EV (-$334 live drag)
+                    # Empirical Strategy Veto: Reject toxic/quarantined strategies with proven negative EV
                     strat_name = s.get("strategy", "")
-                    banned_toxic_scalps = [
-                        "5m Order Flow CVD Absorption Scalp",
-                        "5m ICT Rejection Block Mean Threshold",
-                        "Craig Percoco 5m Morning Routine"
-                    ]
-                    if any(ts.lower() in strat_name.lower() for ts in banned_toxic_scalps):
-                        print(f" 🛑 [QUANT EV VETO] Scalp '{strat_name}' on {s['symbol']} vetoed due to negative historical expectancy.")
-                        continue
+                    try:
+                        import strategy_performance_guard
+                        strat_audit = strategy_performance_guard.audit_strategy_status(strat_name)
+                        if not strat_audit.get("is_approved", True):
+                            print(f" 🛑 [STRATEGY AUTO-PRUNED] Scalp '{strat_name}' on {s['symbol']} vetoed: {strat_audit.get('reason')}")
+                            continue
+                    except Exception:
+                        banned_toxic_scalps = [
+                            "5m Order Flow CVD Absorption Scalp",
+                            "15m Key Level Rectangle Break & Retest",
+                            "5m Inverse Fair Value Gap (IFVG)",
+                            "5m ICT Rejection Block Mean Threshold",
+                            "5m Session Liquidity Sweep & Micro-FVG",
+                            "Craig Percoco 5m Morning Routine",
+                            "Institutional Scalper (5m)"
+                        ]
+                        if any(ts.lower() in strat_name.lower() for ts in banned_toxic_scalps):
+                            print(f" 🛑 [QUANT EV VETO] Scalp '{strat_name}' on {s['symbol']} vetoed due to negative historical expectancy.")
+                            continue
 
                     pair_sym = f"{s['symbol']}USDT"
                     if pair_sym in active_symbols or any(c["symbol"] == pair_sym for c in candidates):
@@ -1479,6 +1503,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
     print("\n[3. INSTITUTIONAL ACCURACY & CONFLUENCE AUDIT]")
     admissible_candidates = []
     for cand in candidates:
+        # Blueprint Pillar 3: Minimum Asymmetric R:R Gate (>= 1:3.00R)
+        if cand.get("rr", 0.0) < 3.00:
+            print(f"  🛑 [BLUEPRINT R:R GATE] {cand['symbol']} R:R 1:{cand.get('rr', 0.0):.2f} < 1:3.00 minimum asymmetric hurdle. Filtered out.")
+            continue
         is_ok, audit_msg, score_data = session_filter.audit_candidate_confluence(cand, session_info)
         cand["confluence_score"] = score_data["score"]
         cand["confluence_grade"] = score_data["grade"]
@@ -1567,6 +1595,18 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
             except Exception:
                 pass
 
+            # Check Strategy Performance & Empirical Auto-Pruning Guard (Gayed-Bilello & Taleb Filter)
+            try:
+                import strategy_performance_guard
+                cand_strat = best.get("strategy_name") or best.get("strategy") or best.get("reason") or ""
+                st_res = strategy_performance_guard.audit_strategy_status(cand_strat)
+                if not st_res.get("is_approved", True):
+                    print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [STRATEGY AUTO-PRUNED] ---")
+                    print(f"  {st_res.get('reason')}")
+                    continue
+            except Exception:
+                pass
+
             # Check Portfolio Correlation & Directional Heat Guard
             try:
                 import portfolio_guard
@@ -1578,18 +1618,19 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                 # Option C: Asymmetric Strategy-Specific Kelly Sizing Engine (Akademi Crypto Module 03)
                 strat_name = best.get("strategy_name") or best.get("strategy") or best.get("reason") or "Smart Money Concepts (SMC)"
                 conf = best.get("confluence_score", 80)
-                base_risk = 1.75 if conf >= 85 else 1.50
+                # Blueprint Pillar 4: Strict Capital Risk Sizing (1.0% - 1.5% max)
+                base_risk = 1.25 if conf >= 85 else 1.00
                 kelly_risk, kelly_status = get_adaptive_kelly_risk_pct(
                     strategy_name=strat_name,
                     base_risk_pct=base_risk,
                     min_risk=0.50,
-                    max_risk=2.50
+                    max_risk=1.50
                 )
-                effective_risk_pct = kelly_risk
-                print(f"  🎯 [ASYMMETRIC KELLY SIZING] Strategi: '{strat_name}' | Alokasi Risiko: {effective_risk_pct:.2f}% modal ({kelly_status})")
+                effective_risk_pct = min(1.50, kelly_risk)
+                print(f"  🎯 [ASYMMETRIC KELLY SIZING] Strategi: '{strat_name}' | Alokasi Risiko: {effective_risk_pct:.2f}% modal ({kelly_status}) [BLUEPRINT CAP 1.50%]")
             except Exception as k_err:
-                effective_risk_pct = 1.50
-                print(f"  🎯 [KELLY SIZING NOTE] Fallback baseline 1.50%: {k_err}")
+                effective_risk_pct = 1.00
+                print(f"  🎯 [KELLY SIZING NOTE] Fallback baseline 1.00%: {k_err}")
 
             # Apply Drosophila Connectome Synthetic Neuromodulation Risk Adjustment (Stonkfly)
             try:
@@ -2487,7 +2528,7 @@ def main():
     run_p.add_argument("--once", action="store_true", help="Jalankan 1 siklus lalu selesai")
     run_p.add_argument("--preflight", action="store_true", help="Jalankan audit pre-flight sebelum memulai siklus")
     run_p.add_argument("--preflight-only", action="store_true", help="Hanya jalankan audit pre-flight lalu keluar")
-    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID", "LONG_ONLY"], default="HYBRID", help="Set mode operasional desk (default: HYBRID)")
+    run_p.add_argument("--mode", type=str, choices=["SWING", "SCALP", "HYBRID", "LONG_ONLY"], default=None, help="Set mode operasional desk (default: membaca dari desk_state.json, default: SWING)")
     run_p.add_argument("--long-only", action="store_true", help="Paksa trading desk hanya membuka posisi LONG (Zero Short Exposure)")
     run_p.add_argument("--backend", type=str, choices=["BOTH", "BINANCE", "MT5"], default=None, help="Backend eksekusi: BOTH (Binance+MT5), BINANCE, atau MT5")
     run_p.add_argument("--symbols", type=str, default=None, help="Daftar koin dipisah koma (misal: BTC,ETH,SOL,BNB,DOGE)")
@@ -2534,7 +2575,8 @@ def main():
             telegram_notifier.save_desk_state(state)
             print(f"🎯 Mode Operasional Desk diset ke: {state['mode']}")
 
-        is_long_only_flag = getattr(args, "long_only", False) or (getattr(args, "mode", "").upper() == "LONG_ONLY")
+        mode_arg = getattr(args, "mode", None) or ""
+        is_long_only_flag = getattr(args, "long_only", False) or (mode_arg.upper() == "LONG_ONLY")
         if is_long_only_flag:
             os.environ["DESK_LONG_ONLY"] = "1"
 

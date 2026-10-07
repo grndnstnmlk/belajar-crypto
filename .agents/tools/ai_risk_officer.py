@@ -260,6 +260,27 @@ def heuristic_quant_audit(setup, market_context=None):
     except Exception:
         pass
 
+    # 0C. Strategy Performance Auto-Pruning & Negative EV Gate (Gayed-Bilello / Taleb Empiricism)
+    try:
+        import strategy_performance_guard
+        strat_name = setup.get("strategy_name") or setup.get("strategy") or setup.get("reason") or ""
+        st_audit = strategy_performance_guard.audit_strategy_status(strat_name)
+        if not st_audit.get("is_approved", True):
+            return {
+                "decision": "VETO",
+                "confidence": 99,
+                "suggested_risk_scale": 0.0,
+                "thesis": f"VETO: Strategi '{strat_name}' DINONAKTIFKAN / DIKARANTINA ({st_audit.get('reason')}). Mencegah eksekusi pola bernilai harapan negatif (negative EV) dan fee churn.",
+                "key_risks": ["Strategy Auto-Pruning Active", "Negative Expectancy Pattern", "Fee Drag Elimination"],
+                "invalidation_scenario": "Strategi harus lolos audit profitabilitas kembali sebelum diaktifkan.",
+                "provider": "Strategy Performance Guard",
+                "adversarial_debate": None,
+                "tri_perspective_risk": None,
+                "is_critical_veto": True
+            }
+    except Exception:
+        pass
+
     # 1. Macro News Blackout Check
     if news.get("is_blackout"):
         return {
@@ -543,6 +564,20 @@ def audit_trade_setup(setup, market_context=None):
                 "key_risks": ["Symbol Quarantine Active"],
                 "invalidation_scenario": f"Tunggu masa karantina berakhir ({q_audit.get('quarantine_until', 'N/A')}).",
                 "provider": "Symbol Quarantine Circuit Breaker",
+                "is_critical_veto": True
+            }
+        import strategy_performance_guard
+        st_name = setup.get("strategy_name") or setup.get("strategy") or setup.get("reason") or ""
+        st_audit = strategy_performance_guard.audit_strategy_status(st_name)
+        if not st_audit.get("is_approved", True):
+            return {
+                "decision": "VETO",
+                "confidence": 99,
+                "suggested_risk_scale": 0.0,
+                "thesis": f"VETO: Strategi '{st_name}' DIKARANTINA ({st_audit.get('reason')}).",
+                "key_risks": ["Strategy Auto-Pruning Active", "Negative EV Suppression"],
+                "invalidation_scenario": "Strategi dalam masa karantina.",
+                "provider": "Strategy Performance Guard",
                 "is_critical_veto": True
             }
     except Exception:

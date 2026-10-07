@@ -157,6 +157,27 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                     f"Dilarang melawan arus tren naik utama Bitcoin (Akademi Crypto Module 01 & 04)."
                 )
 
+        # 2B. RULE A2: BTC Bad Weather Shield (Gayed-Bilello & Meb Faber 100-Yr Trend Filter)
+        # If BTC 4H is confirmed BEARISH (Bad Weather Regime), ban Altcoin LONGS to avoid severe beta dump risk
+        if is_approved and prop_side == "BUY" and sym_clean != "BTC":
+            btc_1h, btc_4h = _get_cached_btc_regimes()
+            btc_4h_bear = False
+            if btc_4h:
+                btc_4h_bias = btc_4h.get("bias", "NEUTRAL")
+                btc_4h_p = float(btc_4h.get("price", 0.0))
+                btc_4h_e20 = float(btc_4h.get("ema20", 0.0))
+                btc_4h_e50 = float(btc_4h.get("ema50", 0.0))
+                if btc_4h_bias == "BEARISH" or (btc_4h_p < btc_4h_e20 < btc_4h_e50 and btc_4h_p > 0):
+                    btc_4h_bear = True
+            
+            if btc_4h_bear and htf_trend not in ["BULLISH", "BULLISH_RECOVERY"]:
+                is_approved = False
+                rejection_reason = (
+                    f"🛑 HTF MACRO LOCK: Setup LONG pada {pair_sym} DITOLAK. "
+                    f"BTC Makro 4H sedang BEARISH (Bad Weather Regime / MA 200 Barrier). "
+                    f"Dilarang Long altcoin saat Bitcoin downtrend demi mencegah beta dump drawdown (Akademi Crypto & 100-Yr Trend Filter)."
+                )
+
         # 3. RULE B: Alpha Leader Protection Shield
         # Never short confirmed leaders (e.g. SOL, BNB) when market structure is not in confirmed breakdown
         if is_approved and prop_side == "SELL" and sym_clean in ALPHA_PROTECTED_LEADERS:

@@ -1011,10 +1011,11 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
         # Realizes cash profit into wallet & locks remaining (Runner) at Breakeven!
         # Synthesized from Akademi Crypto Module 03 (Money Management)
         # -------------------------------------------------------------
-        tp1_target_r = 1.35 if t_data.get("is_scalp") else 1.75
+        tp1_target_r = 1.35 if t_data.get("is_scalp") else float(t_data.get("tp1_target_r", 2.00))
         if r_multiple >= tp1_target_r and not t_data.get("tp1_taken", False):
             current_amt = abs(amt)
-            scale_pct = 0.50
+            # Blueprint Pillar 5: Scale out 40% to secure wallet cash, keep 60% as runner for 1:3.5R - 1:5.0R+
+            scale_pct = 0.40
             half_qty_str = binance_client.format_qty_precision(sym, current_amt * scale_pct)
             half_qty = float(half_qty_str)
 

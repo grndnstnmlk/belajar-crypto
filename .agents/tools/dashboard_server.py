@@ -550,6 +550,23 @@ def get_dashboard_feed_data(force_refresh=False):
         feed["symbol_quarantines"] = {"active_count": 0, "quarantined_symbols": []}
         feed["portfolio_circuit_breaker"] = {"is_halted": False, "status_badge": "🟢 READY", "enabled": True}
 
+    # Strategy Performance & Auto-Pruning Telemetry (MPT & 100-Yr Trend Filter)
+    try:
+        import strategy_performance_guard
+        s_matrix = strategy_performance_guard.get_strategy_performance_matrix()
+        quarantined_strats = [s for s, d in s_matrix.items() if d.get("is_quarantined")]
+        active_strats = [s for s, d in s_matrix.items() if not d.get("is_quarantined")]
+        feed["strategy_performance"] = {
+            "total_strategies": len(s_matrix),
+            "active_count": len(active_strats),
+            "quarantined_count": len(quarantined_strats),
+            "quarantined_strategies": quarantined_strats,
+            "active_strategies": active_strats,
+            "matrix": s_matrix
+        }
+    except Exception:
+        feed["strategy_performance"] = {"total_strategies": 0, "active_count": 0, "quarantined_count": 0}
+
     # Quant Science Monthly Boundary Flow Effects & Options Expiry Telemetry
     try:
         import hedge_fund_seasonality_engine
@@ -1415,6 +1432,22 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
                         "active_quarantines": active_q,
                         "count": len(active_q)
                     }
+            except Exception as e:
+                data = {"success": False, "error": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+        elif path in ("/api/strategies/performance", "/api/strategies/quarantine", "/api/strategy_performance"):
+            try:
+                import strategy_performance_guard
+                matrix = strategy_performance_guard.get_strategy_performance_matrix()
+                strat_q = strategy_performance_guard.load_quarantine_state()
+                data = {
+                    "success": True,
+                    "matrix": matrix,
+                    "quarantined_state": strat_q,
+                    "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
             except Exception as e:
                 data = {"success": False, "error": str(e)}
             self.send_response(200)
@@ -3159,8 +3192,8 @@ class MissionControlHandler(http.server.SimpleHTTPRequestHandler):
             if requested_mode in modes_cycle:
                 new_mode = requested_mode
             else:
-                curr = state.get("mode", "HYBRID").upper()
-                next_idx = (modes_cycle.index(curr) + 1) % len(modes_cycle) if curr in modes_cycle else 0
+                curr = state.get("mode", "SWING").upper()
+                next_idx = (modes_cycle.index(curr) + 1) % len(modes_cycle) if curr in modes_cycle else 2
                 new_mode = modes_cycle[next_idx]
 
             state["mode"] = new_mode

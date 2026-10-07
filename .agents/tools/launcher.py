@@ -138,7 +138,7 @@ def get_user_choice(timeout_sec=5):
     except Exception:
         default_choice = "1"
 
-    mode_label = "[1] 🤖 DUAL-ENGINE HYBRID" if default_choice == "1" else f"[{default_choice}] AUTOPILOT"
+    mode_label = "[2] 🎯 SWING AUTOPILOT ONLY" if default_choice == "2" else ("[1] 🤖 DUAL-ENGINE HYBRID" if default_choice == "1" else f"[{default_choice}] AUTOPILOT")
     print(f"\n{C.GRAY}⏳ Otomatis menjalankan mode {C.BRIGHT_CYAN}{mode_label}{C.GRAY} dalam {timeout_sec} detik jika tidak ada tombol ditekan...{C.RESET}")
     
     valid_choices = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]

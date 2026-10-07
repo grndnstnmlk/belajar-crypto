@@ -491,19 +491,19 @@ def calculate_confluence_score(setup, session_info=None):
             rr_pts = 0
             breakdown["Risk:Reward Quality"] = f"0 pts (Subpar R:R 1:{rr:.2f})"
     else:
-        # Standard Swing R:R
-        if rr >= 3.5:
+        # Standard Swing R:R (Blueprint Pillar 3: Min 1:3.00R)
+        if rr >= 4.0:
             rr_pts = 15
-            breakdown["Risk:Reward Quality"] = f"+15 pts (Exceptional R:R 1:{rr:.2f})"
-        elif rr >= 2.5:
+            breakdown["Risk:Reward Quality"] = f"+15 pts (Elite Asymmetric R:R 1:{rr:.2f})"
+        elif rr >= 3.5:
             rr_pts = 12
-            breakdown["Risk:Reward Quality"] = f"+12 pts (Strong R:R 1:{rr:.2f})"
-        elif rr >= 2.0:
+            breakdown["Risk:Reward Quality"] = f"+12 pts (Exceptional R:R 1:{rr:.2f})"
+        elif rr >= 3.0:
             rr_pts = 8
-            breakdown["Risk:Reward Quality"] = f"+8 pts (Acceptable R:R 1:{rr:.2f})"
+            breakdown["Risk:Reward Quality"] = f"+8 pts (Acceptable Blueprint R:R 1:{rr:.2f})"
         else:
-            rr_pts = 0
-            breakdown["Risk:Reward Quality"] = f"0 pts (Subpar R:R 1:{rr:.2f})"
+            rr_pts = -10
+            breakdown["Risk:Reward Quality"] = f"-10 pts (Subpar R:R 1:{rr:.2f} < 1:3.00 Blueprint Hurdle)"
     total_score += rr_pts
 
     # 5. Session Liquidity Bonus (Max 15 pts)
