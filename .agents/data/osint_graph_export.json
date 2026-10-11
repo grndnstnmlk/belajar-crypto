@@ -1,8 +1,8 @@
 {
   "schema_version": "flowsint-v1.0",
-  "timestamp": "2026-10-12 02:42:13",
+  "timestamp": "2026-10-12 03:36:31",
   "graph_summary": {
-    "total_nodes": 10,
+    "total_nodes": 9,
     "total_edges": 9,
     "clusters_identified": 3
   },
@@ -22,7 +22,7 @@
       "properties": {
         "security_score": 100,
         "risk_status": "INSTITUTIONAL_SAFE",
-        "liquidity_usd": 124138.34,
+        "liquidity_usd": 124930.38,
         "contract_address": "E4Ap4icMLwKot8rkkTbq5JkS5kZxt5XCE3yfxbzYBjHx"
       }
     },
@@ -40,7 +40,7 @@
       "type": "LIQUIDITY_POOL",
       "properties": {
         "address": "2RmBs1KYzkDuaRR4F8zU9rPR6KT16eCgJ9YS1c8XXZgQ",
-        "liquidity_usd": 124138.34
+        "liquidity_usd": 124930.38
       }
     },
     {
@@ -50,7 +50,7 @@
       "properties": {
         "security_score": 50,
         "risk_status": "CAUTION",
-        "liquidity_usd": 6028.67,
+        "liquidity_usd": 6025.45,
         "contract_address": "0xEc680B4160DD30A35A30b412e1677cEAE82417f1"
       }
     },
@@ -68,35 +68,27 @@
       "type": "LIQUIDITY_POOL",
       "properties": {
         "address": "0xAc3E07600B81b9590bCA625a456e777fB68B09C3",
-        "liquidity_usd": 6028.67
+        "liquidity_usd": 6025.45
       }
     },
     {
-      "id": "token:SOL",
-      "label": "SOL",
+      "id": "token:Iggy",
+      "label": "Iggy",
       "type": "TOKEN",
       "properties": {
-        "security_score": 100,
-        "risk_status": "INSTITUTIONAL_SAFE",
-        "liquidity_usd": 651980.94,
-        "contract_address": "0x311935Cd80B76769bF2ecC9D8Ab7635b2139cf82"
+        "security_score": 70,
+        "risk_status": "CAUTION",
+        "liquidity_usd": 0,
+        "contract_address": "J8zg76dSoduGfJB9bzyup7AdbeCtpNLT9s8FDC8Kpump"
       }
     },
     {
-      "id": "chain:base",
-      "label": "BASE",
-      "type": "BLOCKCHAIN",
-      "properties": {
-        "layer": "L1/L2"
-      }
-    },
-    {
-      "id": "pool:0x1131DB",
-      "label": "Pool (base)",
+      "id": "pool:G6Z75cRo",
+      "label": "Pool (solana)",
       "type": "LIQUIDITY_POOL",
       "properties": {
-        "address": "0x1131DB5977242a03eBeaD1aCD18F80A9A29e5922",
-        "liquidity_usd": 651980.94
+        "address": "G6Z75cRoVpLQDMRp2ggkgHSgmJFR8qH5nFoV7EFm43QF",
+        "liquidity_usd": 0
       }
     }
   ],
@@ -106,7 +98,7 @@
       "target": "token:BTC",
       "relationship": "MONITORS",
       "properties": {
-        "last_scanned": "2026-10-12T02:42:13.762043"
+        "last_scanned": "2026-10-12T03:36:31.867120"
       }
     },
     {
@@ -120,7 +112,7 @@
       "target": "pool:2RmBs1KY",
       "relationship": "POOLED_IN",
       "properties": {
-        "volume_24h": 37213.92
+        "volume_24h": 38229.8
       }
     },
     {
@@ -128,7 +120,7 @@
       "target": "token:ETH",
       "relationship": "MONITORS",
       "properties": {
-        "last_scanned": "2026-10-12T02:42:13.762052"
+        "last_scanned": "2026-10-12T03:36:31.867129"
       }
     },
     {
@@ -142,29 +134,29 @@
       "target": "pool:0xAc3E07",
       "relationship": "POOLED_IN",
       "properties": {
-        "volume_24h": 3.52
+        "volume_24h": 3.59
       }
     },
     {
       "source": "hub:mission_control",
-      "target": "token:SOL",
+      "target": "token:Iggy",
       "relationship": "MONITORS",
       "properties": {
-        "last_scanned": "2026-10-12T02:42:13.762056"
+        "last_scanned": "2026-10-12T03:36:31.867134"
       }
     },
     {
-      "source": "token:SOL",
-      "target": "chain:base",
+      "source": "token:Iggy",
+      "target": "chain:solana",
       "relationship": "DEPLOYED_ON",
       "properties": {}
     },
     {
-      "source": "token:SOL",
-      "target": "pool:0x1131DB",
+      "source": "token:Iggy",
+      "target": "pool:G6Z75cRo",
       "relationship": "POOLED_IN",
       "properties": {
-        "volume_24h": 2923043.23
+        "volume_24h": 16052.98
       }
     }
   ]
