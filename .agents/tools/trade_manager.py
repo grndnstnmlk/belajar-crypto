@@ -1245,6 +1245,8 @@ def audit_and_manage_mt5_positions():
     """
     try:
         import mt5_client
+        if not getattr(mt5_client, "is_mt5_enabled", lambda: True)():
+            return []
         positions = mt5_client.get_open_positions()
         if not positions:
             return []

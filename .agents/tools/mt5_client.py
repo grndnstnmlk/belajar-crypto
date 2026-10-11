@@ -37,9 +37,34 @@ _LAST_INIT_TIME = 0
 _INIT_SUCCESS = False
 
 
+def is_mt5_enabled() -> bool:
+    """Checks whether MT5 backend is explicitly enabled in environment configuration."""
+    if os.getenv("DISABLE_MT5", "0").lower() in ("1", "true", "yes"):
+        return False
+    enable_flag = os.getenv("ENABLE_MT5", "0").lower() in ("1", "true", "yes")
+    backend = os.getenv("EXECUTION_BACKEND", "BINANCE").upper()
+    if not enable_flag or backend not in ("MT5", "BOTH", "DUAL", "ALL"):
+        return False
+    return True
+
+
+def shutdown_mt5():
+    """Cleanly disconnects and shuts down MT5 terminal connection."""
+    global _LAST_INIT_TIME, _INIT_SUCCESS
+    if MT5_AVAILABLE:
+        try:
+            mt5.shutdown()
+        except Exception:
+            pass
+    _INIT_SUCCESS = False
+    _LAST_INIT_TIME = 0
+
+
 def ensure_mt5_connected() -> bool:
     """Ensures MT5 terminal is initialized and connected."""
     global _LAST_INIT_TIME, _INIT_SUCCESS
+    if not is_mt5_enabled():
+        return False
     if not MT5_AVAILABLE:
         return False
         
@@ -63,9 +88,19 @@ def ensure_mt5_connected() -> bool:
 
 def get_account_summary() -> Dict[str, Any]:
     """Retrieves live MT5 account metrics."""
+    if not is_mt5_enabled():
+        return {
+            "connected": False,
+            "disabled": True,
+            "error": "MT5 backend disabled by configuration (EXECUTION_BACKEND=BINANCE)",
+            "balance": 0.0,
+            "equity": 0.0,
+            "currency": "USD"
+        }
     if not ensure_mt5_connected():
         return {
             "connected": False,
+            "disabled": False,
             "error": "MT5 terminal not running or not initialized",
             "balance": 0.0,
             "equity": 0.0,

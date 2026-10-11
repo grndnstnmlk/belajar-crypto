@@ -26,6 +26,21 @@ import market_eyes
 _MACRO_CACHE = {}
 CACHE_TTL_SECONDS = 600  # 10 minutes TTL for 4H candles
 
+def is_two_way_trading_enabled() -> bool:
+    if os.environ.get("TWO_WAY_TRADING", "0").lower() in ("1", "true", "yes"):
+        return True
+    try:
+        tools_dir = os.path.dirname(__file__)
+        data_dir = os.path.join(os.path.dirname(tools_dir), "data")
+        state_file = os.path.join(data_dir, "desk_state.json")
+        if os.path.exists(state_file):
+            with open(state_file, "r", encoding="utf-8") as f:
+                state = json.load(f)
+                return bool(state.get("two_way_trading", False))
+    except Exception:
+        pass
+    return False
+
 def analyze_macro_structure(symbol, force_refresh=False):
     """
     Evaluates Higher Timeframe (4H) Market Structure, EMAs, Volume Profile, and Institutional VWAP.
@@ -176,12 +191,17 @@ def check_topdown_alignment(symbol, proposed_side, setup_name="Technical Signal"
     macro = analyze_macro_structure(symbol)
     regime = macro["regime"]
 
+    two_way = is_two_way_trading_enabled()
+
     if side_clean in ["LONG", "BUY"]:
         if macro.get("allow_long", True):
             if regime == "BULLISH":
                 tag = f"🎯 4H TOP-DOWN CONFLUENCE (Macro Bullish {macro.get('confidence', 50)}%)"
             else:
                 tag = f"🎯 4H RANGE CONFLUENCE (Discount Zone Long near VAL ${macro.get('val', 0.0):,.2f})"
+            return True, macro, tag
+        elif two_way:
+            tag = f"🎯 TWO-WAY CONFLUENCE (Tactical Long in Discount against 4H Bearish: {setup_name})"
             return True, macro, tag
         else:
             reason = f"🛑 BLOCKED: Setup LONG bertentangan dengan tren makro 4H yang sedang BEARISH ({macro.get('bias_label', 'Bearish')}). Menghindari counter-trend!"
@@ -193,6 +213,9 @@ def check_topdown_alignment(symbol, proposed_side, setup_name="Technical Signal"
                 tag = f"🎯 4H TOP-DOWN CONFLUENCE (Macro Bearish {macro.get('confidence', 50)}%)"
             else:
                 tag = f"🎯 4H RANGE CONFLUENCE (Premium Zone Short near VAH ${macro.get('vah', 0.0):,.2f})"
+            return True, macro, tag
+        elif two_way:
+            tag = f"🎯 TWO-WAY CONFLUENCE (Tactical Short in Premium against 4H Bullish: {setup_name})"
             return True, macro, tag
         else:
             reason = f"🛑 BLOCKED: Setup SHORT bertentangan dengan tren makro 4H yang sedang BULLISH ({macro.get('bias_label', 'Bullish')}). Menghindari counter-trend!"

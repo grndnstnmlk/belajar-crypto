@@ -28,6 +28,36 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36"
 }
 
+def is_two_way_trading_enabled() -> bool:
+    if os.environ.get("TWO_WAY_TRADING", "0").lower() in ("1", "true", "yes"):
+        return True
+    try:
+        tools_dir = os.path.dirname(__file__)
+        data_dir = os.path.join(os.path.dirname(tools_dir), "data")
+        state_file = os.path.join(data_dir, "desk_state.json")
+        if os.path.exists(state_file):
+            with open(state_file, "r", encoding="utf-8") as f:
+                state = json.load(f)
+                return bool(state.get("two_way_trading", False))
+    except Exception:
+        pass
+    return False
+
+def is_aggressive_mode_enabled() -> bool:
+    if os.environ.get("DESK_AGGRESSIVE", "0").lower() in ("1", "true", "yes"):
+        return True
+    try:
+        tools_dir = os.path.dirname(__file__)
+        data_dir = os.path.join(os.path.dirname(tools_dir), "data")
+        state_file = os.path.join(data_dir, "desk_state.json")
+        if os.path.exists(state_file):
+            with open(state_file, "r", encoding="utf-8") as f:
+                state = json.load(f)
+                return bool(state.get("aggressive", False))
+    except Exception:
+        pass
+    return False
+
 def fetch_klines(symbol="BTCUSDT", interval="1h", limit=120):
     sym_clean = symbol.upper().replace("-", "").replace("/", "").replace("_", "")
     if not sym_clean.endswith("USDT"):
@@ -240,35 +270,41 @@ def filter_candidate_by_regime(candidate, btc_regime=None):
     price = float(btc_regime.get("price", 0.0))
     ema20 = float(btc_regime.get("ema20", 0.0))
 
+    two_way = is_two_way_trading_enabled()
+    is_aggr = is_aggressive_mode_enabled()
+
     # -------------------------------------------------------------
     # RULE 1: BTC DIRECTIONAL GRAVITY (HUKUM MUTLAK KRIPTO)
     # -------------------------------------------------------------
-    # A. BTC is Bearish -> Strictly Block Altcoin Longs!
+    # A. BTC is Bearish -> Block Altcoin Longs unless Two-Way tactical bounce is enabled
     if (btc_bias in ["BEARISH", "LEANING_BEARISH"] or (price < ema20 and minus_di > plus_di)):
         if is_long and not is_btc:
-            return False, (
-                f"🚨 [BTC MACRO TREND GUARD] {sym} LONG DIBLOKIR: "
-                f"Bitcoin 1H sedang Bearish (Harga ${price:,.0f} < EMA20 ${ema20:,.0f} | -DI: {minus_di:.1f} > +DI: {plus_di:.1f}). "
-                f"Melarang Long Altcoin saat BTC tertekan demi mencegah terseret dump!"
-            )
+            if not two_way:
+                return False, (
+                    f"🚨 [BTC MACRO TREND GUARD] {sym} LONG DIBLOKIR: "
+                    f"Bitcoin 1H sedang Bearish (Harga ${price:,.0f} < EMA20 ${ema20:,.0f} | -DI: {minus_di:.1f} > +DI: {plus_di:.1f}). "
+                    f"Melarang Long Altcoin saat BTC tertekan demi mencegah terseret dump!"
+                )
 
-    # B. BTC is Bullish -> Strictly Block Altcoin Shorts!
+    # B. BTC is Bullish -> Block Altcoin Shorts unless Two-Way tactical resistance reversal is enabled
     if btc_bias == "BULLISH" or (price > ema20 and plus_di > minus_di):
         if not is_long and not is_btc:
-            return False, (
-                f"🚨 [BTC MACRO TREND GUARD] {sym} SHORT DIBLOKIR: "
-                f"Bitcoin 1H sedang Bullish (Harga ${price:,.0f} > EMA20 ${ema20:,.0f} | +DI: {plus_di:.1f} > -DI: {minus_di:.1f}). "
-                f"Melarang Short Altcoin saat BTC sedang reli ekspansi!"
-            )
+            if not two_way:
+                return False, (
+                    f"🚨 [BTC MACRO TREND GUARD] {sym} SHORT DIBLOKIR: "
+                    f"Bitcoin 1H sedang Bullish (Harga ${price:,.0f} > EMA20 ${ema20:,.0f} | +DI: {plus_di:.1f} > -DI: {minus_di:.1f}). "
+                    f"Melarang Short Altcoin saat BTC sedang reli ekspansi!"
+                )
 
     # -------------------------------------------------------------
     # RULE 2: CHOPPY / SIDEWAYS ADX GUARD (PREVENT FAKEOUT SWINGS)
     # -------------------------------------------------------------
-    if adx < 24.0 or btc_regime_name in ["RANGING_CHOPPY", "VOLATILITY_SQUEEZE"]:
+    min_adx = 18.0 if is_aggr else 24.0
+    if adx < min_adx or (btc_regime_name in ["RANGING_CHOPPY", "VOLATILITY_SQUEEZE"] and not is_aggr):
         if not is_scalp:
             return False, (
                 f"🚨 [MARKET REGIME CHOPPY GUARD] {sym} SWING DIBLOKIR: "
-                f"Rezim pasar BTC 1H sedang Ranging / Sideways (ADX: {adx:.1f} < 24). "
+                f"Rezim pasar BTC 1H sedang Ranging / Sideways (ADX: {adx:.1f} < {min_adx:.1f}). "
                 f"Breakout swing rawan terkena fakeout / sumbu rejeksi! "
                 f"Sistem standby atau membatasi eksekusi hanya untuk mode Fast Scalp."
             )

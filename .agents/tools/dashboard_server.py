@@ -439,6 +439,10 @@ def get_dashboard_feed_data(force_refresh=False):
     feed["is_paused"] = state.get("paused", False) or paperclip_cb
     feed["circuit_breaker_active"] = paperclip_cb
     feed["mode"] = cur_mode
+    feed["aggressive"] = state.get("aggressive", False) or session_filter.is_aggressive_mode_enabled()
+    feed["two_way_trading"] = state.get("two_way_trading", False) or getattr(htf_macro_lock, "is_two_way_trading_enabled", lambda: False)()
+    feed["major_pairs_only"] = state.get("major_pairs_only", False)
+    feed["major_pairs"] = state.get("major_pairs", ["BTC", "ETH", "SOL", "BNB", "DOGE", "XRP"])
     feed["timeframes"] = {
         "active_mode": cur_mode,
         "scalp": "5m",

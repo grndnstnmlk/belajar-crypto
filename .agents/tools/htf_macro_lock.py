@@ -30,6 +30,26 @@ ALPHA_PROTECTED_LEADERS = {"SOL", "BNB", "BTC"}
 # Flexible Two-Way Trading Engine: Supports both LONG and SHORT based on HTF macro regime
 HARD_LONG_ONLY_ENABLED = False
 
+def is_two_way_trading_enabled() -> bool:
+    """
+    Checks if Two-Way Trading Engine is enabled via env var or desk_state.json.
+    When active, allows high-confluence tactical counter-trend setups (e.g. Resistance Reversals,
+    Liquidity Sweeps, SFPs, Rejection Blocks, and Discount Bounces) instead of hard vetoing.
+    """
+    if os.environ.get("TWO_WAY_TRADING", "0").lower() in ("1", "true", "yes"):
+        return True
+    try:
+        tools_dir = os.path.dirname(__file__)
+        data_dir = os.path.join(os.path.dirname(tools_dir), "data")
+        state_file = os.path.join(data_dir, "desk_state.json")
+        if os.path.exists(state_file):
+            with open(state_file, "r", encoding="utf-8") as f:
+                state = json.load(f)
+                return bool(state.get("two_way_trading", False))
+    except Exception:
+        pass
+    return False
+
 # In-Memory High-Frequency Regime Caching (< 0.05ms)
 _BTC_REGIME_CACHE = {
     "timestamp": 0.0,
@@ -134,9 +154,11 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
 
         is_approved = True
         rejection_reason = None
+        two_way = is_two_way_trading_enabled()
 
         # 2. RULE A: BTC Master Trend Gatekeeper (Akademi Crypto Module 01 & 04)
         # Only ban Altcoin Shorts if BTC 4H HTF Trend is confirmed strongly BULLISH (Price > EMA20 > EMA50)
+        # When TWO_WAY_TRADING is enabled, tactical resistance / liquidity sweep shorts are permitted.
         if prop_side == "SELL" and sym_clean != "BTC":
             btc_1h, btc_4h = _get_cached_btc_regimes()
             
@@ -149,7 +171,7 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                 if btc_4h_bias == "BULLISH" or (btc_4h_p > btc_4h_e20 > btc_4h_e50 > 0):
                     btc_4h_bull = True
             
-            if btc_4h_bull and htf_trend not in ["BEARISH", "BEARISH_PULLBACK"]:
+            if btc_4h_bull and htf_trend not in ["BEARISH", "BEARISH_PULLBACK"] and not two_way:
                 is_approved = False
                 rejection_reason = (
                     f"🛑 HTF MACRO LOCK: Setup SHORT pada {pair_sym} DITOLAK. "
@@ -158,7 +180,7 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                 )
 
         # 2B. RULE A2: BTC Bad Weather Shield (Gayed-Bilello & Meb Faber 100-Yr Trend Filter)
-        # If BTC 4H is confirmed BEARISH (Bad Weather Regime), ban Altcoin LONGS to avoid severe beta dump risk
+        # If BTC 4H is confirmed BEARISH (Bad Weather Regime), ban Altcoin LONGS unless Two-Way tactical bounce is enabled
         if is_approved and prop_side == "BUY" and sym_clean != "BTC":
             btc_1h, btc_4h = _get_cached_btc_regimes()
             btc_4h_bear = False
@@ -170,7 +192,7 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                 if btc_4h_bias == "BEARISH" or (btc_4h_p < btc_4h_e20 < btc_4h_e50 and btc_4h_p > 0):
                     btc_4h_bear = True
             
-            if btc_4h_bear and htf_trend not in ["BULLISH", "BULLISH_RECOVERY"]:
+            if btc_4h_bear and htf_trend not in ["BULLISH", "BULLISH_RECOVERY"] and not two_way:
                 is_approved = False
                 rejection_reason = (
                     f"🛑 HTF MACRO LOCK: Setup LONG pada {pair_sym} DITOLAK. "
@@ -179,9 +201,9 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                 )
 
         # 3. RULE B: Alpha Leader Protection Shield
-        # Never short confirmed leaders (e.g. SOL, BNB) when market structure is not in confirmed breakdown
+        # Never short confirmed leaders (e.g. SOL, BNB) unless two-way resistance reversal is enabled
         if is_approved and prop_side == "SELL" and sym_clean in ALPHA_PROTECTED_LEADERS:
-            if htf_trend in ["BULLISH", "BULLISH_RECOVERY", "NEUTRAL_RANGING"]:
+            if htf_trend in ["BULLISH", "BULLISH_RECOVERY", "NEUTRAL_RANGING"] and not two_way:
                 is_approved = False
                 rejection_reason = (
                     f"🛑 HTF MACRO LOCK: Setup SHORT pada {pair_sym} DITOLAK. "
@@ -190,7 +212,7 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                 )
 
         # 4. RULE C: Direct HTF Trend Invalidation
-        if is_approved:
+        if is_approved and not two_way:
             if htf_trend in ["BEARISH", "BEARISH_PULLBACK"] and prop_side == "BUY":
                 is_approved = False
                 rejection_reason = (
@@ -205,24 +227,24 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                 )
 
         # 5. RULE D: Negative Funding Rate Penalty Shield (Short Squeeze & Fee Trap Guard)
-        # Only block if funding is severely crowded negative (< -0.03%), which indicates extreme short-squeeze danger
+        # Always active even in two-way trading: block if funding is severely crowded negative (< -0.04%)
         if is_approved and prop_side == "SELL":
             try:
                 import binance_ws_stream
                 funding_r = binance_ws_stream.get_funding_rate(pair_sym)
-                if funding_r < -0.03:
+                if funding_r < -0.04:
                     is_approved = False
                     rejection_reason = (
                         f"🛑 HTF MACRO LOCK: Setup SHORT pada {pair_sym} DITOLAK. "
-                        f"Perp funding rate sangat negatif ({funding_r:+.4f}% < -0.03%). "
+                        f"Perp funding rate sangat negatif ({funding_r:+.4f}% < -0.04%). "
                         f"Posisi Short terkena penalti funding fee ekstrem dan rentan short squeeze."
                     )
             except Exception:
                 pass
 
         # 6. RULE E: Strict Bearish Confluence Gate for Shorts
-        # Permits Shorts when the target asset is strictly in confirmed breakdown or bearish pullback
-        if is_approved and prop_side == "SELL":
+        # In one-way mode, permits Shorts only when strictly bearish. In two-way mode, permits tactical resistance setups.
+        if is_approved and prop_side == "SELL" and not two_way:
             if htf_trend not in ["BEARISH", "BEARISH_PULLBACK"]:
                 is_approved = False
                 rejection_reason = (
@@ -232,6 +254,8 @@ def audit_htf_macro_bias(symbol: str, proposed_side: str) -> Dict[str, Any]:
                 )
 
         status_text = "🟢 APPROVED (Aligned with HTF Trend)" if is_approved else f"🛑 BLOCKED: {rejection_reason}"
+        if is_approved and two_way and ((prop_side == "SELL" and htf_trend in ["BULLISH", "BULLISH_RECOVERY", "NEUTRAL_RANGING"]) or (prop_side == "BUY" and htf_trend in ["BEARISH", "BEARISH_PULLBACK"])):
+            status_text = "🟢 APPROVED (Two-Way Tactical Reversal / Counter-Regime)"
 
         return {
             "symbol": pair_sym,

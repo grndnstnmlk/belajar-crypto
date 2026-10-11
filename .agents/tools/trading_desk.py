@@ -470,7 +470,7 @@ def export_dashboard_feed(user_email, is_demo, balance_usd, active_positions, ge
 def get_active_positions(user_email=None, is_demo=True):
     positions = []
     # 1. Fetch MT5 Positions
-    if EXECUTION_BACKEND in ["MT5", "BOTH", "DUAL", "ALL"]:
+    if EXECUTION_BACKEND in ["MT5", "BOTH", "DUAL", "ALL"] and getattr(mt5_client, "is_mt5_enabled", lambda: False)():
         try:
             mt5_pos = mt5_client.get_open_positions()
             if mt5_pos:
@@ -511,7 +511,7 @@ def get_account_financials(user_email=None, is_demo=True):
     binance_eq, binance_avail = 0.0, 0.0
     mt5_eq, mt5_avail = 0.0, 0.0
 
-    if EXECUTION_BACKEND in ["MT5", "BOTH", "DUAL", "ALL"]:
+    if EXECUTION_BACKEND in ["MT5", "BOTH", "DUAL", "ALL"] and getattr(mt5_client, "is_mt5_enabled", lambda: False)():
         try:
             acc = mt5_client.get_account_summary()
             if acc.get("connected"):
@@ -587,6 +587,13 @@ def get_drawdown_risk_multiplier(lookback_trades=2):
             t for t in ledger
             if t.get("source") == "AUTONOMOUS_TRADE_MANAGER"
         ]
+
+        # Ignore legacy MT5 trades if MT5 is currently disabled
+        if not getattr(mt5_client, "is_mt5_enabled", lambda: False)():
+            closed_bot_trades = [
+                t for t in closed_bot_trades
+                if not str(t.get("symbol", "")).startswith("MT5_")
+            ]
 
         # If fewer than lookback_trades bot trades, fallback to any closed trades with net_pnl
         if len(closed_bot_trades) < lookback_trades:
@@ -780,12 +787,22 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
     deriv_intel = data.get("derivatives_intel")
     cb_intel = data.get("coinbase_intel")
 
+    is_aggr_mode = session_filter.is_aggressive_mode_enabled()
+    is_two_way_mode = getattr(htf_macro_lock, "is_two_way_trading_enabled", lambda: False)()
+
     # Rule A: Bullish Setup
     has_bullish_fvg = "Bullish FVG" in fvg
     has_bullish_3touch = bool(three_touch and three_touch.get("type") == "BULLISH_3_TOUCH")
     has_bullish_auction = bool(va_setup and va_setup.get("type") == "BULLISH_FAILED_AUCTION")
     has_bullish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BULLISH_SWEEP_MSS")
     has_bullish_rb = bool(rb_setup and rb_setup.get("has_setup") and rb_setup.get("side") == "BUY")
+
+    # Rule B: Bearish Setup
+    has_bearish_fvg = "Bearish FVG" in fvg
+    has_bearish_3touch = bool(three_touch and three_touch.get("type") == "BEARISH_3_TOUCH")
+    has_bearish_auction = bool(va_setup and va_setup.get("type") == "BEARISH_FAILED_AUCTION")
+    has_bearish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BEARISH_SWEEP_MSS")
+    has_bearish_rb = bool(rb_setup and rb_setup.get("has_setup") and rb_setup.get("side") == "SELL")
 
     # SFP (Swing Failure Pattern) & Liquidity Sweep Intelligence
     sfp_setup = None
@@ -798,34 +815,28 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
     has_bearish_sfp = bool(sfp_setup and sfp_setup.get("has_setup") and "BEARISH" in sfp_setup.get("signal", ""))
 
     # Institutional Gatekeeper: Gate standalone FVG (reject mid-range breakout traps without prior liquidity sweep)
-    if has_bullish_fvg and not (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp):
-        try:
-            swp = prop_desk_strategies.has_recent_liquidity_sweep(sym, side="LONG", lookback=25, bar="15m")
-            if not swp.get("has_sweep", True):
-                has_bullish_fvg = False
-        except Exception:
-            pass
+    if not (is_aggr_mode or is_two_way_mode):
+        if has_bullish_fvg and not (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp):
+            try:
+                swp = prop_desk_strategies.has_recent_liquidity_sweep(sym, side="LONG", lookback=25, bar="15m")
+                if not swp.get("has_sweep", True):
+                    has_bullish_fvg = False
+            except Exception:
+                pass
 
-    if has_bearish_fvg and not (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp):
-        try:
-            swp = prop_desk_strategies.has_recent_liquidity_sweep(sym, side="SHORT", lookback=25, bar="15m")
-            if not swp.get("has_sweep", True):
-                has_bearish_fvg = False
-        except Exception:
-            pass
+        if has_bearish_fvg and not (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp):
+            try:
+                swp = prop_desk_strategies.has_recent_liquidity_sweep(sym, side="SHORT", lookback=25, bar="15m")
+                if not swp.get("has_sweep", True):
+                    has_bearish_fvg = False
+            except Exception:
+                pass
 
     ad_intel = data.get("adaptive_intel")
     eff_ob = ad_intel.get("ob_threshold", 75.0) if ad_intel else sub_gen.get("rsi_overbought", 70)
     eff_os = ad_intel.get("os_threshold", 25.0) if ad_intel else sub_gen.get("rsi_oversold", 30)
     eval_rsi = ad_intel.get("adaptive_rsi", rsi) if ad_intel else rsi
     rsi_safe_long = eval_rsi < eff_ob and eval_rsi > eff_os
-
-    # Rule B: Bearish Setup
-    has_bearish_fvg = "Bearish FVG" in fvg
-    has_bearish_3touch = bool(three_touch and three_touch.get("type") == "BEARISH_3_TOUCH")
-    has_bearish_auction = bool(va_setup and va_setup.get("type") == "BEARISH_FAILED_AUCTION")
-    has_bearish_sweep = bool(liquidity_sweep and liquidity_sweep.get("type") == "BEARISH_SWEEP_MSS")
-    has_bearish_rb = bool(rb_setup and rb_setup.get("has_setup") and rb_setup.get("side") == "SELL")
     rsi_safe_short = eval_rsi > eff_os and eval_rsi < eff_ob
 
     # SMC EQUILIBRIUM & PREMIUM / DISCOUNT ZONE AUDIT
@@ -835,13 +846,15 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
     price_equilibrium_pct = ((price - l_24) / range_24 * 100.0) if range_24 > 0 else 50.0
 
     signal = None
+
     if (has_bullish_fvg or has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) and rsi_safe_long:
         # Blueprint Pillar 1: Hard HTF Macro Bias Lock (4H & Daily Trend Alignment)
         htf_swing_check = htf_macro_lock.audit_htf_macro_bias(pair_sym, "LONG")
+        max_eq_long = 80.0 if (is_aggr_mode or is_two_way_mode) else 60.0
         if not htf_swing_check.get("is_approved", True):
             pass
-        # Blueprint Pillar 2: SMC Discount Zone Gate (Never Buy in Overextended Premium > 60%)
-        elif price_equilibrium_pct > 60.0:
+        # Blueprint Pillar 2: SMC Discount Zone Gate (Relaxed up to 80% in aggressive/two-way to permit momentum breakouts)
+        elif price_equilibrium_pct > max_eq_long:
             pass
         elif deriv_intel and deriv_intel.get("bias") == "BEARISH_SQUEEZE_RISK":
             pass
@@ -878,14 +891,14 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
             dist_sl = price - sl
             if dist_sl > 0:
                 bonus_rr = 0.5 if is_alpha_leader else 0.0
-                # Blueprint Pillar 3: Minimum Asymmetric Target (>= 1:3.50R)
-                target_rr = max(3.50, effective_min_rr, (4.0 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) else (effective_min_rr + bonus_rr))
+                # Blueprint Pillar 3: Minimum Asymmetric Target
+                target_rr = max(effective_min_rr, (3.50 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) else (effective_min_rr + bonus_rr))
                 raw_tp = price + (dist_sl * target_rr)
                 # Front-run Take Profit by 0.15% to guarantee limit fill before liquidity wall reversal
                 tp = round(raw_tp * 0.9985, 4)
                 rr = (tp - price) / dist_sl
-                # Blueprint Pillar 3 Hard Gate: Discard if R:R < 1:3.00
-                if rr >= 3.00:
+                # Blueprint Pillar 3 Gate: Discard if R:R < effective_min_rr
+                if rr >= effective_min_rr:
                     signal = {
                         "symbol": pair_sym,
                         "base": sym,
@@ -912,15 +925,16 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                     }
 
     elif (has_bearish_fvg or has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) and rsi_safe_short:
-        if (is_alpha_leader and not (has_bearish_sweep or has_bearish_rb or has_bearish_sfp)) or not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction or has_bearish_sfp):
+        if not is_two_way_mode and ((is_alpha_leader and not (has_bearish_sweep or has_bearish_rb or has_bearish_sfp)) or not (has_bearish_sweep or has_bearish_rb or has_bearish_3touch or has_bearish_auction or has_bearish_sfp)):
             pass
         else:
             # Blueprint Pillar 1: Hard HTF Macro Bias Lock (4H & Daily Trend Alignment)
             htf_swing_check = htf_macro_lock.audit_htf_macro_bias(pair_sym, "SHORT")
+            min_eq_short = 20.0 if (is_aggr_mode or is_two_way_mode) else 40.0
             if not htf_swing_check.get("is_approved", True):
                 pass
-            # Blueprint Pillar 2: SMC Premium Zone Gate (Never Short in Deep Discount < 40%)
-            elif price_equilibrium_pct < 40.0:
+            # Blueprint Pillar 2: SMC Premium Zone Gate (Never Short in Deep Exhaustion Discount < 20%)
+            elif price_equilibrium_pct < min_eq_short:
                 pass
             elif deriv_intel and deriv_intel.get("bias") == "BULLISH_SQUEEZE":
                 pass
@@ -955,14 +969,14 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                 dist_sl = sl - price
                 if dist_sl > 0:
                     bonus_rr = 0.5 if is_beta_laggard else 0.0
-                    # Blueprint Pillar 3: Minimum Asymmetric Target (>= 1:3.50R)
-                    target_rr = max(3.50, effective_min_rr, (4.0 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) else (effective_min_rr + bonus_rr))
+                    # Blueprint Pillar 3: Minimum Asymmetric Target
+                    target_rr = max(effective_min_rr, (3.50 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) else (effective_min_rr + bonus_rr))
                     raw_tp = price - (dist_sl * target_rr)
                     # Front-run Take Profit by 0.15% to guarantee limit fill before liquidity wall reversal
                     tp = round(raw_tp * 1.0015, 4)
                     rr = (price - tp) / dist_sl
-                    # Blueprint Pillar 3 Hard Gate: Discard if R:R < 1:3.00
-                    if rr >= 3.00:
+                    # Blueprint Pillar 3 Gate: Discard if R:R < effective_min_rr
+                    if rr >= effective_min_rr:
                         signal = {
                             "symbol": pair_sym,
                             "base": sym,
@@ -1227,7 +1241,18 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
     max_risk_pct = params.get("max_risk_per_trade_pct", 1.5)
     target_user, _, _, _, mode_label, _ = binance_client.resolve_credentials(user_email, is_demo)
 
-    active_watchlist = symbols if symbols else get_dynamic_futures_watchlist(top_n=25, is_demo=is_demo)
+    major_only_flag = os.getenv("MAJOR_PAIRS_ONLY", "").lower() in ("1", "true", "yes") or telegram_notifier.load_desk_state().get("major_pairs_only", False)
+    if symbols:
+        active_watchlist = symbols
+    elif major_only_flag:
+        custom_majors = os.getenv("TOP_MAJORS_WATCHLIST", "")
+        if custom_majors:
+            active_watchlist = [s.strip().upper() for s in custom_majors.split(",") if s.strip()]
+        else:
+            state_majors = telegram_notifier.load_desk_state().get("major_pairs")
+            active_watchlist = state_majors if state_majors else ["BTC", "ETH", "SOL", "BNB", "DOGE", "XRP"]
+    else:
+        active_watchlist = get_dynamic_futures_watchlist(top_n=25, is_demo=is_demo)
     session_info = session_filter.get_current_session_info()
     is_blk, blk_reason, next_ev = macro_news_shield.audit_news_blackout(buffer_minutes=30)
 
@@ -1503,9 +1528,10 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
     print("\n[3. INSTITUTIONAL ACCURACY & CONFLUENCE AUDIT]")
     admissible_candidates = []
     for cand in candidates:
-        # Blueprint Pillar 3: Minimum Asymmetric R:R Gate (>= 1:3.00R)
-        if cand.get("rr", 0.0) < 3.00:
-            print(f"  🛑 [BLUEPRINT R:R GATE] {cand['symbol']} R:R 1:{cand.get('rr', 0.0):.2f} < 1:3.00 minimum asymmetric hurdle. Filtered out.")
+        # Blueprint Pillar 3: Minimum Asymmetric R:R Gate (Configurable, default 2.50R)
+        min_rr_gate = float(os.getenv("MIN_RR_THRESHOLD", params.get("min_risk_reward", 2.50)))
+        if cand.get("rr", 0.0) < min_rr_gate:
+            print(f"  🛑 [BLUEPRINT R:R GATE] {cand['symbol']} R:R 1:{cand.get('rr', 0.0):.2f} < 1:{min_rr_gate:.2f} minimum asymmetric hurdle. Filtered out.")
             continue
         is_ok, audit_msg, score_data = session_filter.audit_candidate_confluence(cand, session_info)
         cand["confluence_score"] = score_data["score"]
@@ -1661,9 +1687,9 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                 import market_regime
                 is_regime_ok, regime_msg = market_regime.filter_candidate_by_regime(best, btc_regime=btc_regime)
                 if not is_regime_ok:
-                    # CRITICAL FIX: NEVER allow SCALP REGIME BYPASS for SHORT positions when BTC is Bullish!
-                    if best.get("is_scalp") and best.get("is_mean_reversion_or_sweep") and best.get("side") == "LONG":
-                        print(f"  ⚡ [SCALP REGIME BYPASS] {best['symbol']} {best['side']} diizinkan beroperasi sebagai Mean-Reversion Dip di bawah BTC {btc_regime.get('regime')}.")
+                    two_way_active = getattr(htf_macro_lock, "is_two_way_trading_enabled", lambda: False)()
+                    if (best.get("is_scalp") and best.get("is_mean_reversion_or_sweep")) or two_way_active:
+                        print(f"  ⚡ [REGIME BYPASS] {best['symbol']} {best['side']} diizinkan beroperasi sebagai Tactical Setup di bawah BTC {btc_regime.get('regime')}.")
                     else:
                         print(f"\n--- [{idx}/{len(selected)}] {best['side']} {best['symbol']} DI-SKIP [REGIME GATEKEEPER] ---")
                         print(f"  {regime_msg}")
@@ -2218,7 +2244,8 @@ def run_trading_desk_cycle(user_email=None, is_demo=True, max_open_positions=5, 
                     elif not cost_audit.get("is_safe", True) and cost_audit.get("drag_pct", 0) > 25.0:
                         print(f" 🛑 [Transaction Cost Guard] Friction drag terlalu tinggi ({cost_audit['drag_pct']}%). Melewatkan eksekusi demi menjaga net R:R.")
                     else:
-                        exec_mode = cost_audit.get("recommended_mode", "LIMIT_CHASE")
+                        force_post_only = os.getenv("EXECUTION_MODE", "").upper() == "POST_ONLY"
+                        exec_mode = "POST_ONLY" if force_post_only else cost_audit.get("recommended_mode", "LIMIT_CHASE")
                         print(f"[Mengirimkan Order ke Binance Futures (Mode: {exec_mode} | Qty: {b_qty} | Leverage: {active_leverage}x | Margin: ${b_margin_req:,.2f})...]")
                         b_order_res = binance_client.place_futures_order(
                             symbol=best["symbol"],
@@ -2387,6 +2414,21 @@ def show_desk_status(user_email=None, is_demo=True):
     print(f"{C.BRIGHT_CYAN}│{C.RESET} Aturan Genetik Desk : Gen {genome.get('generation', 1)}")
     print(f"{C.BRIGHT_CYAN}│{C.RESET}  * Min R:R Filter    : 1 : {genome.get('parameters', {}).get('min_risk_reward', 2.0):.2f}")
     print(f"{C.BRIGHT_CYAN}│{C.RESET}  * Max Risk Per Trade: {genome.get('parameters', {}).get('max_risk_per_trade_pct', 1.5):.2f}%")
+    major_only_cfg = os.getenv("MAJOR_PAIRS_ONLY", "").lower() in ("1", "true", "yes") or telegram_notifier.load_desk_state().get("major_pairs_only", False)
+    if major_only_cfg:
+        majors_txt = os.getenv("TOP_MAJORS_WATCHLIST", "BTC, ETH, SOL, BNB, DOGE, XRP")
+        print(f"{C.BRIGHT_CYAN}│{C.RESET}  * Universe Filter   : 💎 MAJOR PAIRS ONLY ({majors_txt} Focus)")
+    is_aggr_ui = session_filter.is_aggressive_mode_enabled()
+    two_way_ui = getattr(htf_macro_lock, "is_two_way_trading_enabled", lambda: False)()
+    if is_aggr_ui or two_way_ui:
+        aggr_label = "⚡ AGGRESSIVE (65% Dead-Zone)" if is_aggr_ui else ""
+        two_way_label = "🔄 TWO-WAY (LONG & SHORT)" if two_way_ui else ""
+        sub_modes = " | ".join(filter(None, [aggr_label, two_way_label]))
+        print(f"{C.BRIGHT_CYAN}│{C.RESET}  * Execution Engines : {sub_modes}")
+    exec_mode_cfg = os.getenv("EXECUTION_MODE", "POST_ONLY").upper()
+    print(f"{C.BRIGHT_CYAN}│{C.RESET}  * Execution Policy  : ⚡ {exec_mode_cfg} (Maksimal Hemat Fee Maker)")
+    backend_status = f"{C.BRIGHT_GREEN}BINANCE EXCLUSIVE (MT5 Non-Aktif){C.RESET}" if not getattr(mt5_client, "is_mt5_enabled", lambda: False)() else f"{EXECUTION_BACKEND}"
+    print(f"{C.BRIGHT_CYAN}│{C.RESET}  * Execution Backend : {backend_status}")
     print(f"{C.BRIGHT_CYAN}└───────────────────────────────────────────────────────────────────────────────────{C.RESET}\n")
 
 def run_preflight_audit(user_email=None, is_demo=True, verbose=True):
