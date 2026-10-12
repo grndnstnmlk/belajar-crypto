@@ -9,10 +9,10 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-10-12 09:22:57",
-    "updated_at": "2026-10-12 10:11:30",
+    "updated_at": "2026-10-12 10:34:04",
     "payload": {
-      "entry": 83462.01,
-      "sl": 84463.5541,
+      "entry": 83494.01,
+      "sl": 84495.9381,
       "tp": 83062.4388,
       "rr": 3.0
     },
@@ -500,10 +500,10 @@
     "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "scalper_specialists",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-10-12 03:12:26",
-    "updated_at": "2026-10-12 04:31:58",
+    "updated_at": "2026-10-12 10:35:24",
     "payload": {
       "entry": 1.4077,
       "sl": 1.3655,
@@ -612,7 +612,13 @@
       "authorized_at": "2026-10-12 04:31:58",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$4.06 USDT)",
+      "realized_pnl": -4.0611,
+      "net_pnl": -4.3691,
+      "closed_at": "2026-10-12 10:35:24"
+    },
     "timeline": [
       {
         "timestamp": "2026-10-12 03:12:26",
@@ -637,6 +643,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-10-12 10:35:24",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$4.06 USDT) | PnL: $-4.06 USDT (Net: $-4.37)"
       }
     ]
   },
