@@ -248,16 +248,41 @@ def get_eight_agent_pipeline_state():
         }
     ]
 
-    # Concurrent Swarm Collaboration history
-    handoff_history = [
-        {"from": "SEARCH", "to": "RISK", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
-        {"from": "RISK", "to": "WHALE", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
-        {"from": "WHALE", "to": "SHILL", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
-        {"from": "SHILL", "to": "ANALYST", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
-        {"from": "ANALYST", "to": "HEAD_OF_DESK", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
-        {"from": "HEAD_OF_DESK", "to": "SNIPER", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
-        {"from": "SNIPER", "to": "JOURNAL", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"}
-    ]
+    # 9. Real-time Event-Driven Blackboard Bus Integration
+    blackboard_summary = {}
+    try:
+        import agent_blackboard_bus
+        blackboard_summary = agent_blackboard_bus.get_blackboard_summary()
+        latest_bb_ticket = blackboard_summary.get("active_ticket")
+        if latest_bb_ticket and latest_bb_ticket.get("symbol"):
+            active_lead_symbol = latest_bb_ticket["symbol"]
+    except Exception as e:
+        blackboard_summary = {"error": str(e), "total_tickets": 0, "event_bus_stream": []}
+
+    # Dynamic Swarm Collaboration history from Blackboard Event Stream
+    bb_events = blackboard_summary.get("event_bus_stream", [])
+    if bb_events:
+        handoff_history = [
+            {
+                "from": evt.get("from_agent", "SWARM"),
+                "to": evt.get("to_agent", "SWARM"),
+                "symbol": active_lead_symbol,
+                "status": evt.get("event_type", "HANDOFF"),
+                "time": evt.get("timestamp", "Live"),
+                "message": evt.get("message", "")
+            }
+            for evt in bb_events[:7]
+        ]
+    else:
+        handoff_history = [
+            {"from": "Piper (Scout)", "to": "Aegis (Auditor)", "symbol": active_lead_symbol, "status": "OPPORTUNITY_DETECTED", "time": "Live"},
+            {"from": "Aegis (Auditor)", "to": "DeepSeek (Chief)", "symbol": active_lead_symbol, "status": "RISK_AUDITED", "time": "Live"},
+            {"from": "Nautilus (Detective)", "to": "DeepSeek (Chief)", "symbol": active_lead_symbol, "status": "WHALE_ACCUMULATED", "time": "Live"},
+            {"from": "Echo (Social RAG)", "to": "DeepSeek (Chief)", "symbol": active_lead_symbol, "status": "SENTIMENT_SCORED", "time": "Live"},
+            {"from": "Kepler (Chartist)", "to": "DeepSeek (Chief)", "symbol": active_lead_symbol, "status": "SMC_CONFLUENCE", "time": "Live"},
+            {"from": "DeepSeek (Chief)", "to": "Kage (Sniper)", "symbol": active_lead_symbol, "status": "CONSENSUS_APPROVED", "time": "Live"},
+            {"from": "Kage (Sniper)", "to": "Atlas (Archivist)", "symbol": active_lead_symbol, "status": "SNIPER_DISPATCHED", "time": "Live"}
+        ]
 
     return {
         "timestamp": now_str,
@@ -267,6 +292,7 @@ def get_eight_agent_pipeline_state():
         "active_step": active_step,
         "active_agent": "All 8 Agents Working Simultaneously",
         "execution_mode": "PARALLEL_SWARM",
+        "blackboard": blackboard_summary,
         "agents": agents,
         "handoff_history": handoff_history,
         "office_telemetry": {
@@ -277,8 +303,10 @@ def get_eight_agent_pipeline_state():
             "coffee_cups_consumed": 42,
             "current_session": mkt_cache.get("compass", {}).get("session", "Tokyo / Global 24/7"),
             "daily_leads_screened": len(scanned_tokens) or 145,
-            "approved_today": 3,
-            "rejected_at_risk": 18
+            "approved_today": blackboard_summary.get("approved_count", 3),
+            "rejected_at_risk": blackboard_summary.get("rejected_count", 18),
+            "total_swarm_tickets": blackboard_summary.get("total_tickets", 0),
+            "consensus_rate_pct": blackboard_summary.get("approval_rate_pct", 88.5)
         }
     }
 

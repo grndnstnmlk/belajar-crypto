@@ -1872,6 +1872,186 @@
     }
 
     /* ======================================================================
+       AGENT BLACKBOARD EVENT BUS MONITOR (Multi-Agent Swarm Pipeline)
+       ====================================================================== */
+    .blackboard-bus-container {
+      margin-top: 18px;
+      background: #0d1017;
+      border: 1px solid #1e2638;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .blackboard-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 10px;
+    }
+
+    .blackboard-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .blackboard-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fffce1;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .blackboard-pipeline-bar {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .blackboard-pipeline-bar {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .bb-stage-node {
+      background: #141824;
+      border: 1px solid #232c40;
+      border-radius: 6px;
+      padding: 8px 6px;
+      text-align: center;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .bb-stage-node.completed {
+      border-color: rgba(0, 214, 143, 0.4);
+      background: rgba(0, 214, 143, 0.05);
+    }
+
+    .bb-stage-node.active-stage {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.08);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+    }
+
+    .bb-stage-node-num {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .bb-stage-node-name {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bb-stage-node-status {
+      font-size: 8.5px;
+      margin-top: 3px;
+      font-family: var(--font-mono);
+    }
+
+    .blackboard-split-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .blackboard-split-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .blackboard-ticket-card {
+      background: #121622;
+      border: 1px solid #242c3e;
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .blackboard-ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .bb-audit-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.04);
+      font-size: 11px;
+    }
+
+    .bb-audit-agent {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bb-audit-detail {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-align: right;
+    }
+
+    .blackboard-event-log {
+      background: #080a0f;
+      border: 1px solid #1a2233;
+      border-radius: 6px;
+      padding: 10px 12px;
+      max-height: 230px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bb-event-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.4;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .bb-event-time {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .bb-event-msg {
+      color: #cbd5e1;
+      word-break: break-word;
+    }
+
+    /* ======================================================================
        COUCOU / MOCHI DYNAMIC ISLAND COMPANION (Louis-CFM/coucou)
        ====================================================================== */
     .coucou-island-container {
@@ -2909,6 +3089,100 @@
                   </div>
                   <div class="retro-dialogue-target" id="dialogue-target">
                     Lead Target: BTCUSDT | Action: Scanning 145 crypto pairs for volume surges
+                  </div>
+                </div>
+              </div>
+
+              <!-- Event-Driven Blackboard Communication Bus -->
+              <div class="blackboard-bus-container" id="blackboard-bus-panel">
+                <div class="blackboard-header-row">
+                  <div class="blackboard-title-group">
+                    <span class="blackboard-title">
+                      <span>📡</span>
+                      <span>{ Swarm Blackboard • Event Bus Pipeline }</span>
+                    </span>
+                    <span class="status-capsule green" id="bb-consensus-badge">
+                      <span class="status-dot-pulse"></span>
+                      <span id="bb-consensus-rate-text">🎯 Consensus Rate: 88.5%</span>
+                    </span>
+                    <span class="status-pill blue mono" id="bb-ticket-count-badge" style="font-size:9.5px;">🎟️ 3 Tickets</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="btn btn-ghost btn-sm" onclick="triggerSwarmBlackboardTicket('SOLUSDT')" title="Trigger Live 8-Agent Parallel Swarm Audit on SOLUSDT">
+                      <span>⚡ Audit SOL</span>
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="triggerSwarmBlackboardTicket('ETHUSDT')" title="Trigger Live 8-Agent Parallel Swarm Audit on ETHUSDT">
+                      <span>⚡ Audit ETH</span>
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="triggerSwarmBlackboardTicket('BTCUSDT')" title="Trigger Live 8-Agent Parallel Swarm Audit on BTCUSDT">
+                      <span>⚡ Audit BTC</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 8-Stage Visual Pipeline Bar -->
+                <div class="blackboard-pipeline-bar" id="bb-pipeline-bar">
+                  <div class="bb-stage-node completed" id="bb-node-1">
+                    <div class="bb-stage-node-num">STAGE 01</div>
+                    <div class="bb-stage-node-name">🔍 SCOUT</div>
+                    <div class="bb-stage-node-status" style="color:var(--color-green);">POSTED</div>
+                  </div>
+                  <div class="bb-stage-node completed" id="bb-node-2">
+                    <div class="bb-stage-node-num">STAGE 02</div>
+                    <div class="bb-stage-node-name">🛡️ RISK</div>
+                    <div class="bb-stage-node-status" style="color:var(--color-green);">AUDITED</div>
+                  </div>
+                  <div class="bb-stage-node completed" id="bb-node-3">
+                    <div class="bb-stage-node-num">STAGE 03</div>
+                    <div class="bb-stage-node-name">🐳 WHALE</div>
+                    <div class="bb-stage-node-status" style="color:var(--color-green);">ACCUMULATING</div>
+                  </div>
+                  <div class="bb-stage-node completed" id="bb-node-4">
+                    <div class="bb-stage-node-num">STAGE 04</div>
+                    <div class="bb-stage-node-name">📱 SOCIAL</div>
+                    <div class="bb-stage-node-status" style="color:var(--color-green);">PULSE OK</div>
+                  </div>
+                  <div class="bb-stage-node completed" id="bb-node-5">
+                    <div class="bb-stage-node-num">STAGE 05</div>
+                    <div class="bb-stage-node-name">📊 SMC</div>
+                    <div class="bb-stage-node-status" style="color:var(--color-green);">MSS+FVG</div>
+                  </div>
+                  <div class="bb-stage-node active-stage" id="bb-node-6">
+                    <div class="bb-stage-node-num">STAGE 06</div>
+                    <div class="bb-stage-node-name">👔 CHIEF</div>
+                    <div class="bb-stage-node-status" style="color:var(--color-amber);">89% APPROVE</div>
+                  </div>
+                  <div class="bb-stage-node completed" id="bb-node-7">
+                    <div class="bb-stage-node-num">STAGE 07</div>
+                    <div class="bb-stage-node-name">⚡ SNIPER</div>
+                    <div class="bb-stage-node-status" style="color:var(--color-cyan);">20x BRACKET</div>
+                  </div>
+                  <div class="bb-stage-node completed" id="bb-node-8">
+                    <div class="bb-stage-node-num">STAGE 08</div>
+                    <div class="bb-stage-node-name">📝 JOURNAL</div>
+                    <div class="bb-stage-node-status" style="color:var(--color-purple);">IN-SYNC</div>
+                  </div>
+                </div>
+
+                <!-- Split Grid: Left Active Ticket Audits, Right Live Event Stream -->
+                <div class="blackboard-split-grid">
+                  <div class="blackboard-ticket-card" id="bb-active-ticket-card">
+                    <div class="blackboard-ticket-header">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-weight:800; font-size:12px; color:var(--text-primary);" id="bb-ticket-id">TICK-LIVE-LEAD</span>
+                        <span class="status-pill green mono" style="font-size:9px;" id="bb-ticket-verdict">APPROVED</span>
+                        <span class="status-pill blue mono" style="font-size:9px;" id="bb-ticket-score">SCORE: 89.0%</span>
+                      </div>
+                      <span class="mono" style="font-size:9.5px; color:var(--text-muted);" id="bb-ticket-time">Live Handshake</span>
+                    </div>
+
+                    <div id="bb-ticket-audits-body">
+                      <!-- Dynamically rendered via renderBlackboardBus() -->
+                    </div>
+                  </div>
+
+                  <div class="blackboard-event-log" id="bb-event-log-container">
+                    <!-- Chronological Event Stream rendered via renderBlackboardBus() -->
                   </div>
                 </div>
               </div>
@@ -5321,6 +5595,10 @@
 
       const displayAgent = deskData.agents.find(a => a.id === (selectedAgentId || 1)) || deskData.agents[0];
       updateDialogueBox(displayAgent, deskData.active_lead_symbol);
+
+      if (deskData.blackboard) {
+        renderBlackboardBus(deskData.blackboard);
+      }
     }
 
     function selectDeskForDialogue(agentId) {
@@ -5411,6 +5689,137 @@
         renderEightAgents(data);
       } catch (e) {
         console.warn('Could not fetch eight agents state:', e);
+      }
+    }
+
+    function renderBlackboardBus(bbData) {
+      if (!bbData) return;
+
+      // Update Consensus Rate & Ticket Count badges
+      const rateText = document.getElementById('bb-consensus-rate-text');
+      if (rateText) rateText.innerText = `🎯 Consensus Rate: ${bbData.approval_rate_pct || 88.5}%`;
+
+      const countBadge = document.getElementById('bb-ticket-count-badge');
+      if (countBadge) countBadge.innerText = `🎟️ ${bbData.total_tickets || 0} Tickets`;
+
+      // Update Active Ticket Card
+      const tk = bbData.active_ticket;
+      if (tk) {
+        const idEl = document.getElementById('bb-ticket-id');
+        if (idEl) idEl.innerText = `${tk.ticket_id} • ${tk.symbol}`;
+
+        const verdictEl = document.getElementById('bb-ticket-verdict');
+        if (verdictEl) {
+          const isOk = (tk.consensus_verdict === 'APPROVE' || tk.status === 'APPROVED_FOR_SNIPER' || tk.status === 'EXECUTED_AND_ARCHIVED');
+          verdictEl.innerText = tk.consensus_verdict || 'PENDING';
+          verdictEl.className = `status-pill ${isOk ? 'green' : 'red'} mono`;
+        }
+
+        const scoreEl = document.getElementById('bb-ticket-score');
+        if (scoreEl) scoreEl.innerText = `SCORE: ${tk.consensus_score || 0}%`;
+
+        const timeEl = document.getElementById('bb-ticket-time');
+        if (timeEl) timeEl.innerText = tk.updated_at || tk.created_at || 'Live';
+
+        // Update Pipeline Node States based on current stage
+        const stageMap = {
+          '01_scout': 1,
+          '02_PARALLEL_AUDIT': 5,
+          '03_CHIEF_CONSENSUS': 6,
+          '04_SNIPER_EXECUTION': 7,
+          '05_ARCHIVED': 8
+        };
+        const currentStageIdx = stageMap[tk.current_stage] || 8;
+        for (let i = 1; i <= 8; i++) {
+          const node = document.getElementById(`bb-node-${i}`);
+          if (node) {
+            node.className = (i < currentStageIdx) ? 'bb-stage-node completed' : ((i === currentStageIdx) ? 'bb-stage-node active-stage' : 'bb-stage-node');
+          }
+        }
+
+        // Render Stage Audits Breakdown
+        const auditsBody = document.getElementById('bb-ticket-audits-body');
+        if (auditsBody && tk.stages) {
+          const st = tk.stages;
+          auditsBody.innerHTML = `
+            <div class="bb-audit-row">
+              <span class="bb-audit-agent" style="color:#3b82f6;"><span>🔍</span> 01 Piper (Scout)</span>
+              <span class="bb-audit-detail">${st['01_scout'] ? (st['01_scout'].trigger || 'Volume Spike') : 'Awaiting signal'}</span>
+            </div>
+            <div class="bb-audit-row">
+              <span class="bb-audit-agent" style="color:#f59e0b;"><span>🛡️</span> 02 Aegis (Auditor)</span>
+              <span class="bb-audit-detail">${st['02_risk'] ? `LP $${((st['02_risk'].lp_depth_usd || 18450000)/1000000).toFixed(1)}M | Slip ${st['02_risk'].slippage_hurdle_bps || 4.2}bps` : 'Auditing LP depth'}</span>
+            </div>
+            <div class="bb-audit-row">
+              <span class="bb-audit-agent" style="color:#00b4d8;"><span>🐳</span> 03 Nautilus (Detective)</span>
+              <span class="bb-audit-detail">${st['03_whale'] ? `Whale Outflow +$${((st['03_whale'].cex_net_outflow_usd || 3420000)/1000000).toFixed(2)}M` : 'Monitoring cluster'}</span>
+            </div>
+            <div class="bb-audit-row">
+              <span class="bb-audit-agent" style="color:#a855f7;"><span>📱</span> 04 Echo (Social RAG)</span>
+              <span class="bb-audit-detail">${st['04_social'] ? `Greed ${st['04_social'].fng_index || 72}/100 | ${st['04_social'].social_velocity || '+18%'} mentions` : 'Querying web pulse'}</span>
+            </div>
+            <div class="bb-audit-row">
+              <span class="bb-audit-agent" style="color:#00d68f;"><span>📊</span> 05 Kepler (Chartist)</span>
+              <span class="bb-audit-detail">${st['05_analyst'] ? `${st['05_analyst'].smc_structure} | FVG Retest (${st['05_analyst'].chart_score || 92}%)` : 'Validating SMC'}</span>
+            </div>
+            <div class="bb-audit-row" style="background:rgba(139,92,246,0.08); padding:6px 6px; border-radius:4px; margin:2px 0;">
+              <span class="bb-audit-agent" style="color:#8b5cf6;"><span>👔</span> 06 DeepSeek (Chief)</span>
+              <span class="bb-audit-detail" style="color:#c4b5fd; font-weight:700;">Verdict: ${st['06_chief'] ? st['06_chief'].decision : 'ARBITRATING'} (Kelly ${st['06_chief'] ? st['06_chief'].recommended_kelly_risk_pct : 1.5}%)</span>
+            </div>
+            <div class="bb-audit-row">
+              <span class="bb-audit-agent" style="color:#f6465d;"><span>⚡</span> 07 Kage (Sniper)</span>
+              <span class="bb-audit-detail">${st['07_sniper'] ? `20x Bracket Fired (${st['07_sniper'].execution_latency_ms || 31.4}ms)` : 'Standby 20x'}</span>
+            </div>
+            <div class="bb-audit-row" style="border-bottom:none;">
+              <span class="bb-audit-agent" style="color:#10b981;"><span>📝</span> 08 Atlas (Archivist)</span>
+              <span class="bb-audit-detail">${st['08_journal'] ? 'Ledger & Memory Bank In-Sync' : 'Archiving'}</span>
+            </div>
+          `;
+        }
+      }
+
+      // Render Event Bus Stream
+      const logContainer = document.getElementById('bb-event-log-container');
+      if (logContainer && Array.isArray(bbData.event_bus_stream)) {
+        if (bbData.event_bus_stream.length === 0) {
+          logContainer.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:20px;">No blackboard events recorded yet.</div>';
+        } else {
+          logContainer.innerHTML = bbData.event_bus_stream.map(evt => `
+            <div class="bb-event-row">
+              <span class="bb-event-time">[${evt.timestamp || 'Live'}]</span>
+              <span class="bb-event-msg">${evt.message}</span>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    async function triggerSwarmBlackboardTicket(symbol = 'SOLUSDT') {
+      playRetroSound('blip');
+      showToast(`🚀 Launching 8-Agent Parallel Swarm Pipeline on ${symbol}...`);
+      try {
+        const res = await fetch('/api/desk/blackboard/ticket', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            symbol: symbol,
+            trigger: '4H SMC Bullish MSS Retest + Volume Surge'
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          playRetroSound('stamp');
+          showToast(`✅ Swarm Blackboard: ${symbol} Consensus ${data.ticket.consensus_score}% (${data.ticket.consensus_verdict})!`);
+          if (data.summary) {
+            renderBlackboardBus(data.summary);
+          }
+          fetchEightAgentsData();
+        } else {
+          showToast(`⚠️ Blackboard error: ${data.error || 'Failed'}`);
+        }
+      } catch (err) {
+        console.error('Blackboard trigger error:', err);
+        showToast(`❌ Failed to dispatch swarm ticket: ${err.message}`);
       }
     }
 
