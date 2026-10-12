@@ -2,18 +2,18 @@
   {
     "ticket_id": "TCK-20261012-7671",
     "symbol": "BTCUSDT",
-    "side": "SHORT",
+    "side": "LONG",
     "strategy": "Quantitative Confluence Setup",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_strategies",
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-10-12 09:22:57",
-    "updated_at": "2026-10-12 12:02:22",
+    "updated_at": "2026-10-12 12:34:35",
     "payload": {
-      "entry": 83373.66,
-      "sl": 84374.1439,
-      "tp": 83031.2125,
+      "entry": 83050.01,
+      "sl": 82468.6599,
+      "tp": 83738.6455,
       "rr": 3.0
     },
     "debate_result": null,
@@ -36,10 +36,10 @@
     "strategy": "5m Inverse FVG (IFVG) Liquidity Scalp",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-10-12 07:13:39",
-    "updated_at": "2026-10-12 07:18:14",
+    "updated_at": "2026-10-12 12:35:15",
     "payload": {
       "entry": 0.0877,
       "sl": 0.0851,
@@ -148,7 +148,13 @@
       "authorized_at": "2026-10-12 07:18:14",
       "note": "Auto-Approved in Full Autopilot: Confluence Verified"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udd34 Stop Loss Hit / Position Exited (-$9.70 USDT)",
+      "realized_pnl": -9.7021,
+      "net_pnl": -10.0105,
+      "closed_at": "2026-10-12 12:35:15"
+    },
     "timeline": [
       {
         "timestamp": "2026-10-12 07:13:39",
@@ -173,6 +179,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-10-12 12:35:15",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$9.70 USDT) | PnL: $-9.70 USDT (Net: $-10.01)"
       }
     ]
   },
