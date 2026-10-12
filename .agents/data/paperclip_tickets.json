@@ -9,10 +9,10 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-10-12 13:34:11",
-    "updated_at": "2026-10-12 13:38:56",
+    "updated_at": "2026-10-12 13:41:15",
     "payload": {
-      "entry": 1.3866,
-      "sl": 1.37,
+      "entry": 1.3887,
+      "sl": 1.372,
       "tp": 1.4059,
       "rr": 3.0
     },
@@ -69,12 +69,12 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-10-12 09:22:57",
-    "updated_at": "2026-10-12 13:38:56",
+    "updated_at": "2026-10-12 13:41:15",
     "payload": {
-      "entry": 82681.31,
-      "sl": 81689.1343,
-      "tp": 83031.2125,
-      "rr": 3.0
+      "entry": 82738.01,
+      "sl": 82232.56,
+      "tp": 84507.085,
+      "rr": 3.5
     },
     "debate_result": null,
     "risk_result": null,
@@ -908,10 +908,10 @@
     "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "market_eyes_screener",
     "assigned_to": "head_of_execution",
-    "stage": "EXECUTING",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-10-11 21:09:43",
-    "updated_at": "2026-10-12 09:25:23",
+    "updated_at": "2026-10-12 13:40:17",
     "payload": {
       "entry": 111.65,
       "sl": 114.9995,
@@ -1020,7 +1020,13 @@
       "authorized_at": "2026-10-12 09:25:23",
       "note": "Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan)"
     },
-    "execution_result": null,
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "\ud83d\udfe2 Profit Locked (+$11.12 USDT)",
+      "realized_pnl": 11.1244,
+      "net_pnl": 10.7664,
+      "closed_at": "2026-10-12 13:40:17"
+    },
     "timeline": [
       {
         "timestamp": "2026-10-11 21:09:43",
@@ -1051,6 +1057,12 @@
         "agent": "board_of_directors",
         "stage": "EXECUTING",
         "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Portofolio padat (3 posisi aktif berjalan) oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-10-12 13:40:17",
+        "agent": "trade_journaler_autopsy",
+        "stage": "CLOSED",
+        "note": "\ud83c\udfc1 [CLOSED] \ud83d\udfe2 Profit Locked (+$11.12 USDT) | PnL: $+11.12 USDT (Net: $+10.77)"
       }
     ]
   },
