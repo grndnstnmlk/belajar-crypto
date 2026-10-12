@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-12T21:44:40.890216+00:00",
-    "total_reflections": 18,
-    "system_retention_score": 101.5,
+    "last_reflection_at": "2026-10-12T21:46:10.458741+00:00",
+    "total_reflections": 19,
+    "system_retention_score": 101.9,
     "last_internet_learning_sync": "2026-10-13 00:48:48",
     "total_internet_learnings": 1
   },
@@ -59,7 +59,7 @@
     "SOLUSDT": {
       "symbol": "SOLUSDT",
       "volatility_regime": "HIGH",
-      "wick_risk_rating": "HIGH",
+      "wick_risk_rating": "VERY_HIGH",
       "funding_sensitivity": "MODERATE",
       "false_breakout_bias": "HIGH",
       "optimal_setups": [
@@ -69,16 +69,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 6,
+      "total_trades": 7,
       "wins": 2,
-      "losses": 4,
+      "losses": 5,
       "breakevens": 0,
-      "win_rate_pct": 33.3,
-      "net_pnl_usd": -4.1,
+      "win_rate_pct": 28.6,
+      "net_pnl_usd": -27.44,
       "avg_r_multiple": -0.01,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-10-12 20:40:14",
-      "updated_at": "2026-10-12T17:49:22.604941+00:00"
+      "updated_at": "2026-10-12T21:46:10.458727+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -1501,9 +1501,43 @@
       ],
       "created_at": "2026-10-12T20:00:06.427893+00:00",
       "updated_at": "2026-10-12T21:44:40.890213+00:00"
+    },
+    {
+      "id": "RULE-AUTO-SOLUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "solusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-10-12T21:46:10.458739+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261012-022",
+      "timestamp": "2026-10-12T21:46:10.458707+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "5m Session Liquidity Sweep & Micro-FVG",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -23.34,
+      "r_multiple": -1.83,
+      "pnl_pct": -2.79,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT 5m Session Liquidity Sweep & Micro-FVG (net: -$23.34, -1.83R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "5m_session_liquidity_sweep_&_micro-fvg",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-10-12T21:46:10.458715+00:00"
+    },
     {
       "id": "MEM-20261012-021",
       "timestamp": "2026-10-12T21:44:40.890163+00:00",
@@ -1845,8 +1879,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2862,
-      "last_accessed": "2026-10-12T21:43:31.971934+00:00"
+      "access_count": 2866,
+      "last_accessed": "2026-10-12T21:44:57.663839+00:00"
     },
     {
       "id": "MEM-20261011-006",
@@ -1867,8 +1901,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2880,
-      "last_accessed": "2026-10-12T21:43:31.971931+00:00"
+      "access_count": 2884,
+      "last_accessed": "2026-10-12T21:44:57.663836+00:00"
     },
     {
       "id": "MEM-20261011-005",
@@ -1889,8 +1923,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2880,
-      "last_accessed": "2026-10-12T21:43:31.971933+00:00"
+      "access_count": 2884,
+      "last_accessed": "2026-10-12T21:44:57.663838+00:00"
     },
     {
       "id": "MEM-20261011-004",
@@ -1911,8 +1945,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 2904,
-      "last_accessed": "2026-10-12T21:43:31.971925+00:00"
+      "access_count": 2908,
+      "last_accessed": "2026-10-12T21:44:57.663831+00:00"
     },
     {
       "id": "MEM-20260901-001",
