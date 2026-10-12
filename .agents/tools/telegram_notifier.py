@@ -789,39 +789,133 @@ def notify_ai_profit_lock(symbol, side, mark_price, new_sl_price, current_pnl, r
     )
     return send_telegram_msg(msg)
 
-def notify_pnl_summary(balance_usd, active_positions, is_demo=True):
+def notify_pnl_summary(balance_usd, active_positions, is_demo=True, chat_id_override=None):
     """
-    Sends a periodic summary of all open positions and floating PnL.
+    Sends a periodic summary of all open positions and floating PnL,
+    including institutional R-multiple progression, peak R reached, and Breakeven status.
     """
     mode_text = "🟡 DEMO (Testnet)" if is_demo else "🔴 LIVE"
     total_upnl = sum(float(p.get("unRealizedProfit", 0)) for p in active_positions)
     upnl_sign = "+" if total_upnl >= 0 else ""
+
+    meta = {}
+    try:
+        import trade_manager
+        meta = trade_manager.load_trade_metadata() or {}
+    except Exception:
+        meta = {}
+
+    def _fmt_price(val):
+        if val is None:
+            return "-"
+        try:
+            f = float(val)
+            return f"${f:,.4f}" if f < 10 else f"${f:,.2f}"
+        except Exception:
+            return str(val)
+
+    pos_cards = []
+    total_r_sum = 0.0
+    valid_r_count = 0
+
+    if active_positions:
+        for p in active_positions:
+            sym = p.get("symbol", "").upper().replace("-", "").replace("/", "").replace("_", "")
+            amt = float(p.get("positionAmt", 0))
+            is_long = amt > 0
+            side_badge = "🟢 LONG" if is_long else "🔴 SHORT"
+            upnl = float(p.get("unRealizedProfit", 0))
+            p_sign = "+" if upnl >= 0 else ""
+            entry_price = float(p.get("entryPrice", 0))
+            mark_price = float(p.get("markPrice", 0))
+
+            # Fallback mark_price calculation if missing from exchange payload
+            if mark_price <= 0 and entry_price > 0 and amt != 0:
+                mark_price = entry_price + (upnl / amt)
+
+            # Metadata lookup
+            t_data = meta.get(sym, {})
+            current_sl = t_data.get("current_sl")
+            tp_price = t_data.get("tp")
+            be_locked = t_data.get("breakeven_locked", False)
+            be_badge = " 🔒 [BE Locked]" if be_locked else ""
+
+            # Determine R distance
+            r_dist = float(t_data.get("r_distance", 0.0))
+            if r_dist <= 0 and entry_price > 0:
+                init_sl = float(t_data.get("initial_sl", 0.0))
+                if init_sl > 0:
+                    r_dist = abs(entry_price - init_sl)
+                else:
+                    r_dist = entry_price * 0.015
+
+            # Calculate live R-multiple
+            gain = (mark_price - entry_price) if is_long else (entry_price - mark_price)
+            r_mult = (gain / r_dist) if (r_dist > 0) else 0.0
+            total_r_sum += r_mult
+            valid_r_count += 1
+
+            # Determine peak R reached
+            hist_highest_r = float(t_data.get("highest_r_reached", 0.0))
+            peak_r = max(hist_highest_r, r_mult)
+
+            # Format R strings
+            r_sign = "+" if r_mult >= 0 else ""
+            peak_sign = "+" if peak_r >= 0 else ""
+            r_str = f"{r_sign}{r_mult:.2f}R"
+            peak_str = f"{peak_sign}{peak_r:.2f}R"
+
+            card_lines = [
+                f"• <b>{p.get('symbol', sym)}</b> {side_badge}{be_badge}",
+                f"  Entry: <code>{_fmt_price(entry_price)}</code> | Mark: <code>{_fmt_price(mark_price)}</code>",
+                f"  PnL: <code>{p_sign}${upnl:,.2f}</code> | <b>R-Multiple:</b> <code>{r_str}</code> <i>(Peak: {peak_str})</i>"
+            ]
+
+            # Append SL and TP target line if available
+            sub_targets = []
+            if current_sl is not None and float(current_sl) > 0:
+                sub_targets.append(f"SL: <code>{_fmt_price(current_sl)}</code>")
+            if tp_price is not None and float(tp_price) > 0:
+                rr_target = f" (1:{abs(float(tp_price) - entry_price)/r_dist:.1f})" if r_dist > 0 else ""
+                sub_targets.append(f"TP: <code>{_fmt_price(tp_price)}</code>{rr_target}")
+            if sub_targets:
+                card_lines.append(f"  " + " | ".join(sub_targets))
+
+            pos_cards.append("\n".join(card_lines))
+
+    tot_r_str = ""
+    if valid_r_count > 0:
+        tot_r_sign = "+" if total_r_sum >= 0 else ""
+        tot_r_str = f" <code>({tot_r_sign}{total_r_sum:.2f}R)</code>"
 
     lines = [
         f"📊 <b>RINGKASAN PORTOFOLIO TRADING DESK</b>",
         f"<i>Mode: {mode_text}</i>",
         f"━━━━━━━━━━━━━━━━━━",
         f"💰 <b>Total Balance:</b> <code>${balance_usd:,.2f} USDT</code>",
-        f"📈 <b>Floating PnL:</b> <code>{upnl_sign}${total_upnl:,.2f} USDT</code>",
+        f"📈 <b>Floating PnL:</b> <code>{upnl_sign}${total_upnl:,.2f} USDT</code>{tot_r_str}",
         f"📂 <b>Posisi Terbuka:</b> <code>{len(active_positions)} posisi</code>\n"
     ]
 
-    if active_positions:
-        for p in active_positions:
-            amt = float(p.get("positionAmt", 0))
-            side_badge = "🟢 LONG" if amt > 0 else "🔴 SHORT"
-            upnl = float(p.get("unRealizedProfit", 0))
-            p_sign = "+" if upnl >= 0 else ""
-            lines.append(
-                f"• <b>{p['symbol']}</b> {side_badge}\n"
-                f"  Entry: <code>${float(p.get('entryPrice', 0)):,.4f}</code> | "
-                f"PnL: <code>{p_sign}${upnl:,.2f}</code>"
-            )
+    if pos_cards:
+        lines.extend(pos_cards)
     else:
-        lines.append("<i>Tidak ada posisi terbuka saat ini.</i>")
+        lines.append("<i>Tidak ada posisi terbuka saat ini. Autopilot standby memindai market.</i>")
 
-    lines.append(f"\n🕒 <i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
-    return send_telegram_msg("\n".join(lines))
+    lines.append(f"\n━━━━━━━━━━━━━━━━━━\n🕒 <i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
+
+    inline_kb = [
+        [
+            {"text": "🔄 Refresh PnL", "callback_data": "refresh_pnl"},
+            {"text": "📊 Status Desk", "callback_data": "refresh_status"}
+        ],
+        [
+            {"text": "🏛️ SMC Trailing", "callback_data": "refresh_trailing"},
+            {"text": "📖 Jurnal", "callback_data": "refresh_journal"}
+        ]
+    ]
+
+    return send_telegram_msg("\n".join(lines), chat_id_override=chat_id_override, reply_markup={"inline_keyboard": inline_kb})
 
 def notify_pending_board_approval(setup, ticket, reasons):
     """
@@ -1066,7 +1160,40 @@ class TelegramCommandListener(threading.Thread):
                             "❓ Panduan Bantuan": "/help",
                             "❓ Bantuan": "/help"
                         }
-                        effective_cmd = cmd_map.get(text, text)
+                        # Support natural Indonesian / English text commands and case-insensitive phrases
+                        text_lower = text.lower().strip()
+                        alias_map = {
+                            "cek pnl": "/pnl",
+                            "cek pnlnya": "/pnl",
+                            "cek pnl nya": "/pnl",
+                            "pnl": "/pnl",
+                            "pnlnya": "/pnl",
+                            "pnl nya": "/pnl",
+                            "floating": "/pnl",
+                            "cek floating": "/pnl",
+                            "r-multiple": "/pnl",
+                            "cek r": "/pnl",
+                            "cek status": "/status",
+                            "status": "/status",
+                            "status desk": "/status",
+                            "posisi": "/status",
+                            "cek posisi": "/status",
+                            "jurnal": "/journal",
+                            "cek jurnal": "/journal",
+                            "trailing": "/trailing",
+                            "smc": "/trailing",
+                            "heat": "/heat",
+                            "compass": "/compass",
+                            "bantuan": "/help",
+                            "help": "/help",
+                            "pause": "/pause",
+                            "jeda": "/pause",
+                            "resume": "/resume",
+                            "lanjut": "/resume",
+                        }
+                        effective_cmd = cmd_map.get(text)
+                        if not effective_cmd:
+                            effective_cmd = alias_map.get(text_lower, text)
 
                         if effective_cmd.startswith("/"):
                             self._handle_command(effective_cmd, sender_chat_id)
@@ -1158,7 +1285,7 @@ class TelegramCommandListener(threading.Thread):
                 f"━━━━━━━━━━━━━━━━━━\n"
                 f"Gunakan tombol di bawah atau ketik perintah:\n"
                 f"• <code>/status</code> : Cek saldo akun, status autopilot, & posisi aktif\n"
-                f"• <code>/pnl</code> : Rincian floating PnL setiap koin\n"
+                f"• <code>/pnl</code> : Rincian floating PnL, R-Multiple, & Breakeven setiap koin\n"
                 f"• <code>/ask [pertanyaan]</code> : 🤖 Tanya & konsultasi dengan AI Quant Officer (cth: <code>/ask analisa btc hari ini</code>)\n"
                 f"• <code>/trailing</code> : 🏛️ SMC Structural Trailing Stop & Swing Pivot (Akademi Crypto Module 02)\n"
                 f"• <code>/journal [all|24h|7d]</code> : 📖 Jurnal Trading & Performance Scorecard (Akademi Crypto Module 03)\n"
@@ -1435,10 +1562,10 @@ class TelegramCommandListener(threading.Thread):
             except Exception as e:
                 send_telegram_msg(f"⚠️ Gagal memuat SMC Structural Trailing: {e}", chat_id_override=chat_id, reply_markup=MAIN_KEYBOARD)
 
-        elif command == "/pnl":
+        elif command in ["/pnl", "/floating", "/posisi"]:
             bal = trading_desk.get_account_balance(self.user_email, self.is_demo)
             positions = trading_desk.get_active_positions(self.user_email, self.is_demo)
-            notify_pnl_summary(bal, positions, is_demo=self.is_demo)
+            notify_pnl_summary(bal, positions, is_demo=self.is_demo, chat_id_override=chat_id)
 
         elif command == "/pause":
             state = load_desk_state()

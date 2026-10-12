@@ -891,8 +891,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
             dist_sl = price - sl
             if dist_sl > 0:
                 bonus_rr = 0.5 if is_alpha_leader else 0.0
-                # Blueprint Pillar 3: Minimum Asymmetric Target
-                target_rr = max(effective_min_rr, (3.50 + bonus_rr) if (has_bullish_3touch or has_bullish_auction or has_bullish_sweep or has_bullish_rb or has_bullish_sfp) else (effective_min_rr + bonus_rr))
+                # Blueprint Pillar 3: Minimum Asymmetric Target (Calibrated to 1:2.00 for market realism)
+                base_target_rr = float(os.getenv("TARGET_RR", "2.00"))
+                target_rr = max(effective_min_rr, base_target_rr)
                 raw_tp = price + (dist_sl * target_rr)
                 # Front-run Take Profit by 0.15% to guarantee limit fill before liquidity wall reversal
                 tp = round(raw_tp * 0.9985, 4)
@@ -909,7 +910,7 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                         "rr": rr,
                         "is_scalp": False,
                         "be_trigger_r": 1.00,
-                        "tp1_target_r": 2.25,
+                        "tp1_target_r": 1.50,
                         "anti_stall_minutes": 240,
                         "is_3touch": has_bullish_3touch,
                         "is_fabio": has_bullish_auction,
@@ -969,8 +970,9 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                 dist_sl = sl - price
                 if dist_sl > 0:
                     bonus_rr = 0.5 if is_beta_laggard else 0.0
-                    # Blueprint Pillar 3: Minimum Asymmetric Target
-                    target_rr = max(effective_min_rr, (3.50 + bonus_rr) if (has_bearish_3touch or has_bearish_auction or has_bearish_sweep or has_bearish_rb or has_bearish_sfp) else (effective_min_rr + bonus_rr))
+                    # Blueprint Pillar 3: Minimum Asymmetric Target (Calibrated to 1:2.00 for market realism)
+                    base_target_rr = float(os.getenv("TARGET_RR", "2.00"))
+                    target_rr = max(effective_min_rr, base_target_rr)
                     raw_tp = price - (dist_sl * target_rr)
                     # Front-run Take Profit by 0.15% to guarantee limit fill before liquidity wall reversal
                     tp = round(raw_tp * 1.0015, 4)
@@ -987,7 +989,7 @@ def scan_symbol_swing_candidate(sym, active_symbols, genome, min_rr, max_risk_pc
                             "rr": rr,
                             "is_scalp": False,
                             "be_trigger_r": 1.00,
-                            "tp1_target_r": 2.25,
+                            "tp1_target_r": 1.50,
                             "anti_stall_minutes": 240,
                             "is_3touch": has_bearish_3touch,
                             "is_fabio": has_bearish_auction,

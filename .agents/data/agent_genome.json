@@ -2,7 +2,7 @@
   "generation": 245,
   "fitness_score": 88.5,
   "parameters": {
-    "min_risk_reward": 2.5,
+    "min_risk_reward": 2.0,
     "max_risk_per_trade_pct": 1.5,
     "rsi_overbought": 70,
     "rsi_oversold": 30,
@@ -18,27 +18,27 @@
   "regime_genomes": {
     "TRENDING": {
       "label": "🟢 TREND FOLLOWING ENGINE",
-      "min_risk_reward": 3.0,
+      "min_risk_reward": 2.0,
       "max_risk_per_trade_pct": 4.6,
       "trailing_be_threshold_r": 1.2,
       "rsi_overbought": 75,
       "rsi_oversold": 25,
       "strategy_focus": "EMA_CROSS_AND_TREND_PULLBACK",
-      "rationale": "Captures massive multi-candle continuation waves with target $600 USD per win (Target R:R 1:3.00 – 1:5.00+)."
+      "rationale": "Captures massive multi-candle continuation waves with target $600 USD per win (Target R:R 1:2.00 – 1:3.50+)."
     },
     "RANGING": {
       "label": "🟡 MEAN REVERSION ENGINE",
-      "min_risk_reward": 2.5,
+      "min_risk_reward": 2.0,
       "max_risk_per_trade_pct": 3.5,
       "trailing_be_threshold_r": 0.75,
       "rsi_overbought": 68,
       "rsi_oversold": 32,
       "strategy_focus": "RSI_AND_FVG_RANGE_FILL",
-      "rationale": "Captures clean swing mean-reversion between value area boundaries (Target R:R 1:2.50 – 1:3.50)."
+      "rationale": "Captures clean swing mean-reversion between value area boundaries (Target R:R 1:2.00 – 1:2.50)."
     },
     "DEFENSIVE": {
       "label": "⚪ CAPITAL PRESERVATION ENGINE",
-      "min_risk_reward": 3.0,
+      "min_risk_reward": 2.0,
       "max_risk_per_trade_pct": 1.5,
       "allow_entry": false,
       "strategy_focus": "STANDBY_SQUEEZE_PROTECTION",

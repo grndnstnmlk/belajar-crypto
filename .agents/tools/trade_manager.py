@@ -705,6 +705,73 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
             continue
 
         # -------------------------------------------------------------
+        # STEP S0.1: AUTOMATIC FULL TAKE PROFIT TARGET HIT CHECK
+        # If mark price reaches or exceeds target TP (>= 2.0R), execute Market Close to bank 100% full profit!
+        # -------------------------------------------------------------
+        expected_tp = float(t_data.get("tp", 0.0) or 0.0)
+        is_tp_hit = False
+        if expected_tp > 0:
+            if side == "BUY" and mark_price >= expected_tp:
+                is_tp_hit = True
+            elif side == "SELL" and mark_price <= expected_tp:
+                is_tp_hit = True
+
+        if is_tp_hit:
+            print(f"🎯 [TAKE PROFIT TARGET REACHED] {sym}: Mark price (${mark_price:,.4f}) telah menyentuh Target TP (${expected_tp:,.4f} | +{r_multiple:.2f}R). Menutup posisi via Market Order demi mengunci keuntungan penuh!")
+            close_side = "SELL" if amt > 0 else "BUY"
+            close_res = binance_client.send_signed_request(
+                "/fapi/v1/order",
+                method="POST",
+                params={
+                    "symbol": sym,
+                    "side": close_side,
+                    "type": "MARKET",
+                    "quantity": abs(amt),
+                    "reduceOnly": "true"
+                },
+                is_demo=is_demo,
+                user_email=user_email
+            )
+            realized_usd = (mark_price - entry_price) * abs(amt) if side == "BUY" else (entry_price - mark_price) * abs(amt)
+            binance_client.cancel_existing_algo_orders_for_symbol(sym, is_demo=is_demo, user_email=user_email)
+            management_events.append(f"🎯 {sym} Full TP Hit @ ${expected_tp:,.4f} (+${realized_usd:,.2f} USDT | +{r_multiple:.2f}R)")
+            try:
+                telegram_notifier.send_telegram_msg(
+                    f"🎯 <b>TAKE PROFIT TERCAPAI (FULL EXIT)!</b> 🎯\n"
+                    f"━━━━━━━━━━━━━━━━━━\n"
+                    f"💎 <b>Simbol:</b> <code>{sym} ({side})</code>\n"
+                    f"💰 <b>Profit Terealisasi:</b> <code>+${realized_usd:,.2f} USDT (+{r_multiple:.2f}R)</code>\n"
+                    f"🏁 <b>Exit Price:</b> <code>${mark_price:,.4f}</code> (Target: ${expected_tp:,.4f})\n"
+                    f"🎉 <i>Target 1:2.0 berhasil dieksekusi dengan sempurna! Modal dan profit kembali ke dompet.</i>"
+                )
+            except Exception:
+                pass
+            try:
+                strat = t_data.get("strategy") or "Smart Money Concepts (SMC)"
+                trade_journal.record_closed_trade({
+                    "id": f"TPHIT-{sym}-{int(time.time())}",
+                    "symbol": sym,
+                    "side": side,
+                    "strategy": strat,
+                    "entry_price": entry_price,
+                    "exit_price": mark_price,
+                    "quantity": abs(amt),
+                    "amount_usd": round(entry_price * abs(amt), 2),
+                    "pnl_usd": round(realized_usd, 2),
+                    "commission_usd": 0.0,
+                    "net_pnl_usd": round(realized_usd, 2),
+                    "r_multiple": round(r_multiple, 2),
+                    "exit_reason": f"🎯 Take Profit Hit 1:2.0 (+${realized_usd:,.2f} USDT | +{r_multiple:.2f}R)",
+                    "opened_at": t_data.get("opened_at", ""),
+                    "closed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "source": "FULL_TP_ENGINE"
+                })
+            except Exception as j_err:
+                print(f"[TP Hit Journal Warning] {j_err}")
+            closed_syms.append(sym)
+            continue
+
+        # -------------------------------------------------------------
         # STEP S1: FAIL-SAFE SERVER-SIDE HARD STOP-LOSS RECONCILER
         # Guarantees native on-exchange STOP_MARKET orders directly on Binance trade servers.
         # -------------------------------------------------------------
