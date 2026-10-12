@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-12T06:00:19.785270+00:00",
-    "total_reflections": 7,
-    "system_retention_score": 118.2,
+    "last_reflection_at": "2026-10-12T09:20:17.097936+00:00",
+    "total_reflections": 8,
+    "system_retention_score": 116.2,
     "last_internet_learning_sync": "2026-10-12 15:11:49",
     "total_internet_learnings": 1
   },
@@ -21,16 +21,16 @@
         "VWAP Mean Reversion"
       ],
       "notes": "Anchor asset. Highly respected HTF liquidity pools. Major liquidity grabs occur during NY Open (13:30-15:00 UTC).",
-      "total_trades": 6,
+      "total_trades": 7,
       "wins": 4,
-      "losses": 2,
+      "losses": 3,
       "breakevens": 0,
-      "win_rate_pct": 66.7,
-      "net_pnl_usd": 5.47,
+      "win_rate_pct": 57.1,
+      "net_pnl_usd": 3.96,
       "avg_r_multiple": 0.11,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-10-12 10:15:18",
-      "updated_at": "2026-10-12T08:12:54.545216+00:00"
+      "updated_at": "2026-10-12T09:20:17.097926+00:00"
     },
     "ETHUSDT": {
       "symbol": "ETHUSDT",
@@ -1451,9 +1451,43 @@
       ],
       "created_at": "2026-10-11T20:26:18.497656+00:00",
       "updated_at": "2026-10-11T20:38:12.499868+00:00"
+    },
+    {
+      "id": "RULE-AUTO-BTCUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on BTCUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "btcusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-10-12T09:20:17.097934+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261012-011",
+      "timestamp": "2026-10-12T09:20:17.097911+00:00",
+      "symbol": "BTCUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -1.51,
+      "r_multiple": -0.1,
+      "pnl_pct": -0.19,
+      "root_cause": "Adverse volatility stop-out on BTCUSDT Smart Money Concepts (SMC) (net: -$1.51, -0.10R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on BTCUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "btc",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-10-12T09:20:17.097916+00:00"
+    },
     {
       "id": "MEM-20261012-010",
       "timestamp": "2026-10-12T06:00:19.785248+00:00",
@@ -1545,8 +1579,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1563,
-      "last_accessed": "2026-10-12T09:10:36.061238+00:00"
+      "access_count": 1575,
+      "last_accessed": "2026-10-12T09:18:20.699114+00:00"
     },
     {
       "id": "MEM-20261011-006",
@@ -1567,8 +1601,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1581,
-      "last_accessed": "2026-10-12T09:10:36.061234+00:00"
+      "access_count": 1593,
+      "last_accessed": "2026-10-12T09:18:20.699111+00:00"
     },
     {
       "id": "MEM-20261011-005",
@@ -1589,8 +1623,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1581,
-      "last_accessed": "2026-10-12T09:10:36.061236+00:00"
+      "access_count": 1593,
+      "last_accessed": "2026-10-12T09:18:20.699113+00:00"
     },
     {
       "id": "MEM-20261011-004",
@@ -1611,8 +1645,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 1605,
-      "last_accessed": "2026-10-12T09:10:36.061226+00:00"
+      "access_count": 1617,
+      "last_accessed": "2026-10-12T09:18:20.699107+00:00"
     },
     {
       "id": "MEM-20260901-001",
