@@ -943,59 +943,101 @@ def evaluate_active_position_exit(symbol, side, entry_price, mark_price, r_multi
 
         if side_clean == "BUY":
             upper_wick = last_c["high"] - max(last_c["open"], last_c["close"])
-            if upper_wick / candle_range > 0.40:
+            if upper_wick / candle_range > 0.35:
                 exhaustion_signals.append("Sumbu rejeksi atas panjang (Selling Wick Rejection 15M)")
                 exhaustion_score += 25
-            if rsi_curr < 55 and rsi_prev > 62:
+            if rsi_curr < 52 and rsi_prev > 60:
                 exhaustion_signals.append(f"RSI 15M melemah ({rsi_prev:.0f} -> {rsi_curr:.0f})")
                 exhaustion_score += 30
             if volumes[-1] < volumes[-2] * 0.70 and last_c["close"] <= prev_c["high"]:
                 exhaustion_signals.append("Volume pembelian menyusut (Volume Exhaustion)")
                 exhaustion_score += 20
-            if highest_r >= 0.65 and r_multiple <= highest_r * 0.65:
-                exhaustion_signals.append(f"Terkoreksi dari puncak +{highest_r:.2f}R ke +{r_multiple:.2f}R")
-                exhaustion_score += 35
+            if last_c["close"] < prev_c["low"]:
+                exhaustion_signals.append("Candle 15M berbalik menembus low sebelumnya (Micro Bearish Shift)")
+                exhaustion_score += 20
+            if highest_r >= 0.50:
+                retrace_pct = (highest_r - r_multiple) / max(highest_r, 0.01)
+                if retrace_pct >= 0.40:
+                    exhaustion_signals.append(f"Terkoreksi dalam ({retrace_pct*100:.0f}%) dari puncak +{highest_r:.2f}R ke +{r_multiple:.2f}R")
+                    exhaustion_score += 50
+                elif retrace_pct >= 0.25:
+                    exhaustion_signals.append(f"Terkoreksi {retrace_pct*100:.0f}% dari puncak +{highest_r:.2f}R ke +{r_multiple:.2f}R")
+                    exhaustion_score += 35
         else: # SHORT
             lower_wick = min(last_c["open"], last_c["close"]) - last_c["low"]
-            if lower_wick / candle_range > 0.40:
+            if lower_wick / candle_range > 0.35:
                 exhaustion_signals.append("Sumbu pantulan bawah panjang (Buying Wick Rejection 15M)")
                 exhaustion_score += 25
-            if rsi_curr > 45 and rsi_prev < 38:
+            if rsi_curr > 48 and rsi_prev < 40:
                 exhaustion_signals.append(f"RSI 15M memantul naik ({rsi_prev:.0f} -> {rsi_curr:.0f})")
                 exhaustion_score += 30
             if volumes[-1] < volumes[-2] * 0.70 and last_c["close"] >= prev_c["low"]:
                 exhaustion_signals.append("Volume penjualan mengering (Seller Exhaustion)")
                 exhaustion_score += 20
-            if highest_r >= 0.65 and r_multiple <= highest_r * 0.65:
-                exhaustion_signals.append(f"Terkoreksi dari puncak +{highest_r:.2f}R ke +{r_multiple:.2f}R")
-                exhaustion_score += 35
+            if last_c["close"] > prev_c["high"]:
+                exhaustion_signals.append("Candle 15M berbalik menembus high sebelumnya (Micro Bullish Shift)")
+                exhaustion_score += 20
+            if highest_r >= 0.50:
+                retrace_pct = (highest_r - r_multiple) / max(highest_r, 0.01)
+                if retrace_pct >= 0.40:
+                    exhaustion_signals.append(f"Terkoreksi dalam ({retrace_pct*100:.0f}%) dari puncak +{highest_r:.2f}R ke +{r_multiple:.2f}R")
+                    exhaustion_score += 50
+                elif retrace_pct >= 0.25:
+                    exhaustion_signals.append(f"Terkoreksi {retrace_pct*100:.0f}% dari puncak +{highest_r:.2f}R ke +{r_multiple:.2f}R")
+                    exhaustion_score += 35
 
-    # Calculate guaranteed profit SL level (+1.00R above entry for BUY, -1.00R below entry for SELL)
-    # Quant Fix: Never choke trades at +0.25R or +0.50R; winners must capture >= +1.0R guaranteed!
+    # Dynamic Ratchet Profit SL Level
     r_dist = abs(mark_price - entry_price) / max(r_multiple, 0.001) if r_multiple > 0 else (entry_price * 0.015)
-    if side_clean == "BUY":
-        profit_sl = entry_price + (r_dist * 1.00)
+    if r_multiple >= 1.50:
+        target_lock_r = max(1.00, round(r_multiple - 0.35, 2))
+    elif r_multiple >= 1.00:
+        target_lock_r = max(0.60, round(r_multiple - 0.30, 2))
+    elif r_multiple >= 0.70:
+        target_lock_r = max(0.35, round(r_multiple - 0.25, 2))
+    elif r_multiple >= 0.40 or highest_r >= 0.50:
+        target_lock_r = max(0.20, round(max(r_multiple, 0.40) - 0.20, 2))
     else:
-        profit_sl = entry_price - (r_dist * 1.00)
+        target_lock_r = 0.05
 
-    # 2. Decision Matrix (Akademi Crypto: Give runners room to breathe; do NOT choke trades < +1.5R)
+    if side_clean == "BUY":
+        profit_sl = entry_price + (r_dist * target_lock_r)
+    else:
+        profit_sl = entry_price - (r_dist * target_lock_r)
+
+    # 2. Decision Matrix: Trend Exhaustion & Peak R Profit Harvesting
     action = "HOLD_RUNNER"
     confidence = 80
     suggested_sl = None
 
-    if r_multiple >= 2.25 and exhaustion_score >= 65:
+    # Priority 1: Approaching Target TP (>= +1.20R) with momentum exhaustion
+    if r_multiple >= 1.20 and exhaustion_score >= 35:
         action = "TAKE_PROFIT_NOW"
         confidence = 90
-        thesis = f"AI AUTO-TP: Posisi untung besar +{r_multiple:.2f}R terkonfirmasi mengalami kelelahan momentum parah ({', '.join(exhaustion_signals)}). Menutup posisi 100% untuk merealisasikan cuan maksimal ke kas!"
-    elif r_multiple >= 1.50 and exhaustion_score >= 45:
+        thesis = f"AI AUTO-TP (TARGET RUNNER HARVEST): Posisi mendekati target (+{r_multiple:.2f}R, Puncak: +{highest_r:.2f}R) terkonfirmasi mengalami kelelahan tren ({', '.join(exhaustion_signals)}). Menutup posisi 100% via Market demi mengunci cuan maksimal ke kas!"
+
+    # Priority 2: Retraced >= 25% from Peak R (Peak R Harvester)
+    elif highest_r >= 0.60 and r_multiple <= (highest_r * 0.75) and exhaustion_score >= 35:
+        action = "TAKE_PROFIT_NOW"
+        confidence = 88
+        thesis = f"AI AUTO-TP (PEAK DEFENDER): Momentum tren habis setelah menyentuh puncak +{highest_r:.2f}R dan tergelincir ke +{r_multiple:.2f}R ({', '.join(exhaustion_signals)}). Menutup posisi 100% untuk mengamankan sisa profit kas sebelum tergerus habis!"
+
+    # Priority 3: Severe exhaustion in positive territory
+    elif (r_multiple >= 0.40 or highest_r >= 0.50) and exhaustion_score >= 60:
+        action = "TAKE_PROFIT_NOW"
+        confidence = 85
+        thesis = f"AI AUTO-TP (TREND EXHAUSTION): Struktur tren 15M patah/kelelahan parah ({', '.join(exhaustion_signals)}). Menutup posisi di +{r_multiple:.2f}R demi mengamankan modal & cuan sebelum menjadi kerugian!"
+
+    # Priority 4: Moderate slowdown -> Lock SL into guaranteed green profit
+    elif (r_multiple >= 0.50 or highest_r >= 0.50) and exhaustion_score >= 30:
         action = "LOCK_PROFIT_SL"
         confidence = 85
         suggested_sl = profit_sl
-        thesis = f"AI PROFIT LOCK: Menggeser Stop Loss ke zona profit solid ${profit_sl:,.4f} (+1.00R). Posisi dijamin keluar cuan minimal 1R jika harga berbalik arah!"
+        thesis = f"AI PROFIT LOCK: Momentum melambat ({', '.join(exhaustion_signals)}). Menggeser Stop Loss ke zona profit hijau ${profit_sl:,.4f} (+{target_lock_r:.2f}R). Garansi Green Exit jika tren berbalik arah!"
+
     else:
         action = "HOLD_RUNNER"
         confidence = 80
-        thesis = f"HOLD: Posisi (+{r_multiple:.2f}R) berkembang sehat. Memberikan ruang ekspansi menuju target TP ekspansi tanpa tercekik kebisingan mikro."
+        thesis = f"HOLD RUNNER: Tren (+{r_multiple:.2f}R, Puncak: +{highest_r:.2f}R) berkembang sehat (Skor Kelelahan: {exhaustion_score}/100). Memberikan ruang ekspansi menuju target TP 1:2.0 tanpa intervensi prematur."
 
     # 3. Optional LLM Cognitive Refinement if Key exists
     creds = get_ai_credentials()

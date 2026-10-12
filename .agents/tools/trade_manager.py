@@ -396,6 +396,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
     - Detects closed positions, extracts exact realized PnL from ledger, and notifies user.
     """
     meta = load_trade_metadata()
+    import trade_journal
     mt5_active_tickets = set()
     try:
         import mt5_client
@@ -941,11 +942,12 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
 
         # -------------------------------------------------------------
         # STEP 1B.2: AI ADAPTIVE PROFIT HARVESTER & DYNAMIC EXIT SENTINEL
-        # Solves: Profit reversing into loss! When in solid profit (+1.50R+),
+        # Solves: Profit reversing into loss! When in profit (+0.40R+ or Peak >= +0.50R),
         # AI evaluates momentum exhaustion, RSI drop, or rejection wicks.
-        # Can execute: (1) Early 100% Market TP Harvest (at >= +2.25R), or (2) Lock SL to Green (+1.00R).
+        # Can execute: (1) Early 100% Market TP Harvest (at peak R exhaustion), or (2) Lock SL to Green (+0.20R to +1.00R).
         # -------------------------------------------------------------
-        if r_multiple >= 1.50 and not t_data.get("ai_harvested", False) and not t_data.get("tp1_taken", False):
+        highest_r_val = float(t_data.get("highest_r_reached", r_multiple))
+        if (r_multiple >= 0.40 or highest_r_val >= 0.50) and not t_data.get("ai_harvested", False) and not t_data.get("tp1_taken", False):
             try:
                 ai_verdict = ai_risk_officer.evaluate_active_position_exit(
                     symbol=sym,
@@ -953,7 +955,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                     entry_price=entry_price,
                     mark_price=mark_price,
                     r_multiple=r_multiple,
-                    highest_r=t_data.get("highest_r_reached", r_multiple),
+                    highest_r=highest_r_val,
                     opened_at=t_data.get("opened_at"),
                     is_scalp=t_data.get("is_scalp", False)
                 )
@@ -1026,17 +1028,18 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                         closed_syms.append(sym)
                         continue
 
-                elif ai_action == "LOCK_PROFIT_SL" and not t_data.get("ai_profit_locked", False):
+                elif ai_action == "LOCK_PROFIT_SL":
                     sugg_sl = ai_verdict.get("suggested_sl")
                     if sugg_sl:
                         formatted_sl = float(binance_client.format_price_precision(sym, sugg_sl, is_demo=is_demo))
-                        is_better = (formatted_sl > t_data.get("current_sl", 0)) if side == "BUY" else (formatted_sl < t_data.get("current_sl", 999999))
-                        if is_better:
+                        curr_sl = float(t_data.get("current_sl", 0.0))
+                        is_better = (formatted_sl > curr_sl) if side == "BUY" else (formatted_sl < curr_sl or curr_sl == 0)
+                        if is_better and (abs(formatted_sl - curr_sl) >= (r_dist * 0.05) or curr_sl == 0):
                             success, _ = update_binance_stop_loss(sym, side, formatted_sl, is_demo=is_demo, user_email=user_email)
                             if success:
                                 t_data["ai_profit_locked"] = True
                                 t_data["current_sl"] = formatted_sl
-                                print(f"🛡️ [AI GREEN-EXIT PROFIT LOCK] {sym}: SL dinaikkan ke profit zone ${formatted_sl:,.4f} (+1.00R). Garansi Green Exit!")
+                                print(f"🛡️ [AI GREEN-EXIT PROFIT LOCK] {sym}: SL dinaikkan ke profit zone ${formatted_sl:,.4f}. Garansi Green Exit!")
                                 management_events.append(f"🛡️ {sym} AI Profit Lock @ ${formatted_sl:,.4f} (+{r_multiple:.2f}R)")
                                 try:
                                     telegram_notifier.notify_ai_profit_lock(
@@ -1046,6 +1049,7 @@ def audit_and_manage_positions(user_email=None, is_demo=True):
                                         new_sl_price=formatted_sl,
                                         current_pnl=upnl,
                                         r_multiple=r_multiple,
+                                        thesis=ai_thesis,
                                         is_demo=is_demo
                                     )
                                 except Exception as e:
@@ -1427,14 +1431,14 @@ class FastPositionWatcher(threading.Thread):
                         for ev in events:
                             print(f"⚡ [Fast Position Watcher] {ev}")
 
-                    # Check if any active position is a runner with profit >= +1.5R
+                    # Check if any active position is a runner with profit >= +0.75R
                     meta = load_trade_metadata()
                     for p in active:
                         sym = p.get("symbol", "")
                         sym_m = meta.get(sym, {})
                         upnl = float(p.get("unRealizedProfit", 0))
                         init_risk = float(sym_m.get("initial_risk_usd", 15.0))
-                        if init_risk > 0 and (upnl / init_risk) >= 1.5:
+                        if init_risk > 0 and (upnl / init_risk) >= 0.75:
                             has_high_rr_runner = True
                             break
 

@@ -569,6 +569,28 @@ def notify_ai_early_tp(symbol, side, mark_price, pnl_usd, r_multiple, thesis, is
     )
     return send_telegram_msg(msg)
 
+def notify_ai_profit_lock(symbol, side, mark_price, new_sl_price, current_pnl, r_multiple, thesis="", is_demo=True):
+    """
+    Sends rich alert when AI Sentinel ratchets Stop Loss into guaranteed green profit zone
+    following momentum exhaustion or peak R retracement defense.
+    """
+    mode_text = "🟡 DEMO" if is_demo else "🔴 LIVE"
+    side_icon = "🟢 LONG" if side.upper() in ["BUY", "LONG"] else "🔴 SHORT"
+    pnl_sign = "+" if current_pnl >= 0 else ""
+    msg = (
+        f"🛡️ <b>AI GREEN-EXIT PROFIT LOCK!</b>\n"
+        f"<i>Mode: {mode_text} | AI Sentinel Profit Defender</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>Simbol:</b> <code>{symbol}</code> ({side_icon})\n"
+        f"📈 <b>Floating Profit:</b> <code>+{r_multiple:.2f}R ({pnl_sign}${current_pnl:,.2f} USDT)</code>\n"
+        f"🛑 <b>Stop Loss Dikunci Hijau:</b> <code>${new_sl_price:,.4f}</code>\n"
+        f"🤖 <b>Analisa AI Sentinel:</b>\n"
+        f"<i>\"{html.escape(thesis) if thesis else 'Stop Loss digeser ke zona profit demi mengunci cuan hijau terjamin!'}\"</i>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🔒 <i>Trade dijamin keluar cuan hijau (Green Exit) jika harga berbalik arah!</i>"
+    )
+    return send_telegram_msg(msg)
+
 def notify_dex_pump_alert(token_info):
     """
     Sends rich alert when DEX Pump Radar detects high-velocity breakout on Solana/EVM DEX.
