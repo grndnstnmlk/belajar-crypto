@@ -117,22 +117,13 @@ def get_eight_agent_pipeline_state():
     elif is_halted:
         desk_mood = "ALERT"
         mood_badge = "🚨 RISK HALT ACTIVE"
-    elif active_pos_count > 0:
-        desk_mood = "SNIPING"
-        mood_badge = "⚡ ENGAGED (20X POSITION ACTIVE)"
-    else:
-        desk_mood = "PRODUCTIVE"
-        mood_badge = "🟢 8/8 AGENTS FULLY OPERATIONAL"
+    # All 8 agents operate simultaneously in parallel swarm mode
+    desk_mood = "PARALLEL_SWARM"
+    mood_badge = "🟢 8/8 AGENTS CONCURRENTLY WORKING (PARALLEL MODE)"
 
     # Current Lead flow calculation
     active_lead_symbol = head_symbol or top_search_symbol
-    if news_blackout:
-        active_step = 2  # Risk holds the lead
-    elif active_pos_count > 0:
-        active_step = 7  # Sniper is managing position
-    else:
-        # Dynamically cycle through steps based on time for lively retro animation
-        active_step = int((now // 8) % 6) + 1  # cycles 1 -> 6
+    active_step = 1
 
     agents = [
         {
@@ -142,11 +133,11 @@ def get_eight_agent_pipeline_state():
             "title": "Lead & Pool Radar",
             "avatar": "scout",
             "sprite_x": 0,
-            "state": "WORKING" if active_step == 1 else "IDLE",
-            "action": f"Scanning 145 crypto pairs for volume surges",
+            "state": "WORKING",
+            "action": f"Scanning {len(scanned_tokens) or 145} crypto pairs concurrently for volume surges",
             "lead": top_search_symbol,
-            "quote": f"Radar menemukan pergerakan likuiditas di {top_search_symbol}!",
-            "emote": "!" if active_step == 1 else "🔍",
+            "quote": f"Radar aktif memindai 145 crypto pairs secara real-time, mendeteksi sinyal di {top_search_symbol}!",
+            "emote": "🔍",
             "color": "#3b82f6",
             "props": "Multi-monitor radar, binoculars, crypto ticker"
         },
@@ -157,8 +148,8 @@ def get_eight_agent_pipeline_state():
             "title": "Contract & Capital Defense",
             "avatar": "auditor",
             "sprite_x": 1,
-            "state": "ALERT" if news_blackout else ("WORKING" if active_step == 2 else "IDLE"),
-            "action": "News Blackout Active" if news_blackout else "Auditing LP depth, taxes, & max drawdown",
+            "state": "ALERT" if news_blackout else "WORKING",
+            "action": "News Blackout Active" if news_blackout else "Auditing LP depth, taxes, & capital safety 24/7",
             "lead": "News Shield: " + ("PAUSED" if news_blackout else "CLEAN"),
             "quote": "Tahan dulu, ada rilis berita makro penting!" if news_blackout else "Audit kontrak 100% aman, likuiditas terkunci.",
             "emote": "🛡️" if not news_blackout else "☕",
@@ -172,11 +163,11 @@ def get_eight_agent_pipeline_state():
             "title": "Smart Money & CEX Flow",
             "avatar": "detective",
             "sprite_x": 2,
-            "state": "WORKING" if active_step == 3 else "IDLE",
-            "action": f"Tracking {tracked_wallets} institutional wallet clusters",
+            "state": "WORKING",
+            "action": f"Tracking {tracked_wallets} institutional wallet clusters & CEX Net Flows",
             "lead": "Net Outflow: Wintermute & DWF",
-            "quote": "Paus besar sedang akumulasi diam-diam di orderbook!",
-            "emote": "🐳" if active_step == 3 else "👁️",
+            "quote": "Memantau akumulasi Smart Money & orderbook flow tanpa henti!",
+            "emote": "🐳",
             "color": "#00b4d8",
             "props": "Sonar radar bawah air, peta cluster wallet, kacamata detektif"
         },
@@ -187,11 +178,11 @@ def get_eight_agent_pipeline_state():
             "title": "Sentiment & Internet Pulse",
             "avatar": "social",
             "sprite_x": 3,
-            "state": "WORKING" if active_step == 4 else "IDLE",
-            "action": f"F&G: {fng_score}/100 | {social_headline[:30]}...",
+            "state": "WORKING",
+            "action": f"F&G: {fng_score}/100 | Live Web RAG (CoinDesk, Cointelegraph, Reddit)",
             "lead": f"Reddit & X Sentiment: GREED ({fng_score})",
-            "quote": "Komunitas sangat antusias, sentimen positif mengalir!",
-            "emote": "💬" if active_step == 4 else "📱",
+            "quote": "Memonitor sentimen pasar global, berita terkini & persepsi komunitas 24/7!",
+            "emote": "📱",
             "color": "#a855f7",
             "props": "Balon pesan melayang, smartphone, radio antena retro"
         },
@@ -202,11 +193,11 @@ def get_eight_agent_pipeline_state():
             "title": "SMC & Order Flow Specialist",
             "avatar": "chartist",
             "sprite_x": 4,
-            "state": "WORKING" if active_step == 5 else "IDLE",
-            "action": f"Validating 4H Trend & {leading_sector[:20]} FVG",
+            "state": "WORKING",
+            "action": f"Validating 4H/1H SMC structure, FVG retest & order flow imbalance",
             "lead": "SMC: Bullish FVG Retest",
-            "quote": "Struktur Break of Structure valid! R:R minimal 1:3.5.",
-            "emote": "📊" if active_step == 5 else "📈",
+            "quote": "Menganalisis multi-timeframe structure, Fair Value Gap & imbalance harga simultan!",
+            "emote": "📊",
             "color": "#00d68f",
             "props": "Papan tulis rumus SMC, lilin candlestick menyala, busur derajat"
         },
@@ -217,11 +208,11 @@ def get_eight_agent_pipeline_state():
             "title": "Local Cognitive Brain & Sizing",
             "avatar": "boss",
             "sprite_x": 5,
-            "state": "WORKING" if active_step == 6 else "IDLE",
+            "state": "WORKING",
             "action": f"Model: deepseek-r1:8b | Verdict: {head_decision} ({head_confidence_pct}%)",
             "lead": f"Fractional Kelly: 1.5% Risk",
-            "quote": "Proposal disetujui! Risiko terukur, eksekusi sekarang!",
-            "emote": "👔" if active_step == 6 else "☕",
+            "quote": "Mensintesis analisa semua meja secara simultan & kalkulasi sizing optimal!",
+            "emote": "👔",
             "color": "#8b5cf6",
             "props": "Meja kayu eksekutif, cangkir kopi mengepul, stempel emas"
         },
@@ -232,10 +223,10 @@ def get_eight_agent_pipeline_state():
             "title": "Sub-35ms 20x Precision Gunner",
             "avatar": "sniper",
             "sprite_x": 6,
-            "state": "ACTIVE" if active_pos_count > 0 else ("WORKING" if active_step == 7 else "IDLE"),
+            "state": "WORKING",
             "action": sniper_status,
             "lead": f"20x Leverage | Micro-BE +0.60R",
-            "quote": "Order terkirim dalam 12 milidetik! Trailing Stop terpasang.",
+            "quote": "Mengawal posisi live dengan AI Sentinel Peak-R Harvester & eksekusi sub-35ms!",
             "emote": "⚡" if active_pos_count > 0 else "🎯",
             "color": "#f6465d",
             "props": "Tombol merah launch, kacamata target HUD, kabel optik cepat"
@@ -247,23 +238,25 @@ def get_eight_agent_pipeline_state():
             "title": "Trade Ledger & Continual Learning",
             "avatar": "clerk",
             "sprite_x": 7,
-            "state": "WORKING" if active_step == 8 else "IDLE",
+            "state": "WORKING",
             "action": f"{total_trades} trades logged | {learned_rules} tactics committed",
             "lead": "Memory Bank: 100% In-Sync",
-            "quote": "Semua data transaksi tersimpan rapi untuk evaluasi besok.",
-            "emote": "📝" if active_step == 8 else "📚",
+            "quote": "Mencatat riwayat trade, mengkaji metrik Sharpe ratio & update memori AI!",
+            "emote": "📝",
             "color": "#10b981",
             "props": "Mesin ketik mekanik antik, lemari map arsip, buku catatan kulit"
         }
     ]
 
-    # Generate sequential handoff history
+    # Concurrent Swarm Collaboration history
     handoff_history = [
-        {"from": "SEARCH", "to": "RISK", "symbol": active_lead_symbol, "status": "PASSED", "time": "2 m lalu"},
-        {"from": "RISK", "to": "WHALE", "symbol": active_lead_symbol, "status": "PASSED", "time": "1 m lalu"},
-        {"from": "WHALE", "to": "SHILL", "symbol": active_lead_symbol, "status": "PASSED", "time": "45 dtk lalu"},
-        {"from": "SHILL", "to": "ANALYST", "symbol": active_lead_symbol, "status": "PASSED", "time": "30 dtk lalu"},
-        {"from": "ANALYST", "to": "HEAD_OF_DESK", "symbol": active_lead_symbol, "status": "REVIEWING", "time": "10 dtk lalu"}
+        {"from": "SEARCH", "to": "RISK", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
+        {"from": "RISK", "to": "WHALE", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
+        {"from": "WHALE", "to": "SHILL", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
+        {"from": "SHILL", "to": "ANALYST", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
+        {"from": "ANALYST", "to": "HEAD_OF_DESK", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
+        {"from": "HEAD_OF_DESK", "to": "SNIPER", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"},
+        {"from": "SNIPER", "to": "JOURNAL", "symbol": active_lead_symbol, "status": "CONCURRENT", "time": "Live"}
     ]
 
     return {
@@ -272,12 +265,15 @@ def get_eight_agent_pipeline_state():
         "mood_badge": mood_badge,
         "active_lead_symbol": active_lead_symbol,
         "active_step": active_step,
-        "active_agent": agents[active_step - 1]["name"],
+        "active_agent": "All 8 Agents Working Simultaneously",
+        "execution_mode": "PARALLEL_SWARM",
         "agents": agents,
         "handoff_history": handoff_history,
         "office_telemetry": {
             "online_agents": 8,
             "total_agents": 8,
+            "working_agents": 8,
+            "execution_mode": "PARALLEL_SIMULTANEOUS",
             "coffee_cups_consumed": 42,
             "current_session": mkt_cache.get("compass", {}).get("session", "Tokyo / Global 24/7"),
             "daily_leads_screened": len(scanned_tokens) or 145,

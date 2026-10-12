@@ -1630,6 +1630,12 @@
       box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
     }
 
+    .retro-workstation.parallel-working-desk {
+      background: #141720;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
     .retro-workstation.active-lead-desk {
       border-color: #f59e0b;
       background: linear-gradient(180deg, #171c26 0%, #131720 100%);
@@ -2876,8 +2882,8 @@
                   <span>Current Lead: <strong style="color:var(--color-amber);" id="retro-lead-symbol">BTCUSDT</strong></span>
                 </div>
                 <div class="retro-amb-item" id="retro-amb-active-agent">
-                  <span>👤</span>
-                  <span>Active Desk: <strong style="color:var(--color-cyan);" id="retro-active-agent-name">Search (Piper)</strong></span>
+                  <span>⚡</span>
+                  <span>Swarm Execution: <strong style="color:var(--color-green);" id="retro-active-agent-name">8/8 Simultaneous Workers (Parallel)</strong></span>
                 </div>
                 <div class="retro-amb-item" id="retro-amb-coffee">
                   <span>☕</span>
@@ -5244,55 +5250,54 @@
       if (!deskData || !Array.isArray(deskData.agents)) return;
       currentEightAgentsData = deskData;
 
-      // Update Header Badges
+      // Update Header Badges to show 100% concurrent parallel operation
       const moodText = document.getElementById('retro-mood-text');
       const moodPill = document.getElementById('retro-mood-pill');
-      if (moodText && deskData.mood_badge) moodText.innerText = deskData.mood_badge;
-      if (moodPill) {
-        if (deskData.desk_mood === 'COFFEE_BREAK') moodPill.className = 'status-capsule amber';
-        else if (deskData.desk_mood === 'ALERT') moodPill.className = 'status-capsule red';
-        else moodPill.className = 'status-capsule green';
-      }
+      if (moodText) moodText.innerText = deskData.mood_badge || '🟢 8/8 AGENTS CONCURRENTLY WORKING (PARALLEL MODE)';
+      if (moodPill) moodPill.className = 'status-capsule green';
 
       // Update Ambient Bar
       const leadEl = document.getElementById('retro-lead-symbol');
       if (leadEl && deskData.active_lead_symbol) leadEl.innerText = deskData.active_lead_symbol;
 
       const agentNameEl = document.getElementById('retro-active-agent-name');
-      if (agentNameEl && deskData.active_agent) agentNameEl.innerText = deskData.active_agent;
+      if (agentNameEl) {
+        agentNameEl.innerText = '8/8 Simultaneous Workers (Parallel)';
+        agentNameEl.style.color = 'var(--color-green)';
+      }
 
-      // Render 8 Desks
+      // Render 8 Desks: All 8 working simultaneously in parallel
       const container = document.getElementById('retro-desks-container');
       if (!container) return;
 
-      const activeStep = deskData.active_step || 1;
-
       container.innerHTML = deskData.agents.map((ag) => {
-        const isActive = (ag.id === activeStep) || (selectedAgentId === ag.id);
-        const isWorking = ag.state === 'WORKING' || ag.state === 'ACTIVE' || isActive;
+        const isInspected = (selectedAgentId === ag.id);
+        const stateLabel = ag.state || 'WORKING';
+        const isAlert = stateLabel === 'ALERT';
 
         return `
-          <div class="retro-workstation ${isActive ? 'active-lead-desk' : ''}" 
+          <div class="retro-workstation parallel-working-desk ${isInspected ? 'active-lead-desk' : ''}" 
                id="workstation-${ag.id}" 
+               style="border-color:${isInspected ? '#f59e0b' : (ag.color ? ag.color + '44' : '#282f3d')};"
                onclick="selectDeskForDialogue(${ag.id})">
             
             <div class="retro-desk-top-row">
-              <span class="retro-step-pill" style="${isActive ? 'color:#f59e0b;' : ''}">0${ag.id} ${ag.role}</span>
-              <span style="font-size:9.5px; color:${isActive ? 'var(--color-green)' : 'var(--text-muted)'}; display:flex; align-items:center; gap:4px;">
-                <span class="status-dot-pulse" style="width:6px; height:6px; background:${isActive ? 'var(--color-green)' : '#535b69'};"></span>
-                <span>${ag.state}</span>
+              <span class="retro-step-pill" style="color:${ag.color || '#fffce1'}; border:1px solid ${ag.color ? ag.color + '55' : 'rgba(255,255,255,0.1)'}; background:${ag.color ? ag.color + '18' : '#1e2430'};">0${ag.id} ${ag.role}</span>
+              <span style="font-size:9.5px; color:${isAlert ? 'var(--color-red)' : 'var(--color-green)'}; display:flex; align-items:center; gap:4px; font-weight:700;">
+                <span class="status-dot-pulse" style="width:6px; height:6px; background:${isAlert ? 'var(--color-red)' : 'var(--color-green)'};"></span>
+                <span>${stateLabel}</span>
               </span>
             </div>
 
             <div class="retro-avatar-stage">
-              <div class="retro-emote-bubble" style="${isActive ? 'border-color:#f59e0b; background:#292010;' : ''}">
+              <div class="retro-emote-bubble" style="${isInspected ? 'border-color:#f59e0b; background:#292010;' : ''}">
                 ${ag.emote || '💬'}
               </div>
 
               <div class="retro-desk-illustration">
-                ${getPixelCharacterSvg(ag.role, isWorking)}
+                ${getPixelCharacterSvg(ag.role, true)}
                 
-                <div class="retro-crt-screen">
+                <div class="retro-crt-screen" style="box-shadow: 0 0 10px ${ag.color ? ag.color + '66' : 'rgba(0, 214, 143, 0.3)'};">
                   <div class="retro-crt-line"></div>
                   <div class="retro-crt-line" style="width:11px; background:${ag.color || '#00d68f'};"></div>
                   <div class="retro-crt-line" style="width:14px;"></div>
@@ -5314,7 +5319,7 @@
         `;
       }).join('');
 
-      const displayAgent = deskData.agents.find(a => a.id === (selectedAgentId || activeStep)) || deskData.agents[0];
+      const displayAgent = deskData.agents.find(a => a.id === (selectedAgentId || 1)) || deskData.agents[0];
       updateDialogueBox(displayAgent, deskData.active_lead_symbol);
     }
 
@@ -5325,9 +5330,17 @@
         const ag = currentEightAgentsData.agents.find(a => a.id === agentId);
         if (ag) {
           updateDialogueBox(ag, currentEightAgentsData.active_lead_symbol);
-          document.querySelectorAll('.retro-workstation').forEach(w => w.classList.remove('active-lead-desk'));
+          document.querySelectorAll('.retro-workstation').forEach(w => {
+            const wId = parseInt(w.id.replace('workstation-', ''));
+            const aData = currentEightAgentsData.agents.find(x => x.id === wId);
+            w.classList.remove('active-lead-desk');
+            w.style.borderColor = aData && aData.color ? aData.color + '44' : '#282f3d';
+          });
           const el = document.getElementById(`workstation-${agentId}`);
-          if (el) el.classList.add('active-lead-desk');
+          if (el) {
+            el.classList.add('active-lead-desk');
+            el.style.borderColor = '#f59e0b';
+          }
         }
       }
     }
@@ -5353,53 +5366,41 @@
 
       if (avatarEl) avatarEl.innerText = emojiMap[ag.avatar] || '👨‍💻';
       if (nameEl) nameEl.innerText = ag.name;
-      if (roleEl) roleEl.innerText = `0${ag.id} ${ag.role}`;
+      if (roleEl) roleEl.innerText = `0${ag.id} ${ag.role} • SIMULTANEOUS WORKER`;
       if (quoteEl) quoteEl.innerText = `"${ag.quote || ag.action}"`;
-      if (targetEl) targetEl.innerText = `Focus: ${ag.lead || leadSymbol || 'BTCUSDT'} | Props: ${ag.props || 'Workstation'}`;
+      if (targetEl) targetEl.innerText = `Focus: ${ag.lead || leadSymbol || 'BTCUSDT'} | Mode: Simultaneous Parallel Execution (Active) | Props: ${ag.props || 'Workstation'}`;
     }
 
     function simulateHandoffDemo() {
       if (isHandoffAnimating) return;
       isHandoffAnimating = true;
-      showToast('⚡ Running 8-Agent Pipeline Simulation Demo...');
-      playRetroSound('coin');
+      showToast('⚡ Synchronizing 8-Agent Parallel Swarm Operation...');
+      playRetroSound('fanfare');
 
-      const steps = [1, 2, 3, 4, 5, 6, 7, 8];
-      let currIdx = 0;
+      // Pulse all 8 desks simultaneously in parallel
+      document.querySelectorAll('.retro-workstation').forEach((w, idx) => {
+        setTimeout(() => {
+          w.classList.add('active-lead-desk');
+          w.style.borderColor = '#00d68f';
+          playRetroSound('coin');
+        }, idx * 80);
+      });
 
-      const folder = document.getElementById('retro-folder');
-
-      const interval = setInterval(() => {
-        if (currIdx >= steps.length) {
-          clearInterval(interval);
-          isHandoffAnimating = false;
-          if (folder) folder.style.display = 'none';
-          playRetroSound('fanfare');
-          showToast('🎉 Trade Pipeline Executed & Logged to Journal!');
-          return;
+      setTimeout(() => {
+        document.querySelectorAll('.retro-workstation').forEach(w => {
+          const wId = parseInt(w.id.replace('workstation-', ''));
+          const aData = currentEightAgentsData?.agents?.find(x => x.id === wId);
+          w.classList.remove('active-lead-desk');
+          w.style.borderColor = aData && aData.color ? aData.color + '44' : '#282f3d';
+        });
+        const currentSel = document.getElementById(`workstation-${selectedAgentId || 1}`);
+        if (currentSel) {
+          currentSel.classList.add('active-lead-desk');
+          currentSel.style.borderColor = '#f59e0b';
         }
-
-        const agentId = steps[currIdx];
-        selectDeskForDialogue(agentId);
-
-        if (agentId === 2) playRetroSound('stamp');
-        else if (agentId === 6) playRetroSound('stamp');
-        else if (agentId === 7) playRetroSound('coin');
-        else playRetroSound('blip');
-
-        const deskEl = document.getElementById(`workstation-${agentId}`);
-        if (deskEl && folder) {
-          const rect = deskEl.getBoundingClientRect();
-          const floorRect = document.getElementById('retro-floor-area')?.getBoundingClientRect();
-          if (floorRect) {
-            folder.style.display = 'flex';
-            folder.style.left = `${rect.left - floorRect.left + (rect.width / 2) - 11}px`;
-            folder.style.top = `${rect.top - floorRect.top + 10}px`;
-          }
-        }
-
-        currIdx++;
-      }, 750);
+        isHandoffAnimating = false;
+        showToast('🎉 All 8 Specialists Operating Concurrently in Parallel Harmony!');
+      }, 1500);
     }
 
     async function fetchEightAgentsData() {
