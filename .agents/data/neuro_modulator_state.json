@@ -1,11 +1,22 @@
 {
-  "dopamine_level": 27.16,
-  "cortisol_level": 40.6,
-  "state": "EQUILIBRIUM_NEUTRAL",
-  "synaptic_risk_multiplier": 1.0,
+  "dopamine_level": 17.22,
+  "cortisol_level": 52.52,
+  "state": "ELEVATED_STRESS",
+  "synaptic_risk_multiplier": 0.75,
   "anti_overconfidence_active": false,
-  "confluence_threshold_offset": 0.0,
+  "confluence_threshold_offset": 4.0,
   "recent_bursts": [
+    {
+      "timestamp": "2026-10-12 10:11:25",
+      "circuit": "PPL101_AVERSIVE_CORTISOL",
+      "event_type": "STOP_LOSS",
+      "symbol": "XRPUSDT",
+      "pnl_usd": -5.53,
+      "r_multiple": -0.42,
+      "delta_dopamine": -10.0,
+      "delta_cortisol": 12.0,
+      "note": "Position closed via 🔴 Stop Loss Hit / Position Exited (-$4.90 USDT)"
+    },
     {
       "timestamp": "2026-10-12 03:38:12",
       "circuit": "PPL101_AVERSIVE_CORTISOL",
@@ -52,8 +63,8 @@
     }
   ],
   "total_pam11_firings": 0,
-  "total_ppl101_firings": 4,
-  "last_updated": 1791774564.1539886,
-  "status_badge": "⚖️ EQUILIBRIUM NEUTRAL",
-  "action_guidance": "Kondisi neuro-kognitif seimbang. Operasional trading desk kuantitatif berjalan sesuai parameter standar."
+  "total_ppl101_firings": 5,
+  "last_updated": 1791774685.4444892,
+  "status_badge": "⚠️ ELEVATED STRESS",
+  "action_guidance": "Stres terdeteksi. Ukuran lot dikurangi 25%, filter konfluensi dinaikkan untuk menghindari chop."
 }
