@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-13T09:49:24.148778+00:00",
-    "total_reflections": 20,
-    "system_retention_score": 100.9,
+    "last_reflection_at": "2026-10-13T09:52:23.439888+00:00",
+    "total_reflections": 22,
+    "system_retention_score": 99.9,
     "last_internet_learning_sync": "2026-10-13 16:49:02",
     "total_internet_learnings": 1
   },
@@ -37,7 +37,7 @@
       "volatility_regime": "MODERATE",
       "wick_risk_rating": "MODERATE",
       "funding_sensitivity": "HIGH",
-      "false_breakout_bias": "MODERATE",
+      "false_breakout_bias": "HIGH",
       "optimal_setups": [
         "Order Flow Shift",
         "Liquidity Sweep + SMR",
@@ -45,16 +45,16 @@
         "Naked POC Retest"
       ],
       "notes": "Correlated with BTC with beta 1.15x. Gas and funding surges often precede local trend exhaustion.",
-      "total_trades": 3,
+      "total_trades": 5,
       "wins": 2,
-      "losses": 0,
+      "losses": 2,
       "breakevens": 1,
-      "win_rate_pct": 66.7,
-      "net_pnl_usd": 28.96,
+      "win_rate_pct": 40.0,
+      "net_pnl_usd": 22.56,
       "avg_r_multiple": 0.5,
-      "last_traded_outcome": "WIN",
+      "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-10-13 00:16:09",
-      "updated_at": "2026-10-13T09:49:24.144447+00:00"
+      "updated_at": "2026-10-13T09:52:23.439874+00:00"
     },
     "SOLUSDT": {
       "symbol": "SOLUSDT",
@@ -1514,9 +1514,65 @@
         "volatility_guard"
       ],
       "created_at": "2026-10-12T21:46:10.458739+00:00"
+    },
+    {
+      "id": "RULE-AUTO-ETHUSDT",
+      "category": "DYNAMIC_DEFENSE",
+      "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on ETHUSDT due to elevated wick risk.",
+      "confidence": 0.88,
+      "trigger_conditions": [
+        "ethusdt",
+        "defensive_entry",
+        "volatility_guard"
+      ],
+      "created_at": "2026-10-13T09:52:23.439885+00:00"
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261013-025",
+      "timestamp": "2026-10-13T09:52:23.439860+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Opening Range Breakout (ORB)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -3.34,
+      "r_multiple": -0.26,
+      "pnl_pct": -0.47,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT Opening Range Breakout (ORB) (net: -$3.34, -0.26R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "opening_range_breakout_(orb)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-10-13T09:52:23.439865+00:00"
+    },
+    {
+      "id": "MEM-20261013-024",
+      "timestamp": "2026-10-13T09:49:37.651460+00:00",
+      "symbol": "ETHUSDT",
+      "setup_type": "Opening Range Breakout (ORB)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -3.06,
+      "r_multiple": -0.13,
+      "pnl_pct": -0.43,
+      "root_cause": "Adverse volatility stop-out on ETHUSDT Opening Range Breakout (ORB) (net: -$3.06, -0.13R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on ETHUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "eth",
+        "opening_range_breakout_(orb)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-10-13T09:49:37.651466+00:00"
+    },
     {
       "id": "MEM-20261013-023",
       "timestamp": "2026-10-13T09:49:24.148755+00:00",
@@ -1902,8 +1958,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 3072,
-      "last_accessed": "2026-10-12T23:05:50.046945+00:00"
+      "access_count": 3078,
+      "last_accessed": "2026-10-13T09:51:09.385961+00:00"
     },
     {
       "id": "MEM-20261011-006",
@@ -1924,8 +1980,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 3090,
-      "last_accessed": "2026-10-12T23:05:50.046941+00:00"
+      "access_count": 3096,
+      "last_accessed": "2026-10-13T09:51:09.385957+00:00"
     },
     {
       "id": "MEM-20261011-005",
@@ -1946,8 +2002,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 3090,
-      "last_accessed": "2026-10-12T23:05:50.046943+00:00"
+      "access_count": 3096,
+      "last_accessed": "2026-10-13T09:51:09.385960+00:00"
     },
     {
       "id": "MEM-20261011-004",
@@ -1968,8 +2024,8 @@
         "risk_discipline"
       ],
       "importance": 10,
-      "access_count": 3114,
-      "last_accessed": "2026-10-12T23:05:50.046934+00:00"
+      "access_count": 3120,
+      "last_accessed": "2026-10-13T09:51:09.385951+00:00"
     },
     {
       "id": "MEM-20260901-001",
