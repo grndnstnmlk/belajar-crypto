@@ -1,9 +1,9 @@
 {
   "meta": {
     "version": "1.0.0",
-    "last_reflection_at": "2026-10-21T17:51:36.332386+00:00",
-    "total_reflections": 24,
-    "system_retention_score": 77.3,
+    "last_reflection_at": "2026-10-21T17:52:02.647212+00:00",
+    "total_reflections": 27,
+    "system_retention_score": 79.1,
     "last_internet_learning_sync": "2026-10-22 00:51:05",
     "total_internet_learnings": 20
   },
@@ -69,16 +69,16 @@
         "SFP Stop-Hunt"
       ],
       "notes": "High retail momentum. Requires wider invalidation stops due to frequent secondary liquidity sweeps.",
-      "total_trades": 9,
+      "total_trades": 10,
       "wins": 2,
-      "losses": 7,
+      "losses": 8,
       "breakevens": 0,
-      "win_rate_pct": 22.2,
-      "net_pnl_usd": -74.16,
+      "win_rate_pct": 20.0,
+      "net_pnl_usd": -97.52,
       "avg_r_multiple": -0.49,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-10-14 21:33:34",
-      "updated_at": "2026-10-21T17:51:36.332377+00:00"
+      "updated_at": "2026-10-21T17:51:46.855877+00:00"
     },
     "BNBUSDT": {
       "symbol": "BNBUSDT",
@@ -115,16 +115,16 @@
         "Funding Rate Squeeze"
       ],
       "notes": "Heavy retail speculation and sharp wick expansions. Strict trailing stops required.",
-      "total_trades": 4,
+      "total_trades": 6,
       "wins": 1,
-      "losses": 3,
+      "losses": 5,
       "breakevens": 0,
-      "win_rate_pct": 25.0,
-      "net_pnl_usd": -21.7,
+      "win_rate_pct": 16.7,
+      "net_pnl_usd": -46.32,
       "avg_r_multiple": -0.41,
       "last_traded_outcome": "LOSS",
       "last_closed_at": "2026-10-12 23:50:37",
-      "updated_at": "2026-10-21T17:51:36.327865+00:00"
+      "updated_at": "2026-10-21T17:52:02.647203+00:00"
     },
     "DOGEUSDT": {
       "symbol": "DOGEUSDT",
@@ -1468,14 +1468,14 @@
       "id": "RULE-AUTO-XRPUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on XRPUSDT due to elevated wick risk.",
-      "confidence": 0.96,
+      "confidence": 0.99,
       "trigger_conditions": [
         "xrpusdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-10-12T10:35:24.515214+00:00",
-      "updated_at": "2026-10-13T09:52:25.124937+00:00"
+      "updated_at": "2026-10-21T17:52:02.647211+00:00"
     },
     {
       "id": "RULE-AUTO-BNBUSDT",
@@ -1507,14 +1507,14 @@
       "id": "RULE-AUTO-SOLUSDT",
       "category": "DYNAMIC_DEFENSE",
       "rule_text": "Enforce defensive 1.0% Fractional Kelly sizing and wait for LTF MSS confirmation on SOLUSDT due to elevated wick risk.",
-      "confidence": 0.92,
+      "confidence": 0.96,
       "trigger_conditions": [
         "solusdt",
         "defensive_entry",
         "volatility_guard"
       ],
       "created_at": "2026-10-12T21:46:10.458739+00:00",
-      "updated_at": "2026-10-21T17:51:36.332385+00:00"
+      "updated_at": "2026-10-21T17:51:46.855886+00:00"
     },
     {
       "id": "RULE-AUTO-ETHUSDT",
@@ -1530,6 +1530,72 @@
     }
   ],
   "episodic_memories": [
+    {
+      "id": "MEM-20261021-030",
+      "timestamp": "2026-10-21T17:52:02.647190+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -12.31,
+      "r_multiple": -0.6,
+      "pnl_pct": -1.54,
+      "root_cause": "Adverse volatility stop-out on XRPUSDT Smart Money Concepts (SMC) (net: -$12.31, -0.60R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on XRPUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-10-21T17:52:02.647194+00:00"
+    },
+    {
+      "id": "MEM-20261021-029",
+      "timestamp": "2026-10-21T17:51:46.855865+00:00",
+      "symbol": "SOLUSDT",
+      "setup_type": "15m Key Level Rectangle Break & Retest",
+      "direction": "BUY",
+      "outcome": "LOSS",
+      "net_pnl_usd": -23.36,
+      "r_multiple": -2.0,
+      "pnl_pct": -2.95,
+      "root_cause": "Adverse volatility stop-out on SOLUSDT 15m Key Level Rectangle Break & Retest (net: -$23.36, -2.00R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on SOLUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "sol",
+        "15m_key_level_rectangle_break_&_retest",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 10,
+      "access_count": 1,
+      "last_accessed": "2026-10-21T17:51:46.855870+00:00"
+    },
+    {
+      "id": "MEM-20261021-028",
+      "timestamp": "2026-10-21T17:51:41.946598+00:00",
+      "symbol": "XRPUSDT",
+      "setup_type": "Smart Money Concepts (SMC)",
+      "direction": "SELL",
+      "outcome": "LOSS",
+      "net_pnl_usd": -12.31,
+      "r_multiple": -0.6,
+      "pnl_pct": -1.54,
+      "root_cause": "Adverse volatility stop-out on XRPUSDT Smart Money Concepts (SMC) (net: -$12.31, -0.60R).",
+      "lesson_learned": "Maintain strict fractional Kelly stop loss discipline on XRPUSDT and check Macro News Blackout Shield.",
+      "tags": [
+        "xrp",
+        "smart_money_concepts_(smc)",
+        "stop_loss",
+        "risk_discipline"
+      ],
+      "importance": 8,
+      "access_count": 1,
+      "last_accessed": "2026-10-21T17:51:41.946602+00:00"
+    },
     {
       "id": "MEM-20261021-027",
       "timestamp": "2026-10-21T17:51:36.332361+00:00",
