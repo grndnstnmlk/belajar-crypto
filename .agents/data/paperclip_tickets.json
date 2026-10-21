@@ -1,5 +1,35 @@
 [
   {
+    "ticket_id": "TCK-20261021-4990",
+    "symbol": "DOGEUSDT",
+    "side": "SHORT",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
+    "created_by": "scalper_specialists",
+    "assigned_to": "head_of_strategies",
+    "stage": "DISCOVERED",
+    "priority": "NORMAL",
+    "created_at": "2026-10-21 18:52:34",
+    "updated_at": "2026-10-21 18:54:51",
+    "payload": {
+      "entry": 0.0832,
+      "sl": 0.0839,
+      "tp": 0.0811,
+      "rr": 3.0
+    },
+    "debate_result": null,
+    "risk_result": null,
+    "board_decision": null,
+    "execution_result": null,
+    "timeline": [
+      {
+        "timestamp": "2026-10-21 18:52:34",
+        "agent": "scalper_specialists",
+        "stage": "DISCOVERED",
+        "note": "Setup DOGEUSDT (SHORT) teridentifikasi via 5m Opening Range Breakout (ORB V4.1)."
+      }
+    ]
+  },
+  {
     "ticket_id": "TCK-20261021-4302",
     "symbol": "SOLUSDT",
     "side": "SHORT",
@@ -9,11 +39,11 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-10-21 18:48:24",
-    "updated_at": "2026-10-21 18:50:34",
+    "updated_at": "2026-10-21 18:54:51",
     "payload": {
-      "entry": 108.64,
+      "entry": 108.63,
       "sl": 109.746,
-      "tp": 104.769,
+      "tp": 104.724,
       "rr": 3.5
     },
     "debate_result": null,
@@ -189,30 +219,76 @@
   {
     "ticket_id": "TCK-20261013-6674",
     "symbol": "ETHUSDT",
-    "side": "LONG",
-    "strategy": "Quantitative Confluence Setup",
+    "side": "SHORT",
+    "strategy": "5m Opening Range Breakout (ORB V4.1)",
     "created_by": "market_eyes_screener",
-    "assigned_to": "head_of_strategies",
-    "stage": "DISCOVERED",
+    "assigned_to": "head_of_execution",
+    "stage": "CLOSED",
     "priority": "NORMAL",
     "created_at": "2026-10-13 10:37:06",
-    "updated_at": "2026-10-13 10:37:06",
+    "updated_at": "2026-10-21 19:00:37",
     "payload": {
-      "entry": 2497.52,
-      "sl": 2467.5498,
-      "tp": 2509.4291,
+      "entry": 2506.41,
+      "sl": 2581.6023,
+      "tp": 2280.8331,
       "rr": 3.0
     },
     "debate_result": null,
-    "risk_result": null,
-    "board_decision": null,
-    "execution_result": null,
+    "risk_result": {
+      "decision": "VETO",
+      "confidence": 96,
+      "suggested_risk_scale": 0.0,
+      "thesis": "VETO: Rezim Makro BTC 1H sedang BULLISH (\ud83d\udfe2 STRONG BULLISH TREND). Dilarang membuka posisi Short pada Altcoin (ETHUSDT) saat Bitcoin sedang ekspansi reli.",
+      "key_risks": [
+        "BTC Macro Bullish Expansion",
+        "High risk of short squeeze on altcoins"
+      ],
+      "invalidation_scenario": "Tunggu struktur 1H BTC terkonfirmasi breakdown.",
+      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
+      "adversarial_debate": null,
+      "tri_perspective_risk": null
+    },
+    "board_decision": {
+      "verdict": "APPROVED",
+      "authorized_by": "Autonomous Board (AI Executive Committee)",
+      "authorized_at": "2026-10-21 18:55:38",
+      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
+    },
+    "execution_result": {
+      "status": "CLOSED",
+      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
+      "closed_at": "2026-10-21 19:00:37"
+    },
     "timeline": [
       {
         "timestamp": "2026-10-13 10:37:06",
         "agent": "market_eyes_screener",
         "stage": "DISCOVERED",
         "note": "Setup ETHUSDT (LONG) teridentifikasi via Quantitative Confluence Setup."
+      },
+      {
+        "timestamp": "2026-10-21 18:55:38",
+        "agent": "chief_risk_officer",
+        "stage": "RISK_AUDIT",
+        "note": "Audit risiko CRO: VETO (96%)"
+      },
+      {
+        "timestamp": "2026-10-21 18:55:38",
+        "agent": "chief_risk_officer",
+        "stage": "APPROVED",
+        "note": "Opportunity Override: VETO: Rezim Makro BTC 1H sedang BULLISH (\ud83d\udfe2 STRONG BULLISH TREND). Dilarang membuka posisi Short pada Altcoin (ETHUSDT) saat Bitcoin sedang ekspansi reli."
+      },
+      {
+        "timestamp": "2026-10-21 18:55:38",
+        "agent": "board_of_directors",
+        "stage": "EXECUTING",
+        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
+      },
+      {
+        "timestamp": "2026-10-21 19:00:37",
+        "agent": "head_of_execution",
+        "stage": "CLOSED",
+        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   },
@@ -1236,10 +1312,10 @@
     "stage": "DISCOVERED",
     "priority": "NORMAL",
     "created_at": "2026-10-12 09:22:57",
-    "updated_at": "2026-10-21 18:50:34",
+    "updated_at": "2026-10-21 18:54:51",
     "payload": {
-      "entry": 84527.38,
-      "sl": 85541.7086,
+      "entry": 84574.0,
+      "sl": 85588.888,
       "tp": 82865.4654,
       "rr": 3.0
     },
@@ -11488,163 +11564,6 @@
         "agent": "trade_journaler_autopsy",
         "stage": "CLOSED",
         "note": "\ud83c\udfc1 [CLOSED] \ud83d\udd34 Stop Loss Hit / Position Exited (-$3.10 USDT) | PnL: $-3.10 USDT (Net: $-3.41)"
-      }
-    ]
-  },
-  {
-    "ticket_id": "TCK-20261004-7705",
-    "symbol": "MUBARAKUSDT",
-    "side": "LONG",
-    "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
-    "created_by": "scalper_specialists",
-    "assigned_to": "head_of_execution",
-    "stage": "CLOSED",
-    "priority": "NORMAL",
-    "created_at": "2026-10-04 13:27:17",
-    "updated_at": "2026-10-04 13:29:11",
-    "payload": {
-      "entry": 0.0819,
-      "sl": 0.0518,
-      "tp": 0.0748,
-      "rr": 3.0
-    },
-    "debate_result": {
-      "symbol": "MUBARAKUSDT",
-      "side": "LONG",
-      "entry_price": 0.0,
-      "sl_price": 0.0518,
-      "tp_price": 0.0748,
-      "rr_ratio": 3.0,
-      "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
-      "bull_score": 59,
-      "bear_score": 41,
-      "winner": "BULL",
-      "verdict": "APPROVE",
-      "suggested_risk_scale": 1.0,
-      "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m 15m-Key-Level Rectangle Break & Retest'.",
-      "bear_critique": " \u2022 Aset MUBARAKUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
-      "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-      "invalidation_price": 0.0518,
-      "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-      "timestamp": "2026-10-04 20:28:06"
-    },
-    "risk_result": {
-      "decision": "ADJUST_RISK",
-      "confidence": 85,
-      "suggested_risk_scale": 0.6,
-      "thesis": "ADJUST_RISK: Setup MUBARAKUSDT (LONG) diterima dengan catatan risiko kehati-hatian (Global Macro Risk-Off: DXY Surging (101.924 / +0.55%)). Alokasi modal disarankan dipangkas ke 60%. | Tri-Risk: APPROVED_BALANCED (Scale 1.00x)",
-      "key_risks": [
-        "Global Macro Risk-Off: DXY Surging (101.924 / +0.55%)"
-      ],
-      "invalidation_scenario": "Penutupan candle 15m melewati level Stop Loss $0.0518.",
-      "provider": "Heuristic Fallback (LOCAL_LLM API Timeout)",
-      "adversarial_debate": {
-        "symbol": "MUBARAKUSDT",
-        "side": "LONG",
-        "entry_price": 0.0,
-        "sl_price": 0.0518,
-        "tp_price": 0.0748,
-        "rr_ratio": 3.0,
-        "strategy": "5m 15m-Key-Level Rectangle Break & Retest",
-        "bull_score": 59,
-        "bear_score": 41,
-        "winner": "BULL",
-        "verdict": "APPROVE",
-        "suggested_risk_scale": 1.0,
-        "bull_thesis": " \u2022 BTC 1H Konsolidasi Netral, altcoin memiliki ruang untuk ekspansi independen.\n \u2022 Rasio Risk-to-Reward prima (1:3.00) memenuhi standar asimetri risiko institusional.\n \u2022 Setup terkonfirmasi oleh model probabilitas tinggi: '5m 15m-Key-Level Rectangle Break & Retest'.",
-        "bear_critique": " \u2022 Aset MUBARAKUSDT berada di sektor narasi laggard (\ud83e\ude99 Independent Asset), minim dorongan momentum spekulatif.",
-        "arbiter_synthesis": "PERSETUJUAN DISKUSI: Argumen Bull unggul meyakinkan (59% vs 41%). Konfluensi struktur kuat dan risiko terkendali. Eksekusi ukuran penuh disetujui.",
-        "invalidation_price": 0.0518,
-        "engine": "Deterministic Quant Heuristic (Tauric Protocol)",
-        "timestamp": "2026-10-04 20:28:06"
-      },
-      "tri_perspective_risk": {
-        "timestamp": "2026-10-04 20:28:13",
-        "symbol": "MUBARAKUSDT",
-        "side": "LONG",
-        "engine": "Algorithmic Quant Heuristic Matrix",
-        "aggressive": {
-          "score": 85,
-          "desired_scale": 1.2,
-          "thesis": "R:R asimetris tinggi 1:3.00 menawarkan potensi keuntungan substansial. | Keyakinan Bull 59% menunjukkan dorongan positif moderat."
-        },
-        "conservative": {
-          "score": 45,
-          "desired_scale": 0.85,
-          "thesis": "Portofolio memiliki 2 posisi searah; alokasi ukuran disesuaikan secara dinamis."
-        },
-        "neutral": {
-          "score": 61,
-          "desired_scale": 1.1,
-          "half_kelly_pct": 3.0,
-          "thesis": "Probabilitas kemenangan model: 61.6%. | Half-Kelly fraksional optimal: 3.00% per trade. | Normalisasi volatilitas menyarankan skala lot 1.10x."
-        },
-        "fund_manager": {
-          "verdict": "APPROVED_BALANCED",
-          "composite_risk_score": 61,
-          "allocated_risk_scale": 1.0,
-          "stop_loss_profile": "ATR_TRAILING",
-          "regime_weights": {
-            "aggressive": 0.25,
-            "neutral": 0.4,
-            "conservative": 0.35
-          },
-          "synthesis": "APPROVED BALANCED: Eksekusi berimbang standar dengan skala risiko 1.00x dan trailing stop berbasis ATR dinamis."
-        }
-      },
-      "sentiment_narrative": {
-        "symbol": "MUBARAK",
-        "sector_key": "OTHER",
-        "sector_title": "Independent Asset",
-        "sector_icon": "\ud83e\ude99",
-        "sector_rank": 99,
-        "is_leading_sector": false,
-        "sector_24h_avg": 0.0,
-        "relative_strength_vs_btc": 0.0,
-        "confluence_boost": 0
-      }
-    },
-    "board_decision": {
-      "verdict": "APPROVED",
-      "authorized_by": "Autonomous Board (AI Executive Committee)",
-      "authorized_at": "2026-10-04 13:28:13",
-      "note": "Auto-Approved in Full Autopilot: Confluence Verified"
-    },
-    "execution_result": {
-      "status": "CLOSED",
-      "exit_reason": "Position Exited on Exchange (Ledger Sync)",
-      "closed_at": "2026-10-04 13:29:11"
-    },
-    "timeline": [
-      {
-        "timestamp": "2026-10-04 13:27:17",
-        "agent": "scalper_specialists",
-        "stage": "DISCOVERED",
-        "note": "Setup MUBARAKUSDT (LONG) teridentifikasi via 5m 15m-Key-Level Rectangle Break & Retest."
-      },
-      {
-        "timestamp": "2026-10-04 13:28:13",
-        "agent": "bull_analyst_agent",
-        "stage": "DEBATING",
-        "note": "Tauric Debate: Bull 59% vs Bear 41% | Arbiter: APPROVE"
-      },
-      {
-        "timestamp": "2026-10-04 13:28:13",
-        "agent": "chief_risk_officer",
-        "stage": "RISK_AUDIT",
-        "note": "Audit risiko CRO: ADJUST_RISK (85%)"
-      },
-      {
-        "timestamp": "2026-10-04 13:28:13",
-        "agent": "board_of_directors",
-        "stage": "EXECUTING",
-        "note": "\ud83d\udc51 [BOARD APPROVAL] Auto-Approved in Full Autopilot: Confluence Verified oleh Autonomous Board (AI Executive Committee)."
-      },
-      {
-        "timestamp": "2026-10-04 13:29:11",
-        "agent": "head_of_execution",
-        "stage": "CLOSED",
-        "note": "Position Exited on Exchange (Ledger Synced to Closed)"
       }
     ]
   }
